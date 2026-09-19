@@ -134,9 +134,7 @@ MVP-010 的三类 Practice 已统一，收口修复也已完成前端入口、Le
 
 MVP-009 功能 Runtime 已有真实验证记录；本次正式收口质量门已完成：`npm run typecheck` PASS，`npm run build` PASS，Next.js 生成 31 个页面。Build 仅有现存 CSS autoprefixer `end` mixed-support warning，不阻塞构建。
 
-## Git
-
-当前 WebCodex 环境仍报告 Git 不可用，不能提供可靠 Git status / diff / commit。
+## Git`r`n`r`n已在当前项目根目录初始化 Git repository。`r`n`r`n```text`r`nbranch: main`r`nbaseline commit: 6517c35`r`nmessage: feat: close MVP-010 practice runtime and product consistency`r`n``` `r`n`r`n`.gitignore` 已排除 `node_modules / .next / .env.local / *.tsbuildinfo / *.log`。后续开发任务按阶段形成原子 commit。
 
 
 ## MVP-010 Checkpoint A Audit
@@ -383,3 +381,4 @@ TASKS / PROJECT_STATUS → 当前状态同步
 ```
 
 真实支付 / Subscription / Refund、AI Evaluator、第二 Submission Schema、N+1 优化均未进入本修复任务。
+
