@@ -2,7 +2,7 @@ import "server-only";
 
 import { eq } from "drizzle-orm";
 import { getDatabase } from "../db";
-import { contentItems, knowledgeItems } from "../db/schema";
+import { contentItems, knowledgeItems, knowledgeSourceLinks } from "../db/schema";
 import { createAdminKnowledgeItem } from "./admin";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -21,13 +21,23 @@ function knowledgeIdForContent(contentId: string) {
 }
 
 export async function getKnowledgeForContent(contentId: string) {
-  const [item] = await getDatabase()
+  const db = getDatabase();
+  const [primary] = await db
     .select()
     .from(knowledgeItems)
     .where(eq(knowledgeItems.sourceContentId, contentId))
     .limit(1);
 
-  return item ?? null;
+  if (primary) return primary;
+
+  const [linked] = await db
+    .select({ knowledge: knowledgeItems })
+    .from(knowledgeSourceLinks)
+    .innerJoin(knowledgeItems, eq(knowledgeSourceLinks.knowledgeId, knowledgeItems.id))
+    .where(eq(knowledgeSourceLinks.contentId, contentId))
+    .limit(1);
+
+  return linked?.knowledge ?? null;
 }
 
 export async function routeContentToKnowledge(contentId: string, input: unknown) {

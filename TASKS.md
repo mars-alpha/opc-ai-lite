@@ -282,13 +282,26 @@ Priority: P0
 
 固定事实源层级与收口流程见 `AGENTS.md`。
 
+## MVP-011-D — Knowledge Provenance Foundation
+
+Status: COMPLETE_WITH_REMOTE_MIGRATION_PENDING
+Priority: P0
+
+结果：`docs/task-results/MVP-011-D.md`。
+
+已完成最小 Knowledge 多来源模型：保留 `knowledge_items.sourceContentId` 作为 Primary Source 快捷字段；新增 `knowledge_source_links` 支持 PRIMARY / SUPPORTING；旧 Primary Source 由 0007 migration 自动 backfill；同一 Knowledge + Content 唯一；Supporting Content 再进入 Content → Knowledge 时会识别已有 Knowledge，不重复创建。
+
+新增 Admin 来源读取 / 添加 Supporting Source API 与最小 UI。没有进入 Feishu / Obsidian / Skill / Media / AI 自动选源。
+
+Migration：`drizzle/0007_pink_spirit.sql`。当前 `DATABASE_URL` 为 REMOTE，本任务未自动执行远程 migration；真实 D Runtime / 部署前需按顺序执行并验证 0006、0007。
+
 # NEXT PHASE
 
-下一步不直接进入单纯 Membership，实现前先审计并收敛：
+下一步先讨论 / 审计：
 
-`MVP-011-D — Knowledge Asset Model`
+`MVP-011-E — Deep Resource / Feishu Bridge`
 
-目标是以当前 Content / Knowledge / Practice / Course Candidate 为基础，确认 External Signal → Reviewed Knowledge → Derived Assets → Published Experience 的最小关系模型；优先复用现有表与 source/ref 字段，不为未来概念提前建空模块。
+目标仍是最小关系与真实运行，不提前建设通用 Asset Platform。
 
 建议后续顺序：
 
@@ -322,7 +335,6 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
 
 
 

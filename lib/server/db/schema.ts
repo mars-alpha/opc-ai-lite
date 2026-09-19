@@ -445,6 +445,23 @@ export const knowledgeItems = pgTable("knowledge_items", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
+export const knowledgeSourceLinks = pgTable(
+  "knowledge_source_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    knowledgeId: text("knowledge_id").notNull().references(() => knowledgeItems.id, { onDelete: "cascade" }),
+    contentId: text("content_id").notNull().references(() => contentItems.id, { onDelete: "cascade" }),
+    role: text("role").notNull().default("SUPPORTING"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("knowledge_source_links_knowledge_content_uidx").on(
+      table.knowledgeId,
+      table.contentId
+    )
+  ]
+);
+
 export const courseUpdateCandidates = pgTable(
   "course_update_candidates",
   {
@@ -469,6 +486,5 @@ export const courseUpdateCandidates = pgTable(
     )
   ]
 );
-
 
 

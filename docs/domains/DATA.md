@@ -174,7 +174,44 @@ Provider 不可用或调用失败时：
 
 ---
 
-## 8. Course Update Candidate
+## 8. Knowledge Provenance
+
+Knowledge 的主来源兼容字段继续保留：
+
+```text
+knowledge_items.source_content_id
+= Primary Source shortcut
+```
+
+正式多来源关系：
+
+```text
+knowledge_source_links
+knowledge_id
+content_id
+role = PRIMARY | SUPPORTING
+created_at
+
+UNIQUE(knowledge_id, content_id)
+```
+
+规则：
+
+```text
+1 Knowledge
+→ 0/1 Primary Source
+→ 0..N Supporting Sources
+```
+
+0007 migration 会把所有已有 `knowledge_items.source_content_id` 回填成 PRIMARY link。
+
+Content → Knowledge 查询必须同时识别 Primary 与 Supporting link，避免同一 Content 因成为 Supporting Source 后又重复创建第二个 Knowledge。
+
+当前不增加通用 asset_relations；Practice 与 Course Candidate 继续使用各自明确的 `sourceKnowledgeId`。
+
+---
+
+## 9. Course Update Candidate
 
 Candidate 只是 Proposal，目前支持两种真实来源：
 
@@ -214,7 +251,7 @@ Insight 来源审核可以同步 Course Insight 状态；Knowledge 来源审核�
 
 ---
 
-## 9. 行为信号
+## 10. 行为信号
 
 Interactive Lesson 可从真实行为刷新 Insight，例如：
 
@@ -229,7 +266,7 @@ HELPFULNESS
 
 ---
 
-## 10. 当前不建设
+## 11. 当前不建设
 
 ```text
 大型 BI

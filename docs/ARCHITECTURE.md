@@ -359,6 +359,8 @@ Knowledge
 
 Knowledge 负责概念关系、生命周期、来源追踪、课程影响和后续派生；不能把所有东西塞进 Lesson，也不能把 Feishu / Obsidian / Skill 当成平行事实源。
 
+当前来源模型固定为：`knowledge_items.sourceContentId` 保留为 Primary Source 快捷字段，`knowledge_source_links` 承载 PRIMARY / SUPPORTING 多 Content provenance。Practice / Course Candidate 继续使用各自明确的 `sourceKnowledgeId`，不新增通用 `asset_relations` 重复表达已有强类型关系。
+
 ---
 
 

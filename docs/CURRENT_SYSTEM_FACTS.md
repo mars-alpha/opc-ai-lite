@@ -9,19 +9,19 @@
 当前治理提交后的 Git 受控文件：
 
 ```text
-TOTAL  178
-TEXT   171
+TOTAL  184
+TEXT   177
 BINARY 7
 ```
 
 主要目录：
 
 ```text
-app/         48
-components/  30
-docs/        29
-drizzle/     15
-lib/         31
+app/         49
+components/  31
+docs/        30
+drizzle/     17
+lib/         32
 ```
 
 审计开始时完整盘点 176 个既有 Git 受控文件；本治理任务新增 `AGENTS.md` 与本文件，提交后共 178 个受控文件。二进制资源只做存在性与引用盘点，不作为业务事实源。
@@ -68,6 +68,7 @@ Migration：
 0004 → Feedback / Event / Course Insight
 0005 → Practice normalization
 0006 → Multi-source Course Update Candidate
+0007 → Knowledge Provenance / Multi-source Content Links
 ```
 
 当前重要限制：
@@ -76,6 +77,7 @@ Migration：
 0006_square_sharon_carter.sql 已生成并提交
 远程数据库尚未执行 0006 migration
 因此 C2 代码完成，但远程真实 DB Runtime 尚未验证
+0007_pink_spirit.sql 已生成并提交候选；远程数据库同样尚未执行
 ```
 
 ## 5. 当前核心领域
@@ -159,13 +161,25 @@ DRAFT → REVIEW → PUBLISHED → ARCHIVED
 当前 `knowledge_items` 已有：
 
 ```text
-sourceContentId
+sourceContentId   兼容 Primary Source 快捷字段
 title / summary / body / category
 validity
 stageId / lessonId
 readingMinutes
 status / publishedAt
 ```
+
+当前已新增：
+
+```text
+knowledge_source_links
+knowledgeId
+contentId
+role = PRIMARY | SUPPORTING
+UNIQUE(knowledgeId, contentId)
+```
+
+旧 `sourceContentId` 会在 0007 migration 中回填为 PRIMARY link；一个 Knowledge 可以保留一个 Primary Source，并关联多个 Supporting Content。
 
 当前已实现：
 
@@ -175,7 +189,7 @@ Knowledge → Latest Practice
 Knowledge → Course Update Candidate
 ```
 
-Knowledge 仍未完成完整 Asset Model（Deep Resource / Obsidian / Skill / Media Asset 关系仍属下一阶段设计）。
+Knowledge Provenance Foundation 已完成代码与 migration；Deep Resource / Obsidian / Skill / Media Asset 关系仍属后续独立阶段。
 
 ### Practice
 
@@ -289,7 +303,7 @@ lib/learning/progress-adapter.ts
 ## 9. 当前已知未完成 / 阻塞
 
 ```text
-1. remote DB 未执行 migration 0006
+1. remote DB 未执行 migration 0006 / 0007
 2. MVP-009 AI Provider Runtime 未配置/未验证
 3. AI Daily 正式自动采集与审核未实现
 4. Feishu Deep Resource bridge 未实现
@@ -302,10 +316,16 @@ lib/learning/progress-adapter.ts
 
 ## 10. 当前下一阶段
 
-当前只进入：
+当前已完成代码阶段：
 
 ```text
-MVP-011-D — Knowledge Asset Model
+MVP-011-D — Knowledge Provenance Foundation
+```
+
+下一步先讨论 / 审计：
+
+```text
+MVP-011-E — Deep Resource / Feishu Bridge
 ```
 
 先审计现有 Content / Knowledge / Practice / Course Candidate 是否已足够表达：
@@ -316,7 +336,7 @@ External Signal
 → Derived Assets
 ```
 
-目标是最小关系模型，不先建设 Feishu / Obsidian / Skill / Media 通用平台。
+D 已按最小范围完成多 Content 来源追踪；E 仍不得扩成通用 Asset Platform。
 
 ## 11. 每次任务后的事实同步
 

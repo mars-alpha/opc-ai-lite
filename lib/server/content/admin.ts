@@ -4,6 +4,7 @@ import { revalidateTag } from "next/cache";
 import { asc, eq } from "drizzle-orm";
 import { getDatabase } from "../db";
 import { contentItems, knowledgeItems } from "../db/schema";
+import { syncPrimaryKnowledgeSource } from "./knowledge-sources";
 
 const PUBLICATION_STATUSES = ["DRAFT", "REVIEW", "PUBLISHED", "ARCHIVED"] as const;
 const DESTINATIONS = [
@@ -172,6 +173,7 @@ export async function createAdminKnowledgeItem(input: unknown) {
       updatedAt: new Date()
     })
     .returning();
+  await syncPrimaryKnowledgeSource(created.id, created.sourceContentId);
   revalidateTag("opc-latest-practice");
   return created;
 }
@@ -184,8 +186,8 @@ export async function updateAdminKnowledgeItem(itemId: string, input: unknown) {
     .set({ ...values, updatedAt: new Date() })
     .where(eq(knowledgeItems.id, itemId))
     .returning();
+  await syncPrimaryKnowledgeSource(updated.id, updated.sourceContentId);
   revalidateTag("opc-latest-practice");
   return updated;
 }
-
 

@@ -10,19 +10,22 @@ MVP-011-A Content Operations Console      COMPLETE
 MVP-011-B Content → Knowledge Routing     COMPLETE
 MVP-011-C1 Knowledge → Latest Practice    COMPLETE
 MVP-011-C2 Multi-source Course Candidate  CODE COMPLETE*
+MVP-011-D Knowledge Provenance Foundation  CODE COMPLETE**
 
-NEXT: MVP-011-D — Knowledge Asset Model audit
+NEXT: discuss / audit MVP-011-E — Deep Resource / Feishu Bridge
 ```
 
 `*` C2 的 `drizzle/0006_square_sharon_carter.sql` 已生成并提交，但远程数据库尚未执行，因此远程真实 C2 DB Runtime 尚未验证。
+
+`**` D 的 `drizzle/0007_pink_spirit.sql` 已生成并包含旧 Primary Source backfill；远程数据库同样尚未执行，因此 D 的远程真实 DB Runtime 尚未验证。
 
 ## 当前系统健康
 
 全仓事实审计来源基线：`main@5ea3981`。
 
 ```text
-Git tracked files    176
-Text files           169
+Git tracked files    184
+Text files           177
 Binary assets        7
 npm run typecheck    PASS
 npm run build        PASS
@@ -42,6 +45,7 @@ Content admin / publish
 Content → Knowledge
 Knowledge → Latest Practice
 Knowledge → Course Update Candidate
+Knowledge ↔ multiple Content Sources (PRIMARY / SUPPORTING)
 Practice Read / Submit / RULE Evaluation
 Feedback / Event → Course Insight → Candidate → Human Review
 ```
@@ -49,7 +53,7 @@ Feedback / Event → Course Insight → Candidate → Human Review
 ## 当前仍未完成
 
 ```text
-remote DB migration 0006
+remote DB migration 0006 / 0007
 真实 AI Provider Runtime
 AI Daily 自动采集 / AI 初筛 / 自动摘要
 Feishu Deep Resource bridge
@@ -88,13 +92,15 @@ Knowledge 保持核心知识资产。Feishu、Obsidian、Skill、Media Asset 都
 
 ## 下一步边界
 
-`MVP-011-D — Knowledge Asset Model` 先做只读审计和最小模型判断：
+`MVP-011-D — Knowledge Provenance Foundation` 已按最小范围完成：
 
-- 优先复用现有 Content / Knowledge / Practice / Course Candidate；
-- 先确认缺什么关系，再决定是否改 Schema；
-- 不在同一任务顺手建设 Feishu、Obsidian、Skill、Media Factory；
-- 若发现当前系统运行阻塞，先修运行，再继续功能；
-- 远程 0006 migration 是 C2 Runtime 前置条件，不自动执行。
+- `knowledge_items.sourceContentId` 保留为 Primary Source 快捷字段；
+- 新增 `knowledge_source_links` 支持 PRIMARY / SUPPORTING；
+- Content → Knowledge 与 Supporting Content 查询保持幂等；
+- Admin 可查看来源并补充 Supporting Content；
+- 没有提前建设 Feishu、Obsidian、Skill、Media Factory。
+
+下一步只讨论 / 审计 `MVP-011-E — Deep Resource / Feishu Bridge`。远程 0006 / 0007 migration 在真实 Runtime 前仍需明确执行。
 
 ## 固定开发流程
 
