@@ -51,6 +51,7 @@ export default async function AdminCoursesPage() {
           <p>维护 PostgreSQL 中的 Lesson，并通过 Draft → Review → Published 控制前台发布。</p>
         </div>
         <div className="admin-page-actions">
+          <Link className="btn btn-secondary" href="/admin/content">内容运营</Link>
           <Link className="btn btn-secondary" href="/admin/learning">学习洞察</Link>
           <Link className="btn btn-secondary" href="/">查看前台</Link>
         </div>

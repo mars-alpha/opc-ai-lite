@@ -53,6 +53,7 @@ export default async function AdminLearningPage() {
           <p>先解决用户问题，只把仍未解决且达到价值条件的问题送进 AI 诊断与人工审核。</p>
         </div>
         <div className="admin-page-actions">
+          <Link className="btn btn-secondary" href="/admin/content">内容运营</Link>
           <Link className="btn btn-secondary" href="/admin/courses">课程维护</Link>
           <Link className="btn btn-secondary" href="/">查看前台</Link>
         </div>

@@ -224,9 +224,20 @@ Practice
 - AI 自动修改 Published
 - 支付与新渠道
 
+## MVP-011-A — Content Operations Console
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/MVP-011-A.md`。
+
+已完成正式 `/admin/content` 工作台，复用现有 Content Schema / Admin API，支持 Content Queue、状态筛选、新建 / 编辑、来源信息、Destination 与 DRAFT / REVIEW / PUBLISHED / ARCHIVED 生命周期。Content 写入后会主动失效 `opc-published-content` 缓存，PUBLISHED 内容继续由既有 AI Daily reader 读取。
+
 # NEXT PHASE
 
-MVP-010 与 MVP-CLOSEOUT-FIX-001 已完成。下一阶段继续开发前按当前产品主线讨论并确定，不从 backlog 自动挑选。
+建议下一步：`MVP-011-B — Content → Knowledge Routing`。
+
+范围只做人工确认的 Content → Knowledge Item 派生与 sourceContentId 绑定；不进入自动采集、自动发布课程、会员分层或支付。
 
 # BACKLOG
 

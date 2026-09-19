@@ -1,4 +1,5 @@
 import "server-only";
+import { revalidateTag } from "next/cache";
 
 import { asc, eq } from "drizzle-orm";
 import { getDatabase } from "../db";
@@ -108,6 +109,7 @@ export async function createAdminContentItem(input: unknown) {
       updatedAt: new Date()
     })
     .returning();
+  revalidateTag("opc-published-content");
   return created;
 }
 
@@ -119,6 +121,7 @@ export async function updateAdminContentItem(itemId: string, input: unknown) {
     .set({ ...values, updatedAt: new Date() })
     .where(eq(contentItems.id, itemId))
     .returning();
+  revalidateTag("opc-published-content");
   return updated;
 }
 

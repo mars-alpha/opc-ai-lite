@@ -12,7 +12,8 @@ OPC AI 第一版 MVP 已完成 MVP-001～010 的核心主链：PostgreSQL 学习
 MVP-010 — Practice / Project 正式化            COMPLETE
 MVP-CLOSEOUT-AUDIT-001 — 一致性审计            COMPLETE
 MVP-CLOSEOUT-FIX-001 — 一致性收口修复          COMPLETE
-下一阶段                                              待讨论确定
+MVP-011-A — Content Operations Console         COMPLETE
+NEXT: MVP-011-B — Content → Knowledge Routing
 ```
 
 ## 已完成主链
@@ -126,17 +127,38 @@ AI 永远不能直接覆盖 Published Course。
 
 ## NOW
 
-MVP-CLOSEOUT-FIX-001 已完成。当前没有自动启动新的 MVP；下一阶段需先根据产品主线确定。
+MVP-011-A 已完成：现有 Content / Knowledge 后端不再只是 API 能力，管理员现在可通过 `/admin/content` 完成 Content Queue、编辑、审核状态与发布管理。
 
-MVP-010 的三类 Practice 已统一，收口修复也已完成前端入口、Lesson-only 边界、会员权益文案与治理事实源一致性。
+当前正式发布边界保持：
+
+```text
+Content Item
+→ DRAFT / REVIEW / PUBLISHED / ARCHIVED
+→ PUBLISHED + destination != IGNORE
+→ AI Daily reader
+```
+
+Content create / update 会主动失效 `opc-published-content` 缓存。下一步建议进入 `MVP-011-B — Content → Knowledge Routing`，让 Knowledge Capsule destination 通过人工确认生成正式 Knowledge Item。
 
 ## Runtime / Quality Gate
 
-MVP-009 功能 Runtime 已有真实验证记录；本次正式收口质量门已完成：`npm run typecheck` PASS，`npm run build` PASS，Next.js 生成 31 个页面。Build 仅有现存 CSS autoprefixer `end` mixed-support warning，不阻塞构建。
+MVP-011-A：`npm run typecheck` PASS；`npm run build` PASS；production build 已生成 `/admin/content`。Build 仅有既有 CSS autoprefixer `end` mixed-support warning。
 
-## Git`r`n`r`n已在当前项目根目录初始化 Git repository。`r`n`r`n```text`r`nbranch: main`r`nbaseline commit: 6517c35`r`nmessage: feat: close MVP-010 practice runtime and product consistency`r`n``` `r`n`r`n`.gitignore` 已排除 `node_modules / .next / .env.local / *.tsbuildinfo / *.log`。后续开发任务按阶段形成原子 commit。
+HTTP runtime smoke 未记为 PASS：当前目录存在旧 Next development 运行环境干扰 `.next`，独立 production start 无法取得稳定 BUILD_ID。未为了测试强行终止未知旧开发进程；详见 `docs/task-results/MVP-011-A.md`。
 
+## Git
 
+当前项目使用 Git 作为后续阶段事实基线。
+
+```text
+branch: main
+MVP-011-A start baseline: 90f669f
+working tree at task start: clean
+```
+
+`.gitignore` 已排除 `node_modules/`、`.next/`、`.env.local`、`.env.*.local`、`*.tsbuildinfo`、`*.log`。
+
+每个后续任务要求：实现 → 验证 → 文档同步 → 原子 commit → 再读 Git / 当前文件确定下一任务。
 ## MVP-010 Checkpoint A Audit
 
 已完成只读前置审计。现有 `practices / practice_submissions / practice_evaluations` 可继续作为唯一正式 Practice 核心。
