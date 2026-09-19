@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { KnowledgeRoutingPanel } from "./KnowledgeRoutingPanel";
 
 type PublicationStatus = "DRAFT" | "REVIEW" | "PUBLISHED" | "ARCHIVED";
 type Destination =
@@ -455,6 +456,10 @@ export function AdminContentConsole() {
               <i>→</i>
               <span className={draft.status === "ARCHIVED" ? "is-current" : ""}>ARCHIVED</span>
             </div>
+
+            {!creating && draft.destination === "KNOWLEDGE_CAPSULE" ? (
+              <KnowledgeRoutingPanel content={draft} />
+            ) : null}
 
             <div className="admin-editor-footer">
               <div>

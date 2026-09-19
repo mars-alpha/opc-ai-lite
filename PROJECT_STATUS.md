@@ -14,7 +14,8 @@ MVP-CLOSEOUT-AUDIT-001 — 一致性审计            COMPLETE
 MVP-CLOSEOUT-FIX-001 — 一致性收口修复          COMPLETE
 MVP-011-A — Content Operations Console         COMPLETE
 UI-IA-001 — Front-end Navigation Refinement    COMPLETE
-NEXT: MVP-011-B — Content → Knowledge Routing
+MVP-011-B — Content → Knowledge Routing        COMPLETE
+NEXT: audit MVP-011-C scope from current facts
 ```
 
 ## 已完成主链
@@ -139,7 +140,19 @@ Content Item
 → AI Daily reader
 ```
 
-Content create / update 会主动失效 `opc-published-content` 缓存。下一步建议进入 `MVP-011-B — Content → Knowledge Routing`，让 Knowledge Capsule destination 通过人工确认生成正式 Knowledge Item。
+Content create / update 会主动失效 `opc-published-content` 缓存。
+
+MVP-011-B 已完成 `Content → Knowledge` 正式人工路由：
+
+```text
+destination = KNOWLEDGE_CAPSULE
+→ /admin/content 人工确认
+→ POST /api/admin/content/items/:itemId/knowledge
+→ Knowledge Item
+→ sourceContentId 绑定
+```
+
+重复路由会先按 `sourceContentId` 返回已有 Knowledge，不重复创建。当前 `content_items` 没有 `stageId`，因此 Stage / Lesson 不做自动推断，由管理员人工确认。
 
 UI-IA-001 已同步完成前端导航修正：
 
@@ -158,6 +171,8 @@ UI-IA-001 已同步完成前端导航修正：
 MVP-011-A：`npm run typecheck` PASS；`npm run build` PASS；production build 已生成 `/admin/content`。Build 仅有既有 CSS autoprefixer `end` mixed-support warning。
 
 UI-IA-001：`npm run typecheck` PASS；`npm run build` PASS；production build 当前 36 pages，已生成 `/projects`、`/practice/latest` 与 3 个 `/practice/latest/[id]` 静态详情页。
+
+MVP-011-B：`npm run typecheck` PASS；`npm run build` PASS；production build 已生成 `/api/admin/content/items/[itemId]/knowledge`。
 
 HTTP runtime smoke 未记为 PASS：当前目录存在旧 Next development 运行环境干扰 `.next`，独立 production start 无法取得稳定 BUILD_ID。未为了测试强行终止未知旧开发进程；详见 `docs/task-results/MVP-011-A.md`。
 

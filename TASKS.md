@@ -244,11 +244,20 @@ Priority: P0
 
 后续产品导航规则：`查看更多` 优先进入当前内容类型自己的完整列表页；单条知识内容需要独立理解时建立详情页；不要用语义相近但业务不同的已有页面代替正确路由。
 
+## MVP-011-B — Content → Knowledge Routing
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/MVP-011-B.md`。
+
+已完成 `KNOWLEDGE_CAPSULE` 的正式人工路由：`/admin/content` 可在确认字段后生成 Knowledge Item，并绑定 `sourceContentId`；重复执行会返回已有关联 Knowledge，不重复创建。当前 Content 没有 stageId，因此 Stage / Lesson 均保持人工确认，不自动猜测。
+
 # NEXT PHASE
 
-建议下一步：`MVP-011-B — Content → Knowledge Routing`。
+建议下一步先审计后确定 `MVP-011-C — Knowledge → Practice / Course Candidate Bridge` 的精确拆分。
 
-范围只做人工确认的 Content → Knowledge Item 派生与 sourceContentId 绑定；不进入自动采集、自动发布课程、会员分层或支付。
+候选范围：Knowledge → Practice Candidate 与 Knowledge → Course Update Candidate；继续保持人工确认，不自动修改 Published Course。
 
 # BACKLOG
 
