@@ -1,0 +1,256 @@
+# TASKS.md
+
+> NOW / NEXT / BACKLOG。完成结果进入 `docs/task-results/`。
+
+# COMPLETED
+
+## MVP-007 — Content / Knowledge 基础模型与读取
+
+Status: COMPLETE
+Priority: P0
+
+已完成 Content / Knowledge 正式 PostgreSQL 模型、Published 读取边界、AI Daily 正式读取与静态 fallback。
+
+## MVP-008 — Interactive Lesson / Practice 最小学习闭环
+
+Status: COMPLETE
+Priority: P0
+
+试点 `chatgpt-worker / task-brief` 已跑通理解检查、Practice Submission、规则 Evaluation、Retry、PASSED、Lesson Completion 防绕过与 Runtime Verification。
+
+结果：`docs/task-results/MVP-008.md`。
+
+## MVP-009 — Feedback / Event 最小数据闭环
+
+Status: COMPLETE_WITH_EXTERNAL_RUNTIME_PENDING
+Priority: P0
+
+### Goal
+
+建立用户学习反馈、关键学习事件、问题聚合、人工审核与课程更新候选的最小闭环；AI 只负责达到条件后的辅助分析，不允许规则聚合冒充 AI，也不允许 AI 自动覆盖 Published 课程。
+
+### 已完成
+
+- `learning_events`
+- `learning_feedback`
+- `course_insights`
+- `course_update_candidates`
+- Migration：`drizzle/0004_dapper_night_thrasher.sql`
+- Event 写入白名单与服务端事件防伪
+- Feedback issue_key 归一与独立用户聚合
+- 3 位独立用户达到同类反馈阈值后进入 `ANALYSIS_READY`
+- 质量风险反馈可直接进入 `REVIEW_REQUIRED`
+- 已有课程问题优先返回课程入口，不调用 AI
+- AI Analysis / Course Coverage / Candidate 代码链路已接通
+- Candidate 必须人工审核；AI 输出只能是 Proposal
+
+### Runtime 已验证
+
+```text
+已有课程问题 → 返回课程入口且不调用 AI          PASS
+合法低风险 Event → 201                         PASS
+前端伪造 practice_passed → 400                 PASS
+3 个独立用户同类反馈 → ANALYSIS_READY           PASS
+单个“内容可能过时”反馈 → REVIEW_REQUIRED        PASS
+测试用户 / 测试 Insight 清理                    PASS
+```
+
+### External Runtime Pending
+
+当前开发环境未配置：
+
+```text
+OPC_AI_ANALYSIS_BASE_URL
+OPC_AI_ANALYSIS_API_KEY
+OPC_AI_ANALYSIS_MODEL
+```
+
+因此未执行真实 Provider Runtime Validation。规则聚合结果不作为 AI 分析结果。
+
+后续独立验证项：`MVP-009-AI-RUNTIME`，状态 `PENDING_EXTERNAL_CONFIG`，不阻塞产品主线。
+
+
+## BIZ-AUDIT-001 — MVP 业务闭环与会员订阅 / 权益审计
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/BIZ-AUDIT-001.md`。
+
+核心结论：Entitlement 基础方向正确，但当前 MEMBERSHIP 尚未被任何真实 Access Policy 使用；月卡 ¥39 / 年卡 ¥299 与会员权益目前仍是产品展示层。真实 Subscription / Order / Payment / Renewal / Refund 尚未实现。
+
+下一步先做 `BIZ-FOUNDATION-001` 固定 Membership Policy 与统一 Access Resolver，不接真实支付；随后继续 MVP-010。
+
+## BIZ-FOUNDATION-001 — Membership Policy / Access Foundation
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/BIZ-FOUNDATION-001.md`。
+
+已统一月卡 ¥39 / 年卡 ¥299、会员权益矩阵与 global Membership Entitlement：`MEMBERSHIP + PRODUCT + OPC_MEMBER`。现有 Lesson Access 已识别 active Membership；Membership 不绕过 Stage prerequisite。
+
+本任务不接支付、不新增 Subscription / Order / Payment Schema。下一步回到 MVP-010-A1，Practice Access 必须复用统一 Membership Policy。
+
+## MVP-CLOSEOUT-AUDIT-001 — Product / Access / Data Consistency Audit
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/MVP-CLOSEOUT-AUDIT-001.md`。
+
+审计结论：Practice / Submission / Evaluation 数据一致性 PASS；发现会员权益文案超前于真实 Runtime、`/practice` Latest Practice UI 文档与代码不一致、Stage Project Completion 规则未定、Basic Practice 静态双轨、Lesson-only type filter 未显式落实，以及治理文档状态漂移。
+
+建议下一步：`MVP-CLOSEOUT-FIX-001`，只做小范围一致性修复，不扩支付 / AI Evaluator / 新 Schema。
+
+## MVP-CLOSEOUT-FIX-001 — Product / Access / Data Consistency Fix
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/MVP-CLOSEOUT-FIX-001.md`。
+
+已完成：`/practice` 正式 Latest Practice Panel 挂载；Lesson Interactive / Completion 显式限定 `LESSON_PRACTICE`；Basic Practice 明确为不保存进度的自主练习；会员权益矩阵区分当前已开放与规划能力；Stage Project 当前固定为可选项目、不阻塞 Stage progression；治理状态同步完成。
+# COMPLETED — MVP-010
+
+## MVP-010 — Practice / Project 正式化
+
+Status: COMPLETE
+Priority: P0
+
+### Checkpoint A Audit
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-AUDIT.md`。确认复用现有 Practice / Submission / Evaluation；下一步只做最小 Schema normalization，不新建第二套系统。
+
+### MVP-010-A1 — Practice Schema normalization
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-A1.md`。
+
+已完成 `LESSON_PRACTICE / STAGE_PROJECT / LATEST_PRACTICE` 类型、ownership 字段、`access_tier`、`submission_schema` 与 Migration 0005；现有 MVP-008 Practice Runtime 数据兼容通过。
+
+下一步：`MVP-010-A2 — Practice Access Resolver`。
+### MVP-010-A2 — Practice Access Resolver
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-A2.md`。
+
+已完成统一 `resolvePracticeAccess()`，覆盖 Lesson / Stage / Latest ownership validation、Stage prerequisite、Lesson Access 与 Membership Policy。现有 task-brief Runtime 提交回归验证通过。
+
+下一步：`MVP-010-B — Practice Read / Submit API normalization`。
+### MVP-010-B — Practice Read / Submit API normalization
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-B.md`。
+
+已增加统一 Practice Read Model、latest submission read、GET `/api/learning/practices/:practiceId`，并让现有 Submission 流程复用 canonical Practice service。Stage Project / Latest Practice 使用同一 Submission / Evaluation Runtime 验证通过。
+
+当前限制：Submission validator 仍为 `TASK_BRIEF_V1`。下一步建议 `MVP-010-B2` 做 schema-dispatched validator，再进入正式 Vertical Slice。
+### MVP-010-B2 — Submission Schema Validator Dispatch
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-B2.md`。
+
+已将 `submission_schema` 接入 Runtime validator dispatch。当前正式注册 `TASK_BRIEF_V1`；unsupported / malformed schema 会在创建 Submission 前明确拒绝，不再静默按 task-brief 处理。
+
+下一步：`MVP-010-C — Vertical Slice`。
+### MVP-010-C — Vertical Slice
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-C.md`。
+
+代表 Practice `practice_task_brief_structured` 已正式改用 canonical Practice Read Model，并完成 Read → Submit → Evaluation → Event → Lesson Completion Gate Runtime。Practice 未通过前完成课程返回 `PRACTICE_REQUIRED`；通过后可完成 Lesson。
+
+下一步：`MVP-010-D — Stage Project + Latest Practice Samples`。
+### MVP-010-D — Stage Project + Latest Practice Samples
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-D.md`。
+
+已建立 1 个正式 MEMBER Stage Project 与 1 个正式 FREE Latest Practice。两者真实共用 canonical Read / Access / Membership / Submission / Evaluation / Event Runtime，分别提交 PASSED 98 / 96；非 Lesson Event 保持 `lessonId = null`。
+
+下一步：`MVP-010-ACCEPTANCE — Practice / Project Runtime Acceptance & Closeout`。
+### MVP-010-ACCEPTANCE — Practice / Project Runtime Acceptance & Closeout
+
+Status: COMPLETE
+
+结果：`docs/task-results/MVP-010-ACCEPTANCE.md`。
+
+最终综合 Runtime 验证三类 Practice、会员门禁、用户隔离、历史 Submission 保留、Event scope 与 Lesson Completion Gate 全部通过。Acceptance 同时修复了 `stageProjects / contentDemo` 中未实际持久化的 practiceId 映射，并在 `/projects/[slug]` 与 `/practice` 接入最小 canonical Submission UI。
+
+MVP-010 正式收口。
+### Goal
+
+把当前 Lesson 内已验证的 Practice 能力正式化为可复用业务模型，统一支撑：
+
+```text
+LESSON_PRACTICE
+STAGE_PROJECT
+LATEST_PRACTICE
+```
+
+形成稳定的：
+
+```text
+Practice
+→ Submission
+→ Evaluation
+→ SUBMITTED / NEEDS_REVISION / PASSED / EVALUATION_FAILED
+```
+
+### 第一轮范围
+
+- 复用 MVP-008 已有 Practice / Submission / Evaluation，不平行造新系统
+- 明确 Practice Type / Status
+- 先迁移 1 个代表性 Lesson 做纵向闭环
+- PASSED 必须由服务端 Evaluation 产生，前端不可伪造
+- Stage Project 与 Latest Practice 共用同一模型
+- Event 继续复用 MVP-009，不另建 Analytics
+
+### Out of Scope
+
+- 通用 AI Tutor / Chat
+- 大型考试系统
+- 多媒体 Submission
+- 自动发布课程
+- AI 自动修改 Published
+- 支付与新渠道
+
+# NEXT PHASE
+
+MVP-010 与 MVP-CLOSEOUT-FIX-001 已完成。下一阶段继续开发前按当前产品主线讨论并确定，不从 backlog 自动挑选。
+
+# BACKLOG
+
+```text
+MVP-009-AI-RUNTIME（等待真实 Provider 配置）
+课程 Published 历史版本
+复杂 Admin RBAC
+真实微信 OAuth
+公众号 Webhook / OpenID 绑定
+AI Daily 正式采集与审核
+公众号内容推送
+企业微信 AI 客服
+Obsidian Markdown 导出
+会员与权益增强
+微信小程序客户端
+```
+
+
+
+
+
+
+
+
+
+
+
