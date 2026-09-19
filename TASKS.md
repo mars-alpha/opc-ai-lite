@@ -262,9 +262,20 @@ Priority: P0
 
 已完成 Knowledge → LATEST_PRACTICE 的人工创建 / 更新与 sourceKnowledgeId 幂等查重；Practice 继承 Knowledge 的 sourceContentId / stageId / lessonId；未发布 Knowledge 不能发布可用 Latest Practice。`/practice`、`/practice/latest`、`/practice/latest/[id]` 已从静态 Demo 主读取切换为正式 Published Knowledge / Practice Reader，详情页有正式 Practice 时进入 Submission / Evaluation。
 
+## MVP-011-C2 — Multi-source Course Update Candidate
+
+Status: COMPLETE_WITH_REMOTE_MIGRATION_PENDING
+Priority: P0
+
+结果：`docs/task-results/MVP-011-C2.md`。
+
+已完成 Course Update Candidate 多来源模型：旧 `LEARNING_INSIGHT` 链保持兼容；新增 `KNOWLEDGE` 来源、人工创建 Candidate、sourceKnowledgeId + lessonId 幂等约束、统一 `/admin/learning` 审核显示与 source-aware review。APPROVED 仍不会自动修改 Published Lesson。
+
+Migration：`drizzle/0006_square_sharon_carter.sql`。当前 `DATABASE_URL` 指向 REMOTE，本任务未自动执行远程 migration；真实 C2 Runtime / 部署前需先执行并验证该 migration。
+
 # NEXT PHASE
 
-下一步先基于当前 Git / Schema 审计 `MVP-011-C2 — Knowledge → Course Update Candidate Bridge`，重点处理 `course_update_candidates` 当前强依赖 `insightId` 的来源模型；不得为了复用旧链而伪造 Course Insight。
+下一步先基于最新 Git / 当前产品价值审计 `MVP-011-D — Content Access Tier / AI Daily Membership`。远程执行 0006 migration 属于 C2 部署前置条件，不另起产品功能任务。
 
 # BACKLOG
 

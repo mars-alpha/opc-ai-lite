@@ -579,7 +579,9 @@ async function runAiAnalysis(
     } else {
       await db.insert(courseUpdateCandidates).values({
         lessonId,
+        sourceType: "LEARNING_INSIGHT",
         insightId,
+        sourceKnowledgeId: null,
         disposition: diagnosis.disposition,
         proposal,
         status: "PENDING_REVIEW"
@@ -1043,6 +1045,7 @@ export async function reviewCourseUpdateCandidate(
   const [candidate] = await db
     .select({
       id: courseUpdateCandidates.id,
+      sourceType: courseUpdateCandidates.sourceType,
       insightId: courseUpdateCandidates.insightId
     })
     .from(courseUpdateCandidates)
@@ -1062,18 +1065,20 @@ export async function reviewCourseUpdateCandidate(
       })
       .where(eq(courseUpdateCandidates.id, candidateId));
 
-    await tx
-      .update(courseInsights)
-      .set({
-        status:
-          input.status === "DISMISSED"
-            ? "DISMISSED"
-            : input.status === "APPROVED"
-              ? "REVIEWED"
-              : "UNDER_REVIEW",
-        updatedAt: new Date()
-      })
-      .where(eq(courseInsights.id, candidate.insightId));
+    if (candidate.sourceType === "LEARNING_INSIGHT" && candidate.insightId) {
+      await tx
+        .update(courseInsights)
+        .set({
+          status:
+            input.status === "DISMISSED"
+              ? "DISMISSED"
+              : input.status === "APPROVED"
+                ? "REVIEWED"
+                : "UNDER_REVIEW",
+          updatedAt: new Date()
+        })
+        .where(eq(courseInsights.id, candidate.insightId));
+    }
   });
 }
 
@@ -1101,7 +1106,11 @@ export async function listLearningInsightWorkbench() {
     db
       .select({
         id: courseUpdateCandidates.id,
+        lessonId: courseUpdateCandidates.lessonId,
         lessonTitle: lessons.title,
+        sourceType: courseUpdateCandidates.sourceType,
+        insightId: courseUpdateCandidates.insightId,
+        sourceKnowledgeId: courseUpdateCandidates.sourceKnowledgeId,
         disposition: courseUpdateCandidates.disposition,
         proposal: courseUpdateCandidates.proposal,
         status: courseUpdateCandidates.status,

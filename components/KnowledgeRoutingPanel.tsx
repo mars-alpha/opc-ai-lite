@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LatestPracticeRoutingPanel } from "./LatestPracticeRoutingPanel";
+import { KnowledgeCourseCandidatePanel } from "./KnowledgeCourseCandidatePanel";
 
 type ContentForKnowledge = {
   id: string;
@@ -123,6 +124,7 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
             <em>sourceContentId = {content.id}</em>
           </div>
           <LatestPracticeRoutingPanel knowledge={linked} />
+          <KnowledgeCourseCandidatePanel knowledge={linked} />
         </>
       ) : (
         <>

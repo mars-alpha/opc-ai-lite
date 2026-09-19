@@ -366,18 +366,7 @@ export const courseInsights = pgTable(
   ]
 );
 
-export const courseUpdateCandidates = pgTable("course_update_candidates", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  lessonId: text("lesson_id").notNull().references(() => lessons.id, { onDelete: "cascade" }),
-  insightId: uuid("insight_id").notNull().references(() => courseInsights.id, { onDelete: "cascade" }),
-  disposition: text("disposition").notNull(),
-  proposal: jsonb("proposal").notNull(),
-  status: text("status").notNull().default("PENDING_REVIEW"),
-  reviewedBy: text("reviewed_by"),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
+
 export const entitlements = pgTable(
   "entitlements",
   {
@@ -456,6 +445,30 @@ export const knowledgeItems = pgTable("knowledge_items", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
+export const courseUpdateCandidates = pgTable(
+  "course_update_candidates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    lessonId: text("lesson_id").notNull().references(() => lessons.id, { onDelete: "cascade" }),
+    sourceType: text("source_type").notNull().default("LEARNING_INSIGHT"),
+    insightId: uuid("insight_id").references(() => courseInsights.id, { onDelete: "cascade" }),
+    sourceKnowledgeId: text("source_knowledge_id").references(() => knowledgeItems.id, { onDelete: "set null" }),
+    disposition: text("disposition").notNull(),
+    proposal: jsonb("proposal").notNull(),
+    status: text("status").notNull().default("PENDING_REVIEW"),
+    reviewedBy: text("reviewed_by"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("course_update_candidates_insight_uidx").on(table.insightId),
+    uniqueIndex("course_update_candidates_knowledge_lesson_uidx").on(
+      table.sourceKnowledgeId,
+      table.lessonId
+    )
+  ]
+);
 
 
 

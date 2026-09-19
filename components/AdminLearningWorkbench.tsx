@@ -18,7 +18,11 @@ type Insight = {
 
 type Candidate = {
   id: string;
+  lessonId: string;
   lessonTitle: string;
+  sourceType: string;
+  insightId: string | null;
+  sourceKnowledgeId: string | null;
   disposition: string;
   proposal: unknown;
   status: string;
@@ -150,16 +154,26 @@ export function AdminLearningWorkbench({
             return (
               <article className="admin-insight-card" key={candidate.id}>
                 <div className="admin-insight-meta">
+                  <span>{candidate.sourceType === "KNOWLEDGE" ? "KNOWLEDGE" : "LEARNING_INSIGHT"}</span>
                   <span>{candidate.disposition}</span>
                   <span>{candidate.status}</span>
                 </div>
                 <h3>{candidate.lessonTitle}</h3>
-                {diagnosis && stringArray(diagnosis.recommendation).length > 0 && (
+                {candidate.sourceType === "KNOWLEDGE" ? (
+                  <div className="admin-diagnosis">
+                    <b>Knowledge 更新建议（仅 Proposal）</b>
+                    <p><b>来源：</b>{String(proposal?.knowledgeTitle ?? candidate.sourceKnowledgeId ?? "—")}</p>
+                    <p><b>摘要：</b>{String(proposal?.knowledgeSummary ?? "—")}</p>
+                    <p><b>影响区域：</b>{String(proposal?.affectedArea ?? "—")}</p>
+                    <p><b>为什么：</b>{String(proposal?.rationale ?? "—")}</p>
+                    <p><b>建议调整：</b>{String(proposal?.proposedChange ?? "—")}</p>
+                  </div>
+                ) : diagnosis && stringArray(diagnosis.recommendation).length > 0 ? (
                   <div className="admin-diagnosis">
                     <b>AI 更新建议（仅 Proposal）</b>
                     <ul>{stringArray(diagnosis.recommendation).map((item) => <li key={item}>{item}</li>)}</ul>
                   </div>
-                )}
+                ) : null}
                 <div className="admin-review-actions">
                   <button
                     className="btn btn-primary"
@@ -175,7 +189,7 @@ export function AdminLearningWorkbench({
                     disabled={busyId === candidate.id}
                     onClick={() => review(candidate.id, "NEEDS_REVISION")}
                   >
-                    需要重新分析
+                    {candidate.sourceType === "KNOWLEDGE" ? "需要修改" : "需要重新分析"}
                   </button>
                   <button
                     className="btn btn-secondary"
