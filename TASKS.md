@@ -233,6 +233,17 @@ Priority: P0
 
 已完成正式 `/admin/content` 工作台，复用现有 Content Schema / Admin API，支持 Content Queue、状态筛选、新建 / 编辑、来源信息、Destination 与 DRAFT / REVIEW / PUBLISHED / ARCHIVED 生命周期。Content 写入后会主动失效 `opc-published-content` 缓存，PUBLISHED 内容继续由既有 AI Daily reader 读取。
 
+## UI-IA-001 — Learning / Practice Navigation Refinement
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/UI-IA-001.md`。
+
+已完成前端信息架构修正：学习路径“实操项目 → 查看更多”进入独立 `/projects`；进阶练习“最新技术实操 → 查看更多”进入独立 `/practice/latest`；新增 `/practice/latest/[id]` 文稿详情；最新技术卡片有关联课程时右下角显示“查看课程”，无课程时进入独立文稿。
+
+后续产品导航规则：`查看更多` 优先进入当前内容类型自己的完整列表页；单条知识内容需要独立理解时建立详情页；不要用语义相近但业务不同的已有页面代替正确路由。
+
 # NEXT PHASE
 
 建议下一步：`MVP-011-B — Content → Knowledge Routing`。

@@ -13,6 +13,7 @@ MVP-010 — Practice / Project 正式化            COMPLETE
 MVP-CLOSEOUT-AUDIT-001 — 一致性审计            COMPLETE
 MVP-CLOSEOUT-FIX-001 — 一致性收口修复          COMPLETE
 MVP-011-A — Content Operations Console         COMPLETE
+UI-IA-001 — Front-end Navigation Refinement    COMPLETE
 NEXT: MVP-011-B — Content → Knowledge Routing
 ```
 
@@ -140,9 +141,23 @@ Content Item
 
 Content create / update 会主动失效 `opc-published-content` 缓存。下一步建议进入 `MVP-011-B — Content → Knowledge Routing`，让 Knowledge Capsule destination 通过人工确认生成正式 Knowledge Item。
 
+UI-IA-001 已同步完成前端导航修正：
+
+```text
+学习路径 / 实操项目 / 查看更多 → /projects
+进阶练习 / 最新技术实操 / 查看更多 → /practice/latest
+最新技术文稿详情 → /practice/latest/[id]
+有关联课程 → 明确「查看课程」
+无关联课程 → 独立文稿详情
+```
+
+后续前端固定规则：当“查看更多”代表同一类内容的扩展集合时，应优先新建对应列表页；当单条知识需要独立阅读时，应建立详情页。是否新开页面以用户理解路径是否连续、语义是否一致为判断标准，不用已有但语义不同的页面硬接。
+
 ## Runtime / Quality Gate
 
 MVP-011-A：`npm run typecheck` PASS；`npm run build` PASS；production build 已生成 `/admin/content`。Build 仅有既有 CSS autoprefixer `end` mixed-support warning。
+
+UI-IA-001：`npm run typecheck` PASS；`npm run build` PASS；production build 当前 36 pages，已生成 `/projects`、`/practice/latest` 与 3 个 `/practice/latest/[id]` 静态详情页。
 
 HTTP runtime smoke 未记为 PASS：当前目录存在旧 Next development 运行环境干扰 `.next`，独立 production start 无法取得稳定 BUILD_ID。未为了测试强行终止未知旧开发进程；详见 `docs/task-results/MVP-011-A.md`。
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { HeroVisual } from "../../components/HeroVisual";
 import { PageHero } from "../../components/PageHero";
 import { Reveal } from "../../components/Reveal";
-import { PracticeSubmissionPanel } from "../../components/PracticeSubmissionPanel";
+import { LatestPracticeCard } from "../../components/LatestPracticeCard";
 import { knowledgeItems } from "../../lib/contentDemo";
 
 const tasks = [
@@ -87,23 +87,12 @@ export default function PracticePage() {
               <h2 className="section-title">最新技术实操</h2>
               <p className="section-subtitle">源于 AI 日报更新。不是每个新工具都要练，只有被判断为“值得动手”的变化才进入这里。</p>
             </div>
-            <Link className="btn btn-secondary" href="/ai-daily">查看更多</Link>
+            <Link className="btn btn-secondary" href="/practice/latest">查看更多</Link>
           </Reveal>
 
           <div className="latest-practice-grid">
             {latestPractice.map((item) => (
-              <article className="latest-practice-card" key={item.id}>
-                <div>
-                  <span>{item.stageLabel} · {item.category}</span>
-                  <h3>{item.title.replace(/^示例：/, "")}</h3>
-                  <p>{item.summary}</p>
-                </div>
-                <div className="latest-practice-meta">
-                  <strong>{item.impactLabel}</strong>
-                  <small>来源：AI 日报</small>
-                </div>
-                {item.practiceId ? <PracticeSubmissionPanel practiceId={item.practiceId} compact /> : null}
-              </article>
+              <LatestPracticeCard item={item} key={item.id} />
             ))}
           </div>
         </div>

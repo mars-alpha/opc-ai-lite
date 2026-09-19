@@ -71,7 +71,7 @@ export default function LearningPathPage() {
               <h2 className="section-title">实操项目</h2>
               <p className="section-subtitle">课程学完之后，用一个真实项目把多个知识点组合起来，验证是否真正能用。</p>
             </div>
-            <Link className="btn btn-secondary" href="/practice">查看更多</Link>
+            <Link className="btn btn-secondary" href="/projects">查看更多</Link>
           </Reveal>
           <div className="project-link-grid">
             {stageProjects.map((project) => (
