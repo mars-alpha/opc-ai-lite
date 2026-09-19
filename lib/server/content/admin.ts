@@ -172,6 +172,7 @@ export async function createAdminKnowledgeItem(input: unknown) {
       updatedAt: new Date()
     })
     .returning();
+  revalidateTag("opc-latest-practice");
   return created;
 }
 
@@ -183,6 +184,7 @@ export async function updateAdminKnowledgeItem(itemId: string, input: unknown) {
     .set({ ...values, updatedAt: new Date() })
     .where(eq(knowledgeItems.id, itemId))
     .returning();
+  revalidateTag("opc-latest-practice");
   return updated;
 }
 

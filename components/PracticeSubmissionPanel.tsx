@@ -128,7 +128,7 @@ export function PracticeSubmissionPanel({ practiceId, compact = false }: { pract
   if (compact && !open) {
     return (
       <button type="button" className="btn btn-secondary" onClick={() => setOpen(true)}>
-        {passed ? "查看已通过实操" : "开始正式实操"}
+        {passed ? "查看已通过实操" : "开始实操"}
       </button>
     );
   }

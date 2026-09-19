@@ -15,7 +15,8 @@ MVP-CLOSEOUT-FIX-001 — 一致性收口修复          COMPLETE
 MVP-011-A — Content Operations Console         COMPLETE
 UI-IA-001 — Front-end Navigation Refinement    COMPLETE
 MVP-011-B — Content → Knowledge Routing        COMPLETE
-NEXT: audit MVP-011-C scope from current facts
+MVP-011-C1 — Knowledge → Latest Practice       COMPLETE
+NEXT: audit MVP-011-C2 source model
 ```
 
 ## 已完成主链
@@ -154,6 +155,21 @@ destination = KNOWLEDGE_CAPSULE
 
 重复路由会先按 `sourceContentId` 返回已有 Knowledge，不重复创建。当前 `content_items` 没有 `stageId`，因此 Stage / Lesson 不做自动推断，由管理员人工确认。
 
+MVP-011-C1 已完成正式 Knowledge → Latest Practice 闭环：
+
+```text
+Published Knowledge
+→ /admin/content 人工定义 Latest Practice
+→ sourceKnowledgeId / sourceContentId 绑定
+→ PUBLISHED LATEST_PRACTICE
+→ /practice / /practice/latest
+→ /practice/latest/[id]
+→ PracticeSubmissionPanel
+→ Submission / Evaluation
+```
+
+未发布 Knowledge 可准备 DRAFT / REVIEW Practice，但不能发布可用 Practice。Latest Practice 以前台正式 Reader 为主数据源，`lib/contentDemo.ts` 只保留数据库不可用 / 无正式数据时的开发 fallback。
+
 UI-IA-001 已同步完成前端导航修正：
 
 ```text
@@ -174,6 +190,8 @@ UI-IA-001：`npm run typecheck` PASS；`npm run build` PASS；production build �
 
 MVP-011-B：`npm run typecheck` PASS；`npm run build` PASS；production build 已生成 `/api/admin/content/items/[itemId]/knowledge`。
 
+MVP-011-C1：`npm run typecheck` PASS；`npm run build` PASS；production build 已生成 `/api/admin/knowledge/items/[itemId]/practice`，并确认 `/practice`、`/practice/latest`、`/practice/latest/[id]` 为 dynamic server routes。
+
 HTTP runtime smoke 未记为 PASS：当前目录存在旧 Next development 运行环境干扰 `.next`，独立 production start 无法取得稳定 BUILD_ID。未为了测试强行终止未知旧开发进程；详见 `docs/task-results/MVP-011-A.md`。
 
 ## Git
@@ -182,7 +200,7 @@ HTTP runtime smoke 未记为 PASS：当前目录存在旧 Next development 运�
 
 ```text
 branch: main
-MVP-011-A start baseline: 90f669f
+MVP-011-C1 start baseline: 0b83a96
 working tree at task start: clean
 ```
 

@@ -253,11 +253,18 @@ Priority: P0
 
 已完成 `KNOWLEDGE_CAPSULE` 的正式人工路由：`/admin/content` 可在确认字段后生成 Knowledge Item，并绑定 `sourceContentId`；重复执行会返回已有关联 Knowledge，不重复创建。当前 Content 没有 stageId，因此 Stage / Lesson 均保持人工确认，不自动猜测。
 
+## MVP-011-C1 — Knowledge → Latest Practice Bridge
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/MVP-011-C1.md`。
+
+已完成 Knowledge → LATEST_PRACTICE 的人工创建 / 更新与 sourceKnowledgeId 幂等查重；Practice 继承 Knowledge 的 sourceContentId / stageId / lessonId；未发布 Knowledge 不能发布可用 Latest Practice。`/practice`、`/practice/latest`、`/practice/latest/[id]` 已从静态 Demo 主读取切换为正式 Published Knowledge / Practice Reader，详情页有正式 Practice 时进入 Submission / Evaluation。
+
 # NEXT PHASE
 
-建议下一步先审计后确定 `MVP-011-C — Knowledge → Practice / Course Candidate Bridge` 的精确拆分。
-
-候选范围：Knowledge → Practice Candidate 与 Knowledge → Course Update Candidate；继续保持人工确认，不自动修改 Published Course。
+下一步先基于当前 Git / Schema 审计 `MVP-011-C2 — Knowledge → Course Update Candidate Bridge`，重点处理 `course_update_candidates` 当前强依赖 `insightId` 的来源模型；不得为了复用旧链而伪造 Course Insight。
 
 # BACKLOG
 

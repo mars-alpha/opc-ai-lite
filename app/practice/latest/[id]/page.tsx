@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { knowledgeItems } from "../../../../lib/contentDemo";
+import { PracticeSubmissionPanel } from "../../../../components/PracticeSubmissionPanel";
+import { getPublishedLatestPracticeItemWithFallback } from "../../../../lib/server/practices/latest-reader";
 
-export function generateStaticParams() {
-  return knowledgeItems.map((item) => ({ id: item.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function LatestPracticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = knowledgeItems.find((entry) => entry.id === id);
+  const item = await getPublishedLatestPracticeItemWithFallback(id);
   if (!item) notFound();
 
   const courseHref =
@@ -28,7 +27,7 @@ export default async function LatestPracticeDetailPage({ params }: { params: Pro
           <div className="course-tags">
             <span>{item.impactLabel}</span>
             <span>{item.readingTime}</span>
-            <span>来源：AI Daily</span>
+            <span>来源：Knowledge</span>
           </div>
         </header>
 
@@ -39,13 +38,16 @@ export default async function LatestPracticeDetailPage({ params }: { params: Pro
 
           <aside className="latest-article-aside">
             <div className="kicker">Next step</div>
-            <h2>{courseHref ? "继续进入课程" : "继续理解这次变化"}</h2>
+            <h2>{item.practiceId ? "把知识变成实操" : courseHref ? "继续进入课程" : "继续理解这次变化"}</h2>
             <p>
-              {courseHref
-                ? "这条最新内容已经有关联课程。先读完文稿，再进入课程理解完整知识与操作方法。"
-                : "当前没有对应课程，因此这篇独立文稿就是主要学习入口。后续如形成正式课程，会从这里建立关联。"}
+              {item.practiceId
+                ? "这条 Knowledge 已经形成正式 Latest Practice。完成文稿阅读后，可以直接进入提交与评价。"
+                : courseHref
+                  ? "这条最新内容已经有关联课程。先读完文稿，再进入课程理解完整知识与操作方法。"
+                  : "当前没有对应课程或正式 Practice，因此这篇独立文稿就是主要学习入口。"}
             </p>
-            {courseHref ? <Link className="btn btn-primary full-btn" href={courseHref}>查看课程 →</Link> : null}
+            {courseHref ? <Link className="btn btn-secondary full-btn" href={courseHref}>查看课程 →</Link> : null}
+            {item.practiceId ? <PracticeSubmissionPanel practiceId={item.practiceId} compact /> : null}
           </aside>
         </div>
       </div>

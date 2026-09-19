@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LatestPracticeRoutingPanel } from "./LatestPracticeRoutingPanel";
 
 type ContentForKnowledge = {
   id: string;
@@ -112,14 +113,17 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
       {loading ? (
         <p className="admin-routing-note">正在检查已有 Knowledge…</p>
       ) : linked ? (
-        <div className="admin-routing-linked">
-          <div>
-            <span>已关联 Knowledge</span>
-            <strong>{linked.title}</strong>
-            <small>{linked.id} · {linked.status} · {linked.validity}</small>
+        <>
+          <div className="admin-routing-linked">
+            <div>
+              <span>已关联 Knowledge</span>
+              <strong>{linked.title}</strong>
+              <small>{linked.id} · {linked.status} · {linked.validity}</small>
+            </div>
+            <em>sourceContentId = {content.id}</em>
           </div>
-          <em>sourceContentId = {content.id}</em>
-        </div>
+          <LatestPracticeRoutingPanel knowledge={linked} />
+        </>
       ) : (
         <>
           <div className="admin-form-grid admin-routing-form">

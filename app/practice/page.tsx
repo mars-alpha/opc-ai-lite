@@ -3,7 +3,7 @@ import { HeroVisual } from "../../components/HeroVisual";
 import { PageHero } from "../../components/PageHero";
 import { Reveal } from "../../components/Reveal";
 import { LatestPracticeCard } from "../../components/LatestPracticeCard";
-import { knowledgeItems } from "../../lib/contentDemo";
+import { listPublishedLatestPracticeItemsWithFallback } from "../../lib/server/practices/latest-reader";
 
 const tasks = [
   {
@@ -36,15 +36,17 @@ const tasks = [
   }
 ];
 
-const latestPractice = knowledgeItems.slice(0, 3);
+export const dynamic = "force-dynamic";
 
-export default function PracticePage() {
+export default async function PracticePage() {
+  const latestPractice = (await listPublishedLatestPracticeItemsWithFallback()).slice(0, 3);
+
   return (
     <>
       <PageHero
         eyebrow="Practice · Verify · Grow"
         title={<>把知识<br /><span className="accent">练成能力</span></>}
-        description="基础 Practice 用短任务练一个能力；最新技术实操则来自 AI 日报中真正值得动手验证的新变化。"
+        description="基础 Practice 用短任务练一个能力；最新技术实操则来自正式 Knowledge 中真正值得动手验证的新变化。"
         actions={
           <>
             <Link className="btn btn-primary" href="#tasks">选择一个短实操</Link>
@@ -54,14 +56,14 @@ export default function PracticePage() {
         metrics={[
           { value: "10–60 min", label: "短实操 · 一个任务一个结果" },
           { value: "4 Questions", label: "谁痛 / 值不值 / AI 能否解决 / 如何证明" },
-          { value: "Daily → Practice", label: "值得动手的新变化进入最新技术实操" }
+          { value: "Knowledge → Practice", label: "值得动手的新变化进入正式实操" }
         ]}
         visual={
           <HeroVisual
             cards={[
               { title: "Practice", value: "短任务", detail: "快速应用一个知识点，马上看到结果。" },
               { title: "Acceptance", value: "明确验收", detail: "不是做过就算完成，要知道什么叫有效。" },
-              { title: "Latest", value: "新技术实操", detail: "只把 AI 日报里值得验证的新变化变成任务。" }
+              { title: "Latest", value: "新技术实操", detail: "只把值得验证的新变化变成任务。" }
             ]}
             eyebrow="Make it real"
             caption="用真实结果验证学习"
@@ -83,9 +85,9 @@ export default function PracticePage() {
         <div className="container">
           <Reveal className="section-head">
             <div>
-              <div className="eyebrow">From AI Daily</div>
+              <div className="eyebrow">From Knowledge</div>
               <h2 className="section-title">最新技术实操</h2>
-              <p className="section-subtitle">源于 AI 日报更新。不是每个新工具都要练，只有被判断为“值得动手”的变化才进入这里。</p>
+              <p className="section-subtitle">来自已发布 Knowledge；有关联 Practice 时进入正式提交与评价，没有实操时仍可先阅读文稿或进入课程。</p>
             </div>
             <Link className="btn btn-secondary" href="/practice/latest">查看更多</Link>
           </Reveal>
@@ -126,6 +128,3 @@ export default function PracticePage() {
     </>
   );
 }
-
-
-
