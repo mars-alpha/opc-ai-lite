@@ -273,6 +273,15 @@ Priority: P0
 
 Migration：`drizzle/0006_square_sharon_carter.sql`。当前 `DATABASE_URL` 指向 REMOTE，本任务未自动执行远程 migration；真实 C2 Runtime / 部署前需先执行并验证该 migration。
 
+## GOV-FACTS-001 — Repository Fact Baseline & Development Governance
+
+Status: COMPLETE
+Priority: P0
+
+已完成全仓 Git 受控文件盘点与当前运行事实同步；新增 `AGENTS.md` 与 `docs/CURRENT_SYSTEM_FACTS.md`，并将 `PROJECT_STATUS.md` 收敛为当前状态文件。后续任务必须先读当前事实与受影响代码，优先保证系统可运行，完成后同步事实 / 阶段 / Git，不因未来可能需求扩大当前任务。
+
+固定事实源层级与收口流程见 `AGENTS.md`。
+
 # NEXT PHASE
 
 下一步不直接进入单纯 Membership，实现前先审计并收敛：
@@ -313,7 +322,6 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
 
 
 

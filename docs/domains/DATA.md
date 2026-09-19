@@ -176,11 +176,13 @@ Provider 不可用或调用失败时：
 
 ## 8. Course Update Candidate
 
-Candidate 只是 Proposal：
+Candidate 只是 Proposal，目前支持两种真实来源：
 
 ```text
 lesson_id
-insight_id
+source_type = LEARNING_INSIGHT | KNOWLEDGE
+insight_id nullable
+source_knowledge_id nullable
 disposition
 proposal JSONB
 status = PENDING_REVIEW
@@ -188,17 +190,27 @@ reviewed_by
 reviewed_at
 ```
 
-AI 或规则都不能直接改 Published Lesson。
+来源约束：
+
+```text
+LEARNING_INSIGHT → insight_id required, source_knowledge_id empty
+KNOWLEDGE        → source_knowledge_id required, insight_id empty
+```
+
+AI、规则或 Knowledge 都不能直接改 Published Lesson。
 
 正式流程：
 
 ```text
-Insight
-→ Proposal
+Learning Insight ─┐
+                  ├→ Course Update Candidate
+Published Knowledge┘
 → Human Review
-→ APPROVED / NEEDS_REVISION / REJECTED
+→ APPROVED / NEEDS_REVISION / DISMISSED
 → 后续人工课程更新任务
 ```
+
+Insight 来源审核可以同步 Course Insight 状态；Knowledge 来源审核只更新 Candidate，不反向修改 Knowledge。
 
 ---
 
