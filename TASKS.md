@@ -275,7 +275,28 @@ Migration：`drizzle/0006_square_sharon_carter.sql`。当前 `DATABASE_URL` 指�
 
 # NEXT PHASE
 
-下一步先基于最新 Git / 当前产品价值审计 `MVP-011-D — Content Access Tier / AI Daily Membership`。远程执行 0006 migration 属于 C2 部署前置条件，不另起产品功能任务。
+下一步不直接进入单纯 Membership，实现前先审计并收敛：
+
+`MVP-011-D — Knowledge Asset Model`
+
+目标是以当前 Content / Knowledge / Practice / Course Candidate 为基础，确认 External Signal → Reviewed Knowledge → Derived Assets → Published Experience 的最小关系模型；优先复用现有表与 source/ref 字段，不为未来概念提前建空模块。
+
+建议后续顺序：
+
+```text
+MVP-011-D   Knowledge Asset Model
+MVP-011-E   Deep Resource / Feishu Bridge
+MVP-011-F   Knowledge → Practice AI Draft Workflow
+MVP-011-G   Knowledge → Course Impact Analysis
+KNOWLEDGE-SYNC-001   Reviewed Knowledge → Obsidian Export
+SKILL-001            First Real Skill / Skill Factory
+MEDIA-001            Skill-driven Media Asset Factory
+ACCESS-001           AI Daily / Knowledge / Practice Access Policy
+```
+
+Skill 固定原则：在第一个真实需要 Skill 的任务中，先人工 + AI 预训练一个最小初版 Skill 并落盘、版本化，再依据真实使用结果逐步优化；不先建设通用 Skill Platform，不把 Skill 只保存在临时 Prompt / 聊天上下文。
+
+远程执行 `drizzle/0006_square_sharon_carter.sql` 仍属于 C2 Runtime / 部署前置条件，不另起产品功能任务。
 
 # BACKLOG
 
@@ -292,7 +313,6 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
 
 
 

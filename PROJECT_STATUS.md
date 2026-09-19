@@ -17,7 +17,7 @@ UI-IA-001 — Front-end Navigation Refinement    COMPLETE
 MVP-011-B — Content → Knowledge Routing        COMPLETE
 MVP-011-C1 — Knowledge → Latest Practice       COMPLETE
 MVP-011-C2 — Multi-source Course Candidate     COMPLETE*
-NEXT: audit MVP-011-D access tier scope
+NEXT: audit MVP-011-D Knowledge Asset Model
 
 * C2 migration generated; remote DB migration pending before runtime/deploy.
 ```
@@ -188,6 +188,20 @@ Insight 来源审核继续同步 `course_insights.status`；Knowledge 来源审�
 
 Schema migration 已生成：`drizzle/0006_square_sharon_carter.sql`。当前数据库目标为 REMOTE，因此未自动执行 `db:migrate`；真实 C2 Runtime / 部署前需先执行并验证 migration。
 
+后续内容资产方向已固化到 `docs/ARCHITECTURE.md`：
+
+```text
+External Signal
+→ AI Assist / Human Review
+→ Reviewed OPC Knowledge
+→ Feishu Deep Resource / Practice / Course Candidate / Obsidian / Skill / Media Asset
+→ Published Experience
+```
+
+Feishu 是深度研究与实践载体；Obsidian 只沉淀筛选后的长期知识；Knowledge 保持核心业务事实源。基础课程初版继续人工讨论确定，新 Knowledge 对课程的影响以后通过 AI Impact Analysis + Human Review 扩展。
+
+Skill 开发原则已固定：第一个真实需要 Skill 的任务出现时，先人工 + AI 预训练最小 Skill 并落盘、版本化；真实运行后再依据结果和人工修改迭代，不提前建设空的通用 Skill Platform。
+
 UI-IA-001 已同步完成前端导航修正：
 
 ```text
@@ -220,7 +234,7 @@ HTTP runtime smoke 未记为 PASS：当前目录存在旧 Next development 运�
 
 ```text
 branch: main
-MVP-011-C2 start baseline: 26ee932
+Documentation sync baseline: 3d05eec
 working tree at task start: clean
 ```
 
@@ -471,4 +485,3 @@ TASKS / PROJECT_STATUS → 当前状态同步
 ```
 
 真实支付 / Subscription / Refund、AI Evaluator、第二 Submission Schema、N+1 优化均未进入本修复任务。
-

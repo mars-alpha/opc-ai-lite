@@ -531,9 +531,11 @@ Publish New Version
 
 ## 12. Source of Truth
 
-正式课程：PostgreSQL / OPC Production Data。
+正式课程与正式 Knowledge：PostgreSQL / OPC Production Data。
 
-Obsidian：研究、来源、草稿、修改依据。
+Feishu Deep Resource：人工学习、分析、实践形成的深度研究载体，通过引用关系关联回 Knowledge / Course / Practice，不取代 Production Source of Truth。
+
+Obsidian：筛选后的长期个人知识沉淀与研究辅助，不作为课程正文或正式 Knowledge 的唯一事实源。
 
 课程正文变化原则上不要求重新部署程序。
 
@@ -740,4 +742,3 @@ quality risk          → REVIEW_REQUIRED
 真实 AI Provider 尚未配置，因此当前 `ANALYSIS_READY` 只表示“达到分析条件”，不代表已经产生 AI Diagnosis。
 
 MVP-010 起，Practice / Stage Project / Latest Practice 将逐步统一到同一 Practice / Submission / Evaluation 体系；不为三种入口重复建设业务模型。
-

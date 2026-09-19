@@ -202,6 +202,57 @@ Publish
 
 正式 Published 内容只从 CMS / Backend 发布。
 
+### 5.1 OPC 内容资产主链
+
+外部最新消息不是正式知识。正式主链固定为：
+
+```text
+External Signal
+→ Fetch / Collect / Normalize / Deduplicate
+→ Rule Filter / AI Assist
+→ Human Review / Edit
+→ Reviewed OPC Knowledge
+→ Derived Assets
+→ Published Experience
+```
+
+职责定义：
+
+```text
+External Signal
+= 外部世界的新消息、工具变化、案例与来源证据
+
+OPC Knowledge
+= 经过人工理解、修改、判断和审核后的可复用知识资产
+
+Derived Assets
+= 同一 Knowledge 派生出的不同用途资产，不成为新的事实源
+```
+
+Derived Assets 可包括：
+
+```text
+Feishu Deep Resource
+Latest Practice
+Course Update Candidate
+Obsidian Note
+Skill
+Media Asset
+```
+
+Published Experience 可包括：
+
+```text
+AI Daily
+Knowledge Detail
+Course / Lesson
+Practice
+会员深度资料
+公众号 / 自媒体内容
+```
+
+原则：展示层和渠道层不能反向成为 Knowledge 的唯一事实源。
+
 ---
 
 ## 6. 正式数据与知识同步
@@ -210,10 +261,12 @@ Publish
 
 正式课程、知识条目、动态内容都从后台 / CMS 维护并发布。
 
-Obsidian 采用最轻量的单向 Markdown 同步：
+Obsidian 采用最轻量的单向 Markdown 同步，只承接已经筛选出长期价值的知识，不同步全部 Daily 原材料：
 
 ```text
-PostgreSQL / CMS
+Reviewed OPC Knowledge
+↓
+Long-term Value Review
 ↓
 Human-approved Export Action
 ↓
@@ -221,6 +274,8 @@ Markdown Files
 ↓
 Obsidian Vault
 ```
+
+Obsidian 是长期个人知识沉淀与研究辅助，不是课程、Knowledge 或会员内容的 Production Source of Truth。
 
 默认不建设：
 
@@ -278,40 +333,58 @@ StageProject
 
 ### Content
 
-负责动态发布内容：
+负责外部动态信号进入 OPC 后的运营与发布队列：
 
 ```text
 DailyItem
-KnowledgeCapsule
-Practice
+Source / Signal Metadata
+Review / Publish State
 ```
+
+Content 是“发生了什么”的运营对象，不等于 OPC 正式知识。
 
 ### Knowledge
 
-负责可复用的知识实体、概念关系、生命周期和课程影响。
+负责经过人工审核后的可复用知识实体，是派生资产的核心事实源：
 
-三者允许关联，但不能把所有东西塞进 Lesson。
+```text
+Knowledge
+├─ Feishu Deep Resource
+├─ Latest Practice
+├─ Course Update Candidate
+├─ Obsidian Note
+├─ Skill
+└─ Media Asset
+```
+
+Knowledge 负责概念关系、生命周期、来源追踪、课程影响和后续派生；不能把所有东西塞进 Lesson，也不能把 Feishu / Obsidian / Skill 当成平行事实源。
 
 ---
 
 
 ## 9. 飞书学习内容发布
 
-飞书是用户可见的“详细解释层”，不是内部工作台。
+飞书是会员可见的“深度研究 / 实践解释层”，也是人工学习、分析、实践形成更深内容的载体，但不取代 OPC Knowledge 的核心业务索引和关系模型。
 
 推荐架构：
 
 ```text
-CMS 正式内容 / 补充说明
+Reviewed OPC Knowledge
 ↓
-Feishu Publish Adapter
+人工学习 / 分析 / 实践深化
+↓
+Feishu Deep Resource
+↓
+Feishu Publish Adapter / 人工发布
 ↓
 飞书文档 / 知识库
 ↓
-返回公开或受控访问 URL
+返回受控访问 URL / Resource Ref
 ↓
-保存到对应 Lesson / Knowledge Item
+关联回 Knowledge / Course / Practice
 ```
+
+后续进阶 Practice 可以分析飞书 Deep Resource 形成 AI Draft，再由人工审核发布；基础课程主干初版仍由人工讨论确定，AI 只在后续阶段分析新 Knowledge 是否影响既有 Lesson，并生成 Course Update Candidate。
 
 MVP 优先允许人工发布 + 后台保存链接；只有维护量明显增加后，再开发自动发布。
 
@@ -353,6 +426,32 @@ DEPRECATED
 客户端只消费结果。
 
 本地缓存不成为唯一事实源。
+
+当前产品权限方向固定为：
+
+```text
+AI Daily Top3
+→ FREE
+
+AI Daily 全部条目
+→ 已关注公众号可解锁；会员同样可访问
+
+Knowledge 正文
+→ MEMBER
+
+Feishu Deep Resource
+→ MEMBER
+
+Latest Practice 卡片
+→ PUBLIC VISIBLE
+
+Latest Practice 详情 / 正式实操 / 由进阶内容进入的正式课程
+→ MEMBER
+```
+
+公众号关注只负责解锁完整 AI Daily，不等价于 Membership，也不能顺带解锁 Knowledge、Deep Resource、Course 或 Practice。
+
+正式实现时继续复用统一 Access Resolver / Membership Policy，不允许在各页面散落 `isMember` / `hasFollowed` 判断。
 
 ---
 
@@ -597,3 +696,56 @@ Lesson Page
 服务端 PASSED / Completion 事实不能由前端伪造。Lesson Completion 只由 required `LESSON_PRACTICE` 的 PASSED 状态解锁；Stage Project / Latest Practice 不错误参与 Lesson Completion Gate。
 
 当前正式 Submission Schema 仅注册 `TASK_BRIEF_V1`。第二种 Schema、AI Evaluator、文件 / 图片 Submission 都需要后续独立需求，不在 MVP-010 预埋。
+
+---
+
+## 14. Skill 与内容生产资产
+
+Skill 是从重复出现的知识判断、分析方法、Prompt、SOP、结构化输出规则中沉淀出的**可版本化系统资产**，不是一次性的运行时 Prompt。
+
+Skill 最小生命周期：
+
+```text
+Repeated Knowledge / Real Task
+↓
+Human + AI Pre-training / Draft
+↓
+Minimal Skill v0.x
+↓
+落盘到系统
+↓
+真实任务调用
+↓
+结果 / 失败 / 人工修正
+↓
+迭代 Skill Version
+```
+
+开发原则：
+
+- 第一个真正需要 Skill 的业务任务出现时，不先建设通用 Skill Platform；
+- 先围绕该真实任务人工 + AI 预训练一个最小初版 Skill；
+- Skill 必须落盘、可版本化、可审计，不能只存在于聊天记录或临时 Prompt；
+- 后续基于真实输入、输出质量、人工修改和失败案例逐步优化；
+- Skill 可以驱动 AI 初步总结、Knowledge 分析、文案、图片 Brief、PPT 稿、口播脚本等内容生产，但任何正式 Knowledge / Course / Practice 发布仍保留人工审核。
+
+媒体内容生产目标链：
+
+```text
+Reviewed Knowledge
++ Skill
++ Channel Template
+↓
+Media Asset Draft
+├─ 文案
+├─ 图片 Brief
+├─ PPT 稿
+├─ 口播脚本
+└─ 自媒体发布素材
+↓
+Human Review
+↓
+Channel Publish
+```
+
+不把 Skill、Media Asset 或渠道发布结果反向当成 Knowledge Source of Truth。
