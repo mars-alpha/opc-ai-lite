@@ -21,6 +21,18 @@ export async function GET(request: Request) {
     if (error instanceof Error && error.message === "LESSON_NOT_FOUND") {
       return NextResponse.json({ error: "LESSON_NOT_FOUND" }, { status: 404 });
     }
+    if (error instanceof Error && error.message === "LESSON_LOCKED") {
+      return NextResponse.json(
+        { error: "OFFICIAL_ACCOUNT_FOLLOW_REQUIRED" },
+        { status: 403 }
+      );
+    }
+    if (error instanceof Error && error.message === "STAGE_PREREQUISITE_REQUIRED") {
+      return NextResponse.json(
+        { error: "STAGE_PREREQUISITE_REQUIRED" },
+        { status: 403 }
+      );
+    }
     console.error("[OPC AI] interactive lesson read failed", error);
     return NextResponse.json({ error: "INTERACTIVE_READ_FAILED" }, { status: 500 });
   }

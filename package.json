@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "learning:spec:check": "tsx scripts/validate-learning-spec.ts",
+    "learning:runtime:check": "tsx scripts/validate-learning-runtime.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx lib/server/db/seed.ts"

@@ -52,6 +52,9 @@ export async function PUT(request: Request) {
     if (error instanceof Error && error.message === "PRACTICE_REQUIRED") {
       return NextResponse.json({ error: "PRACTICE_REQUIRED" }, { status: 409 });
     }
+    if (error instanceof Error && error.message === "REAL_AI_REQUIRED") {
+      return NextResponse.json({ error: "REAL_AI_REQUIRED" }, { status: 409 });
+    }
     console.error("[OPC AI] progress update failed", error);
     return NextResponse.json({ error: "PROGRESS_UPDATE_FAILED" }, { status: 500 });
   }

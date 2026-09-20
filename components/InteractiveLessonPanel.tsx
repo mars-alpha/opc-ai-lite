@@ -2,35 +2,11 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { rulePracticeEvaluator } from "../lib/learning/practice-evaluator";
-
-type PracticeContent = {
-  goal: string;
-  context: string;
-  input: string;
-  constraint: string;
-  output: string;
-};
-
-type CriterionResult = {
-  key: keyof PracticeContent;
-  label: string;
-  score: number;
-  maxScore: number;
-  minScore: number;
-  reason: string;
-  problem: string | null;
-  suggestion: string;
-  example: string;
-};
-
-type Evaluation = {
-  evaluatorType: "RULE" | "AI";
-  score: number;
-  passed: boolean;
-  criteria: CriterionResult[];
-  nextAction: string;
-};
+import {
+  rulePracticeEvaluator,
+  type EvaluationResult as Evaluation,
+  type PracticeContent
+} from "../lib/learning/practice-evaluator";
 
 type InteractiveData = {
   authenticated: boolean;
@@ -51,13 +27,13 @@ type InteractiveData = {
     title: string;
     goal: string;
     instructions: Array<{
-      key: keyof PracticeContent;
+      key: string;
       label: string;
       prompt: string;
     }>;
     hints: string[];
     rubric: Array<{
-      key: keyof PracticeContent;
+      key: string;
       label: string;
       maxScore: number;
       minScore: number;
@@ -83,10 +59,10 @@ type PracticeReadModel = {
   goal: string;
   access: { allowed: boolean; reason: string };
   content: null | {
-    instructions: Array<{ key: keyof PracticeContent; label: string; prompt: string }>;
+    instructions: Array<{ key: string; label: string; prompt: string }>;
     hints: string[];
     rubric: Array<{
-      key: keyof PracticeContent;
+      key: string;
       label: string;
       maxScore: number;
       minScore: number;
@@ -206,21 +182,28 @@ export function InteractiveLessonPanel({
 
   async function submitCheck() {
     if (!check || !answer) return;
-    if (previewMode || !data?.authenticated) {
-      const correct = answer === "CONSTRAINT";
-      setLocalCheckCorrect(correct);
-      setMessage(correct ? "回答正确。当前为体验模式，登录后可以保存学习记录。" : "还差一点。先看下面的提示，再试一次。");
-      return;
-    }
     setBusy("check");
     setMessage(null);
     try {
       const response = await fetch("/api/learning/checks/" + check.id + "/answer", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ answer })
+        body: JSON.stringify({ answer, preview: previewMode })
       });
+      const result = await response.json().catch(() => null);
       if (!response.ok) throw new Error("CHECK_FAILED");
+
+      if (previewMode || !data?.authenticated) {
+        const correct = result?.correct === true;
+        setLocalCheckCorrect(correct);
+        setMessage(
+          correct
+            ? "回答正确。当前为体验模式，登录后可以保存学习记录。"
+            : "还差一点。先看下面的提示，再试一次。"
+        );
+        return;
+      }
+
       await refresh();
     } catch {
       setMessage("理解检查提交失败，请稍后重试。");
@@ -569,10 +552,10 @@ export function InteractiveLessonPanel({
             <div className="guided-practice-fields">
               {practice.instructions.map((item) => (
                 <label key={item.key}>
-                  <span>{({ goal: "任务目标（Goal）", context: "背景信息（Context）", input: "输入材料（Input）", constraint: "限制条件（Constraint）", output: "输出要求（Output）" } as const)[item.key]}</span>
+                  <span>{({ goal: "任务目标（Goal）", context: "背景信息（Context）", input: "输入材料（Input）", constraint: "限制条件（Constraint）", output: "输出要求（Output）" } as Record<string, string>)[item.key] ?? item.label}</span>
                   <small>{item.prompt}</small>
                   <textarea
-                    value={content[item.key]}
+                    value={content[item.key] ?? ""}
                     onChange={(event) => {
                       setPreviewEvaluation(null);
                       setPracticeDirty(true);

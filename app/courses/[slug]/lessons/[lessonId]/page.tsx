@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { CopyableGuide } from "../../../../../components/CopyableGuide";
+import { GenericLessonRuntimePanel } from "../../../../../components/GenericLessonRuntimePanel";
 import { LessonCompleteButton } from "../../../../../components/LessonCompleteButton";
 import { LessonCourseSidebar } from "../../../../../components/LessonCourseSidebar";
 import { InteractiveLessonPanel } from "../../../../../components/InteractiveLessonPanel";
@@ -9,8 +10,10 @@ import { LessonHelpPanel } from "../../../../../components/LessonHelpPanel";
 import { LessonFeedbackPrompt } from "../../../../../components/LessonFeedbackPrompt";
 import { LockedAccessCta } from "../../../../../components/LockedAccessCta";
 import { courses,getAllLessons,getCourse,getLesson } from "../../../../../lib/courses";
+import { getLessonSpec } from "../../../../../lib/learning/lesson-spec-registry";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
+import { getLessonRuntimeReadModel } from "../../../../../lib/server/lesson-runtime/service";
 
 export function generateStaticParams(){ return courses.flatMap((course)=>getAllLessons(course).map((lesson)=>({slug:course.slug,lessonId:lesson.id}))); }
 
@@ -37,6 +40,19 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
   const loginHref="/auth?mode=login&returnTo="+encodeURIComponent(currentPath);
 
   const isGuidedPilot = course.slug === "chatgpt-worker" && lesson.id === "task-brief";
+  const registeredSpec = isGuidedPilot ? null : getLessonSpec(course.slug, lesson.id);
+  const runtimeReadModel =
+    registeredSpec && access.allowed
+      ? await getLessonRuntimeReadModel(
+          user?.id ?? null,
+          course.slug,
+          lesson.id
+        ).catch(() => null)
+      : null;
+  const genericRuntimePlan =
+    runtimeReadModel?.registered && runtimeReadModel.configurationReady
+      ? runtimeReadModel.plan
+      : null;
 
   if (isGuidedPilot) {
   return <section className="lesson-page">
@@ -232,8 +248,12 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           </div>
         </section>
 
-        {course.slug === "chatgpt-worker" && lesson.id === "task-brief"
-          ? <InteractiveLessonPanel courseSlug={course.slug} lessonSlug={lesson.id} practiceId="practice_task_brief_structured" />
+        {genericRuntimePlan
+          ? <GenericLessonRuntimePanel
+              courseSlug={course.slug}
+              lessonSlug={lesson.id}
+              plan={genericRuntimePlan}
+            />
           : <section className="lesson-practice-box" id="lesson-practice">
               <div className="kicker">5–20 min practice</div>
               <h2>马上动手</h2>
@@ -267,7 +287,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           </div>
         </section>
 
-        <div className="lesson-complete-wrap"><LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice={course.slug === "chatgpt-worker" && lesson.id === "task-brief"} /></div>
+        <div className="lesson-complete-wrap"><LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice={genericRuntimePlan?.requiresPractice ?? false} /></div>
 
         <nav className="lesson-nav" aria-label="课时导航">
           {previous?<Link href={"/courses/"+course.slug+"/lessons/"+previous.id}><small>上一课</small><strong>← {previous.title}</strong></Link>:<span />}

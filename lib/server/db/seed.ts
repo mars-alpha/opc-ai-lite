@@ -4,6 +4,10 @@ import { sql } from "drizzle-orm";
 loadEnvConfig(process.cwd());
 import { courses } from "../../courses";
 import { knowledgeItems as contentDemoItems } from "../../contentDemo";
+import {
+  memoryRagCheckSeed,
+  taskDecompositionPracticeSeed
+} from "../../learning/lesson-runtime-samples";
 import { getDatabase, closeDatabase } from "./index";
 import {
   contentItems,
@@ -157,6 +161,8 @@ async function seed() {
     }
 
     const taskBriefLessonId = lessonId("chatgpt-worker", "task-brief");
+    const memoryRagLessonId = lessonId("ai-literacy", "memory-rag");
+    const taskDecompositionLessonId = lessonId("ai-workflow", "task-decomposition");
 
     await tx
       .insert(lessonChecks)
@@ -194,6 +200,29 @@ async function seed() {
           required: true,
           order: 1,
           status: "PUBLISHED",
+          updatedAt: sql`now()`
+        }
+      });
+
+    await tx
+      .insert(lessonChecks)
+      .values({
+        ...memoryRagCheckSeed,
+        lessonId: memoryRagLessonId,
+        updatedAt: sql`now()`
+      })
+      .onConflictDoUpdate({
+        target: lessonChecks.id,
+        set: {
+          lessonId: memoryRagLessonId,
+          type: memoryRagCheckSeed.type,
+          question: memoryRagCheckSeed.question,
+          options: memoryRagCheckSeed.options,
+          correctAnswer: memoryRagCheckSeed.correctAnswer,
+          explanation: memoryRagCheckSeed.explanation,
+          required: memoryRagCheckSeed.required,
+          order: memoryRagCheckSeed.order,
+          status: memoryRagCheckSeed.status,
           updatedAt: sql`now()`
         }
       });
@@ -265,6 +294,43 @@ async function seed() {
         }
       });
 
+
+    await tx
+      .insert(practices)
+      .values({
+        id: taskDecompositionPracticeSeed.id,
+        type: "LESSON_PRACTICE",
+        accessTier: "INHERIT",
+        lessonId: taskDecompositionLessonId,
+        title: taskDecompositionPracticeSeed.title,
+        goal: taskDecompositionPracticeSeed.goal,
+        instructions: taskDecompositionPracticeSeed.instructions,
+        hints: taskDecompositionPracticeSeed.hints,
+        submissionSchema: taskDecompositionPracticeSeed.submissionSchema,
+        rubric: taskDecompositionPracticeSeed.rubric,
+        passScore: taskDecompositionPracticeSeed.passScore,
+        required: taskDecompositionPracticeSeed.required,
+        status: taskDecompositionPracticeSeed.status,
+        updatedAt: sql`now()`
+      })
+      .onConflictDoUpdate({
+        target: practices.id,
+        set: {
+          type: "LESSON_PRACTICE",
+          accessTier: "INHERIT",
+          lessonId: taskDecompositionLessonId,
+          title: taskDecompositionPracticeSeed.title,
+          goal: taskDecompositionPracticeSeed.goal,
+          instructions: taskDecompositionPracticeSeed.instructions,
+          hints: taskDecompositionPracticeSeed.hints,
+          submissionSchema: taskDecompositionPracticeSeed.submissionSchema,
+          rubric: taskDecompositionPracticeSeed.rubric,
+          passScore: taskDecompositionPracticeSeed.passScore,
+          required: taskDecompositionPracticeSeed.required,
+          status: taskDecompositionPracticeSeed.status,
+          updatedAt: sql`now()`
+        }
+      });
 
     await tx.insert(practices).values({
       id: "practice_stage_personal_knowledge_assistant",

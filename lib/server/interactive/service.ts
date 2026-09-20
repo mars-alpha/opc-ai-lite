@@ -26,7 +26,7 @@ import {
 } from "../../learning/practice-evaluator";
 
 type CheckOption = { value: string; label: string };
-type PracticeInstruction = { key: keyof PracticeContent; label: string; prompt: string };
+type PracticeInstruction = { key: string; label: string; prompt: string };
 
 function asOptions(value: unknown): CheckOption[] {
   if (!Array.isArray(value)) return [];
@@ -53,7 +53,8 @@ function asInstructions(value: unknown): PracticeInstruction[] {
         "key" in item &&
         "label" in item &&
         "prompt" in item &&
-        ["goal", "context", "input", "constraint", "output"].includes(String(item.key)) &&
+        typeof item.key === "string" &&
+        Boolean(item.key.trim()) &&
         typeof item.label === "string" &&
         typeof item.prompt === "string"
       )
@@ -72,10 +73,14 @@ function asRubric(value: unknown): RubricCriterion[] {
         "maxScore" in item &&
         "minScore" in item &&
         "example" in item &&
-        ["goal", "context", "input", "constraint", "output"].includes(String(item.key)) &&
+        typeof item.key === "string" &&
+        Boolean(item.key.trim()) &&
         typeof item.label === "string" &&
         typeof item.maxScore === "number" &&
+        item.maxScore > 0 &&
         typeof item.minScore === "number" &&
+        item.minScore >= 0 &&
+        item.minScore <= item.maxScore &&
         typeof item.example === "string"
       )
   );
@@ -112,6 +117,19 @@ export async function getInteractiveLesson(
 ) {
   const lesson = await getPublishedLesson(courseSlug, lessonSlug);
   if (!lesson) throw new Error("LESSON_NOT_FOUND");
+
+  const isReferencePreview =
+    courseSlug === "chatgpt-worker" && lessonSlug === "task-brief";
+  if (!isReferencePreview) {
+    const access = await getLessonAccess(userId, courseSlug, lessonSlug);
+    if (!access.allowed) {
+      throw new Error(
+        access.reason === "PREREQUISITE_STAGE_REQUIRED"
+          ? "STAGE_PREREQUISITE_REQUIRED"
+          : "LESSON_LOCKED"
+      );
+    }
+  }
 
   const db = getDatabase();
   const [checkRows, practiceRows] = await Promise.all([
@@ -230,10 +248,13 @@ export async function getInteractiveLesson(
   };
 }
 
-export async function answerLessonCheck(
-  userId: string,
+const REFERENCE_PREVIEW_CHECK_IDS = new Set(["check_task_brief_constraint"]);
+
+async function evaluateCheckAnswer(
+  userId: string | null,
   checkId: string,
-  answer: unknown
+  answer: unknown,
+  allowReferencePreview = false
 ) {
   if (typeof answer !== "string" || !answer.trim() || answer.length > 120) {
     throw new Error("INVALID_CHECK_ANSWER");
@@ -247,9 +268,75 @@ export async function answerLessonCheck(
     .limit(1);
   if (!check) throw new Error("CHECK_NOT_FOUND");
 
+  const [identity] = await db
+    .select({
+      courseSlug: stages.slug,
+      lessonSlug: lessons.slug
+    })
+    .from(lessons)
+    .innerJoin(modules, eq(lessons.moduleId, modules.id))
+    .innerJoin(stages, eq(modules.stageId, stages.id))
+    .where(eq(lessons.id, check.lessonId))
+    .limit(1);
+  if (!identity) throw new Error("CHECK_NOT_FOUND");
+
+  const isReferencePreview =
+    allowReferencePreview && REFERENCE_PREVIEW_CHECK_IDS.has(checkId);
+  if (!isReferencePreview) {
+    const access = await getLessonAccess(
+      userId,
+      identity.courseSlug,
+      identity.lessonSlug
+    );
+    if (!access.allowed) {
+      throw new Error(
+        access.reason === "PREREQUISITE_STAGE_REQUIRED"
+          ? "STAGE_PREREQUISITE_REQUIRED"
+          : "LESSON_LOCKED"
+      );
+    }
+  }
+
   const normalized = answer.trim();
   const isCorrect = normalized === check.correctAnswer;
+  return { check, normalized, isCorrect };
+}
+
+function checkResult(check: { explanation: string }, isCorrect: boolean) {
+  return {
+    correct: isCorrect,
+    explanation: isCorrect
+      ? check.explanation
+      : "再看一下本课说明和选项之间的区别，然后重试。"
+  };
+}
+
+export async function previewLessonCheck(
+  checkId: string,
+  answer: unknown,
+  allowReferencePreview = false
+) {
+  const { check, isCorrect } = await evaluateCheckAnswer(
+    null,
+    checkId,
+    answer,
+    allowReferencePreview
+  );
+  return checkResult(check, isCorrect);
+}
+
+export async function answerLessonCheck(
+  userId: string,
+  checkId: string,
+  answer: unknown
+) {
+  const { check, normalized, isCorrect } = await evaluateCheckAnswer(
+    userId,
+    checkId,
+    answer
+  );
   const now = new Date();
+  const db = getDatabase();
 
   await db
     .insert(lessonCheckResponses)
@@ -281,12 +368,7 @@ export async function answerLessonCheck(
   });
   await refreshLearningBehaviorSignals(check.lessonId, "CHECK");
 
-  return {
-    correct: isCorrect,
-    explanation: isCorrect
-      ? check.explanation
-      : "再想一下：哪一部分是在约束 AI 的行为边界？"
-  };
+  return checkResult(check, isCorrect);
 }
 
 async function getPracticeForUser(userId: string, practiceId: string) {
@@ -455,7 +537,16 @@ export async function submitPractice(
   }
 }
 
-export async function hasPassedRequiredChecks(userId: string, lessonId: string) {
+export type RequiredGateState = {
+  configured: boolean;
+  passed: boolean;
+  requiredIds: string[];
+};
+
+export async function getRequiredCheckGateState(
+  userId: string | null,
+  lessonId: string
+): Promise<RequiredGateState> {
   const required = await getDatabase()
     .select({ id: lessonChecks.id })
     .from(lessonChecks)
@@ -466,6 +557,13 @@ export async function hasPassedRequiredChecks(userId: string, lessonId: string) 
         eq(lessonChecks.status, "PUBLISHED")
       )
     );
+
+  if (required.length === 0) {
+    return { configured: false, passed: false, requiredIds: [] };
+  }
+  if (!userId) {
+    return { configured: true, passed: false, requiredIds: required.map((item) => item.id) };
+  }
 
   for (const check of required) {
     const [passed] = await getDatabase()
@@ -479,13 +577,18 @@ export async function hasPassedRequiredChecks(userId: string, lessonId: string) 
         )
       )
       .limit(1);
-    if (!passed) return false;
+    if (!passed) {
+      return { configured: true, passed: false, requiredIds: required.map((item) => item.id) };
+    }
   }
 
-  return true;
+  return { configured: true, passed: true, requiredIds: required.map((item) => item.id) };
 }
 
-export async function hasPassedRequiredPractices(userId: string, lessonId: string) {
+export async function getRequiredPracticeGateState(
+  userId: string | null,
+  lessonId: string
+): Promise<RequiredGateState> {
   const required = await getDatabase()
     .select({ id: practices.id })
     .from(practices)
@@ -497,6 +600,13 @@ export async function hasPassedRequiredPractices(userId: string, lessonId: strin
         eq(practices.status, "PUBLISHED")
       )
     );
+
+  if (required.length === 0) {
+    return { configured: false, passed: false, requiredIds: [] };
+  }
+  if (!userId) {
+    return { configured: true, passed: false, requiredIds: required.map((item) => item.id) };
+  }
 
   for (const practice of required) {
     const [passed] = await getDatabase()
@@ -510,10 +620,22 @@ export async function hasPassedRequiredPractices(userId: string, lessonId: strin
         )
       )
       .limit(1);
-    if (!passed) return false;
+    if (!passed) {
+      return { configured: true, passed: false, requiredIds: required.map((item) => item.id) };
+    }
   }
 
-  return true;
+  return { configured: true, passed: true, requiredIds: required.map((item) => item.id) };
+}
+
+export async function hasPassedRequiredChecks(userId: string, lessonId: string) {
+  const state = await getRequiredCheckGateState(userId, lessonId);
+  return !state.configured || state.passed;
+}
+
+export async function hasPassedRequiredPractices(userId: string, lessonId: string) {
+  const state = await getRequiredPracticeGateState(userId, lessonId);
+  return !state.configured || state.passed;
 }
 
 

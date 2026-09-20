@@ -2,6 +2,7 @@ import "server-only";
 
 import { and, eq, sql } from "drizzle-orm";
 import type { LearningStateResponse } from "../../learning/contracts";
+import { getLessonSpec } from "../../learning/lesson-spec-registry";
 import { getDatabase } from "../db";
 import {
   courseEnrollments,
@@ -11,7 +12,12 @@ import {
   stages
 } from "../db/schema";
 import { getLessonAccess, getStageAccess } from "../entitlements/service";
-import { hasPassedRequiredChecks, hasPassedRequiredPractices } from "../interactive/service";
+import {
+  getRequiredCheckGateState,
+  getRequiredPracticeGateState
+} from "../interactive/service";
+import { isRealAiEvidenceRuntimeSupported } from "../../learning/lesson-runtime";
+import { hasRequiredRealAiEvidence } from "../lesson-runtime/service";
 import { recordLearningEvent } from "../learning-insights/service";
 
 export async function getLearningState(userId: string): Promise<LearningStateResponse> {
@@ -119,18 +125,49 @@ export async function setLessonCompletion(
 
   if (!lesson) throw new Error("LESSON_NOT_FOUND");
 
-  if (
-    input.completed &&
-    !(await hasPassedRequiredChecks(userId, lesson.id))
-  ) {
-    throw new Error("CHECK_REQUIRED");
-  }
+  if (input.completed) {
+    const spec = getLessonSpec(input.courseSlug, input.lessonSlug);
+    const [checkGate, practiceGate] = await Promise.all([
+      getRequiredCheckGateState(userId, lesson.id),
+      getRequiredPracticeGateState(userId, lesson.id)
+    ]);
 
-  if (
-    input.completed &&
-    !(await hasPassedRequiredPractices(userId, lesson.id))
-  ) {
-    throw new Error("PRACTICE_REQUIRED");
+    const specRuntimeReady =
+      !spec ||
+      (!spec.completionGates.includes("CHECK") || checkGate.configured) &&
+        (!spec.completionGates.includes("PRACTICE") || practiceGate.configured) &&
+        (!spec.completionGates.includes("REAL_AI") ||
+          isRealAiEvidenceRuntimeSupported(spec.realAiEvidence));
+
+    if (spec && specRuntimeReady) {
+      if (spec.completionGates.includes("CHECK") && !checkGate.passed) {
+        throw new Error("CHECK_REQUIRED");
+      }
+      if (spec.completionGates.includes("PRACTICE") && !practiceGate.passed) {
+        throw new Error("PRACTICE_REQUIRED");
+      }
+      if (
+        spec.completionGates.includes("REAL_AI") &&
+        !(await hasRequiredRealAiEvidence(
+          userId,
+          input.courseSlug,
+          input.lessonSlug,
+          lesson.id
+        ))
+      ) {
+        throw new Error("REAL_AI_REQUIRED");
+      }
+    } else {
+      // Registered specs become authoritative only after their required
+      // interactive data is provisioned. Until then, preserve legacy
+      // completion behavior while the Runtime API exposes configuration blockers.
+      if (checkGate.configured && !checkGate.passed) {
+        throw new Error("CHECK_REQUIRED");
+      }
+      if (practiceGate.configured && !practiceGate.passed) {
+        throw new Error("PRACTICE_REQUIRED");
+      }
+    }
   }
 
   await db

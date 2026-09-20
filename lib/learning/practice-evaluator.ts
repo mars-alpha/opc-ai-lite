@@ -1,13 +1,7 @@
-export type PracticeContent = {
-  goal: string;
-  context: string;
-  input: string;
-  constraint: string;
-  output: string;
-};
+export type PracticeContent = Record<string, string>;
 
 export type RubricCriterion = {
-  key: keyof PracticeContent;
+  key: string;
   label: string;
   maxScore: number;
   minScore: number;
@@ -15,7 +9,7 @@ export type RubricCriterion = {
 };
 
 export type CriterionResult = {
-  key: keyof PracticeContent;
+  key: string;
   label: string;
   score: number;
   maxScore: number;
@@ -40,7 +34,7 @@ export type PracticeEvaluator = (input: {
   passScore: number;
 }) => Promise<EvaluationResult>;
 
-const suggestions: Record<keyof PracticeContent, string> = {
+const taskBriefSuggestions: Record<string, string> = {
   goal: "写清要完成的具体结果，尽量让别人一眼知道任务结束时应该得到什么。",
   context: "补充使用者、背景和用途，让 AI 知道这个结果为什么要做、给谁用。",
   input: "说明 AI 可以依据哪些材料、数据或事实，不要让它自己猜数据来源。",
@@ -48,19 +42,34 @@ const suggestions: Record<keyof PracticeContent, string> = {
   output: "明确最终结构、长度或格式，例如表格、分点、固定栏目或字数范围。"
 };
 
-const strongMarkers: Partial<Record<keyof PracticeContent, RegExp>> = {
+const strongMarkers: Partial<Record<string, RegExp>> = {
   constraint: /(不要|不能|不得|必须|以内|不超过|禁止|仅限|只根据)/,
-  output: /(表格|分点|列表|部分|栏目|字|格式|JSON|Markdown|标题)/
+  output: /(表格|分点|列表|部分|栏目|字|格式|JSON|Markdown|标题)/,
+  failure: /(失败|异常|停止|回退|重试|超时|拒绝)/,
+  node_roles: /(AI|规则|人工|工具|模型|审批)/
 };
 
-function scoreText(key: keyof PracticeContent, value: string) {
+function scoreText(key: string, value: string, maxScore: number) {
   const text = value.trim();
-  if (!text) return 0;
-  if (text.length < 8) return 8;
-  if (text.length < 16) return 14;
-  const marker = strongMarkers[key];
-  if (marker && marker.test(text)) return 20;
-  return text.length >= 28 ? 20 : 18;
+  let base = 0;
+  if (!text) base = 0;
+  else if (text.length < 8) base = 8;
+  else if (text.length < 16) base = 14;
+  else {
+    const marker = strongMarkers[key];
+    base = marker && marker.test(text) ? 20 : text.length >= 28 ? 20 : 18;
+  }
+
+  return Math.min(maxScore, Math.round((base / 20) * maxScore));
+}
+
+function suggestionFor(criterion: RubricCriterion) {
+  return (
+    taskBriefSuggestions[criterion.key] ??
+    "补充更具体的“" +
+      criterion.label +
+      "”，让不了解背景的人也能直接判断是否满足要求。"
+  );
 }
 
 export const rulePracticeEvaluator: PracticeEvaluator = async ({
@@ -68,9 +77,11 @@ export const rulePracticeEvaluator: PracticeEvaluator = async ({
   rubric,
   passScore
 }) => {
+  if (rubric.length === 0) throw new Error("INVALID_PRACTICE_RUBRIC");
+
   const criteria = rubric.map((criterion): CriterionResult => {
     const value = content[criterion.key] ?? "";
-    const score = Math.min(criterion.maxScore, scoreText(criterion.key, value));
+    const score = scoreText(criterion.key, value, criterion.maxScore);
     const meetsFloor = score >= criterion.minScore;
 
     return {
@@ -80,16 +91,16 @@ export const rulePracticeEvaluator: PracticeEvaluator = async ({
       maxScore: criterion.maxScore,
       minScore: criterion.minScore,
       reason: meetsFloor
-        ? "这一项已经提供了足够的任务信息，具备基本可执行性。"
+        ? "这一项已经提供了足够的信息，具备基本可执行性。"
         : value.trim()
-          ? "这一项已经有方向，但信息仍偏少，AI 仍需要自行猜测关键条件。"
-          : "这一项目前为空，AI 无法从任务简报中获得对应信息。",
+          ? "这一项已经有方向，但信息仍偏少，执行时仍需要猜测关键条件。"
+          : "这一项目前为空，无法判断是否满足练习要求。",
       problem: meetsFloor
         ? null
         : value.trim()
-          ? "描述过于简略，缺少能直接约束执行的具体信息。"
-          : "缺少这一项会让任务边界不完整。",
-      suggestion: suggestions[criterion.key],
+          ? "描述过于简略，缺少能直接约束执行或验收的具体信息。"
+          : "缺少这一项会让练习结果无法完整验收。",
+      suggestion: suggestionFor(criterion),
       example: criterion.example
     };
   });
@@ -107,8 +118,7 @@ export const rulePracticeEvaluator: PracticeEvaluator = async ({
     passed,
     criteria,
     nextAction: passed
-      ? "已经达到本次任务的通过标准。建议复制任务简报，到你常用的 AI 工具中实际验证一次。"
+      ? "已经达到本次练习的通过标准，可以继续学习。"
       : "先修改 " + weakest.label + "。重点看“为什么”和“怎么改”，再重新提交。"
   };
 };
-

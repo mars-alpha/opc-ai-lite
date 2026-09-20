@@ -113,9 +113,9 @@ export const currentLessonRuntimeCapabilities = {
   requiredCheckCompletionGate: true,
   requiredPracticeCompletionGate: true,
   publishedInteractiveLessonKeys: ["chatgpt-worker/task-brief"],
-  supportedPracticeSubmissionKinds: ["TASK_BRIEF_V1"],
-  requiredRealAiCompletionGate: false,
-  realAiEvidenceKinds: [] as string[]
+  supportedPracticeSubmissionKinds: ["TASK_BRIEF_V1", "STRUCTURED_TEXT_V1"],
+  requiredRealAiCompletionGate: true,
+  realAiEvidenceKinds: ["USER_CONFIRMATION", "SYSTEM_RESULT"] as string[]
 } as const;
 
 export type LessonRuntimeFinding = {
@@ -154,13 +154,6 @@ export function validateCurrentRuntimeSupport(spec: LessonSpec): LessonRuntimeFi
   if (spec.realAiEvidence !== "NONE" && !currentLessonRuntimeCapabilities.realAiEvidenceKinds.includes(spec.realAiEvidence)) {
     blockers.push("REAL_AI_EVIDENCE_NOT_IMPLEMENTED:" + spec.realAiEvidence);
   }
-  if (
-    spec.practiceMode !== "NONE" &&
-    spec.lessonId !== "task-brief"
-  ) {
-    blockers.push("GENERIC_PRACTICE_SUBMISSION_SCHEMA_NOT_IMPLEMENTED");
-  }
-
   return {
     courseSlug: spec.courseSlug,
     lessonId: spec.lessonId,
