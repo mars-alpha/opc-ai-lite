@@ -16,6 +16,7 @@
     "course-builder:accept:application": "tsx scripts/accept-course-builder-application-draft.ts",
     "course-builder:accept:practice": "tsx scripts/accept-course-builder-practice-draft.ts",
     "course-builder:accept:project": "tsx scripts/accept-course-builder-project-draft.ts",
+    "course-builder:accept:mastery": "tsx scripts/accept-course-builder-concept-mastery.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx lib/server/db/seed.ts"

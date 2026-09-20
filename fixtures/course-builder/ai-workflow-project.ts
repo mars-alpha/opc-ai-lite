@@ -94,6 +94,7 @@ export const aiWorkflowProjectBuildDraft = {
     audience: "BEGINNER",
     languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
     participation: {
       kind: "MINI_TASK",
       title: "完成一份 AI 客户跟进工作流方案",

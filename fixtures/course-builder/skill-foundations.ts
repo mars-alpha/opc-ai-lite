@@ -42,6 +42,7 @@ export const skillFoundationsBuildDraft = {
     audience: "BEGINNER",
     languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
     participation: {
       kind: "COPY_TO_AI",
       title: "现在就把一套做法交给你的 AI",

@@ -35,24 +35,24 @@ export type CourseBuilderSixStepResponsibilities = Record<
 
 export const COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES: CourseBuilderSixStepResponsibilities = {
   EXPLAIN: {
-    purpose: "建立一个核心直觉：这个主题解决什么问题，以及最重要的判断原则。",
-    include: "一个核心问题、一个核心结论，必要时一个最常见的错误直觉。",
-    avoid: "一次堆入多个新概念、长篇说明或把后续方法全部提前讲完。"
+    purpose: "建立核心直觉：这是什么、为什么重要、解决什么问题，以及最重要的判断原则。",
+    include: "核心问题、价值、核心结论，必要时一个最常见的错误直觉。",
+    avoid: "只给定义却没有重要性，或一次堆入多个新概念和长篇说明。"
   },
   EXAMPLE: {
-    purpose: "通过真实案例展开方法、边界和为什么有效；较深知识优先放在这里。",
-    include: "前后对比、为什么变好、适用边界，以及会改变结果的关键知识。",
-    avoid: "只重复 EXPLAIN 的结论，或展示案例却不解释变化原因。"
+    purpose: "通过真实案例把方法、边界、易混淆点和常见错误讲透，为后续实操做准备。",
+    include: "前后对比、为什么有效、什么时候用或不用、容易和什么混淆，以及常见错误。",
+    avoid: "只重复 EXPLAIN，或展示案例却不解释判断依据和边界。"
   },
   CHECK: {
-    purpose: "验证学习者是否真正理解，并用反馈纠正常见误区。",
-    include: "需要判断的具体情境、正确答案解释，以及条件允许时说明错误选项为什么不成立。",
-    avoid: "在检查题里突然加入大量未教过的新理论，或只告诉学习者对错而不给原因。"
+    purpose: "完成概念理解闭环：用单选、判断或多选验证学习者是否真正理解，并纠正常见误区。",
+    include: "需要思考的具体情境、正确原因，以及错误选项或错误判断为什么不成立。",
+    avoid: "把 CHECK 变成猜题，或在题目里突然加入前两步没有教过的新核心理论。"
   },
   PRACTICE: {
-    purpose: "把已理解的知识转成能亲手完成的能力，并提供逐层辅助。",
-    include: "清晰任务、字段或步骤提示、Hints、必要时参考答案；进阶提示可以选做。",
-    avoid: "为了丰富体验增加无意义点击，或把选做知识变成新的强制 Completion Gate。"
+    purpose: "把前 3 步已经理解透的知识转成能亲手完成的能力，并提供逐层辅助。",
+    include: "清晰任务、字段或步骤提示、Hints、必要时参考答案；进阶提示只能作为选做支持。",
+    avoid: "在 Step 4 才首次教授新的核心概念，或为了丰富体验增加无意义点击和新的强制 Gate。"
   },
   REVIEW: {
     purpose: "把零散知识收束成以后可复用的判断或诊断框架。",
@@ -70,6 +70,7 @@ export type CourseBuilderPedagogy = {
   audience: "BEGINNER" | "GENERAL" | "ADVANCED";
   languagePolicy: "TERM_READABILITY";
   aiToolNeutral: true;
+  conceptMasteryBeforePractice: true;
   participation: CourseBuilderParticipation;
   sixStepResponsibilities: CourseBuilderSixStepResponsibilities;
 };
@@ -91,13 +92,25 @@ export type CourseBuilderLessonContent = {
   related: string[];
 };
 
+export type CourseBuilderCheckQuestionType = "SINGLE_CHOICE" | "TRUE_FALSE" | "MULTI_SELECT";
+
 export type CourseBuilderCheck = {
   id: string;
+  questionType: CourseBuilderCheckQuestionType;
   question: string;
   options: Array<{ value: string; label: string }>;
-  correctValue: string;
+  correctValues: string[];
   explanation: string;
 };
+
+export function evaluateCourseBuilderCheck(
+  check: Pick<CourseBuilderCheck, "questionType" | "correctValues">,
+  answers: readonly string[]
+) {
+  const expected = [...check.correctValues].sort();
+  const actual = [...new Set(answers)].sort();
+  return expected.length === actual.length && expected.every((value, index) => value === actual[index]);
+}
 
 export type CourseBuilderPractice = {
   id: string;
@@ -264,6 +277,9 @@ function parsePedagogy(input: unknown): CourseBuilderPedagogy {
   if (input.aiToolNeutral !== true) {
     throw new Error("COURSE_BUILDER_AI_TOOL_NEUTRAL_REQUIRED");
   }
+  if (input.conceptMasteryBeforePractice !== true) {
+    throw new Error("COURSE_BUILDER_CONCEPT_MASTERY_REQUIRED");
+  }
   const prompt =
     input.participation.prompt === null
       ? null
@@ -276,6 +292,7 @@ function parsePedagogy(input: unknown): CourseBuilderPedagogy {
     ),
     languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
     participation: {
       kind: enumValue(
         input.participation.kind,
@@ -382,6 +399,11 @@ function parseContent(input: unknown): CourseBuilderLessonContent {
 
 function parseCheck(input: unknown): CourseBuilderCheck {
   if (!isRecord(input)) throw new Error("INVALID_BUILD_CHECK");
+  const questionType = enumValue(
+    input.questionType ?? "SINGLE_CHOICE",
+    ["SINGLE_CHOICE", "TRUE_FALSE", "MULTI_SELECT"] as const,
+    "INVALID_BUILD_CHECK_QUESTION_TYPE"
+  );
   if (!Array.isArray(input.options) || input.options.length < 2) {
     throw new Error("INVALID_BUILD_CHECK_OPTIONS");
   }
@@ -392,15 +414,37 @@ function parseCheck(input: unknown): CourseBuilderCheck {
       label: requiredText(option.label, "INVALID_BUILD_CHECK_OPTION_LABEL", 1000)
     };
   });
-  const correctValue = requiredText(input.correctValue, "INVALID_BUILD_CHECK_CORRECT_VALUE", 120);
-  if (!options.some((option) => option.value === correctValue)) {
+  if (questionType === "TRUE_FALSE" && options.length !== 2) {
+    throw new Error("TRUE_FALSE_CHECK_REQUIRES_TWO_OPTIONS");
+  }
+  const legacyCorrectValue =
+    typeof input.correctValue === "string"
+      ? requiredText(input.correctValue, "INVALID_BUILD_CHECK_CORRECT_VALUE", 120)
+      : null;
+  const correctValues = Array.isArray(input.correctValues)
+    ? input.correctValues.map((value) =>
+        requiredText(value, "INVALID_BUILD_CHECK_CORRECT_VALUES", 120)
+      )
+    : legacyCorrectValue
+      ? [legacyCorrectValue]
+      : [];
+  if (correctValues.length === 0) throw new Error("BUILD_CHECK_CORRECT_VALUES_REQUIRED");
+  if (questionType !== "MULTI_SELECT" && correctValues.length !== 1) {
+    throw new Error("BUILD_CHECK_SINGLE_ANSWER_REQUIRED");
+  }
+  if (questionType === "MULTI_SELECT" && correctValues.length < 2) {
+    throw new Error("BUILD_CHECK_MULTI_SELECT_REQUIRES_MULTIPLE_ANSWERS");
+  }
+  const optionValues = new Set(options.map((option) => option.value));
+  if (correctValues.some((value) => !optionValues.has(value))) {
     throw new Error("BUILD_CHECK_CORRECT_VALUE_NOT_FOUND");
   }
   return {
     id: requiredText(input.id, "INVALID_BUILD_CHECK_ID", 160),
+    questionType,
     question: requiredText(input.question, "INVALID_BUILD_CHECK_QUESTION", 3000),
     options,
-    correctValue,
+    correctValues: [...new Set(correctValues)],
     explanation: requiredText(input.explanation, "INVALID_BUILD_CHECK_EXPLANATION", 3000)
   };
 }

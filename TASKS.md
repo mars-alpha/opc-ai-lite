@@ -551,6 +551,12 @@ Human Review 修复：共享 RULE evaluator 已从纯文字长度判断升级为
 
 Step 1 视觉层级继续调整：`摘要 / 行动清单` 的概念定义移到第一步最底部，复用轻量 knowledge-depth 样式；主对比区只展示“只有会议摘要 / 可执行行动清单”两种做法，避免概念定义与场景对比混淆。通过 `comparisonPlacement=BOTTOM` 数据驱动，不按 lesson slug 分支。
 
+### COURSE-BUILDER-SKILL-002-D — Concept Mastery Before Practice Contract
+
+Status: COMPLETE
+
+四种 Lesson Type 的 BUILD Draft 现在必须 `conceptMasteryBeforePractice=true`。固定教学逻辑：Step 1 建立核心直觉和重要性；Step 2 展开方法、边界、易混淆点和常见错误；Step 3 用单选 / 判断 / 多选验证是否真正理解；Step 4 只应用前 3 步已经教过的核心知识，不在实操阶段首次补新核心概念。Check Contract 已升级为 `questionType + correctValues`，兼容旧 `correctValue`；MULTI_SELECT 使用集合完全一致判分。Draft Preview 已支持 checkbox 多选，正式 Runtime/DB 持久化暂不改变。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

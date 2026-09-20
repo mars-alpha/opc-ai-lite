@@ -26,6 +26,7 @@ const build = createCourseBuilderReviewPacket(
       audience: "GENERAL",
       languagePolicy: "TERM_READABILITY",
       aiToolNeutral: true,
+      conceptMasteryBeforePractice: true,
       participation: {
         kind: "CHOOSE",
         title: "先做一个选择",
@@ -100,6 +101,10 @@ assert(
   Object.keys(build.output.pedagogy.sixStepResponsibilities).length === 6,
   "SIX_STEP_RESPONSIBILITIES_REQUIRED"
 );
+assert(
+  build.output.pedagogy.conceptMasteryBeforePractice === true,
+  "CONCEPT_MASTERY_BEFORE_PRACTICE_REQUIRED"
+);
 
 const improve = createCourseBuilderReviewPacket({
   mode: "IMPROVE",
@@ -153,6 +158,7 @@ try {
       audience: "GENERAL",
       languagePolicy: "TERM_READABILITY",
       aiToolNeutral: true,
+      conceptMasteryBeforePractice: true,
       participation: {
         kind: "CHOOSE",
         title: "测试参与",
@@ -228,6 +234,23 @@ try {
 }
 assert(missingResponsibilityRejected, "MISSING_STEP_RESPONSIBILITY_NOT_REJECTED");
 
+let missingMasteryRejected = false;
+try {
+  const valid = build.output.mode === "BUILD" ? build.output : null;
+  if (!valid) throw new Error("BUILD_REQUIRED");
+  createCourseBuilderReviewPacket({
+    ...valid,
+    pedagogy: {
+      ...valid.pedagogy,
+      conceptMasteryBeforePractice: false
+    }
+  });
+} catch (error) {
+  missingMasteryRejected =
+    error instanceof Error && error.message === "COURSE_BUILDER_CONCEPT_MASTERY_REQUIRED";
+}
+assert(missingMasteryRejected, "CONCEPT_MASTERY_NOT_ENFORCED");
+
 console.log("COURSE_BUILDER_BUILD=PASS");
 console.log("COURSE_BUILDER_IMPROVE=PASS");
 console.log("COURSE_BUILDER_CODE_VALIDATION=PASS");
@@ -238,3 +261,4 @@ console.log("COURSE_BUILDER_TERM_READABILITY=PASS");
 console.log("COURSE_BUILDER_AI_TOOL_NEUTRAL=PASS");
 console.log("COURSE_BUILDER_PARTICIPATION_REQUIRED=PASS");
 console.log("COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES=PASS");
+console.log("COURSE_BUILDER_CONCEPT_MASTERY_BEFORE_PRACTICE=PASS");

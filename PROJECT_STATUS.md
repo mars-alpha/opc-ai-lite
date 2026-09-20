@@ -36,6 +36,7 @@ COURSE-BUILDER-SKILL-001-F First Step Direct Comparison COMPLETE
 COURSE-BUILDER-SKILL-002-A Real APPLICATION Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-002-B Knowledge Depth Expansion COMPLETE_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-002-C Six-Step Knowledge Responsibility Contract COMPLETE
+COURSE-BUILDER-SKILL-002-D Concept Mastery Before Practice Contract COMPLETE
 COURSE-BUILDER-SKILL-003-A Real PRACTICE Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-004-A Real PROJECT Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
 
@@ -80,6 +81,8 @@ Practice reference answer PASS
 Practice one-click fill PASS
 APPLICATION knowledge depth PASS
 Six-step responsibility contract PASS
+Concept mastery before practice PASS
+Check single / true-false / multi-select PASS
 PRACTICE Draft          PASS
 PRACTICE independent mode PASS
 PRACTICE completion gate PASS
@@ -128,7 +131,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-004-A` Human Review 继续优化：PROJECT Step 1 已移除底部重复的“单次使用 / 工作流”概念定义栏。当前层级为场景 → 两种做法 → 核心结论 → 价值说明，重点保留临时 AI 使用的维护成本、工作流的可交接/可检查/可改进价值，以及“会用 AI → 用 AI 建工作方式”的能力跃迁。其他 Step、Gate 和 Runtime 边界未改变。
+`COURSE-BUILDER-SKILL-002-D` 已固化 Concept Mastery Before Practice：四种 Lesson Type 的 BUILD Draft 必须 `conceptMasteryBeforePractice=true`，前 3 步按 EXPLAIN → EXAMPLE → CHECK 完成概念理解闭环，第 4 步 PRACTICE 原则上不得首次教授新的核心概念。Course Builder Check 现在支持 SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT；Draft Preview 可确定性判分。正式学习 Runtime 的 Check 持久化仍为旧单答案模型，本任务未改 DB/API。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

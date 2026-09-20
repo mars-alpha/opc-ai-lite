@@ -79,6 +79,7 @@ export const promptFoundationsBuildDraft = {
     audience: "BEGINNER",
     languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
     participation: {
       kind: "COPY_TO_AI",
       title: "把你改好的提示词放进自己的 AI 软件",

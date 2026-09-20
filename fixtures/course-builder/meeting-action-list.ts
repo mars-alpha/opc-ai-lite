@@ -80,6 +80,7 @@ export const meetingActionListBuildDraft = {
     audience: "BEGINNER",
     languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
     participation: {
       kind: "MINI_TASK",
       title: "把会议讨论变成下一步行动",

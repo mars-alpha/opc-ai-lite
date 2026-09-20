@@ -9,6 +9,7 @@ import {
   type EvaluationResult,
   type PracticeContent
 } from "../lib/learning/practice-evaluator";
+import { evaluateCourseBuilderCheck } from "../lib/learning/course-builder";
 
 type InteractiveData = {
   authenticated: boolean;
@@ -65,9 +66,11 @@ type RuntimeData = {
 
 type PreviewCheck = {
   id: string;
+  questionType?: "SINGLE_CHOICE" | "TRUE_FALSE" | "MULTI_SELECT";
   question: string;
   options: ReadonlyArray<{ value: string; label: string }>;
-  correctValue: string;
+  correctValue?: string;
+  correctValues?: ReadonlyArray<string>;
   explanation: string;
 };
 
@@ -224,6 +227,7 @@ export function GenericLessonRuntimePanel({
       : null
   );
   const [answer, setAnswer] = useState("");
+  const [previewAnswers, setPreviewAnswers] = useState<string[]>([]);
   const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
   const [content, setContent] = useState<PracticeContent>({});
   const [previewEvaluation, setPreviewEvaluation] =
@@ -320,9 +324,16 @@ export function GenericLessonRuntimePanel({
           : true;
 
   async function submitCheck() {
-    if (!check || !answer) return;
+    if (!check || (!answer && previewAnswers.length === 0)) return;
     if (previewMode) {
-      const correct = answer === previewCheck?.correctValue;
+      const questionType = previewCheck?.questionType ?? "SINGLE_CHOICE";
+      const correctValues =
+        previewCheck?.correctValues ??
+        (previewCheck?.correctValue ? [previewCheck.correctValue] : []);
+      const correct = evaluateCourseBuilderCheck(
+        { questionType, correctValues: [...correctValues] },
+        previewAnswers.length > 0 ? previewAnswers : [answer]
+      );
       setLocalCheckCorrect(correct);
       setMessage(
         correct
@@ -611,28 +622,44 @@ export function GenericLessonRuntimePanel({
           <div className="kicker">理解检查</div>
           <h3>{check.question}</h3>
           <div className="interactive-options">
-            {check.options.map((option) => (
-              <label key={option.value}>
-                <input
-                  type="radio"
-                  name={"check-" + check.id}
-                  value={option.value}
-                  checked={answer === option.value}
-                  onChange={(event) => {
-                    setAnswer(event.target.value);
-                    setLocalCheckCorrect(null);
-                  }}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
+            {check.options.map((option) => {
+              const multiSelect =
+                previewMode && previewCheck?.questionType === "MULTI_SELECT";
+              const checked = multiSelect
+                ? previewAnswers.includes(option.value)
+                : answer === option.value;
+              return (
+                <label key={option.value}>
+                  <input
+                    type={multiSelect ? "checkbox" : "radio"}
+                    name={"check-" + check.id}
+                    value={option.value}
+                    checked={checked}
+                    onChange={(event) => {
+                      if (multiSelect) {
+                        setPreviewAnswers((current) =>
+                          event.target.checked
+                            ? [...current, option.value]
+                            : current.filter((value) => value !== option.value)
+                        );
+                      } else {
+                        setAnswer(event.target.value);
+                        setPreviewAnswers([event.target.value]);
+                      }
+                      setLocalCheckCorrect(null);
+                    }}
+                  />
+                  <span>{option.label}</span>
+                </label>
+              );
+            })}
           </div>
           <div className="interactive-actions">
             <button
               type="button"
               className="btn btn-primary"
               onClick={submitCheck}
-              disabled={!answer || busy === "check" || checkPassed}
+              disabled={(!answer && previewAnswers.length === 0) || busy === "check" || checkPassed}
             >
               {checkPassed
                 ? "✓ 理解检查已通过"
