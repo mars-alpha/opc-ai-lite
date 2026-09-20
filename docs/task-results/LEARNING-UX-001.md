@@ -103,6 +103,30 @@ PILOT_ONLY                        PASS
 
 独立 dev route smoke 在 Runner 中未成功启动可访问实例；production `next start` 也因 Runner 间不保留上一条 build 的 `.next` 产物而无法作为可靠验收。上述属于工具运行隔离，不是源码 build 失败。最终源码已重新通过 typecheck + build。
 
+## Acceptance Fix — 2026-09-20
+
+人工体验发现并修复四类问题：
+
+```text
+系统英文名词过多
+→ 改为中文主标签 + 英文术语辅助
+
+完成按钮统一报“保存失败”
+→ 移除完成前的冗余 enroll 调用，避免前置阶段检查提前阻断
+→ completion error 映射为具体中文原因
+
+不知道怎样才算通过
+→ 理解检查直接显示正确通过条件
+→ 实操明确：总分 >= 80/100，且五项每项 >= 12/20
+
+缺少引导与提示
+→ 增加案例说明、提交前自查、可展开提示、失败后的复习路径
+```
+
+未登录用户现在可本地完成理解检查继续体验；正式 Check / Practice / Progress 仍需登录后由 Core 保存。
+
+当前 `localhost:3000` 检测为异常旧 Next 进程并返回 500；当前仓库在独立 `3001` dev server 上返回 200，Interactive Read API 可正常读取 check / practice 数据。
+
 ## No Schema Expansion
 
 本任务没有新增 Schema / Migration，没有建立复杂 Knowledge Point / Mastery / Recommendation Engine，也没有迁移其他 Lesson。

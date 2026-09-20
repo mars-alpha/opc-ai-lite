@@ -17,14 +17,14 @@ MVP-011-G Knowledge → Course Impact         COMPLETE
 RUNTIME-001 Remote Migration + Runtime      COMPLETE
 ACCESS-001 Unified Resource Access Policy   COMPLETE
 ACCESS-UX-001 Locked Content Conversion UX  COMPLETE
-LEARNING-UX-001 Guided Learning Pilot        COMPLETE_WITH_MANUAL_UX_REVIEW_PENDING
+LEARNING-UX-001 Guided Learning Pilot        ACCEPTANCE_FIX_READY
 
-NEXT: LEARNING-UX-001 ACCEPTANCE — 人工体验样板课
+NEXT: LEARNING-UX-001 ACCEPTANCE — 重新体验修正版样板课
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@be114d7`。
+业务代码验证基线：`main@bbaa24c`。
 
 ```text
 npm run typecheck     PASS
