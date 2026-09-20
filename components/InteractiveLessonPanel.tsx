@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { rulePracticeEvaluator } from "../lib/learning/practice-evaluator";
 
 type PracticeContent = {
   goal: string;
@@ -114,11 +115,13 @@ const emptyContent: PracticeContent = {
 export function InteractiveLessonPanel({
   courseSlug,
   lessonSlug,
-  practiceId
+  practiceId,
+  previewMode = false
 }: {
   courseSlug: string;
   lessonSlug: string;
   practiceId: string;
+  previewMode?: boolean;
 }) {
   const [data, setData] = useState<InteractiveData | null>(null);
   const [practiceData, setPracticeData] = useState<PracticeReadModel | null>(null);
@@ -130,6 +133,7 @@ export function InteractiveLessonPanel({
   const [copied, setCopied] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
+  const [previewEvaluation, setPreviewEvaluation] = useState<Evaluation | null>(null);
 
   const refresh = useCallback(async () => {
     const params = new URLSearchParams({ courseSlug, lessonSlug });
@@ -137,18 +141,20 @@ export function InteractiveLessonPanel({
       fetch("/api/learning/interactive?" + params.toString(), { cache: "no-store" }),
       fetch("/api/learning/practices/" + practiceId, { cache: "no-store" })
     ]);
-    if (!interactiveResponse.ok || !practiceResponse.ok) {
+    if (!interactiveResponse.ok || (!previewMode && !practiceResponse.ok)) {
       throw new Error("INTERACTIVE_READ_FAILED");
     }
     const next = (await interactiveResponse.json()) as InteractiveData;
-    const nextPractice = (await practiceResponse.json()) as PracticeReadModel;
+    const nextPractice = practiceResponse.ok
+      ? ((await practiceResponse.json()) as PracticeReadModel)
+      : null;
     setData(next);
     setPracticeData(nextPractice);
-    const latest = nextPractice.latestSubmission?.content;
+    const latest = nextPractice?.latestSubmission?.content;
     if (latest) setContent({ ...emptyContent, ...latest });
     const previousAnswer = next.checks[0]?.state?.answer;
     if (previousAnswer) setAnswer(previousAnswer);
-  }, [courseSlug, lessonSlug, practiceId]);
+  }, [courseSlug, lessonSlug, practiceId, previewMode]);
 
   useEffect(() => {
     refresh().catch(() => setMessage("互动练习暂时读取失败，请稍后刷新。"));
@@ -156,50 +162,53 @@ export function InteractiveLessonPanel({
 
   const check = data?.checks[0] ?? null;
   const practice = useMemo(() => {
-    if (!practiceData?.content) return null;
-    return {
-      id: practiceData.id,
-      title: practiceData.title,
-      goal: practiceData.goal,
-      instructions: practiceData.content.instructions,
-      hints: practiceData.content.hints,
-      rubric: practiceData.content.rubric,
-      passScore: practiceData.content.passScore,
-      required: practiceData.content.required,
-      state: practiceData.latestSubmission
-        ? {
-            submissionId: practiceData.latestSubmission.id,
-            attempt: practiceData.latestSubmission.attempt,
-            status: practiceData.latestSubmission.status,
-            content: practiceData.latestSubmission.content,
-            evaluation: practiceData.latestSubmission.evaluation?.result ?? null
-          }
-        : null
-    };
-  }, [practiceData]);
-  const evaluation = practice?.state?.evaluation ?? null;
+    if (practiceData?.content) {
+      return {
+        id: practiceData.id,
+        title: practiceData.title,
+        goal: practiceData.goal,
+        instructions: practiceData.content.instructions,
+        hints: practiceData.content.hints,
+        rubric: practiceData.content.rubric,
+        passScore: practiceData.content.passScore,
+        required: practiceData.content.required,
+        state: practiceData.latestSubmission
+          ? {
+              submissionId: practiceData.latestSubmission.id,
+              attempt: practiceData.latestSubmission.attempt,
+              status: practiceData.latestSubmission.status,
+              content: practiceData.latestSubmission.content,
+              evaluation: practiceData.latestSubmission.evaluation?.result ?? null
+            }
+          : null
+      };
+    }
+
+    return data?.practices.find((item) => item.id === practiceId) ?? data?.practices[0] ?? null;
+  }, [data, practiceData, practiceId]);
+  const evaluation = previewEvaluation ?? practice?.state?.evaluation ?? null;
 
   const copyText = useMemo(
     () =>
       [
         "请根据下面的任务简报完成任务。如果关键信息不足，请先指出缺失项，不要自行编造。",
         "",
-        "Goal：\n" + content.goal,
+        "任务目标（Goal）：\n" + content.goal,
         "",
-        "Context：\n" + content.context,
+        "背景信息（Context）：\n" + content.context,
         "",
-        "Input：\n" + content.input,
+        "输入材料（Input）：\n" + content.input,
         "",
-        "Constraint：\n" + content.constraint,
+        "限制条件（Constraint）：\n" + content.constraint,
         "",
-        "Output：\n" + content.output
+        "输出要求（Output）：\n" + content.output
       ].join("\n"),
     [content]
   );
 
   async function submitCheck() {
     if (!check || !answer) return;
-    if (!data?.authenticated) {
+    if (previewMode || !data?.authenticated) {
       const correct = answer === "CONSTRAINT";
       setLocalCheckCorrect(correct);
       setMessage(correct ? "回答正确。当前为体验模式，登录后可以保存学习记录。" : "还差一点。先看下面的提示，再试一次。");
@@ -224,6 +233,23 @@ export function InteractiveLessonPanel({
 
   async function submitPractice() {
     if (!practice) return;
+    if (previewMode) {
+      setBusy("practice");
+      setMessage(null);
+      try {
+        const result = await rulePracticeEvaluator({
+          content,
+          rubric: practice.rubric,
+          passScore: practice.passScore
+        });
+        setPreviewEvaluation(result);
+        setCurrentStep(4);
+        setMessage(result.passed ? "体验评分已通过。正式课程解锁后可以保存这次结果。" : "体验评分完成。先看反馈，再回去修改最低分的部分。");
+      } finally {
+        setBusy("");
+      }
+      return;
+    }
     if (!data?.authenticated) {
       setMessage("登录后即可提交并保存你的练习。");
       return;
@@ -310,7 +336,25 @@ export function InteractiveLessonPanel({
   }
 
 
-  if (!data || !check || !practice) return null;
+  if (!data) {
+    return (
+      <section className="interactive-lesson guided-lesson guided-loading-panel">
+        <div className="kicker">引导式学习</div>
+        <h2>{message ? "课程互动暂时没有准备好" : "正在准备这一课的互动内容…"}</h2>
+        <p>{message ?? "正在读取案例、理解检查、提示和评分标准。"}</p>
+      </section>
+    );
+  }
+
+  if (!check || !practice) {
+    return (
+      <section className="interactive-lesson guided-lesson guided-loading-panel">
+        <div className="kicker">引导式学习</div>
+        <h2>这一课的互动数据暂时不完整</h2>
+        <p>请刷新页面重试。课程正文不会丢失；如果持续出现，请检查 Interactive / Practice 数据。</p>
+      </section>
+    );
+  }
 
   const steps = [
     "先理解",
@@ -369,6 +413,13 @@ export function InteractiveLessonPanel({
           </button>
         ))}
       </div>
+
+      {previewMode && (
+        <div className="guided-preview-mode-note">
+          <strong>样板体验模式</strong>
+          <p>你可以完整体验 6 步学习和同规则评分；体验结果不会写入正式学习进度，也不会绕过课程前置条件。</p>
+        </div>
+      )}
 
       {!data.authenticated && (
         <div className="interactive-login-note">
@@ -482,9 +533,10 @@ export function InteractiveLessonPanel({
                   <small>{item.prompt}</small>
                   <textarea
                     value={content[item.key]}
-                    onChange={(event) =>
-                      setContent((current) => ({ ...current, [item.key]: event.target.value }))
-                    }
+                    onChange={(event) => {
+                      setPreviewEvaluation(null);
+                      setContent((current) => ({ ...current, [item.key]: event.target.value }));
+                    }}
                     rows={3}
                     maxLength={3000}
                   />

@@ -23,7 +23,7 @@ import {
   type PracticeEvaluator,
   type RubricCriterion,
   rulePracticeEvaluator
-} from "./evaluator";
+} from "../../learning/practice-evaluator";
 
 type CheckOption = { value: string; label: string };
 type PracticeInstruction = { key: keyof PracticeContent; label: string; prompt: string };

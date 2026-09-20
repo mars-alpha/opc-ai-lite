@@ -104,7 +104,7 @@ export const courses: Course[] = [
     modules:[
       { id:"brief", title:"01 · 把任务说清楚", description:"从模糊提问升级到结构化任务描述。", lessons:[
         {
-          id:"task-brief", title:"用任务简报替代“神奇提示词”", duration:"18 分钟", summary:"用 Goal、Context、Input、Constraint、Output 描述任务。",
+          id:"task-brief", title:"用任务简报替代“神奇提示词”", duration:"18 分钟", summary:"用任务目标、背景信息、输入材料、限制条件和输出要求把任务说明白。",
           plainExplanation:"真正稳定的提示词不是一句咒语，而是一份让 AI 能执行的任务说明书。",
           whyItMatters:"大多数工作任务有真实背景、材料和限制；如果这些没有被写出来，AI 只能猜。",
           points:["明确目标","补足背景","规定输入、限制和输出格式"],

@@ -35,11 +35,10 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
   const currentPath="/courses/"+course.slug+"/lessons/"+lesson.id;
   const loginHref="/auth?mode=login&returnTo="+encodeURIComponent(currentPath);
 
-  if(!access.allowed){
-    const isGuidedPilot = course.slug === "chatgpt-worker" && lesson.id === "task-brief";
+  const isGuidedPilot = course.slug === "chatgpt-worker" && lesson.id === "task-brief";
 
   if (isGuidedPilot) {
-    return <section className="lesson-page">
+  return <section className="lesson-page">
       <div className="container lesson-shell">
         <LessonCourseSidebar
           course={course}
@@ -56,7 +55,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           <div className="guided-lesson-hero">
             <div className="kicker">OPC 引导式课程 · 样板</div>
             <h1>{lesson.title}</h1>
-            <p>{lesson.summary}</p>
+            <p>把一个真实需求拆成任务目标、背景信息、输入材料、限制条件和输出要求，让 AI 不再靠猜。</p>
             <div className="guided-lesson-outcome">
               <span>完成后你会获得</span>
               <strong>把一个真实工作需求整理成 AI 可以稳定执行的结构化任务简报</strong>
@@ -67,10 +66,18 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
             courseSlug={course.slug}
             lessonSlug={lesson.id}
             practiceId="practice_task_brief_structured"
+            previewMode={!access.allowed}
           />
 
           <div className="lesson-complete-wrap">
-            <LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice />
+            {access.allowed ? (
+              <LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice />
+            ) : (
+              <div className="guided-preview-complete-note">
+                <strong>当前是样板体验模式</strong>
+                <p>你可以完整体验学习、提示和评分，但不会写入正式完成状态。正式课程仍需按学习路径完成前置阶段后解锁。</p>
+              </div>
+            )}
           </div>
 
           <nav className="lesson-nav" aria-label="课时导航">
@@ -90,6 +97,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
     </section>;
   }
 
+  if(!access.allowed){
   return <section className="lesson-page">
       <div className="container lesson-shell">
         <LessonCourseSidebar

@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { PracticeContent } from "../interactive/evaluator";
+import type { PracticeContent } from "../../learning/practice-evaluator";
 
 export type PracticeSubmissionSchema = {
   kind: "TASK_BRIEF_V1";

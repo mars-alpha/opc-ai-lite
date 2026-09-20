@@ -3427,3 +3427,26 @@ img { display: block; max-width: 100%; }
 .guided-pass-list li + li {
   margin-top: 3px;
 }
+
+
+
+/* Guided Learning preview mode */
+.guided-preview-mode-note,
+.guided-preview-complete-note {
+  margin: 16px 0 20px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 247, 230, .9);
+  border: 1px solid rgba(190, 140, 40, .18);
+}
+.guided-preview-mode-note strong,
+.guided-preview-complete-note strong {
+  display: block;
+  margin-bottom: 6px;
+}
+.guided-preview-mode-note p,
+.guided-preview-complete-note p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
