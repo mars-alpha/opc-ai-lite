@@ -1,4 +1,7 @@
-import { createCourseBuilderReviewPacket } from "../lib/learning/course-builder";
+import {
+  COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES,
+  createCourseBuilderReviewPacket
+} from "../lib/learning/course-builder";
 import { lessonSpecValidationSamples } from "../lib/learning/lesson-spec-samples";
 
 function assert(condition: unknown, code: string) {
@@ -29,7 +32,8 @@ const build = createCourseBuilderReviewPacket(
         instruction: "先判断这份草稿应不应该直接发布。",
         prompt: null,
         reflection: "课程草稿必须先经过代码校验和人工审核。"
-      }
+      },
+      sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
     },
     lessonSpec: {
       ...sourceSpec,
@@ -91,6 +95,11 @@ const build = createCourseBuilderReviewPacket(
 
 assert(build.status === "PENDING_REVIEW", "BUILD_NOT_PENDING_REVIEW");
 assert(build.mode === "BUILD", "BUILD_MODE_INVALID");
+if (build.output.mode !== "BUILD") throw new Error("BUILD_REQUIRED");
+assert(
+  Object.keys(build.output.pedagogy.sixStepResponsibilities).length === 6,
+  "SIX_STEP_RESPONSIBILITIES_REQUIRED"
+);
 
 const improve = createCourseBuilderReviewPacket({
   mode: "IMPROVE",
@@ -150,7 +159,8 @@ try {
         instruction: "测试",
         prompt: null,
         reflection: "测试"
-      }
+      },
+      sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
     },
     lessonSpec: {
       ...sourceSpec,
@@ -200,6 +210,24 @@ try {
 }
 assert(nonNeutralRejected, "AI_TOOL_NEUTRALITY_NOT_ENFORCED");
 
+let missingResponsibilityRejected = false;
+try {
+  const valid = build.output.mode === "BUILD" ? build.output : null;
+  if (!valid) throw new Error("BUILD_REQUIRED");
+  const { CAPABILITY: _removed, ...incomplete } = valid.pedagogy.sixStepResponsibilities;
+  createCourseBuilderReviewPacket({
+    ...valid,
+    pedagogy: {
+      ...valid.pedagogy,
+      sixStepResponsibilities: incomplete
+    }
+  });
+} catch (error) {
+  missingResponsibilityRejected =
+    error instanceof Error && error.message === "MISSING_STEP_RESPONSIBILITY:CAPABILITY";
+}
+assert(missingResponsibilityRejected, "MISSING_STEP_RESPONSIBILITY_NOT_REJECTED");
+
 console.log("COURSE_BUILDER_BUILD=PASS");
 console.log("COURSE_BUILDER_IMPROVE=PASS");
 console.log("COURSE_BUILDER_CODE_VALIDATION=PASS");
@@ -209,3 +237,4 @@ console.log("COURSE_BUILDER_GROUNDING_REQUIRED=PASS");
 console.log("COURSE_BUILDER_TERM_READABILITY=PASS");
 console.log("COURSE_BUILDER_AI_TOOL_NEUTRAL=PASS");
 console.log("COURSE_BUILDER_PARTICIPATION_REQUIRED=PASS");
+console.log("COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES=PASS");

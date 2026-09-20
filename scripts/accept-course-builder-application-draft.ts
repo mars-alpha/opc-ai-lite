@@ -39,6 +39,18 @@ assert(lessonSpec.knowledgePoints.length === 4, "APPLICATION_KNOWLEDGE_DEPTH");
 assert(lessonSpec.knowledgePoints.some((item) => item.includes("Example")), "APPLICATION_EXAMPLE_KNOWLEDGE");
 assert(lessonSpec.knowledgePoints.some((item) => item.includes("Context")), "APPLICATION_CONTEXT_KNOWLEDGE");
 assert(lessonSpec.knowledgePoints.some((item) => item.includes("Iteration")), "APPLICATION_ITERATION_KNOWLEDGE");
+const responsibilityKeys = Object.keys(pedagogy.sixStepResponsibilities).sort();
+assert(
+  responsibilityKeys.join(">") ===
+    ["CAPABILITY", "CHECK", "EXAMPLE", "EXPLAIN", "PRACTICE", "REVIEW"].join(">"),
+  "APPLICATION_SIX_STEP_RESPONSIBILITIES"
+);
+for (const kind of ["EXPLAIN", "EXAMPLE", "CHECK", "PRACTICE", "REVIEW", "CAPABILITY"] as const) {
+  const responsibility = pedagogy.sixStepResponsibilities[kind];
+  assert(Boolean(responsibility.purpose), "APPLICATION_RESPONSIBILITY_PURPOSE:" + kind);
+  assert(Boolean(responsibility.include), "APPLICATION_RESPONSIBILITY_INCLUDE:" + kind);
+  assert(Boolean(responsibility.avoid), "APPLICATION_RESPONSIBILITY_AVOID:" + kind);
+}
 assert(Boolean(check), "APPLICATION_CHECK_REQUIRED");
 assert(Boolean(practice), "APPLICATION_PRACTICE_REQUIRED");
 assert((check?.options.length ?? 0) >= 3, "APPLICATION_CHECK_OPTIONS");
@@ -59,6 +71,7 @@ console.log("APPLICATION_TOPIC=Prompt（提示词）怎么写，AI 才更容易�
 console.log("APPLICATION_CODE_VALIDATION=PASS");
 console.log("APPLICATION_SPEC_RULES=PASS");
 console.log("APPLICATION_KNOWLEDGE_DEPTH=PASS");
+console.log("APPLICATION_SIX_STEP_RESPONSIBILITIES=PASS");
 console.log("APPLICATION_CHECK_SCHEMA=PASS");
 console.log("APPLICATION_PRACTICE_SCHEMA=PASS");
 console.log("APPLICATION_PRACTICE_GATE=PASS");

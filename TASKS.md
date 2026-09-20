@@ -535,6 +535,12 @@ Status: COMPLETE_HUMAN_REVIEW_PENDING
 
 保留现有六步 APPLICATION 体验、Check / Practice Gate 和一键参考答案，不增加新交互。Prompt 课程知识从基础四部分扩展到 4 个核心知识点：基础结构、Example、Context、Iteration。Step 1 保持轻量；新增深度主要进入 Step 2 案例、Step 4 提示和 Step 5 回顾。APPLICATION acceptance 现在要求这 4 个知识层存在。
 
+### COURSE-BUILDER-SKILL-002-C — Six-Step Knowledge Responsibility Contract
+
+Status: COMPLETE
+
+Course Builder BUILD 的 `pedagogy` 现在必须携带 `sixStepResponsibilities`，完整覆盖 EXPLAIN / EXAMPLE / CHECK / PRACTICE / REVIEW / CAPABILITY。固定职责分别为：建立核心直觉、展开方法与边界、验证理解、形成实际能力、建立可复用判断框架、明确能力/应用场景/下一步。每项必须有 purpose / include / avoid；缺失任意责任直接拒绝 Draft。CONCEPT 和 APPLICATION 两个真实样板均已通过回归。
+
 建议后续顺序：
 
 ```text

@@ -1,3 +1,5 @@
+import { COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES } from "../../lib/learning/course-builder";
+
 export const promptFoundationsIntroPreview = {
   situation: "同样是让 AI 写一封客户跟进邮件，为什么有时结果很贴合，有时却像套话？",
   approaches: [
@@ -85,7 +87,8 @@ export const promptFoundationsBuildDraft = {
       prompt: null,
       reflection:
         "重点不是哪一次文字更华丽，而是第二次结果是否更贴合目标、少了明显猜测，并且更接近你能直接使用的格式。"
-    }
+    },
+    sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
   },
   lessonSpec: {
     version: "1.0.0",

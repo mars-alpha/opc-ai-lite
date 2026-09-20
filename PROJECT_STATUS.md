@@ -35,8 +35,9 @@ COURSE-BUILDER-SKILL-001-E First Step Interactive Intro COMPLETE
 COURSE-BUILDER-SKILL-001-F First Step Direct Comparison COMPLETE
 COURSE-BUILDER-SKILL-002-A Real APPLICATION Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-002-B Knowledge Depth Expansion COMPLETE_HUMAN_REVIEW_PENDING
+COURSE-BUILDER-SKILL-002-C Six-Step Knowledge Responsibility Contract COMPLETE
 
-NEXT: Human Review — re-open /course-builder/preview/prompt-foundations and review the deeper APPLICATION lesson
+NEXT: use the six-step responsibility contract as the default Course Builder teaching baseline for subsequent real lessons
 ```
 
 ## 当前系统健康
@@ -76,6 +77,7 @@ Step feedback isolation PASS
 Practice reference answer PASS
 Practice one-click fill PASS
 APPLICATION knowledge depth PASS
+Six-step responsibility contract PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -115,7 +117,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-002-B` 已在不改变六步体验和 Completion Gate 的前提下扩充 Prompt APPLICATION 的知识深度。当前核心知识为：任务 / 背景 / 限制 / 结果基础结构，以及什么时候用 Example（示例）、什么时候必须补 Context（上下文）、怎样通过 Iteration（迭代）修正第一次结果。新增内容主要分散在 Step 2 / Step 4 / Step 5，Step 1 继续保持轻量。下一步 Human Review 判断知识增加后是否仍然易懂。
+`COURSE-BUILDER-SKILL-002-C` 已将六步教学职责固化进 Course Builder Contract。BUILD Draft 的 pedagogy 现在必须提供 `sixStepResponsibilities`，完整覆盖 EXPLAIN / EXAMPLE / CHECK / PRACTICE / REVIEW / CAPABILITY，每项都有 purpose / include / avoid；缺任意一步会被 Code Validation 拒绝。该规则已通过 CONCEPT 与 APPLICATION 两个真实样板回归。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

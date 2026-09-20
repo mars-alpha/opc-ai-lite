@@ -344,6 +344,8 @@ Generic Lesson Preview 的互动反馈当前会在 Step 切换时清除，避免
 
 `prompt-foundations` 当前知识深度已扩为 4 个核心点：任务 / 背景 / 限制 / 结果基础结构、Example（示例）的使用时机、Context（上下文）必须真实提供的场景、Iteration（迭代）根据具体偏差修正结果。新增知识主要通过 Preview 的 `previewKnowledgeDepth` 分散到 EXAMPLE 与 REVIEW，PRACTICE 仅增加轻量提示；六步结构、CHECK + PRACTICE Gate、Runtime 边界均未改变。
 
+Course Builder BUILD 的 `pedagogy` 当前必须包含 `sixStepResponsibilities`，键固定为 EXPLAIN / EXAMPLE / CHECK / PRACTICE / REVIEW / CAPABILITY。每一项必须包含 `purpose` / `include` / `avoid`。职责固定为：EXPLAIN 建立单一核心直觉；EXAMPLE 展开方法、边界与更深知识；CHECK 验证理解并解释原因；PRACTICE 用分层辅助把知识变成能力且不偷偷增加 Gate；REVIEW 形成可复用判断 / 诊断框架；CAPABILITY 明确已获得能力、真实应用场景与下一步。缺少任一责任会被 Course Builder Code Validation 拒绝。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

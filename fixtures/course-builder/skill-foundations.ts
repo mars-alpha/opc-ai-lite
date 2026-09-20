@@ -1,3 +1,5 @@
+import { COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES } from "../../lib/learning/course-builder";
+
 export const skillFoundationsIntroPreview = {
   situation: "你每周都让 AI 整理会议记录，而且每次都要重复输入同一套要求。",
   approaches: [
@@ -49,7 +51,8 @@ export const skillFoundationsBuildDraft = {
         "以后我发给你一段会议记录时，请固定按这 4 步处理：1. 找出已经确定的决定；2. 找出每个负责人；3. 找出截止时间；4. 列出仍未解决的问题。最后用“决定 / 负责人 / 截止时间 / 待解决问题”四个栏目输出。",
       reflection:
         "如果下一次再处理会议记录，你还希望 AI 沿用这套步骤，那么你已经体会到“可复用方法”的价值。这就是理解技能最重要的一步。"
-    }
+    },
+    sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
   },
   lessonSpec: {
     version: "1.0.0",

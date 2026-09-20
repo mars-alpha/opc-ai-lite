@@ -22,11 +22,56 @@ export type CourseBuilderParticipation = {
   reflection: string;
 };
 
+export type CourseBuilderStepResponsibility = {
+  purpose: string;
+  include: string;
+  avoid: string;
+};
+
+export type CourseBuilderSixStepResponsibilities = Record<
+  LessonStepKind,
+  CourseBuilderStepResponsibility
+>;
+
+export const COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES: CourseBuilderSixStepResponsibilities = {
+  EXPLAIN: {
+    purpose: "建立一个核心直觉：这个主题解决什么问题，以及最重要的判断原则。",
+    include: "一个核心问题、一个核心结论，必要时一个最常见的错误直觉。",
+    avoid: "一次堆入多个新概念、长篇说明或把后续方法全部提前讲完。"
+  },
+  EXAMPLE: {
+    purpose: "通过真实案例展开方法、边界和为什么有效；较深知识优先放在这里。",
+    include: "前后对比、为什么变好、适用边界，以及会改变结果的关键知识。",
+    avoid: "只重复 EXPLAIN 的结论，或展示案例却不解释变化原因。"
+  },
+  CHECK: {
+    purpose: "验证学习者是否真正理解，并用反馈纠正常见误区。",
+    include: "需要判断的具体情境、正确答案解释，以及条件允许时说明错误选项为什么不成立。",
+    avoid: "在检查题里突然加入大量未教过的新理论，或只告诉学习者对错而不给原因。"
+  },
+  PRACTICE: {
+    purpose: "把已理解的知识转成能亲手完成的能力，并提供逐层辅助。",
+    include: "清晰任务、字段或步骤提示、Hints、必要时参考答案；进阶提示可以选做。",
+    avoid: "为了丰富体验增加无意义点击，或把选做知识变成新的强制 Completion Gate。"
+  },
+  REVIEW: {
+    purpose: "把零散知识收束成以后可复用的判断或诊断框架。",
+    include: "常见误区、判断顺序、遇到问题时可以复用的检查框架。",
+    avoid: "只把前面内容原样重复一遍，或再次堆一组孤立知识卡片。"
+  },
+  CAPABILITY: {
+    purpose: "明确学习者现在会什么、马上能用在哪里，以及下一步学什么。",
+    include: "已获得能力、真实应用场景和下一步学习方向。",
+    avoid: "只写抽象鼓励、重复课程标题，或引入新的核心理论。"
+  }
+};
+
 export type CourseBuilderPedagogy = {
   audience: "BEGINNER" | "GENERAL" | "ADVANCED";
   languagePolicy: "TERM_READABILITY";
   aiToolNeutral: true;
   participation: CourseBuilderParticipation;
+  sixStepResponsibilities: CourseBuilderSixStepResponsibilities;
 };
 
 export type CourseBuilderLessonContent = {
@@ -187,6 +232,29 @@ function parseGrounding(input: unknown): CourseBuilderGrounding {
   };
 }
 
+function parseSixStepResponsibilities(input: unknown): CourseBuilderSixStepResponsibilities {
+  if (!isRecord(input)) throw new Error("INVALID_SIX_STEP_RESPONSIBILITIES");
+  const result = {} as CourseBuilderSixStepResponsibilities;
+  for (const kind of stepKinds) {
+    const item = input[kind];
+    if (!isRecord(item)) {
+      throw new Error("MISSING_STEP_RESPONSIBILITY:" + kind);
+    }
+    result[kind] = {
+      purpose: requiredText(item.purpose, "INVALID_STEP_RESPONSIBILITY_PURPOSE:" + kind, 2000),
+      include: requiredText(item.include, "INVALID_STEP_RESPONSIBILITY_INCLUDE:" + kind, 3000),
+      avoid: requiredText(item.avoid, "INVALID_STEP_RESPONSIBILITY_AVOID:" + kind, 3000)
+    };
+  }
+  const unexpected = Object.keys(input).filter(
+    (key) => !stepKinds.includes(key as LessonStepKind)
+  );
+  if (unexpected.length > 0) {
+    throw new Error("UNEXPECTED_STEP_RESPONSIBILITY:" + unexpected.join(","));
+  }
+  return result;
+}
+
 function parsePedagogy(input: unknown): CourseBuilderPedagogy {
   if (!isRecord(input)) throw new Error("INVALID_BUILD_PEDAGOGY");
   if (!isRecord(input.participation)) throw new Error("INVALID_BUILD_PARTICIPATION");
@@ -218,7 +286,8 @@ function parsePedagogy(input: unknown): CourseBuilderPedagogy {
       instruction: requiredText(input.participation.instruction, "INVALID_PARTICIPATION_INSTRUCTION", 3000),
       prompt,
       reflection: requiredText(input.participation.reflection, "INVALID_PARTICIPATION_REFLECTION", 3000)
-    }
+    },
+    sixStepResponsibilities: parseSixStepResponsibilities(input.sixStepResponsibilities)
   };
 }
 
