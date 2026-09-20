@@ -1091,21 +1091,26 @@ export function GenericLessonRuntimePanel({
       {message && <div className="interactive-message">{message}</div>}
 
       <div className="guided-step-nav">
-        <button type="button" className="btn btn-secondary" onClick={() => {
+        <button type="button" className="btn btn-secondary guided-step-nav-button" onClick={() => {
           setCurrentStep((value) => Math.max(0, value - 1));
           setMessage(null);
           setConfusedOpen(false);
         }} disabled={currentStep === 0}>← 上一步</button>
-        <div><span>{stepPedagogyLabel(step.kind)}</span><small>{currentStep + 1} / {plan.steps.length}</small></div>
-        <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>
-        {currentStep < plan.steps.length - 1 && (
-          <button type="button" className="btn btn-primary" disabled={!canAdvance} onClick={() => {
-            if (!canAdvance) return;
-            setCurrentStep((value) => Math.min(plan.steps.length - 1, value + 1));
-            setConfusedOpen(false);
-            setMessage(null);
-          }}>下一步 →</button>
-        )}
+        <div className="guided-step-nav-center">
+          <span>{stepPedagogyLabel(step.kind)}</span>
+          <small>{currentStep + 1} / {plan.steps.length}</small>
+        </div>
+        <div className="guided-step-nav-actions">
+          <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>
+          {currentStep < plan.steps.length - 1 && (
+            <button type="button" className="btn btn-primary guided-step-nav-button" disabled={!canAdvance} onClick={() => {
+              if (!canAdvance) return;
+              setCurrentStep((value) => Math.min(plan.steps.length - 1, value + 1));
+              setConfusedOpen(false);
+              setMessage(null);
+            }}>下一步 →</button>
+          )}
+        </div>
       </div>
     </section>
   );
