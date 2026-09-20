@@ -36,8 +36,9 @@ COURSE-BUILDER-SKILL-001-F First Step Direct Comparison COMPLETE
 COURSE-BUILDER-SKILL-002-A Real APPLICATION Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-002-B Knowledge Depth Expansion COMPLETE_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-002-C Six-Step Knowledge Responsibility Contract COMPLETE
+COURSE-BUILDER-SKILL-003-A Real PRACTICE Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
-NEXT: use the six-step responsibility contract as the default Course Builder teaching baseline for subsequent real lessons
+NEXT: Human Review — open /course-builder/preview/meeting-action-list and review the real PRACTICE lesson
 ```
 
 ## 当前系统健康
@@ -47,7 +48,7 @@ NEXT: use the six-step responsibility contract as the default Course Builder tea
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      32 static pages generated
+Production build      33 static pages generated
 Remote migrations     0000 → 0009 APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
@@ -78,6 +79,9 @@ Practice reference answer PASS
 Practice one-click fill PASS
 APPLICATION knowledge depth PASS
 Six-step responsibility contract PASS
+PRACTICE Draft          PASS
+PRACTICE independent mode PASS
+PRACTICE completion gate PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -117,7 +121,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-002-C` 已将六步教学职责固化进 Course Builder Contract。BUILD Draft 的 pedagogy 现在必须提供 `sixStepResponsibilities`，完整覆盖 EXPLAIN / EXAMPLE / CHECK / PRACTICE / REVIEW / CAPABILITY，每项都有 purpose / include / avoid；缺任意一步会被 Code Validation 拒绝。该规则已通过 CONCEPT 与 APPLICATION 两个真实样板回归。
+`COURSE-BUILDER-SKILL-003-A` 已新增第三种真实 Course Builder 样板：`meeting-action-list`，类型 PRACTICE。课程使用统一六步与六步职责契约，`practiceMode=INDEPENDENT`，Completion Gates 为 CHECK + PRACTICE；第 4 步用行动 / 负责人 / 截止时间 / 未决问题四字段做本地确定性验收，失败后继续使用 Hint / 参考答案 / 一键填充。下一步先做 Human Review，不进入正式目录或 Runtime。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

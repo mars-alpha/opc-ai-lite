@@ -541,6 +541,12 @@ Status: COMPLETE
 
 Course Builder BUILD 的 `pedagogy` 现在必须携带 `sixStepResponsibilities`，完整覆盖 EXPLAIN / EXAMPLE / CHECK / PRACTICE / REVIEW / CAPABILITY。固定职责分别为：建立核心直觉、展开方法与边界、验证理解、形成实际能力、建立可复用判断框架、明确能力/应用场景/下一步。每项必须有 purpose / include / avoid；缺失任意责任直接拒绝 Draft。CONCEPT 和 APPLICATION 两个真实样板均已通过回归。
 
+### COURSE-BUILDER-SKILL-003-A — Real PRACTICE Lesson Acceptance
+
+Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+新增真实 PRACTICE Draft：`ai-literacy/meeting-action-list`，题目“把会议记录整理成可执行行动清单”。继续复用统一六步与六步职责 Contract；`practiceMode=INDEPENDENT`，Completion Gates 为 CHECK + PRACTICE，不新增 REAL_AI Gate。第 4 步要求学员从会议记录中填写行动 / 负责人 / 截止时间 / 未决问题，由本地确定性规则检查；失败后提供 Hint、参考答案和一键填充。Preview：`/course-builder/preview/meeting-action-list`。
+
 建议后续顺序：
 
 ```text
