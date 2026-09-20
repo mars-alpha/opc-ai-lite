@@ -123,7 +123,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-003-A` Human Review 修复已补齐：共享本地评分器不再把短文本一律当成低质量答案。负责人字段改为语义判断，一个明确负责人（如“小林”）即可拿满该项；截止时间按是否可判断逾期评分。PRACTICE 六步内容也已加厚：Step 1 补失败原因，Step 2 增加“讨论 vs 行动 / 负责人 vs 未决问题”，Step 3 扩充错误选项解释，Step 4 增加分层提示，Step 5 加入四步诊断框架，Step 6 扩展真实应用场景。`MINI_TASK` 不再错误显示“放进 AI 软件试一下”。
+`COURSE-BUILDER-SKILL-003-A` Human Review 修复继续收口：Step 1 的“摘要 / 行动清单”概念说明已从中间对比区移到最底部，以轻量知识补充方式呈现。中间只保留真实场景下“两种做法”的对比，避免把做法差异和概念定义混在一起；Prompt 课仍保持原有中间对比。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

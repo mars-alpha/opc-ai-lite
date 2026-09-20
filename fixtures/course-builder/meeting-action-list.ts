@@ -22,6 +22,7 @@ export const meetingActionListIntroPreview = {
       meaning: "帮助下一步真正执行"
     }
   ],
+  comparisonPlacement: "BOTTOM",
   takeaway: "一份好的会议整理，不只是“记下来”，而是让下一步可以直接行动；没有被会议明确的信息，不要自己补。"
 } as const;
 

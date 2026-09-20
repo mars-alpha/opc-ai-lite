@@ -108,6 +108,7 @@ type PreviewIntroComparison = {
     term: string;
     meaning: string;
   }>;
+  comparisonPlacement?: "MIDDLE" | "BOTTOM";
   takeaway: string;
 };
 
@@ -517,18 +518,30 @@ export function GenericLessonRuntimePanel({
               </div>
             ))}
           </div>
-          <div className="guided-intro-compare">
-            {previewIntroComparison.comparison.map((item) => (
-              <div key={item.term}>
-                <span>{item.term}</span>
-                <strong>{item.meaning}</strong>
-              </div>
-            ))}
-          </div>
+          {previewIntroComparison.comparisonPlacement !== "BOTTOM" && (
+            <div className="guided-intro-compare">
+              {previewIntroComparison.comparison.map((item) => (
+                <div key={item.term}>
+                  <span>{item.term}</span>
+                  <strong>{item.meaning}</strong>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="guided-key-highlight guided-intro-takeaway">
             <strong>记住这一句</strong>
             <p>{previewIntroComparison.takeaway}</p>
           </div>
+          {previewIntroComparison.comparisonPlacement === "BOTTOM" && (
+            <div className="guided-knowledge-depth guided-knowledge-depth-review">
+              {previewIntroComparison.comparison.map((item) => (
+                <div key={item.term}>
+                  <strong>{item.term}</strong>
+                  <p>{item.meaning}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : step.kind === "EXPLAIN" && (
         <div className="guided-step-content">

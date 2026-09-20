@@ -104,6 +104,13 @@ PRACTICE Draft 完整携带：
 
 同时 Generic Lesson Preview 只在 `COPY_TO_AI` participation 下显示 AI 软件测试区；本 PRACTICE 的 `MINI_TASK` 不再错误继承 Prompt 课交互。
 
+Step 1 视觉层级调整：
+
+- 主区只保留真实场景和“两种做法”对比。
+- “摘要 / 行动清单”的概念定义移到 takeaway 之后的最底部。
+- 底部复用 Step 2 knowledge-depth 的轻量表达，避免概念定义和做法对比混在一起。
+- 通过通用 `comparisonPlacement=BOTTOM` 控制；默认 MIDDLE，其他课程无需改变。
+
 ## Validation
 
 - npm run course-builder:check PASS

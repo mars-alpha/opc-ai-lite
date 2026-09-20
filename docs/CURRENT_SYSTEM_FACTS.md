@@ -352,6 +352,8 @@ Course Builder BUILD 的 `pedagogy` 当前必须包含 `sixStepResponsibilities`
 
 Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participation.kind=COPY_TO_AI` 时显示“放进你的 AI 软件试一下”；`MINI_TASK` 不再渲染该 Prompt 专属区域。`meeting-action-list` 还复用 `previewKnowledgeDepth`，在 EXAMPLE / REVIEW 增加更深知识，但不增加新的 Gate。
 
+`PreviewIntroComparison` 当前支持可选 `comparisonPlacement=MIDDLE|BOTTOM`。`meeting-action-list` 使用 `BOTTOM`：EXPLAIN 主区只保留场景与两种做法，核心 takeaway 后再以轻量 knowledge-depth 样式展示“摘要 = 回顾发生了什么 / 行动清单 = 帮助下一步执行”。默认仍为 MIDDLE，因此现有 Prompt Preview 不变。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

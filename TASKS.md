@@ -549,6 +549,8 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 Human Review 修复：共享 RULE evaluator 已从纯文字长度判断升级为字段语义优先。`owner` 一个明确负责人即可满分，不再要求凑多人；`deadline` 必须能判断是否逾期。标准答案只有“小林”一个负责人时，整份 Practice 必须通过并由 acceptance 自动锁定。PRACTICE 六步内容同步扩充，且 `MINI_TASK` 类型不再出现 Prompt 课专属的“放进 AI 软件试一下”区域。
 
+Step 1 视觉层级继续调整：`摘要 / 行动清单` 的概念定义移到第一步最底部，复用轻量 knowledge-depth 样式；主对比区只展示“只有会议摘要 / 可执行行动清单”两种做法，避免概念定义与场景对比混淆。通过 `comparisonPlacement=BOTTOM` 数据驱动，不按 lesson slug 分支。
+
 建议后续顺序：
 
 ```text
