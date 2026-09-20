@@ -422,11 +422,20 @@ Priority: P0
 
 `chatgpt-worker / task-brief` 已按 `docs/LEARNING_SPEC.md` 完成 Reference Lesson：Step 4 Practice Closure 单一闭环；Step 5 学习回顾 + 最终答案 + 学习自评；Step 6 能力获得；正式完成后点击下一课才触发可跳过课程评分。该课不需要真实 AI 操作证明学会，因此当前 `real_ai_operation = NONE`，已移除原 copy / outcome 流程。新增 `learning_self_assessment` 与 `practice_retry_requested` 行为事件；未新增 Schema / Migration。
 
+## LEARNING-SPEC-002 — Multi-type Lesson Validation
+
+Status: COMPLETE
+Priority: P0
+
+已建立机器可读 Lesson Spec Contract 与 validator，并用 `memory-rag`（CONCEPT）、`writing-files`（APPLICATION）、`task-decomposition`（PRACTICE）三个真实课程样本验证：三种 Lesson Type 均 `SPEC=PASS`。本轮补齐 required Check Completion Core Gate，并将 `real_ai_operation=REQUIRED` 收紧为必须同时定义 `real_ai_evidence` 与 `REAL_AI` Completion Gate。
+
+Runtime 验证暴露：当前 Interactive Data 只正式配置 `task-brief`；Practice Submission Schema 只支持 `TASK_BRIEF_V1`；Real AI Evidence / Completion Gate 尚未实现。因此不直接进入 Course Builder Skill。
+
 # NEXT PHASE
 
-`LEARNING-SPEC-002 — Multi-type Lesson Validation`
+`LEARNING-RUNTIME-001 — Generic Lesson Runtime Foundation`
 
-先从现有课程选择 2–3 节不同 Lesson Type 验证同一 Spec，不批量迁移。通过后再进入 `COURSE-BUILDER-SKILL-001`。
+先把 Lesson Spec 接到可复用 Runtime：通用 Interactive Data、通用 Practice Submission / Evaluation Contract、REAL_AI evidence + Completion Gate，以及 Spec-driven renderer 的最小边界。仍不批量迁移课程；Runtime 稳定后再进入 `COURSE-BUILDER-SKILL-001`。
 
 建议后续顺序：
 

@@ -22,13 +22,14 @@ LEARNING-UX-001-C Completion Loop            COMPLETE
 LEARNING-UX-001-C Acceptance Refinement      COMPLETE
 LEARNING-SPEC-001 Course Construction Spec    COMPLETE
 LEARNING-UX-001-D Reference Lesson Finalization COMPLETE
+LEARNING-SPEC-002 Multi-type Lesson Validation COMPLETE
 
-NEXT: LEARNING-SPEC-002 — Multi-type Lesson Validation
+NEXT: LEARNING-RUNTIME-001 — Generic Lesson Runtime Foundation
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@7262713`。
+业务代码验证基线：`main@afdfa77`。
 
 ```text
 npm run typecheck     PASS
@@ -44,6 +45,8 @@ Shared rule evaluator PASS
 Completion Loop smoke PASS
 Acceptance refinement PASS
 Reference Lesson flow PASS
+Multi-type Spec check PASS
+Required Check gate   PASS
 Guided Lesson build   PASS
 Test data cleanup     PASS
 ```
@@ -78,7 +81,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-UX-001-D` 已按 `docs/LEARNING_SPEC.md` 完成 `task-brief` Reference Lesson：第 4 步在原地完成检查 / 修改 / 重检 / 通过；第 5 步改为学习回顾、最终答案与学习自评；第 6 步只保留能力获得、下一课价值和学习路径；课程评分只有在 Core 已确认本课完成且用户点击继续下一课时才出现，可提交或跳过。下一步只选 2–3 节不同 Lesson Type 验证同一 Spec，不直接批量迁移。
+`LEARNING-SPEC-002` 已使用 `memory-rag`（CONCEPT）、`writing-files`（APPLICATION）、`task-decomposition`（PRACTICE）验证同一 Lesson Spec，三种结构均 `SPEC=PASS`。同时新增机器可读 Lesson Contract / validator，并补齐 required Check Completion Core Gate。验证也确认正式 Runtime 尚未通用：非 task-brief Practice 仍缺通用 Submission Schema；`real_ai_operation=REQUIRED` 仍缺 Real AI Evidence + Completion Gate。下一步先做 `LEARNING-RUNTIME-001`，不直接进入 Course Builder Skill 或批量迁移课程。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

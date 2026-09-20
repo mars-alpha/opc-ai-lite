@@ -730,7 +730,7 @@ Access Core 仍决定真实数据是否读取 / 返回
 用户界面默认中文；真实 AI 行业术语保留中英双语。
 ```
 
-LEARNING-UX-001 当前只验证单 Lesson 样板；在产品体验确认前，不把该结构机械迁移到全部课程，也不提前建设复杂 Mastery / Recommendation 平台。课程建造、Lesson Type、Step Flow、Completion Gate、真实 AI 操作、Feedback、Access Presentation 与 Course Builder Skill Contract 的正式基线见 `docs/LEARNING_SPEC.md`。`chatgpt-worker / task-brief` 已由 LEARNING-UX-001-D 固化为第一份 Reference Lesson，用于后续多类型课程验证。
+LEARNING-UX-001 先以单 Lesson 样板验证体验；`chatgpt-worker / task-brief` 已由 LEARNING-UX-001-D 固化为第一份 Reference Lesson。LEARNING-SPEC-002 已进一步用 CONCEPT / APPLICATION / PRACTICE 三类真实 Lesson 验证 `docs/LEARNING_SPEC.md`，并落地 `lib/learning/lesson-spec.ts` 作为机器可读 Contract。课程建造、Lesson Type、Step Flow、Completion Gate、真实 AI 操作、Feedback、Access Presentation 与 Course Builder Skill Contract 均以该规范为基线。批量迁移前必须先补通用 Lesson Runtime。
 
 Guided Learning 的稳定体验规则：
 
@@ -743,7 +743,9 @@ Step 不设硬时长，但每个 Step 只完成一个学习任务
 用户主动点击“还是不懂”后，只展示当前 Step 的明确提示；作答前不得直接泄露答案
 课程结束先展示能力成长，再引导下一课
 Lesson 必须保持当前课程位置 / 课程目录 / 学习进度可见，主学习区采用单 Step 专注模式
-课程反馈可引导，但永远不是 Completion Gate；默认放在课时导航之后，不放进课程 Step 内
+课程反馈可引导，但永远不是 Completion Gate；默认只在 Lesson 完成、用户继续下一课时出现，不放进课程 Step 内
+required Check 与 required Practice 都属于 Core Completion Gate，由服务端确定性执行
+real_ai_operation = REQUIRED 时必须定义 real_ai_evidence，并由 REAL_AI Completion Gate 证明完成；不能只靠课程文案
 ```
 
 参考答案属于 Learning Scaffold：

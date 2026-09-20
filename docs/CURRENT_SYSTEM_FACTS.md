@@ -406,15 +406,15 @@ ACCESS-001 已完成统一资源级 Access Policy 与匿名 / 普通 / 公众号
 
 ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价值不隐藏；公众号关注与 Membership 保持两条独立转化路径。
 
-LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现。LEARNING-SPEC-001 已新增 `docs/LEARNING_SPEC.md`。LEARNING-UX-001-D 已进一步把 `chatgpt-worker / task-brief` 固化为 Reference Lesson：Step 4 Practice Closure 在同一步完成检查 / 修改 / 重检 / 通过；Step 5 为学习回顾 + 最终答案 + 学习自评；Step 6 只展示能力获得 / 下一课价值 / 学习路径；课程评分只在正式 Completion 后点击下一课时出现，可提交或跳过。该 Lesson 的 `real_ai_operation = NONE`，已移除原先真实 AI copy / outcome 流程。未改数据库 Schema / Migration / Access Core。
+LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现；`chatgpt-worker / task-brief` 是第一份 Reference Lesson。LEARNING-SPEC-001 固化课程建造规范；LEARNING-SPEC-002 新增 `lib/learning/lesson-spec.ts` 机器 Contract、3 个真实课程样本与 `npm run learning:spec:check`。`memory-rag`（CONCEPT）、`writing-files`（APPLICATION）、`task-decomposition`（PRACTICE）均通过 Spec 校验。Completion Core 现在同时执行 required Check 与 required Practice Gate；required Check 未通过时返回 `CHECK_REQUIRED`。没有新增数据库 Schema / Migration，也未改变 Access Core。
 
 下一阶段候选：
 
 ```text
-LEARNING-SPEC-002 — Multi-type Lesson Validation
+LEARNING-RUNTIME-001 — Generic Lesson Runtime Foundation
 ```
 
-从现有课程中选择 2–3 节不同 Lesson Type（至少覆盖 CONCEPT 与 PRACTICE / APPLICATION，再补一节 Workflow / Tool-concept 相关课）验证同一 Spec；验证稳定后才进入 Course Builder Skill v0.1 和批量课程完善。
+当前已验证 Spec 可表达不同 Lesson Type，但 Runtime 尚有明确缺口：只有 `chatgpt-worker/task-brief` 配置正式 Interactive Data；Practice Submission Schema 只支持 `TASK_BRIEF_V1`；REQUIRED Real AI Operation 还没有 `USER_CONFIRMATION / ARTIFACT / SYSTEM_RESULT` evidence persistence 与 `REAL_AI` Completion Gate。先补这些确定性 Runtime，再做 Course Builder Skill 与批量课程完善。
 
 AI-DAILY-001 保持排队，不在本阶段扩展。
 
