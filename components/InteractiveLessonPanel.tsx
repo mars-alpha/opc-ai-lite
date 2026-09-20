@@ -139,14 +139,16 @@ export function InteractiveLessonPanel({
   const [hintCount, setHintCount] = useState(0);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
   const [previewEvaluation, setPreviewEvaluation] = useState<Evaluation | null>(null);
   const [referenceVisible, setReferenceVisible] = useState(false);
   const [savedUserContent, setSavedUserContent] = useState<PracticeContent | null>(null);
   const [stillConfusedOpen, setStillConfusedOpen] = useState(false);
-  const [externalOutcome, setExternalOutcome] = useState<"GOOD" | "ADJUST" | "MISUNDERSTOOD" | "UNSURE" | null>(null);
+  const [practiceDirty, setPracticeDirty] = useState(false);
+  const [practiceChecked, setPracticeChecked] = useState(false);
+  const [finalAnswerVisible, setFinalAnswerVisible] = useState(false);
+  const [selfAssessment, setSelfAssessment] = useState<"INDEPENDENT" | "WITH_REFERENCE" | "NEEDS_PRACTICE" | null>(null);
 
   const refresh = useCallback(async () => {
     const params = new URLSearchParams({ courseSlug, lessonSlug });
@@ -165,6 +167,7 @@ export function InteractiveLessonPanel({
     setPracticeData(nextPractice);
     const latest = nextPractice?.latestSubmission?.content;
     if (latest) setContent({ ...emptyContent, ...latest });
+    if (nextPractice?.latestSubmission?.evaluation?.result) setPracticeChecked(true);
     const previousAnswer = next.checks[0]?.state?.answer;
     if (previousAnswer) setAnswer(previousAnswer);
   }, [courseSlug, lessonSlug, practiceId, previewMode]);
@@ -199,25 +202,7 @@ export function InteractiveLessonPanel({
 
     return data?.practices.find((item) => item.id === practiceId) ?? data?.practices[0] ?? null;
   }, [data, practiceData, practiceId]);
-  const evaluation = previewEvaluation ?? practice?.state?.evaluation ?? null;
-
-  const copyText = useMemo(
-    () =>
-      [
-        "请根据下面的任务简报完成任务。如果关键信息不足，请先指出缺失项，不要自行编造。",
-        "",
-        "任务目标（Goal）：\n" + content.goal,
-        "",
-        "背景信息（Context）：\n" + content.context,
-        "",
-        "输入材料（Input）：\n" + content.input,
-        "",
-        "限制条件（Constraint）：\n" + content.constraint,
-        "",
-        "输出要求（Output）：\n" + content.output
-      ].join("\n"),
-    [content]
-  );
+  const evaluation = practiceDirty ? null : (previewEvaluation ?? practice?.state?.evaluation ?? null);
 
   async function submitCheck() {
     if (!check || !answer) return;
@@ -256,8 +241,9 @@ export function InteractiveLessonPanel({
           passScore: practice.passScore
         });
         setPreviewEvaluation(result);
-        setCurrentStep(4);
-        setMessage(result.passed ? "体验评分已通过。正式课程解锁后可以保存这次结果。" : "体验评分完成。先看反馈，再回去修改最低分的部分。");
+        setPracticeDirty(false);
+        setPracticeChecked(true);
+        setMessage(result.passed ? "检查通过。你可以继续学习。" : "检查完成。按下面的具体反馈修改后，再检查一次。");
       } finally {
         setBusy("");
       }
@@ -287,6 +273,8 @@ export function InteractiveLessonPanel({
         throw new Error("SUBMIT_FAILED");
       }
       await refresh();
+      setPracticeDirty(false);
+      setPracticeChecked(true);
       setMessage(
         result?.status === "EVALUATION_FAILED"
           ? "答案已经保存，但检查暂时失败。你可以点击“重新检查”。"
@@ -321,12 +309,12 @@ export function InteractiveLessonPanel({
   function recordClientEvent(
     eventName:
       | "hint_revealed"
-      | "external_ai_copy"
-      | "external_ai_outcome"
       | "still_confused"
       | "reference_viewed"
       | "reference_applied"
-      | "reference_restored",
+      | "reference_restored"
+      | "learning_self_assessment"
+      | "practice_retry_requested",
     properties: Record<string, unknown>
   ) {
     if (!data?.authenticated) return;
@@ -344,17 +332,6 @@ export function InteractiveLessonPanel({
     }).catch(() => undefined);
   }
 
-  async function copyForExternalAI() {
-    try {
-      await navigator.clipboard.writeText(copyText);
-      setCopied(true);
-      recordClientEvent("external_ai_copy", { practiceId: practice?.id ?? null });
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setMessage("复制失败，请手动复制任务简报。");
-    }
-  }
-
   function showStillConfused() {
     setStillConfusedOpen(true);
     recordClientEvent("still_confused", { step: currentStep + 1, practiceId: practice?.id ?? null });
@@ -370,6 +347,7 @@ export function InteractiveLessonPanel({
     setReferenceVisible(true);
     setContent(referenceContent);
     setPreviewEvaluation(null);
+    setPracticeDirty(true);
     recordClientEvent("reference_applied", { practiceId: practice?.id ?? null });
   }
 
@@ -378,12 +356,8 @@ export function InteractiveLessonPanel({
     setContent(savedUserContent);
     setSavedUserContent(null);
     setPreviewEvaluation(null);
+    setPracticeDirty(true);
     recordClientEvent("reference_restored", { practiceId: practice?.id ?? null });
-  }
-
-  function selectExternalOutcome(value: "GOOD" | "ADJUST" | "MISUNDERSTOOD" | "UNSURE") {
-    setExternalOutcome(value);
-    recordClientEvent("external_ai_outcome", { practiceId: practice?.id ?? null, outcome: value });
   }
 
 
@@ -411,17 +385,12 @@ export function InteractiveLessonPanel({
     "先理解",
     "看案例",
     "理解检查",
-    "跟着做",
-    "反馈与复习",
-    "下一步"
+    "自己做",
+    "学习回顾",
+    "能力获得"
   ];
   const checkPassed = Boolean(check.state?.isCorrect) || localCheckCorrect === true;
-  const canGoNext =
-    currentStep === 2
-      ? checkPassed
-      : currentStep === 4
-        ? Boolean(evaluation?.passed)
-        : true;
+  const canGoNext = currentStep === 2 ? checkPassed : currentStep === 3 ? Boolean(evaluation?.passed) : true;
 
   function goNext() {
     if (!canGoNext) return;
@@ -606,6 +575,7 @@ export function InteractiveLessonPanel({
                     value={content[item.key]}
                     onChange={(event) => {
                       setPreviewEvaluation(null);
+                      setPracticeDirty(true);
                       setContent((current) => ({ ...current, [item.key]: event.target.value }));
                     }}
                     rows={3}
@@ -630,9 +600,15 @@ export function InteractiveLessonPanel({
               >
                 {hintCount < practice.hints.length ? "给我一个提示" : "提示已全部展开"}
               </button>
-              <button type="button" className="btn btn-primary" onClick={submitPractice} disabled={busy === "practice"}>
-                {busy === "practice" ? "正在检查…" : practice.state ? "修改后重新提交" : "提交并检查"}
-              </button>
+              {evaluation?.passed ? (
+                <button type="button" className="btn btn-primary" onClick={() => setCurrentStep(4)}>
+                  继续学习 →
+                </button>
+              ) : (
+                <button type="button" className="btn btn-primary" onClick={submitPractice} disabled={busy === "practice"}>
+                  {busy === "practice" ? "正在检查…" : practiceChecked ? "修改后重新检查" : "检查我的答案"}
+                </button>
+              )}
             </div>
 
             {hintCount > 0 && (
@@ -643,86 +619,73 @@ export function InteractiveLessonPanel({
               </div>
             )}
 
-            <div className="external-ai-check">
-              <div>
-                <span>真实工具验证</span>
-                <h3>把它拿到你自己的 AI 工具里执行</h3>
-                <p>OPC 负责教方法和检查结构，不伪造模型运行结果。你可以复制当前任务简报，在 ChatGPT、Claude、Gemini 或其他工具中实际验证。</p>
-              </div>
-              <button type="button" className="btn btn-secondary" onClick={copyForExternalAI}>
-                {copied ? "已复制 ✓" : "复制任务简报"}
-              </button>
-            </div>
           </div>
         )}
 
         {currentStep === 4 && (
           <div className="guided-step-content">
-            <div className="guided-step-label">第 5 步 · 即时反馈</div>
-            <h3>{evaluation ? (evaluation.passed ? "你已经完成一次可用的任务简报" : "还差一点，按反馈修改") : "提交实操后，这里会告诉你具体哪里需要改"}</h3>
+            <div className="guided-step-label">第 5 步 · 学习回顾</div>
+            <h3>回顾一下：你刚刚已经完成了一份可执行任务简报</h3>
+            <p>这一课最重要的不是记住五个英文单词，而是知道怎样让 AI 少猜一步、让任务多清楚一步。</p>
 
-            {!evaluation && (
-              <div className="guided-empty-feedback">
-                <p>回到上一步完成实操并提交。系统会按“任务目标 / 背景信息 / 输入材料 / 限制条件 / 输出要求”五项分别检查，而不是只给一个总分。</p>
-                <button type="button" className="btn btn-secondary" onClick={() => setCurrentStep(3)}>返回实操 →</button>
-              </div>
-            )}
+            <div className="guided-review-points">
+              <div><strong>任务目标</strong><p>先说清楚最终要得到什么结果。</p></div>
+              <div><strong>限制条件</strong><p>明确哪些边界不能越过、哪些规则必须遵守。</p></div>
+              <div><strong>输出要求</strong><p>把格式、栏目、结构或长度说清楚，减少返工。</p></div>
+            </div>
 
-            {evaluation && (
-              <div className="evaluation-panel">
-                <div className="evaluation-summary">
-                  <div><span>本次得分</span><strong>{evaluation.score}<small> / 100</small></strong></div>
-                  <div><span>结果</span><strong className={evaluation.passed ? "passed" : "revision"}>{evaluation.passed ? "已通过" : "需要修改"}</strong></div>
+            <div className="guided-final-answer">
+              <button type="button" className="btn btn-secondary" onClick={() => setFinalAnswerVisible((value) => !value)}>
+                {finalAnswerVisible ? "收起我的最终答案" : "查看我的最终答案"}
+              </button>
+              {finalAnswerVisible && (
+                <div className="guided-reference-card">
+                  <p><b>任务目标：</b>{content.goal}</p>
+                  <p><b>背景信息：</b>{content.context}</p>
+                  <p><b>输入材料：</b>{content.input}</p>
+                  <p><b>限制条件：</b>{content.constraint}</p>
+                  <p><b>输出要求：</b>{content.output}</p>
                 </div>
-                <p className="evaluation-next">{evaluation.passed ? "已经达到通过标准。下一步建议把这份任务简报复制到你常用的 AI 工具里真实验证一次。" : "先修改最低分的那一项。看下面的“问题 / 怎么改 / 参考”，修改后再提交。"}</p>
-                <div className="evaluation-criteria">
-                  {evaluation.criteria.map((item) => (
-                    <article key={item.key}>
-                      <div className="criterion-head"><strong>{({ goal: "任务目标", context: "背景信息", input: "输入材料", constraint: "限制条件", output: "输出要求" } as const)[item.key]}</strong><span>{item.score}/{item.maxScore}</span></div>
-                      <p><b>为什么：</b>{item.reason}</p>
-                      {item.problem && <p><b>问题：</b>{item.problem}</p>}
-                      <p><b>怎么改：</b>{item.suggestion}</p>
-                      <p className="criterion-example"><b>参考：</b>{item.example}</p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {evaluation && !evaluation.passed && (
-              <div className="guided-review-card">
-                <span>没有通过不是重新从头学</span>
-                <strong>先看最低分的部分，再回到第 4 步修改</strong>
-                <p>如果你分不清“任务目标 / 背景信息 / 限制条件”，优先复习「上下文、Token 与提示词」；如果只是内容不够具体，直接按上面的“怎么改”修改即可。</p>
-                <div className="interactive-actions">
-                  <button type="button" className="btn btn-primary" onClick={() => setCurrentStep(3)}>回去修改实操</button>
-                  <Link className="btn btn-secondary" href="/courses/ai-literacy/lessons/context-token">复习基础课程</Link>
-                </div>
+            <div className="guided-self-assessment">
+              <span>学习自评 · 不影响课程完成</span>
+              <strong>现在你觉得自己掌握了吗？</strong>
+              <div className="guided-self-assessment-options">
+                {[
+                  ["INDEPENDENT", "我可以自己完成"],
+                  ["WITH_REFERENCE", "我基本明白，但还需要参考"],
+                  ["NEEDS_PRACTICE", "我还需要再练一次"]
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className={selfAssessment === value ? "is-selected" : ""}
+                    onClick={() => {
+                      const assessment = value as "INDEPENDENT" | "WITH_REFERENCE" | "NEEDS_PRACTICE";
+                      setSelfAssessment(assessment);
+                      recordClientEvent("learning_self_assessment", { assessment, practiceId: practice.id });
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
-            )}
-
-            {evaluation?.passed && (
-              <div className="guided-real-ai-outcome">
-                <div>
-                  <span>真实工具验证 · 建议完成</span>
-                  <strong>把刚才的任务简报放到你常用的 AI 工具里运行一次</strong>
-                  <p>复制后去 ChatGPT、Claude、Gemini 或其他 AI 工具执行，再回来选择实际结果。这里不影响课程通过，但能确认你是否真的会用。</p>
-                </div>
-                <button type="button" className="btn btn-secondary" onClick={copyForExternalAI}>{copied ? "已复制 ✓" : "复制任务简报"}</button>
-                <div className="guided-outcome-options">
-                  {[
-                    ["GOOD", "基本符合预期"],
-                    ["ADJUST", "有结果，但还需要调整"],
-                    ["MISUNDERSTOOD", "AI 没理解我的意思"],
-                    ["UNSURE", "我不知道结果好不好"]
-                  ].map(([value, label]) => (
-                    <button key={value} type="button" className={externalOutcome === value ? "is-selected" : ""} onClick={() => selectExternalOutcome(value as "GOOD" | "ADJUST" | "MISUNDERSTOOD" | "UNSURE")}>{label}</button>
-                  ))}
-                </div>
-                {externalOutcome === "MISUNDERSTOOD" && <p className="guided-outcome-help">建议先检查“背景信息”和“限制条件”有没有让 AI 继续猜。你可以回到第 4 步修改后再试。</p>}
-                {externalOutcome === "UNSURE" && <p className="guided-outcome-help">先对照任务目标和输出要求：结果有没有完成你真正要的任务？如果判断不了，可以使用“还是不懂”。</p>}
-              </div>
-            )}
+              {selfAssessment === "NEEDS_PRACTICE" && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setPracticeDirty(true);
+                    setCurrentStep(3);
+                    recordClientEvent("practice_retry_requested", { practiceId: practice.id });
+                  }}
+                >
+                  再练一次 →
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -776,13 +739,9 @@ export function InteractiveLessonPanel({
           <small>{currentStep + 1} / {steps.length}</small>
         </div>
         <button type="button" className="guided-confused-button" onClick={showStillConfused}>还是不懂</button>
-        {currentStep < steps.length - 1 ? (
+        {currentStep < steps.length - 1 && currentStep !== 3 ? (
           <button type="button" className="btn btn-primary" onClick={goNext} disabled={!canGoNext}>
-            {currentStep === 2 && !checkPassed
-              ? "通过检查后继续"
-              : currentStep === 4 && !evaluation?.passed
-                ? "实操通过后继续"
-                : "下一步 →"}
+            {currentStep === 2 && !checkPassed ? "通过检查后继续" : "下一步 →"}
           </button>
         ) : (
           <span />

@@ -27,6 +27,8 @@ export const CLIENT_LEARNING_EVENTS = [
   "reference_viewed",
   "reference_applied",
   "reference_restored",
+  "learning_self_assessment",
+  "practice_retry_requested",
   "lesson_feedback_skipped",
   "help_resolved"
 ] as const;
