@@ -370,7 +370,7 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `LEARNING-UX-FINAL-001` 已将当前课程体验冻结为 `Unified Lesson Shell v1 / FROZEN_V1`。代码契约位于 `lib/learning/unified-lesson-shell.ts`，规范位于 `docs/learning/UNIFIED_LESSON_SHELL_V1.md`，并由 `npm run learning:shell:accept` 防止六步顺序/标签、三题 Mastery、slug Renderer 分支、Preview 边界和移动端导航发生无意漂移。普通课程内容任务不得顺手改变 Shell；结构变化必须另开明确 UX / Runtime 任务。
 
-`CURRICULUM-001` 已定义 `docs/learning/FORMAL_CURRICULUM_V1.md`，状态为 `DEFINED_V1`。正式学习主线固定为：AI 基础认知 → AI 工作应用 → AI Workflow → AI 业务增长与运营 → FDE / AI 解决方案落地。Stage 1 稳定核心包含 Generative AI、Prompt、Context/Token、Memory/RAG、Model/API/Tool、MCP、Skill、Agent、Multimodal。当前 `lib/courses.ts` 与 Course Builder acceptance fixtures 仍不是正式 Curriculum Source of Truth；本任务只定义课程地图，没有发布或写 Production DB。
+`CURRICULUM-001` 已将正式课程主线锁定为：AI 基础认知 → AI 工作应用 → AI 推广运营与业务增长 → AI Workflow 与自动化 → FDE / AI 解决方案落地。AI 基础认知内部按 7 个学习阶段组织：认识 AI、模型工作方式、AI 沟通、记忆与知识、外部能力连接、复用与执行方式、现代 AI 能力与边界。完整目录与内容生产批次明确分离；3–5 节只代表单次 Production Batch，不代表基础知识范围。每个核心概念只设一个 Primary Knowledge Home，后续课程只应用或深化，禁止从定义开始重复教学。当前 `lib/courses.ts` 与 Course Builder acceptance fixtures 仍不是正式 Curriculum Source of Truth。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 

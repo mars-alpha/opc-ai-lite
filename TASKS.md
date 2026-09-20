@@ -583,9 +583,9 @@ Status: COMPLETE_FROZEN_V1
 
 ### CURRICULUM-001 — Formal Curriculum Definition
 
-Status: COMPLETE_DEFINED_V1
+Status: COMPLETE_DEFINED_V1_MAINLINE_LOCKED
 
-新增 `docs/learning/FORMAL_CURRICULUM_V1.md`。正式课程主线定义为 Stage 1 AI 基础认知 → Stage 2 AI 工作应用 → Stage 3 AI Workflow → Stage 4 AI 业务增长与运营 → Stage 5 FDE / AI 解决方案落地。基础必修明确覆盖 Prompt、Context/Token、Memory/RAG、Model/API/Tool、MCP、Skill、Agent、Multimodal，并完成旧 `task-brief` / `context-token` / `api-agent` 等内容的合并拆分决策。第一批正式建设只做 5 节：生成式 AI、Prompt、Context/Token、Memory/RAG、Model/API/Tool。当前 static catalog / acceptance fixtures 仍非正式课程 Source of Truth。下一步：`CURRICULUM-002 — First Production Batch Planning`。
+`docs/learning/FORMAL_CURRICULUM_V1.md` 已同步为长期主线：AI 基础认知 → AI 工作应用 → AI 推广运营与业务增长 → AI Workflow 与自动化 → FDE / AI 解决方案落地。基础课自身按 7 个学习阶段建立完整 AI 世界模型；工作应用覆盖研究/写作/文件/数据/知识/重复任务；业务层覆盖内容运营/获客/销售/客服/运营分析/渠道；Workflow 层覆盖任务拆解、Context Engineering、Code/Skill/Tool/Agent 分工、Integration、Human-in-the-loop、Evaluation；FDE 覆盖 Discovery → Design → Pilot → Evaluation → Adoption → Capstone。每个核心概念只允许一个 Primary Knowledge Home。完整目录与 Production Batch 分离，3–5 节仅代表一次制作批次。当前 static catalog / acceptance fixtures 仍非正式课程 Source of Truth。下一步：`CURRICULUM-002 — Foundation Knowledge Map & Lesson Briefs`。
 
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
