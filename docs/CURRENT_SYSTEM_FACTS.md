@@ -376,6 +376,8 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `CURRICULUM-003` 已新增 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md`，将 F1-01～F1-04 提升为 Course Builder-ready Formal Brief，状态为 BRIEF_READY。每节已固定 canonical lessonId、最终标题、Catalog subtitle/outcome、预计时长、学习目标、知识点、误区、Scenario、六步教学意图、Three-Question Mastery focus、Grounding Requirement 与 Anti-overlap。目录规划同时新增 Catalog Display Contract，并明确 `curriculumStatus` 与 `availability` 分离：BRIEF_READY 不等于 AVAILABLE；未发布课程可展示但不得进入空 Lesson Runtime。
 
+`CURRICULUM-004` 已新增 `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`，为 AI 基础认知完整 7 Stage / 28 Lesson 补齐统一 Catalog Metadata。F1-01～F1-04 为 BRIEF_READY + COMING_SOON，其余 24 节为 PLANNED + COMING_SOON；当前没有 Foundation Lesson 标记 AVAILABLE。Catalog 可完整展示学习路径，但所有未发布课程必须保持不可进入空 Lesson Runtime。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。

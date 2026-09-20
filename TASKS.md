@@ -599,6 +599,12 @@ Status: COMPLETE_BRIEF_READY_V1
 
 新增 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md`。F1-01～F1-04 已提升为 Course Builder-ready Formal Brief，分别覆盖 AI/ML/Generative AI、LLM Model vs Product、Training vs Inference、Generation vs Retrieval vs Deterministic Logic。每节已固定最终标题、Catalog subtitle/outcome、预计时长、Prerequisite、Lesson Type/Gate、Learning Objectives、Canonical Knowledge、Misconceptions、Scenario、六步教学意图、Three-Question Mastery focus、Grounding 与 Anti-overlap。新增 Catalog Display Contract，明确 curriculumStatus 与 availability 分离；PLANNED/BRIEF_READY 可展示但不可进入空课程页。下一步：`LEARNING-CATALOG-001 — Formal Curriculum Catalog UI`。
 
+### CURRICULUM-004 — Foundation Catalog Metadata Completion
+
+Status: COMPLETE_CATALOG_READY_V1
+
+新增 `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`。AI 基础认知完整 7 Stage / 28 Lesson 均已补齐前端目录元数据，包括 lessonId、title、subtitle、learnerOutcome、lessonType、estimatedMinutes、curriculumStatus、availability、stage/module/order、prerequisites、badge，以及 Stage title/promise/count。F1-01～F1-04 为 BRIEF_READY + COMING_SOON，其余 24 节为 PLANNED + COMING_SOON；当前没有 AVAILABLE。目录可完整展示，但所有未发布课程不得进入空 Lesson Runtime。下一步：`LEARNING-CATALOG-001 — Formal Curriculum Catalog UI`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
