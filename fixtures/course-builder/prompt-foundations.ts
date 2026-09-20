@@ -23,6 +23,16 @@ export const promptFoundationsIntroPreview = {
   takeaway: "好的 Prompt（提示词）不是越长越好，而是让 AI 少猜一点。"
 } as const;
 
+export const promptFoundationsReferenceFill = {
+  goal: "为一家社区咖啡店设计一个周末拉新活动方案。",
+  context:
+    "店铺位于住宅区附近，希望吸引周边 20–35 岁、周末有休闲消费需求的新客到店，并尽量让第一次到店的人愿意再次消费。",
+  constraint:
+    "总预算控制在 1000 元以内；不使用虚假折扣；不做复杂的大型线下布置；活动要能由 2 名店员执行。",
+  output:
+    "请用表格输出 3 个活动方案，每个方案包含“玩法、目标顾客、预计预算、准备事项、执行步骤、衡量指标”，最后推荐 1 个最适合优先测试的方案并说明原因。"
+} as const;
+
 export const promptFoundationsBuildDraft = {
   mode: "BUILD",
   grounding: {

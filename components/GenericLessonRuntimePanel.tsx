@@ -94,6 +94,8 @@ type PreviewPractice = {
   passScore: number;
 };
 
+type PreviewReferenceFill = Record<string, string>;
+
 type PreviewIntroComparison = {
   situation: string;
   approaches: ReadonlyArray<{
@@ -143,6 +145,7 @@ export function GenericLessonRuntimePanel({
   previewActivity = null,
   previewPractice = null,
   previewReferenceAnswer = null,
+  previewReferenceFill = null,
   previewIntroComparison = null
 }: {
   courseSlug: string;
@@ -154,6 +157,7 @@ export function GenericLessonRuntimePanel({
   previewActivity?: PreviewActivity | null;
   previewPractice?: PreviewPractice | null;
   previewReferenceAnswer?: string | null;
+  previewReferenceFill?: PreviewReferenceFill | null;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
@@ -214,6 +218,7 @@ export function GenericLessonRuntimePanel({
   const [confusedOpen, setConfusedOpen] = useState(false);
   const [copiedActivity, setCopiedActivity] = useState(false);
   const [copiedReferenceAnswer, setCopiedReferenceAnswer] = useState(false);
+  const [filledReferenceAnswer, setFilledReferenceAnswer] = useState(false);
 
   const refresh = useCallback(async () => {
     if (previewMode) return;
@@ -724,16 +729,32 @@ export function GenericLessonRuntimePanel({
               <div className="guided-step-label">还是卡住？先参考一个完整答案</div>
               <p>你可以先看懂它为什么合格，再修改自己的版本。复制参考答案不会自动判定练习通过。</p>
               <div className="guided-preview-prompt">{previewReferenceAnswer}</div>
-              <button
-                type="button"
-                className="btn"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(previewReferenceAnswer);
-                  setCopiedReferenceAnswer(true);
-                }}
-              >
-                {copiedReferenceAnswer ? "✓ 已复制参考答案" : "复制参考答案"}
-              </button>
+              <div className="interactive-actions">
+                {previewReferenceFill && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      setContent((current) => ({ ...current, ...previewReferenceFill }));
+                      setPreviewEvaluation(null);
+                      setMessage("参考答案已填入。你可以继续修改，然后重新检查。");
+                      setFilledReferenceAnswer(true);
+                    }}
+                  >
+                    {filledReferenceAnswer ? "✓ 已填入参考答案" : "一键填充参考答案"}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(previewReferenceAnswer);
+                    setCopiedReferenceAnswer(true);
+                  }}
+                >
+                  {copiedReferenceAnswer ? "✓ 已复制参考答案" : "复制参考答案"}
+                </button>
+              </div>
             </div>
           )}
         </div>

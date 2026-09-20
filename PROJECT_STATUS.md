@@ -73,6 +73,7 @@ Check / Practice schema PASS
 APPLICATION Practice gate PASS
 Step feedback isolation PASS
 Practice reference answer PASS
+Practice one-click fill PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -112,7 +113,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-002-A` Human Review 修复已补齐：课程底部反馈现在随 Step 切换清除，不再把 Check / Practice 的提示带到后续步骤；APPLICATION 的 Practice 本地检查失败后会显示完整参考答案并支持复制，但参考答案不会自动判定通过。课程仍保持 CHECK + PRACTICE 双 Gate，Preview 不写正式进度或完成状态。
+`COURSE-BUILDER-SKILL-002-A` Human Review 修复已补齐：课程底部反馈随 Step 切换清除；APPLICATION 的 Practice 本地检查失败后会显示完整参考答案，支持“一键填充参考答案”到任务 / 背景 / 限制 / 结果四个输入框，也保留复制。填充后会清除旧评分，但不会自动提交或判定通过，用户仍需修改并重新检查。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

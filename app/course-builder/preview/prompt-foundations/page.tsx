@@ -5,7 +5,8 @@ import { createCourseBuilderReviewPacket } from "../../../../lib/learning/course
 import type { Lesson } from "../../../../lib/courses";
 import {
   promptFoundationsBuildDraft,
-  promptFoundationsIntroPreview
+  promptFoundationsIntroPreview,
+  promptFoundationsReferenceFill
 } from "../../../../fixtures/course-builder/prompt-foundations";
 
 export const dynamic = "force-static";
@@ -90,6 +91,7 @@ export default function PromptFoundationsDraftPreviewPage() {
             previewCheck={promptFoundationsBuildDraft.check}
             previewPractice={promptFoundationsBuildDraft.practice}
             previewReferenceAnswer={promptFoundationsBuildDraft.referenceAnswer}
+            previewReferenceFill={promptFoundationsReferenceFill}
             previewActivity={promptFoundationsBuildDraft.pedagogy.participation}
             previewIntroComparison={promptFoundationsIntroPreview}
           />

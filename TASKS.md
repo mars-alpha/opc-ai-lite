@@ -527,7 +527,7 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 同时 Course Builder v0.1 的 Check / Practice 已从任意 Record 升级为最小明确 Schema。Preview：`/course-builder/preview/prompt-foundations`。下一步先做 Human Review，不正式发布。
 
-Human Review 修复：Check / Practice 的底部反馈已改为步骤内有效，切换 Step 时会清除旧提示；Practice 未通过时显示完整参考答案并提供“复制参考答案”，但引用参考答案不会自动通过练习，用户仍需修改/提交自己的内容。
+Human Review 修复：Check / Practice 的底部反馈已改为步骤内有效，切换 Step 时会清除旧提示；Practice 未通过时显示完整参考答案，并提供“一键填充参考答案”与复制。填充会把参考内容分别写入任务 / 背景 / 限制 / 结果四个输入框并清除旧评分，但不会自动提交或通过。
 
 建议后续顺序：
 
