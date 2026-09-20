@@ -198,6 +198,56 @@ IMMERSIVE_MODE                 PASS
 EVENT_ALLOWLIST                PASS
 ```
 
+## Acceptance Refinement — Course Context / Hint / Feedback Placement
+
+人工体验确认“纯沉浸、移除侧栏”削弱了课程状态感，因此当前样板回调为：
+
+```text
+课程侧栏恢复
+→ 显示当前第几课
+→ 显示课程完成进度
+→ 显示已完成 / 当前 / 后续 / 锁定课
+
+Guided Step 主区保留
+→ 上一步 / 下一步不滚回页面顶部
+
+“还是不懂”
+→ 只给当前 Step 明确提示
+→ 不提醒记英文术语
+→ 选择题作答前不泄露答案
+
+第 6 步
+→ 只展示能力成长与下一步价值
+→ 不显示公众号 / 会员 CTA
+→ 右下只保留“学习路径”
+
+课程反馈
+→ 移到上一课 / 下一课导航之后
+→ 多选 + 可选文字 + 跳过
+→ 不作为 Completion Gate
+
+学习路径
+→ 增加免费 / 公众号 / OPC 会员权益说明
+→ 只说明当前 Access 事实，不改变 Access Core
+```
+
+Validation：
+
+```text
+COURSE_STATUS_VISIBLE  PASS
+NO_ANSWER_LEAK         PASS
+NO_PREQUESTION_HINT    PASS
+DIRECT_CONFUSED_HINT   PASS
+FEEDBACK_AFTER_NAV     PASS
+FEEDBACK_OUTSIDE_STEP6 PASS
+NO_FOLLOW_CTA_STEP6    PASS
+LEARNING_PATH_ONLY     PASS
+OPTIONAL_FEEDBACK      PASS
+ACCESS_INFO_IN_PATH    PASS
+npm run typecheck      PASS
+npm run build          PASS
+```
+
 ## No Schema Expansion
 
 本任务没有新增 Schema / Migration，没有建立复杂 Knowledge Point / Mastery / Recommendation Engine，也没有迁移其他 Lesson。

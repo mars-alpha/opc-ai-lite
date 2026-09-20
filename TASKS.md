@@ -402,7 +402,7 @@ Priority: P0
 Status: COMPLETE
 Priority: P0
 
-在现有 task-brief Guided Learning 样板上补齐完整体验闭环：沉浸学习模式、Step 切换保持当前视口、主动“还是不懂”、参考答案查看/一键带入/恢复、真实 AI 结果确认、能力成长展示、可跳过课程反馈。
+在现有 task-brief Guided Learning 样板上补齐完整体验闭环：保留课程目录 / 当前课 / 完成进度，主区按 Step 学习；Step 切换保持当前视口；主动“还是不懂”只给当前提示；参考答案支持查看 / 一键带入 / 恢复；真实 AI 结果可确认；能力成长先于下一课；课程反馈位于下一课导航后且可跳过。
 
 反馈不是 Completion Gate；参考答案是学习脚手架，不等于 Mastered。困难、提示、参考、真实 AI 结果等行为通过现有 Learning Event / Feedback 记录，不新增 Schema / Migration。
 
@@ -410,7 +410,7 @@ Priority: P0
 
 `LEARNING-UX-001 ACCEPTANCE — 人工体验完整 Completion Loop`
 
-先体验当前单 Lesson 样板，确认沉浸模式、参考答案、真实 AI 验证、可选反馈和移动端体验；通过后再决定是否进入 `LEARNING-CORE-001` 或推广其他课程。`AI-DAILY-001` 保持后续队列。
+继续体验当前单 Lesson 样板，重点确认课程状态可见性、Step 提示、参考答案、真实 AI 验证、课程反馈位置、学习路径权益说明和移动端体验；通过后再决定是否进入 `LEARNING-CORE-001` 或推广其他课程。`AI-DAILY-001` 保持后续队列。
 
 建议后续顺序：
 

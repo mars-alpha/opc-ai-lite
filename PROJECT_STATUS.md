@@ -19,13 +19,14 @@ ACCESS-001 Unified Resource Access Policy   COMPLETE
 ACCESS-UX-001 Locked Content Conversion UX  COMPLETE
 LEARNING-UX-001 Guided Learning Pilot        COMPLETE_WITH_MANUAL_UX_REVIEW_PENDING
 LEARNING-UX-001-C Completion Loop            COMPLETE
+LEARNING-UX-001-C Acceptance Refinement      COMPLETE
 
 NEXT: LEARNING-UX-001 ACCEPTANCE — 体验完整 Completion Loop
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@14b6d63`。
+业务代码验证基线：`main@605d231`。
 
 ```text
 npm run typecheck     PASS
@@ -39,6 +40,7 @@ Guided Lesson source  PASS
 Guided Preview mode   PASS
 Shared rule evaluator PASS
 Completion Loop smoke PASS
+Acceptance refinement PASS
 Guided Lesson build   PASS
 Test data cleanup     PASS
 ```
@@ -73,7 +75,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-先由产品侧完整体验 `chatgpt-worker / task-brief` 的完整 Completion Loop：沉浸学习、保持当前滚动位置、还是不懂、参考答案、一键带入、真实 AI 结果确认、能力成长、可选课程反馈。样板确认后再决定是否进入 `LEARNING-CORE-001` 并逐步迁移课程。
+先由产品侧继续体验 `chatgpt-worker / task-brief`：课程目录与进度保持可见，主区按 Step 学习；“还是不懂”只给当前提示；选择题不提前泄露答案；课程反馈放在下一课导航之后；第 6 步只保留能力成长与“学习路径”。学习路径同时说明免费 / 公众号 / 会员权益边界。样板确认后再决定是否进入 `LEARNING-CORE-001` 并逐步迁移课程。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

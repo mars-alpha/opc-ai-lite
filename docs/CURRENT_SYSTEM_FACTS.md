@@ -1,6 +1,6 @@
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
-> 业务代码验证基线：`main@14b6d63`
+> 业务代码验证基线：`main@605d231`
 >
 > 本文件只记录当前事实。历史过程看 `docs/task-results/*`，未来规划看 `TASKS.md`。
 
@@ -116,7 +116,7 @@ Admin Lesson edit / publish
 
 正式 Lesson 优先从 PostgreSQL 读取；DB 读取失败或内容非法时仍存在静态课程 fallback。
 
-LEARNING-UX-001 已实现 1 个真实 Guided Learning 样板：`chatgpt-worker / task-brief`。该 Lesson 不再使用长页阅读作为主要体验，而是复用现有 Lesson Check / Practice / RULE Evaluation / Completion Gate，拆成 6 步“理解 → 案例 → 检查 → 实操 → 反馈复习 → 能力总结”。LEARNING-UX-001-C 进一步补齐 Completion Loop：样板进入沉浸学习模式；Step 切换保持当前位置；用户可主动选择“还是不懂”；实操支持查看参考、一键带入、恢复自己的版本；真实 AI 操作结果可记录；课程完成后先展示能力成长，再提供可跳过的多选反馈。上述行为信号复用 learning_events / learning_feedback，不新增 Schema。其他 Lesson 尚未迁移。
+LEARNING-UX-001 已实现 1 个真实 Guided Learning 样板：`chatgpt-worker / task-brief`。该 Lesson 不再使用长页阅读作为主要体验，而是复用现有 Lesson Check / Practice / RULE Evaluation / Completion Gate，拆成 6 步“理解 → 案例 → 检查 → 实操 → 反馈复习 → 能力总结”。LEARNING-UX-001-C 当前验收版保留课程侧栏、当前课位置、完成进度和后续课程可见性，主内容区按单 Step 推进；Step 切换保持当前位置；“还是不懂”只给当前 Step 明确提示；选择题不会在作答前泄露答案；实操支持查看参考、一键带入、恢复自己的版本；真实 AI 操作结果可记录。课程完成后先展示能力成长，第 6 步不放公众号 / 会员 CTA，仅提供“学习路径”；可选课程反馈移动到上一课 / 下一课导航之后。学习路径页新增免费 / 公众号 / 会员权益说明。上述行为继续复用 learning_events / learning_feedback，不新增 Schema。其他 Lesson 尚未迁移。
 
 ### Auth
 
