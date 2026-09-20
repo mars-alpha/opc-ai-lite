@@ -1,6 +1,6 @@
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
-> 当前验证基线：`main@5575934`
+> 业务代码验证基线：`main@c007b05`
 >
 > 本文件只记录当前事实。历史过程看 `docs/task-results/*`，未来规划看 `TASKS.md`。
 
@@ -9,8 +9,8 @@
 当前治理提交后的 Git 受控文件：
 
 ```text
-TOTAL  201
-TEXT   194
+TOTAL  202
+TEXT   195
 BINARY 7
 ```
 
@@ -19,7 +19,7 @@ BINARY 7
 ```text
 app/         54
 components/  33
-docs/        33
+docs/        34
 drizzle/     21
 lib/         35
 skills/      1
@@ -74,16 +74,30 @@ Migration：
 0009 → Knowledge → Practice Draft Workflow
 ```
 
-当前重要限制：
+当前远程数据库状态：
 
 ```text
-0006_square_sharon_carter.sql 已生成并提交
-远程数据库尚未执行 0006 migration
-因此 C2 代码完成，但远程真实 DB Runtime 尚未验证
-0007_pink_spirit.sql 已生成并提交；远程数据库同样尚未执行
-0008_overrated_triton.sql 已生成；远程数据库同样尚未执行
-0009_chief_marvex.sql 已生成；远程数据库同样尚未执行
+DATABASE_TARGET = REMOTE
+Drizzle migration rows = 10
+0000 → 0009 已全部应用
+0006 Course Candidate source-aware schema   VERIFIED
+0007 Knowledge Source Links                 VERIFIED
+0008 Knowledge Deep Resources               VERIFIED
+0009 Practice Drafts                        VERIFIED
 ```
+
+RUNTIME-001 已完成真实远程 Runtime smoke：
+
+```text
+Content → Knowledge → PRIMARY / SUPPORTING provenance    PASS
+Knowledge → Course Candidate create / idempotency        PASS
+Knowledge → Deep Resource create / idempotency / update  PASS
+Knowledge → Practice Draft RULE → APPROVED → Practice DRAFT PASS
+Existing Latest Practice overwrite guard                 PASS
+RUNTIME001 test data cleanup                              PASS
+```
+
+0006–0009 不再是 Runtime blocker。
 
 ## 5. 当前核心领域
 
@@ -356,15 +370,14 @@ lib/learning/progress-adapter.ts
 ## 9. 当前已知未完成 / 阻塞
 
 ```text
-1. remote DB 未执行 migration 0006 / 0007 / 0008 / 0009
-2. MVP-009 AI Provider Runtime 未配置/未验证
-3. AI Daily 正式自动采集与审核未实现
-4. Feishu Deep Resource Admin Bridge 已完成代码；远程 0008 migration / 用户侧访问 / Feishu API 自动同步未完成
-5. Obsidian export 未实现
-6. 首个正式 Skill 已落盘：`skills/practice-draft/v0.1.ts`；真实 AI Provider 输出质量尚未验证
-7. 新权限策略尚未统一接入 Resource Access Resolver
-8. Subscription / Order / Payment / WeChat Pay 未实现
-9. 微信真实 OAuth / Official Account webhook 未实现
+1. MVP-009 AI Provider Runtime 未配置/未验证
+2. AI Daily 正式自动采集与审核未实现
+3. Feishu Deep Resource Admin Runtime 已验证；用户侧访问 / Feishu API 自动同步未完成
+4. Obsidian export 未实现
+5. 首个正式 Skill 已落盘：`skills/practice-draft/v0.1.ts`；真实 AI Provider 输出质量尚未验证
+6. 新权限策略尚未统一接入 Resource Access Resolver
+7. Subscription / Order / Payment / WeChat Pay 未实现
+8. 微信真实 OAuth / Official Account webhook 未实现
 ```
 
 ## 10. 当前下一阶段
@@ -378,14 +391,22 @@ MVP-011-F — Knowledge → Practice AI Draft Workflow
 MVP-011-G — Knowledge → Course Impact Analysis
 ```
 
-下一步先重新审计主线优先级，再决定是否进入 Obsidian Sync / Skill v0.1 真实迭代 / Access Policy；不自动扩大任务。
+RUNTIME-001 已完成：0006–0009 已应用到远程数据库，并完成 C2 / D / E / F 真实 Runtime smoke 与测试数据清理。
 
-先审计现有 Content / Knowledge / Practice / Course Candidate 是否已足够表达：
+下一阶段固定为：
 
 ```text
-External Signal
-→ Reviewed Knowledge
-→ Derived Assets
+ACCESS-001 — AI Daily / Knowledge / Practice Access Policy
+```
+
+当前产品工程顺序固定为：
+
+```text
+真实 Runtime
+→ 用户权限闭环
+→ 内容供给自动化
+→ AI / Skill 真实质量迭代
+→ 再增加 Obsidian / Media / Feishu 自动化 / Payment 等增强能力
 ```
 
 G 已完成最小 Impact Analysis → Human Confirm → Existing Candidate 链；AI/RULE 分析结果不直接落课程，也不会自动 APPROVE Candidate。

@@ -264,14 +264,14 @@ Priority: P0
 
 ## MVP-011-C2 — Multi-source Course Update Candidate
 
-Status: COMPLETE_WITH_REMOTE_MIGRATION_PENDING
+Status: COMPLETE
 Priority: P0
 
 结果：`docs/task-results/MVP-011-C2.md`。
 
 已完成 Course Update Candidate 多来源模型：旧 `LEARNING_INSIGHT` 链保持兼容；新增 `KNOWLEDGE` 来源、人工创建 Candidate、sourceKnowledgeId + lessonId 幂等约束、统一 `/admin/learning` 审核显示与 source-aware review。APPROVED 仍不会自动修改 Published Lesson。
 
-Migration：`drizzle/0006_square_sharon_carter.sql`。当前 `DATABASE_URL` 指向 REMOTE，本任务未自动执行远程 migration；真实 C2 Runtime / 部署前需先执行并验证该 migration。
+Migration：`drizzle/0006_square_sharon_carter.sql` 已在 `RUNTIME-001` 应用到远程数据库；Knowledge → Course Candidate 创建与幂等 Runtime 已验证。
 
 ## GOV-FACTS-001 — Repository Fact Baseline & Development Governance
 
@@ -284,7 +284,7 @@ Priority: P0
 
 ## MVP-011-D — Knowledge Provenance Foundation
 
-Status: COMPLETE_WITH_REMOTE_MIGRATION_PENDING
+Status: COMPLETE
 Priority: P0
 
 结果：`docs/task-results/MVP-011-D.md`。
@@ -293,11 +293,11 @@ Priority: P0
 
 新增 Admin 来源读取 / 添加 Supporting Source API 与最小 UI。没有进入 Feishu / Obsidian / Skill / Media / AI 自动选源。
 
-Migration：`drizzle/0007_pink_spirit.sql`。当前 `DATABASE_URL` 为 REMOTE，本任务未自动执行远程 migration；真实 D Runtime / 部署前需按顺序执行并验证 0006、0007。
+Migration：`drizzle/0007_pink_spirit.sql` 已在 `RUNTIME-001` 应用到远程数据库；PRIMARY / SUPPORTING provenance 与幂等 Runtime 已验证。
 
 ## MVP-011-E — Deep Resource / Feishu Bridge
 
-Status: COMPLETE_WITH_REMOTE_MIGRATION_PENDING
+Status: COMPLETE
 Priority: P0
 
 结果：`docs/task-results/MVP-011-E.md`。
@@ -306,13 +306,13 @@ Priority: P0
 
 Admin 已可在 Content → Knowledge 工作区查看、新建、编辑 Deep Resource。只有 Published Knowledge 才能把 Deep Resource 设为 PUBLISHED；未发布 Knowledge 只能保存 DRAFT / REVIEW 等不可用状态。
 
-Migration：`drizzle/0008_overrated_triton.sql`。当前 `DATABASE_URL` 为 REMOTE，本任务未自动执行；真实 Runtime / 部署前需依次执行并验证 0006、0007、0008。
+Migration：`drizzle/0008_overrated_triton.sql` 已在 `RUNTIME-001` 应用到远程数据库；Deep Resource 创建 / 幂等 / 更新 Runtime 已验证。
 
 本阶段没有 Feishu API / OAuth / Bot / 自动发布 / 双向同步，没有用户侧 Deep Resource Reader，也没有 Membership Access 接入。
 
 ## MVP-011-F — Knowledge → Practice AI Draft Workflow
 
-Status: COMPLETE_WITH_REMOTE_MIGRATION_AND_AI_RUNTIME_PENDING
+Status: COMPLETE_WITH_AI_RUNTIME_PENDING
 Priority: P0
 
 结果：`docs/task-results/MVP-011-F.md`。
@@ -323,7 +323,7 @@ Priority: P0
 
 首次真实 Skill 已落盘：`skills/practice-draft/v0.1.ts`，并被生成服务实际调用。当前环境 `AI_PROVIDER_CONFIGURED=NO`，因此本阶段真实验证的是 RULE Draft fallback；没有伪造 AI 结果。
 
-Migration：`drizzle/0009_chief_marvex.sql`。当前数据库为 REMOTE，本任务未自动执行；真实 Runtime / 部署前需依次执行并验证 0006-0009。
+Migration：`drizzle/0009_chief_marvex.sql` 已在 `RUNTIME-001` 应用到远程数据库；RULE Draft → APPROVED → LATEST_PRACTICE DRAFT 与 overwrite guard 已验证。真实 AI Provider 仍未配置。
 
 ## MVP-011-G — Knowledge → Course Impact Analysis
 
@@ -340,26 +340,44 @@ Provider 配置存在时才调用真实 AI。当前 `AI_PROVIDER_CONFIGURED=NO`�
 
 Candidate 仍固定进入 PENDING_REVIEW；分析层没有 APPROVE 权限，不写 Lesson、不发布课程。
 
+## RUNTIME-001 — Remote Migration 0006–0009 + End-to-End Runtime Verification
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/RUNTIME-001.md`。
+
+已将 0006–0009 应用到远程 PostgreSQL，并完成真实 Admin API / Remote DB smoke：
+
+```text
+Content → Knowledge / PRIMARY + SUPPORTING provenance PASS
+Knowledge → Course Candidate create / idempotency       PASS
+Knowledge → Deep Resource create / idempotency / update PASS
+Knowledge → Practice Draft RULE → APPROVED → Practice DRAFT PASS
+Existing Latest Practice overwrite guard                PASS
+RUNTIME001 test data cleanup                             PASS
+```
+
+本阶段没有新增产品功能或 Schema。
+
 # NEXT PHASE
 
-下一步先重新读取当前事实与产品价值，讨论主线优先级。不要自动进入 Obsidian / Skill / Media / Access 中的任一项。
+`ACCESS-001 — AI Daily / Knowledge / Practice Access Policy`
+
+目标：把已经批准的用户权限规则接入统一 Access Resolver，使当前远程 Runtime 形成可验收的用户侧 MVP。暂不扩 Payment / WeChat OAuth / AI Daily 自动采集 / Obsidian / Media / Feishu 自动同步。
 
 建议后续顺序：
 
 ```text
-MVP-011-D   Knowledge Asset Model
-MVP-011-E   Deep Resource / Feishu Bridge
-MVP-011-F   Knowledge → Practice AI Draft Workflow
-MVP-011-G   Knowledge → Course Impact Analysis
-KNOWLEDGE-SYNC-001   Reviewed Knowledge → Obsidian Export
-SKILL-001            Skill v0.1 Review / Iteration (after real usage)
-MEDIA-001            Skill-driven Media Asset Factory
 ACCESS-001           AI Daily / Knowledge / Practice Access Policy
+AI-DAILY-001         最小自动采集 → 审核 → 发布
+MVP-009-AI-RUNTIME   真实 Provider / Skill v0.1 质量迭代
+KNOWLEDGE-SYNC-001   Reviewed Knowledge → Obsidian Export
+SKILL-001            Skill v0.1 Review / Iteration
+MEDIA-001            Skill-driven Media Asset Factory
 ```
 
-Skill 固定原则：在第一个真实需要 Skill 的任务中，先人工 + AI 预训练一个最小初版 Skill 并落盘、版本化，再依据真实使用结果逐步优化；不先建设通用 Skill Platform，不把 Skill 只保存在临时 Prompt / 聊天上下文。
-
-远程执行 `drizzle/0006_square_sharon_carter.sql` 仍属于 C2 Runtime / 部署前置条件，不另起产品功能任务。
+Skill 固定原则：真实业务需要时版本化落盘并依据真实结果迭代；不提前建设通用 Skill Platform。
 
 # BACKLOG
 
@@ -376,7 +394,6 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
 
 
 
