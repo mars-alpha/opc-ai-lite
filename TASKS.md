@@ -575,6 +575,12 @@ Human Review 继续优化 Prompt APPLICATION：Step 1 将“模糊 / 清楚”�
 
 底部导航布局继续统一：上一步 / 下一步主按钮恢复改版前的自然尺寸；四字阶段标签与页码固定居中。手机端改为两行导航：第一行“上一步｜阶段+页码｜下一步”，第二行单独居中“还是不懂”，避免缩放后右侧辅助操作造成错位。
 
+### LEARNING-UX-FINAL-001 — Unified Lesson Shell Freeze
+
+Status: COMPLETE_FROZEN_V1
+
+统一 Lesson Shell 已冻结为 v1：六步顺序与四字教学标签、前 3 步概念掌握 / Step 4 实操 / Step 5 复盘框架 / Step 6 能力迁移、新课程三题 Mastery Sequence、Desktop / Mobile 底部导航、Preview / Runtime 边界和禁止 slug/name Renderer 分支均成为稳定契约。新增 `docs/learning/UNIFIED_LESSON_SHELL_V1.md`、`lib/learning/unified-lesson-shell.ts` 与 `learning:shell:accept`。以后普通课程内容任务不得顺手改变 Shell；结构变化必须单独立项。下一步转入 `CURRICULUM-001 — Formal Curriculum Definition`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

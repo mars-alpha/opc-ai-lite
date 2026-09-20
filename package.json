@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "learning:spec:check": "tsx scripts/validate-learning-spec.ts",
     "learning:runtime:check": "tsx scripts/validate-learning-runtime.ts",
+    "learning:shell:accept": "tsx scripts/accept-unified-lesson-shell.ts",
     "learning:runtime:pilots": "tsx scripts/provision-learning-runtime-pilots.ts",
     "learning:runtime:accept": "tsx scripts/accept-learning-runtime-pilots.ts",
     "course-builder:check": "tsx scripts/validate-course-builder.ts",

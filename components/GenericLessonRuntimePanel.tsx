@@ -14,6 +14,7 @@ import {
   isThreeQuestionMasteryComplete,
   isThreeQuestionMasterySequence
 } from "../lib/learning/check-evaluator";
+import { unifiedLessonStepLabel } from "../lib/learning/unified-lesson-shell";
 
 type InteractiveData = {
   authenticated: boolean;
@@ -143,15 +144,6 @@ function evidenceLabel(kind: RealAiEvidence) {
   if (kind === "ARTIFACT") return "真实操作产物";
   if (kind === "SYSTEM_RESULT") return "系统验证结果";
   return "无需真实 AI 证据";
-}
-
-function stepPedagogyLabel(kind: LessonRuntimePlan["steps"][number]["kind"]) {
-  if (kind === "EXPLAIN") return "建立直觉";
-  if (kind === "EXAMPLE") return "讲透方法";
-  if (kind === "CHECK") return "检查理解";
-  if (kind === "PRACTICE") return "动手实操";
-  if (kind === "REVIEW") return "复盘框架";
-  return "能力获得";
 }
 
 function runtimeBlockerMessage(blocker: string) {
@@ -1097,7 +1089,7 @@ export function GenericLessonRuntimePanel({
           setConfusedOpen(false);
         }} disabled={currentStep === 0}>← 上一步</button>
         <div className="guided-step-nav-center">
-          <span>{stepPedagogyLabel(step.kind)}</span>
+          <span>{unifiedLessonStepLabel(step.kind)}</span>
           <small>{currentStep + 1} / {plan.steps.length}</small>
         </div>
         <div className="guided-step-nav-actions">

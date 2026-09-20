@@ -41,8 +41,9 @@ COURSE-BUILDER-SKILL-002-E Formal Check Types Runtime Completion CODE_COMPLETE_L
 COURSE-BUILDER-SKILL-002-F Three-Question Mastery Sequence COMPLETE_CODE_READY_REMOTE_MIGRATIONS_PENDING
 COURSE-BUILDER-SKILL-003-A Real PRACTICE Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-004-A Real PROJECT Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
+LEARNING-UX-FINAL-001 Unified Lesson Shell Freeze COMPLETE_FROZEN_V1
 
-NEXT: Human Review — open /course-builder/preview/prompt-foundations and review the Three-Question Mastery Sequence
+NEXT: CURRICULUM-001 — Formal Curriculum Definition
 ```
 
 ## 当前系统健康
@@ -87,6 +88,7 @@ Concept mastery before practice PASS
 Check single / true-false / multi-select PASS
 Formal Check Runtime   CODE PASS / MIGRATION 0010 PENDING
 Three-question mastery PASS / MIGRATIONS 0010–0011 PENDING
+Unified Lesson Shell v1 FROZEN / ACCEPTANCE PASS
 PRACTICE Draft          PASS
 PRACTICE independent mode PASS
 PRACTICE completion gate PASS
