@@ -360,16 +360,28 @@ RUNTIME001 test data cleanup                             PASS
 
 本阶段没有新增产品功能或 Schema。
 
+## ACCESS-001 — AI Daily / Knowledge / Practice Access Policy
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/ACCESS-001.md`。
+
+已新增统一 `resolveResourceAccess()`，把 AI Daily、Knowledge、Deep Resource、Latest Practice 与进阶内容课程入口的用户权限收敛到 Deterministic Core。公众号关注只解锁完整 AI Daily，不等价于 Membership。
+
+公开 Latest Practice Reader 已改成 safe-field query；非会员不会读取或在 Next RSC payload 中获得 Knowledge body、Feishu URL、正式 Practice / Course 私有关系。正式 LATEST_PRACTICE 即使历史 accessTier=FREE，也按当前产品政策要求 Membership。
+
+匿名 / 普通 / FOLLOW / MEMBER 四身份 Runtime smoke 全部通过；无新 Schema / Migration，测试数据已清理。
+
 # NEXT PHASE
 
-`ACCESS-001 — AI Daily / Knowledge / Practice Access Policy`
+`AI-DAILY-001 — 最小自动采集 → 审核 → 发布`
 
-目标：把已经批准的用户权限规则接入统一 Access Resolver，使当前远程 Runtime 形成可验收的用户侧 MVP。暂不扩 Payment / WeChat OAuth / AI Daily 自动采集 / Obsidian / Media / Feishu 自动同步。
+目标：在当前已稳定的 Runtime + Access 基础上补齐最小内容供给链，不扩大为重型采集平台。
 
 建议后续顺序：
 
 ```text
-ACCESS-001           AI Daily / Knowledge / Practice Access Policy
 AI-DAILY-001         最小自动采集 → 审核 → 发布
 MVP-009-AI-RUNTIME   真实 Provider / Skill v0.1 质量迭代
 KNOWLEDGE-SYNC-001   Reviewed Knowledge → Obsidian Export

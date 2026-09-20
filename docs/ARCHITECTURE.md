@@ -657,7 +657,7 @@ DEPRECATED
 
 本地缓存不成为唯一事实源。
 
-当前产品权限方向固定为：
+ACCESS-001 已将当前产品权限正式接入统一 Deterministic Core Access Resolver：
 
 ```text
 AI Daily Top3
@@ -681,7 +681,7 @@ Latest Practice 详情 / 正式实操 / 由进阶内容进入的正式课程
 
 公众号关注只负责解锁完整 AI Daily，不等价于 Membership，也不能顺带解锁 Knowledge、Deep Resource、Course 或 Practice。
 
-正式实现时继续复用统一 Access Resolver / Membership Policy，不允许在各页面散落 `isMember` / `hasFollowed` 判断。
+正式实现使用 `resolveResourceAccess()` + Membership / Entitlement / Practice Access；不允许在各页面散落 `isMember` / `hasFollowed` 判断。公开 Reader 必须只查询 Preview 安全字段，不能先读取会员正文再依赖 JSX 隐藏；会员内容只有在 Access ALLOW 后才能读取。
 
 ---
 

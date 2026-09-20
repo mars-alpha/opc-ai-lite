@@ -1,6 +1,6 @@
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
-> 业务代码验证基线：`main@c007b05`
+> 业务代码验证基线：`main@1622a79`
 >
 > 本文件只记录当前事实。历史过程看 `docs/task-results/*`，未来规划看 `TASKS.md`。
 
@@ -9,8 +9,8 @@
 当前治理提交后的 Git 受控文件：
 
 ```text
-TOTAL  202
-TEXT   195
+TOTAL  205
+TEXT   198
 BINARY 7
 ```
 
@@ -19,9 +19,9 @@ BINARY 7
 ```text
 app/         54
 components/  33
-docs/        34
+docs/        35
 drizzle/     21
-lib/         35
+lib/         36
 skills/      1
 ```
 
@@ -144,17 +144,23 @@ OPC_MEMBER
 ¥299 / 年
 ```
 
-当前代码已有 `getMembershipStatus()` 和 `resolveMembershipFeatureAccess()`。
+当前代码已有 `getMembershipStatus()`、`resolveMembershipFeatureAccess()`，并由 ACCESS-001 新增统一资源级 `resolveResourceAccess()`。
 
-当前真实产品权限仍未全面接入新规则：
+当前真实用户 Access 已实现：
 
-- Official Account Follow 当前代码主要用于 Stage 1 指定章节解锁；
-- AI Daily“Top3 免费 / 关注公众号解锁全部”尚未正式接入；
-- Knowledge MEMBER-only 尚未正式接入；
-- Feishu Deep Resource MEMBER-only 尚未正式接入；
-- Latest Practice 卡片公开、正式详情/实操会员化尚未整体切换。
+```text
+AI Daily Top3                  FREE
+AI Daily 全部                  Official Account Follow OR OPC_MEMBER
+Knowledge 正文                 MEMBER
+Feishu Deep Resource           MEMBER
+Latest Practice 卡片           PUBLIC VISIBLE
+Latest Practice 详情 / 正式实操 MEMBER
+由进阶内容进入的正式课程入口     MEMBER
+```
 
-这些属于已批准目标，不得写成已实现。
+公众号关注不等价于 Membership；关注权益只额外解锁完整 AI Daily。普通 Learning Path / Course 的既有访问规则未被全局改成会员制。
+
+公开 Latest Practice Reader 只读取卡片 / Preview 安全字段；Knowledge body、Deep Resource URL、Practice / Course 关联只在 MEMBER Access 通过后读取，避免 Next RSC payload 泄露会员数据。
 
 ### Content
 
@@ -225,7 +231,7 @@ createdAt / updatedAt
 UNIQUE(knowledgeId, url)
 ```
 
-只有 Published Knowledge 才允许把 Deep Resource 设为 PUBLISHED；DRAFT / REVIEW 可以先人工维护。当前只有 Admin 创建 / 更新 / 查看引用，没有真实 Feishu API 自动发布、OAuth、机器人或双向同步，也没有用户侧会员读取。
+只有 Published Knowledge 才允许把 Deep Resource 设为 PUBLISHED；DRAFT / REVIEW 可以先人工维护。Admin 仍负责创建 / 更新引用；ACCESS-001 已增加 MEMBER-only 用户读取，非会员不会获得 Published Feishu URL。真实 Feishu API 自动发布、OAuth、机器人或双向同步仍未实现。
 
 ### Practice
 
@@ -372,12 +378,11 @@ lib/learning/progress-adapter.ts
 ```text
 1. MVP-009 AI Provider Runtime 未配置/未验证
 2. AI Daily 正式自动采集与审核未实现
-3. Feishu Deep Resource Admin Runtime 已验证；用户侧访问 / Feishu API 自动同步未完成
+3. Feishu Deep Resource Admin + MEMBER 用户读取已验证；Feishu API 自动同步未完成
 4. Obsidian export 未实现
 5. 首个正式 Skill 已落盘：`skills/practice-draft/v0.1.ts`；真实 AI Provider 输出质量尚未验证
-6. 新权限策略尚未统一接入 Resource Access Resolver
-7. Subscription / Order / Payment / WeChat Pay 未实现
-8. 微信真实 OAuth / Official Account webhook 未实现
+6. Subscription / Order / Payment / WeChat Pay 未实现
+7. 微信真实 OAuth / Official Account webhook 未实现
 ```
 
 ## 10. 当前下一阶段
@@ -393,10 +398,12 @@ MVP-011-G — Knowledge → Course Impact Analysis
 
 RUNTIME-001 已完成：0006–0009 已应用到远程数据库，并完成 C2 / D / E / F 真实 Runtime smoke 与测试数据清理。
 
+ACCESS-001 已完成统一资源级 Access Policy 与匿名 / 普通 / 公众号关注 / 会员四身份 Runtime 验收。
+
 下一阶段固定为：
 
 ```text
-ACCESS-001 — AI Daily / Knowledge / Practice Access Policy
+AI-DAILY-001 — 最小自动采集 → 审核 → 发布
 ```
 
 当前产品工程顺序固定为：
