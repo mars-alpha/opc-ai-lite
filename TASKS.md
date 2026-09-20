@@ -473,6 +473,16 @@ v0.1 最小契约已完成：skills/course-builder/v0.1.ts 固定 BUILD / IMPROV
 
 下一步：COURSE-BUILDER-SKILL-001-A — Real Lesson Draft Acceptance。选一个真实 Lesson Topic，用 v0.1 生成 BUILD Draft，人工审阅内容质量、Step 结构、Check / Practice 与 Unified Lesson Shell 适配；通过真实样本后再决定 Provider 接入、Draft persistence 与 Admin Review UI。
 
+### COURSE-BUILDER-SKILL-001-A — Real Lesson Draft Acceptance
+
+Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+真实样本已选择 `ai-literacy/skill-foundations`：“Skill 是什么：把可复用方法交给 AI”。原因：现有目录已经有“API、Tool、MCP 与 Agent”，继续新增 Agent 基础课会重复；独立 Skill 概念课目前缺失，且符合已确认的基础课程方向。
+
+验收结果：Course Builder Code Validation PASS；Lesson Type=CONCEPT；Step=EXPLAIN → EXAMPLE → CHECK → REVIEW → CAPABILITY；Completion Gate=CHECK；Practice=NONE；REAL_AI=NONE；Generic Runtime Plan PASS；Unified Lesson Shell compatibility PASS；curriculum fit PASS。
+
+Draft 当前仅保存在 `fixtures/course-builder/skill-foundations.ts`，未进入 `lib/courses.ts`、Lesson Spec Registry 或 Production Data。Review Packet 仍为 `PENDING_REVIEW`。下一步先由 Human Review 判断内容、难度、位置与表达是否符合正式课程，再决定是否进入下一层 Runtime。
+
 建议后续顺序：
 
 ```text

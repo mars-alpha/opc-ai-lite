@@ -326,6 +326,8 @@ Impact Analysis 本身不落新表、不生成新 migration。RULE 模式只在 
 
 当前已落地 Course Builder Skill v0.1 契约层：BUILD / IMPROVE Structured Output → lib/learning/course-builder.ts Code Validation → PENDING_REVIEW Review Packet。BUILD 复用 Lesson Spec validator，并校验课程正文、required Check / Practice 对齐；IMPROVE 只生成修改 Proposal。两种模式都拒绝 Skill 携带 publish/status/access/entitlement/progress/completion 等 Core Authority 字段。当前不落数据库、不调用真实 Provider、不写 Published Course。
 
+首个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/skill-foundations.ts`：`ai-literacy/skill-foundations`，题目“Skill 是什么：把可复用方法交给 AI”。它已通过 Code Validation、CONCEPT rules、Generic Runtime Plan、Unified Lesson Shell compatibility 与 curriculum fit 检查，但仍是 `PENDING_REVIEW` acceptance fixture，不属于正式课程 Source of Truth，也未注册到 Runtime。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：
