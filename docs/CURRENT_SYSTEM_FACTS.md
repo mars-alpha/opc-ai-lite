@@ -406,19 +406,19 @@ ACCESS-001 已完成统一资源级 Access Policy 与匿名 / 普通 / 公众号
 
 ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价值不隐藏；公众号关注与 Membership 保持两条独立转化路径。
 
-LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现；`chatgpt-worker / task-brief` 是第一份 Reference Lesson。LEARNING-SPEC-001 / 002 已固定 Lesson Spec。LEARNING-RUNTIME-001 进一步建立 Generic Lesson Runtime Foundation：`TASK_BRIEF_V1` 与 `STRUCTURED_TEXT_V1` 共用 Practice Submission / Evaluation Runtime；Completion Core 可执行 CHECK / PRACTICE / REAL_AI Gate；Runtime Read Model 暴露 configurationReady / blockers；Interactive API 遵守 Access Core，只有既有 task-brief Reference Preview 保留明确白名单。Real AI Evidence 复用 `learning_events`，当前只把 USER_CONFIRMATION 与可信 SYSTEM_RESULT 视为 Runtime 支持；ARTIFACT 因没有正式 Resolver 保持 unsupported。没有新增数据库 Schema / Migration，也未改变 Access Core。
+LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现；`chatgpt-worker / task-brief` 是第一份 Reference Lesson。LEARNING-SPEC-001 / 002 已固定 Lesson Spec。LEARNING-RUNTIME-001 进一步建立 Generic Lesson Runtime Foundation：`TASK_BRIEF_V1` 与 `STRUCTURED_TEXT_V1` 共用 Practice Submission / Evaluation Runtime；Completion Core 可执行 CHECK / PRACTICE / REAL_AI Gate；Runtime Read Model 暴露 configurationReady / blockers。Interactive Read / Check 现统一遵守 Access Core，不再为 task-brief 保留 lesson-name Preview 白名单。Real AI Evidence 复用 `learning_events`，当前只把 USER_CONFIRMATION 与可信 SYSTEM_RESULT 视为 Runtime 支持；ARTIFACT 因没有正式 Resolver 保持 unsupported。没有新增数据库 Schema / Migration，也未改变 Access Core。
 
 LEARNING-RUNTIME-001-A 已完成正式 Pilot Provisioning 与真实 Runtime Acceptance：`check_memory_rag_source` 已绑定 `lesson_ai_literacy_memory_rag`，required + PUBLISHED；`practice_task_decomposition_nodes` 已绑定 `lesson_ai_workflow_task_decomposition`，required + PUBLISHED + `STRUCTURED_TEXT_V1` + passScore 80。Acceptance 确认两个 Pilot 都已 `configurationReady=true / enforcementActive=true`，且 Completion Core 会在 required Gate 未满足时阻断、通过后放行。一次性测试用户及其所有关联数据已清理。没有新增 Migration / Schema，也没有改变 Access Core。
 
-正式课程 UX 当前仍以 `chatgpt-worker / task-brief` Reference Lesson 为唯一基线。Lesson Type 不对应独立产品页面：CONCEPT / APPLICATION / PRACTICE / PROJECT 只改变 Step 组合、内容、交互模块与 Completion Gate，正式 Lesson 仍共享课程上下文 / 侧栏 / 当前课位置 + 单 Step Guided Learning Shell。`memory-rag` 与 `task-decomposition` 虽已完成 Runtime Pilot，但尚未完成 Reference UX 对齐；其旧长页面呈现不能视为最终课程形态。此前 `/learning-preview` 三课型演示页已删除。
+LEARNING-UX-RUNTIME-ALIGN-001 第一轮已完成 Reference UX 对齐：`task-brief`、`memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）现在由同一 Generic Guided Lesson Shell 渲染，统一保留课程上下文 / 侧栏 / 当前课位置 / 进度 / 单 Step Guided Learning / Review / Capability / 下一课流程。Core 只依据 Lesson Spec、Step Kind 与 Completion Gate 组合行为，不再按课程名选择 Renderer；旧 `InteractiveLessonPanel` 已删除。未注册课程暂时继续旧长页，不能视为新的正式 Lesson 形态。此前 `/learning-preview` 三课型演示页已删除。
 
 下一阶段候选：
 
 ```text
-LEARNING-UX-RUNTIME-ALIGN-001 — Reference UX Unification
+LEARNING-UX-RUNTIME-ALIGN-001 — APPLICATION Alignment（第一轮 CONCEPT / PRACTICE 已完成）
 ```
 
-先把 `memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）接入 `task-brief` 同一套正式 Guided Lesson Shell，验证不同 Lesson Type 只改变 Step 组合而不改变整体课程体验。完成后再补 APPLICATION 对齐并进入 Course Builder Skill。`writing-files` 继续等待可信 Artifact Resolver，不允许用户手填引用绕过 REAL_AI Gate。
+下一步只补 APPLICATION 对齐，继续复用同一 Guided Lesson Shell，不新增 APPLICATION 页面形态。当前 `writing-files` 的 Spec 已通过，但因 REAL_AI evidence = ARTIFACT 且正式 Artifact Resolver 尚未接入，仍不得进入可完成的正式 Runtime；不允许用户手填引用绕过 REAL_AI Gate。APPLICATION 对齐通过后才进入 Course Builder Skill。
 
 AI-DAILY-001 保持排队，不在本阶段扩展。
 

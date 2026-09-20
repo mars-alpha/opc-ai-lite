@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { RealAiEvidence } from "../lib/learning/lesson-spec";
 import type { LessonRuntimePlan } from "../lib/learning/lesson-runtime";
+import type { Lesson } from "../lib/courses";
 import {
   rulePracticeEvaluator,
   type EvaluationResult,
@@ -77,11 +78,13 @@ function evidenceLabel(kind: RealAiEvidence) {
 export function GenericLessonRuntimePanel({
   courseSlug,
   lessonSlug,
-  plan
+  plan,
+  lesson
 }: {
   courseSlug: string;
   lessonSlug: string;
   plan: LessonRuntimePlan;
+  lesson: Lesson;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(null);
   const [runtime, setRuntime] = useState<RuntimeData | null>(null);
@@ -93,6 +96,8 @@ export function GenericLessonRuntimePanel({
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [confusedOpen, setConfusedOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     const params = new URLSearchParams({ courseSlug, lessonSlug });
@@ -158,6 +163,16 @@ export function GenericLessonRuntimePanel({
     ...(plan.requiresPractice ? [Boolean(practicePassed)] : []),
     ...(plan.requiresRealAi ? [Boolean(realAiPassed)] : [])
   ];
+
+  const step = plan.steps[currentStep];
+  const canAdvance =
+    step?.kind === "CHECK"
+      ? Boolean(checkPassed)
+      : step?.kind === "PRACTICE"
+        ? Boolean(practicePassed) && Boolean(realAiPassed)
+        : step?.kind === "CAPABILITY"
+          ? requiredGateStates.every(Boolean)
+          : true;
 
   async function submitCheck() {
     if (!check || !answer) return;
@@ -290,20 +305,74 @@ export function GenericLessonRuntimePanel({
     }
   }
 
+  if (!interactive || !runtime || !step) {
+    return <section className="interactive-lesson guided-lesson guided-loading-panel">
+      <div className="kicker">引导式学习</div>
+      <h2>{message ? "课程互动暂时没有准备好" : "正在准备这一课…"}</h2>
+      <p>{message ?? "正在读取本课 Step、互动内容和完成条件。"}</p>
+    </section>;
+  }
+
   return (
-    <section className="interactive-panel" id="lesson-runtime">
-      <div className="interactive-head">
+    <section className="interactive-lesson guided-lesson" id="lesson-runtime">
+      <div className="guided-lesson-top">
         <div>
-          <div className="kicker">Runtime learning</div>
-          <h2>完成本课验收</h2>
-          <p>按本课类型完成必要的理解检查、实操或真实 AI 操作。</p>
+          <div className="kicker">引导式学习</div>
+          <h2>{step.title}</h2>
+          <p>{step.objective}</p>
         </div>
-        <span>
-          {requiredGateStates.filter(Boolean).length}/{requiredGateStates.length} 条件就绪
-        </span>
+        <div className="guided-progress-copy">
+          <strong>{currentStep + 1} / {plan.steps.length}</strong>
+          <span>{step.kind}</span>
+        </div>
       </div>
 
-      {plan.requiresCheck && check && (
+      <div className="guided-progress-track" aria-label="学习进度">
+        {plan.steps.map((item, index) => (
+          <button
+            type="button"
+            key={item.id}
+            className={index === currentStep ? "is-current" : index < currentStep ? "is-done" : ""}
+            onClick={() => {
+              if (index <= currentStep || (index === currentStep + 1 && canAdvance)) {
+                setCurrentStep(index);
+                setConfusedOpen(false);
+              }
+            }}
+          >
+            <span>{index + 1}</span>
+            <small>{item.title}</small>
+          </button>
+        ))}
+      </div>
+
+      <div className="guided-step-panel">
+      {step.kind === "EXPLAIN" && (
+        <div className="guided-step-content">
+          <div className="guided-step-label">理解核心概念</div>
+          <h3>{lesson.plainExplanation}</h3>
+          <p>{lesson.whyItMatters}</p>
+          <div className="guided-review-points">
+            {lesson.points.map((point) => <div key={point}><strong>{point}</strong></div>)}
+          </div>
+          {lesson.content.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+        </div>
+      )}
+
+      {step.kind === "EXAMPLE" && (
+        <div className="guided-step-content">
+          <div className="guided-step-label">案例</div>
+          <h3>{lesson.example.title}</h3>
+          <p>{lesson.example.situation}</p>
+          {(lesson.example.before || lesson.example.after) && <div className="guided-case-compare">
+            {lesson.example.before && <div><span>原来的做法</span><p>{lesson.example.before}</p></div>}
+            {lesson.example.after && <div><span>调整后的做法</span><p>{lesson.example.after}</p></div>}
+          </div>}
+          <div className="guided-gain"><strong>结果</strong><p>{lesson.example.result}</p></div>
+        </div>
+      )}
+
+      {step.kind === "CHECK" && plan.requiresCheck && check && (
         <div className="interactive-block">
           <div className="kicker">理解检查</div>
           <h3>{check.question}</h3>
@@ -341,7 +410,7 @@ export function GenericLessonRuntimePanel({
         </div>
       )}
 
-      {plan.requiresPractice && practice && (
+      {step.kind === "PRACTICE" && plan.requiresPractice && practice && (
         <div className="interactive-block" id="interactive-practice">
           <div className="kicker">实操验收</div>
           <h3>{practice.title}</h3>
@@ -413,7 +482,7 @@ export function GenericLessonRuntimePanel({
         </div>
       )}
 
-      {plan.requiresRealAi && (
+      {step.kind === "PRACTICE" && plan.requiresRealAi && (
         <div className="interactive-block">
           <div className="kicker">真实 AI 操作</div>
           <h3>{evidenceLabel(plan.realAiEvidence)}</h3>
@@ -455,7 +524,54 @@ export function GenericLessonRuntimePanel({
         </div>
       )}
 
+      {step.kind === "REVIEW" && (
+        <div className="guided-step-content">
+          <div className="guided-step-label">学习回顾</div>
+          <h3>用结果反查你是否真的理解</h3>
+          <div className="guided-review-points">
+            {lesson.mistakes.map((item) => <div key={item}><strong>避免</strong><p>{item}</p></div>)}
+          </div>
+          <div className="guided-gain">
+            <strong>下一步关联</strong>
+            <p>{lesson.related.join(" · ")}</p>
+          </div>
+        </div>
+      )}
+
+      {step.kind === "CAPABILITY" && (
+        <div className="guided-step-content">
+          <div className="guided-step-label">能力获得</div>
+          <h3>这一课最终要留下的是可重复使用的能力</h3>
+          <div className="guided-achievement-list">
+            {plan.capabilityGain.map((item) => <div key={item}><span>✓</span><p>{item}</p></div>)}
+          </div>
+          {plan.nextLessonValue && <div className="guided-next-value"><div><span>继续学习</span><strong>{plan.nextLessonValue}</strong></div></div>}
+        </div>
+      )}
+      </div>
+
+      {confusedOpen && (
+        <div className="guided-confused-panel">
+          <span>提示</span>
+          <strong>{step.objective}</strong>
+          <p>先只完成当前这一步，不需要一次理解整课。对照上面的目标，再检查你缺的是概念、判断还是练习结果。</p>
+        </div>
+      )}
+
       {message && <div className="interactive-message">{message}</div>}
+
+      <div className="guided-step-nav">
+        <button type="button" className="btn btn-secondary" onClick={() => setCurrentStep((value) => Math.max(0, value - 1))} disabled={currentStep === 0}>← 上一步</button>
+        <div><span>{step.title}</span><small>{currentStep + 1} / {plan.steps.length}</small></div>
+        <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>
+        {currentStep < plan.steps.length - 1 && (
+          <button type="button" className="btn btn-primary" disabled={!canAdvance} onClick={() => {
+            if (!canAdvance) return;
+            setCurrentStep((value) => Math.min(plan.steps.length - 1, value + 1));
+            setConfusedOpen(false);
+          }}>下一步 →</button>
+        )}
+      </div>
     </section>
   );
 }

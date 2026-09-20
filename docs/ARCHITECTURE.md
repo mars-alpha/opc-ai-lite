@@ -751,6 +751,7 @@ Lesson Spec 只有在所需 Interactive Data 已配置且 evidence Runtime 受�
 `memory-rag` 与 `task-decomposition` 是第一批正式 provision 并完成真实 Runtime Acceptance 的 Generic Runtime Pilot；Pilot 成功不等于允许批量迁移，后续课程仍必须经过 Spec Validation / Runtime Readiness / Human Review
 正式课程只有一套 Guided Lesson Shell：课程上下文 / 侧栏 / 当前课位置保持可见，主区域单 Step 专注。CONCEPT / APPLICATION / PRACTICE / PROJECT 不建立独立页面产品；Lesson Type 只决定 Step 组合、内容模块与 Completion Gate
 `task-brief` Reference Lesson 是当前正式 UX 基线。任何新 Lesson Renderer / Pilot 必须优先对齐该 Shell；不得用独立 Preview / Lab 页面替代正式 UX 验证
+LEARNING-UX-RUNTIME-ALIGN-001 第一轮后，Reference Shell 已提升为 Generic Guided Lesson Renderer：task-brief / memory-rag / task-decomposition 共用一个页面入口和一个 Renderer。Renderer 读取 Lesson Spec / Step Kind / Completion Gate，不读取课程名决定 UI；旧 task-brief 专用 InteractiveLessonPanel 与 Preview Access 白名单已移除。
 ```
 
 参考答案属于 Learning Scaffold：

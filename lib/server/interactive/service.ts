@@ -118,17 +118,13 @@ export async function getInteractiveLesson(
   const lesson = await getPublishedLesson(courseSlug, lessonSlug);
   if (!lesson) throw new Error("LESSON_NOT_FOUND");
 
-  const isReferencePreview =
-    courseSlug === "chatgpt-worker" && lessonSlug === "task-brief";
-  if (!isReferencePreview) {
-    const access = await getLessonAccess(userId, courseSlug, lessonSlug);
-    if (!access.allowed) {
-      throw new Error(
-        access.reason === "PREREQUISITE_STAGE_REQUIRED"
-          ? "STAGE_PREREQUISITE_REQUIRED"
-          : "LESSON_LOCKED"
-      );
-    }
+  const access = await getLessonAccess(userId, courseSlug, lessonSlug);
+  if (!access.allowed) {
+    throw new Error(
+      access.reason === "PREREQUISITE_STAGE_REQUIRED"
+        ? "STAGE_PREREQUISITE_REQUIRED"
+        : "LESSON_LOCKED"
+    );
   }
 
   const db = getDatabase();
@@ -248,13 +244,10 @@ export async function getInteractiveLesson(
   };
 }
 
-const REFERENCE_PREVIEW_CHECK_IDS = new Set(["check_task_brief_constraint"]);
-
 async function evaluateCheckAnswer(
   userId: string | null,
   checkId: string,
-  answer: unknown,
-  allowReferencePreview = false
+  answer: unknown
 ) {
   if (typeof answer !== "string" || !answer.trim() || answer.length > 120) {
     throw new Error("INVALID_CHECK_ANSWER");
@@ -280,21 +273,17 @@ async function evaluateCheckAnswer(
     .limit(1);
   if (!identity) throw new Error("CHECK_NOT_FOUND");
 
-  const isReferencePreview =
-    allowReferencePreview && REFERENCE_PREVIEW_CHECK_IDS.has(checkId);
-  if (!isReferencePreview) {
-    const access = await getLessonAccess(
-      userId,
-      identity.courseSlug,
-      identity.lessonSlug
+  const access = await getLessonAccess(
+    userId,
+    identity.courseSlug,
+    identity.lessonSlug
+  );
+  if (!access.allowed) {
+    throw new Error(
+      access.reason === "PREREQUISITE_STAGE_REQUIRED"
+        ? "STAGE_PREREQUISITE_REQUIRED"
+        : "LESSON_LOCKED"
     );
-    if (!access.allowed) {
-      throw new Error(
-        access.reason === "PREREQUISITE_STAGE_REQUIRED"
-          ? "STAGE_PREREQUISITE_REQUIRED"
-          : "LESSON_LOCKED"
-      );
-    }
   }
 
   const normalized = answer.trim();
@@ -313,15 +302,9 @@ function checkResult(check: { explanation: string }, isCorrect: boolean) {
 
 export async function previewLessonCheck(
   checkId: string,
-  answer: unknown,
-  allowReferencePreview = false
+  answer: unknown
 ) {
-  const { check, isCorrect } = await evaluateCheckAnswer(
-    null,
-    checkId,
-    answer,
-    allowReferencePreview
-  );
+  const { check, isCorrect } = await evaluateCheckAnswer(null, checkId, answer);
   return checkResult(check, isCorrect);
 }
 

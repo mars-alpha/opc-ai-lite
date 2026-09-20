@@ -2,6 +2,7 @@ import { lessonSpecValidationSamples } from "./lesson-spec-samples";
 import type { LessonSpec } from "./lesson-spec";
 
 const runtimeRegisteredLessonKeys = new Set([
+  "chatgpt-worker/task-brief",
   "ai-literacy/memory-rag",
   "ai-workflow/task-decomposition"
 ]);

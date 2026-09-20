@@ -453,12 +453,14 @@ Priority: P0
 
 `LEARNING-UX-RUNTIME-ALIGN-001 — Reference UX Unification`
 
-Status: READY
+Status: IN_PROGRESS_FIRST_ROUND_COMPLETE
 Priority: P0
 
-最新 UX 决策：正式课程不再为 CONCEPT / APPLICATION / PRACTICE 各做独立页面形态。所有 Lesson 统一使用 `task-brief` 已确认的 Reference Lesson Shell：课程上下文 / 侧栏 / 当前课位置 + 单 Step Guided Learning。Lesson Type 只决定 Step 组合、内容与 Completion Gate。
+最新 UX 决策：正式课程不再为 CONCEPT / APPLICATION / PRACTICE 各做独立页面形态。所有 Lesson 统一使用 `task-brief` 已确认的 Reference Lesson Shell：课程上下文 / 侧栏 / 当前课位置 + 单 Step Guided Learning。Lesson Type 只决定 Step 组合、内容、交互模块与 Completion Gate。
 
-第一轮只把已完成 Runtime Pilot 的 `memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）接入同一套 Reference UX；不新增三课型 Preview，不复制页面，不批量迁移其他课程。若两类 UX 验证稳定，再补 APPLICATION 对齐，之后才进入 `COURSE-BUILDER-SKILL-001`。
+第一轮已完成：`task-brief`、`memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）均由同一 Generic Guided Lesson Shell 渲染；页面不再按 lesson 名分支，Runtime Core 不再保留 task-brief Preview 白名单；旧 `InteractiveLessonPanel` 已删除。未新增三课型 Preview、未复制页面、未批量迁移其他课程。
+
+下一步仍属于本任务：补 APPLICATION 对齐。`writing-files` 的 Lesson Spec 已通过，但 REAL_AI evidence = ARTIFACT；在可信 Artifact Resolver 接入前保持 Runtime blocker，不允许用手填引用绕过 Gate。APPLICATION 验证稳定后，才进入 `COURSE-BUILDER-SKILL-001`。
 
 此前 `/learning-preview` 三课型演示页因与 Reference Lesson 差异过大已删除，不作为后续实现基线。
 

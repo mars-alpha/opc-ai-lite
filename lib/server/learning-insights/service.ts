@@ -231,11 +231,7 @@ export function resolveLearningHelp(input: {
       title: "先用本课实操验证一次",
       message:
         "优先回到本课的“马上动手 / 互动练习”，用你自己的真实任务完成一次。系统会根据验收或评分告诉你具体卡在哪里。",
-      href:
-        lessonHref(input.courseSlug, input.lessonSlug) +
-        (input.courseSlug === "chatgpt-worker" && input.lessonSlug === "task-brief"
-          ? "#interactive-practice"
-          : "#lesson-practice"),
+      href: lessonHref(input.courseSlug, input.lessonSlug) + "#lesson-runtime",
       canSubmitFeedback: true
     };
   }
@@ -246,11 +242,7 @@ export function resolveLearningHelp(input: {
       title: "先核对评分依据",
       message:
         "先看当前 Evaluation 里的“为什么、错在哪里、怎么改、示例”。如果你认为评分仍与实际结果不一致，再提交给后台检查 Rubric / Evaluator。",
-      href:
-        lessonHref(input.courseSlug, input.lessonSlug) +
-        (input.courseSlug === "chatgpt-worker" && input.lessonSlug === "task-brief"
-          ? "#interactive-practice"
-          : ""),
+      href: lessonHref(input.courseSlug, input.lessonSlug) + "#lesson-runtime",
       canSubmitFeedback: true
     };
   }

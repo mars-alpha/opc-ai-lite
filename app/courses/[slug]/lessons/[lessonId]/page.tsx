@@ -5,7 +5,6 @@ import { CopyableGuide } from "../../../../../components/CopyableGuide";
 import { GenericLessonRuntimePanel } from "../../../../../components/GenericLessonRuntimePanel";
 import { LessonCompleteButton } from "../../../../../components/LessonCompleteButton";
 import { LessonCourseSidebar } from "../../../../../components/LessonCourseSidebar";
-import { InteractiveLessonPanel } from "../../../../../components/InteractiveLessonPanel";
 import { LessonHelpPanel } from "../../../../../components/LessonHelpPanel";
 import { LessonFeedbackPrompt } from "../../../../../components/LessonFeedbackPrompt";
 import { LockedAccessCta } from "../../../../../components/LockedAccessCta";
@@ -39,8 +38,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
   const currentPath="/courses/"+course.slug+"/lessons/"+lesson.id;
   const loginHref="/auth?mode=login&returnTo="+encodeURIComponent(currentPath);
 
-  const isGuidedPilot = course.slug === "chatgpt-worker" && lesson.id === "task-brief";
-  const registeredSpec = isGuidedPilot ? null : getLessonSpec(course.slug, lesson.id);
+  const registeredSpec = getLessonSpec(course.slug, lesson.id);
   const runtimeReadModel =
     registeredSpec && access.allowed
       ? await getLessonRuntimeReadModel(
@@ -54,7 +52,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
       ? runtimeReadModel.plan
       : null;
 
-  if (isGuidedPilot) {
+  if (genericRuntimePlan) {
   return <section className="lesson-page">
       <div className="container lesson-shell guided-learning-shell">
         <LessonCourseSidebar
@@ -70,31 +68,24 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           </div>
 
           <div className="guided-lesson-hero">
-            <div className="kicker">OPC 引导式课程 · 样板</div>
+            <div className="kicker">OPC 引导式课程 · {genericRuntimePlan.lessonType}</div>
             <h1>{lesson.title}</h1>
-            <p>把一个真实需求拆成任务目标、背景信息、输入材料、限制条件和输出要求，让 AI 不再靠猜。</p>
+            <p>{lesson.summary}</p>
             <div className="guided-lesson-outcome">
               <span>完成后你会获得</span>
-              <strong>把一个真实工作需求整理成 AI 可以稳定执行的结构化任务简报</strong>
+              <strong>{genericRuntimePlan.capabilityGain[0]}</strong>
             </div>
           </div>
 
-          <InteractiveLessonPanel
+          <GenericLessonRuntimePanel
             courseSlug={course.slug}
             lessonSlug={lesson.id}
-            practiceId="practice_task_brief_structured"
-            previewMode={!access.allowed}
+            plan={genericRuntimePlan}
+            lesson={lesson}
           />
 
           <div className="lesson-complete-wrap">
-            {access.allowed ? (
-              <LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice />
-            ) : (
-              <div className="guided-preview-complete-note">
-                <strong>当前是样板体验模式</strong>
-                <p>你可以完整体验学习、提示和评分，但不会写入正式完成状态。正式课程仍需按学习路径完成前置阶段后解锁。</p>
-              </div>
-            )}
+            <LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice={genericRuntimePlan.requiresPractice} />
           </div>
 
           <nav className="lesson-nav lesson-nav-with-rating" aria-label="课时导航">
@@ -248,22 +239,16 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           </div>
         </section>
 
-        {genericRuntimePlan
-          ? <GenericLessonRuntimePanel
-              courseSlug={course.slug}
-              lessonSlug={lesson.id}
-              plan={genericRuntimePlan}
-            />
-          : <section className="lesson-practice-box" id="lesson-practice">
-              <div className="kicker">5–20 min practice</div>
-              <h2>马上动手</h2>
-              <p>{lesson.practice.goal}</p>
-              <ol>{lesson.practice.steps.map((step)=><li key={step}>{step}</li>)}</ol>
-              <div className="lesson-acceptance">
-                <span>验收标准</span>
-                <ul>{lesson.practice.acceptance.map((item)=><li key={item}>{item}</li>)}</ul>
-              </div>
-            </section>}
+        <section className="lesson-practice-box" id="lesson-practice">
+          <div className="kicker">5–20 min practice</div>
+          <h2>马上动手</h2>
+          <p>{lesson.practice.goal}</p>
+          <ol>{lesson.practice.steps.map((step)=><li key={step}>{step}</li>)}</ol>
+          <div className="lesson-acceptance">
+            <span>验收标准</span>
+            <ul>{lesson.practice.acceptance.map((item)=><li key={item}>{item}</li>)}</ul>
+          </div>
+        </section>
 
         <section className="lesson-wrapup-grid">
           <div className="lesson-mistakes">
@@ -287,7 +272,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           </div>
         </section>
 
-        <div className="lesson-complete-wrap"><LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice={genericRuntimePlan?.requiresPractice ?? false} /></div>
+        <div className="lesson-complete-wrap"><LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} /></div>
 
         <nav className="lesson-nav" aria-label="课时导航">
           {previous?<Link href={"/courses/"+course.slug+"/lessons/"+previous.id}><small>上一课</small><strong>← {previous.title}</strong></Link>:<span />}

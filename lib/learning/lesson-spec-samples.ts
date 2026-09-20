@@ -9,6 +9,43 @@ const accessPresentation = {
 export const lessonSpecValidationSamples: LessonSpec[] = [
   {
     version: "0.2",
+    courseSlug: "chatgpt-worker",
+    lessonId: "task-brief",
+    title: "用任务简报替代“神奇 Prompt”",
+    lessonType: "APPLICATION",
+    learningObjectives: [
+      "把模糊需求整理成可执行的任务简报",
+      "用目标、背景、输入、限制和输出减少 AI 猜测"
+    ],
+    knowledgePoints: ["goal", "context", "input", "constraint", "output"],
+    prerequisites: ["prompt-context"],
+    requiresExample: true,
+    requiresCheck: true,
+    practiceMode: "INDEPENDENT",
+    realAiOperation: "NONE",
+    realAiEvidence: "NONE",
+    referenceAnswerEnabled: true,
+    reviewEnabled: true,
+    selfAssessmentEnabled: true,
+    courseFeedbackEnabled: true,
+    completionGates: ["CHECK", "PRACTICE"],
+    steps: [
+      { id: "explain", kind: "EXPLAIN", title: "先理解任务简报", objective: "知道稳定任务至少需要哪些关键信息。" },
+      { id: "example", kind: "EXAMPLE", title: "对比模糊任务与可执行任务", objective: "看懂为什么结构化说明能减少模型猜测。" },
+      { id: "check", kind: "CHECK", title: "理解检查", objective: "正确区分目标、背景、限制与输出职责。" },
+      { id: "practice", kind: "PRACTICE", title: "写自己的任务简报", objective: "用真实任务完成一次结构化练习并通过验收。" },
+      { id: "review", kind: "REVIEW", title: "学习回顾", objective: "回顾自己的结果与最容易混淆的边界。" },
+      { id: "capability", kind: "CAPABILITY", title: "能力获得", objective: "能把真实需求整理成 AI 可稳定执行的任务说明。" }
+    ],
+    capabilityGain: [
+      "能把模糊需求拆成目标、背景、输入、限制和输出",
+      "能用结构化任务说明减少 AI 自行猜测"
+    ],
+    nextLessonValue: "继续把同样的方法用于真实文件、研究和工作任务。",
+    accessPresentation
+  },
+  {
+    version: "0.2",
     courseSlug: "ai-literacy",
     lessonId: "memory-rag",
     title: "Memory 与 RAG",
@@ -112,7 +149,11 @@ export const lessonSpecValidationSamples: LessonSpec[] = [
 export const currentLessonRuntimeCapabilities = {
   requiredCheckCompletionGate: true,
   requiredPracticeCompletionGate: true,
-  publishedInteractiveLessonKeys: ["chatgpt-worker/task-brief"],
+  publishedInteractiveLessonKeys: [
+    "chatgpt-worker/task-brief",
+    "ai-literacy/memory-rag",
+    "ai-workflow/task-decomposition"
+  ],
   supportedPracticeSubmissionKinds: ["TASK_BRIEF_V1", "STRUCTURED_TEXT_V1"],
   requiredRealAiCompletionGate: true,
   realAiEvidenceKinds: ["USER_CONFIRMATION", "SYSTEM_RESULT"] as string[]

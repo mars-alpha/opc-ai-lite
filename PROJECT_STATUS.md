@@ -25,8 +25,9 @@ LEARNING-UX-001-D Reference Lesson Finalization COMPLETE
 LEARNING-SPEC-002 Multi-type Lesson Validation COMPLETE
 LEARNING-RUNTIME-001 Generic Lesson Runtime Foundation COMPLETE
 LEARNING-RUNTIME-001-A Pilot Provisioning & Acceptance COMPLETE
+LEARNING-UX-RUNTIME-ALIGN-001 Reference UX Unification IN_PROGRESS_FIRST_ROUND_COMPLETE
 
-NEXT: LEARNING-UX-RUNTIME-ALIGN-001 — Reference UX Unification
+NEXT: LEARNING-UX-RUNTIME-ALIGN-001 — APPLICATION Alignment
 ```
 
 ## 当前系统健康
@@ -48,6 +49,7 @@ Acceptance refinement PASS
 Reference Lesson flow PASS
 Multi-type Spec check PASS
 Generic Runtime check PASS
+Reference UX Round 1  PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -87,7 +89,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-RUNTIME-001-A` 已完成两个 Generic Runtime Pilot 的正式 Provisioning 与真实 Runtime Acceptance：`memory-rag` required Check、`task-decomposition` required `STRUCTURED_TEXT_V1` Practice 已写入正式数据库并保持 `PUBLISHED`。Runtime / Completion Gate 已跑通，但这不代表两个 Pilot 已采用最终课程 UX。最新 UX 决策固定：正式课程只保留一套 `task-brief` Reference Lesson Shell（课程上下文 / 侧栏 / 当前课位置 + 单 Step Guided Learning），Lesson Type 只改变 Step 组合、内容与 Completion Gate，不建立 CONCEPT / APPLICATION / PRACTICE 三套视觉产品。此前 `/learning-preview` 三课型演示页因偏离 Reference UX 已删除。下一步先做 `LEARNING-UX-RUNTIME-ALIGN-001`，再进入 Course Builder Skill。
+`LEARNING-UX-RUNTIME-ALIGN-001` 第一轮已完成：`task-brief`、`memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）共用同一 Generic Guided Lesson Shell；Lesson Type 只通过 Step 组合、内容模块与 Completion Gate 改变流程。页面与 Runtime Core 不再包含 task-brief / 特定课程名 Renderer 分支，旧 `InteractiveLessonPanel` 已删除；Interactive Read / Check 全部遵守 Access Core。下一步仍在本任务内补 APPLICATION 对齐；`writing-files` 因 ARTIFACT Resolver 未实现继续保持 Runtime blocker。APPLICATION 通过后才进入 Course Builder Skill。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

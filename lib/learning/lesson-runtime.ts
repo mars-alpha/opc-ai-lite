@@ -26,6 +26,8 @@ export type LessonRuntimePlan = {
   requiresRealAi: boolean;
   realAiEvidence: RealAiEvidence;
   realAiEvidenceSupported: boolean;
+  capabilityGain: string[];
+  nextLessonValue?: string;
 };
 
 export function buildLessonRuntimePlan(spec: LessonSpec): LessonRuntimePlan {
@@ -38,6 +40,8 @@ export function buildLessonRuntimePlan(spec: LessonSpec): LessonRuntimePlan {
     requiresPractice: spec.completionGates.includes("PRACTICE"),
     requiresRealAi: spec.completionGates.includes("REAL_AI"),
     realAiEvidence: spec.realAiEvidence,
-    realAiEvidenceSupported: isRealAiEvidenceRuntimeSupported(spec.realAiEvidence)
+    realAiEvidenceSupported: isRealAiEvidenceRuntimeSupported(spec.realAiEvidence),
+    capabilityGain: spec.capabilityGain,
+    nextLessonValue: spec.nextLessonValue
   };
 }
