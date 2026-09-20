@@ -146,6 +146,58 @@ Guided Pilot 先于正式 Lesson Access 分支渲染
 
 Runtime 规则：不要在 `next dev` 运行时执行 `next build` 共用 `.next`；验收顺序固定为 `stop dev → clear .next → typecheck/build → clear .next → dev`。
 
+## LEARNING-UX-001-C — Guided Learning Completion Loop
+
+基于人工体验继续补齐样板：
+
+```text
+Step 切换不再 scrollTo 页面顶部
+→ 保持 Guided Learning 当前视口位置
+
+Lesson Pilot 进入沉浸学习模式
+→ 移除常驻课程侧栏和重复 Help 区
+→ 顶部仅保留退出学习 / 当前课程位置
+
+主动“还是不懂”
+→ 更简单解释
+→ 补充例子 / 参考
+→ 可跳转相关基础课程
+
+参考答案脚手架
+→ 查看参考
+→ 一键带入
+→ 继续编辑
+→ 恢复用户自己的版本
+
+真实 AI 验证
+→ 复制任务简报
+→ 用户在真实 AI 工具执行
+→ 回来选择结果：符合预期 / 需调整 / 没理解 / 不知道如何判断
+→ 不作为当前 Lesson 硬 Gate
+
+课程完成
+→ 先展示能力成长
+→ 再引导可选多选反馈 + 可选文字
+→ 可直接跳过，不影响 Completion
+```
+
+新增 Client Learning Event 白名单：`external_ai_outcome`、`still_confused`、`reference_viewed`、`reference_applied`、`reference_restored`、`lesson_feedback_skipped`。继续复用现有 `learning_events` / `learning_feedback`，没有新增 Schema / Migration。AI 后续可以聚合这些事实形成课程优化建议，但不能直接修改 Published Course。
+
+Validation：
+
+```text
+npm run typecheck              PASS
+npm run build                  PASS
+Production build               30 static pages generated
+NO_SCROLL_TOP                  PASS
+REFERENCE_FLOW                 PASS
+STILL_CONFUSED                 PASS
+EXTERNAL_OUTCOME               PASS
+OPTIONAL_FEEDBACK              PASS
+IMMERSIVE_MODE                 PASS
+EVENT_ALLOWLIST                PASS
+```
+
 ## No Schema Expansion
 
 本任务没有新增 Schema / Migration，没有建立复杂 Knowledge Point / Mastery / Recommendation Engine，也没有迁移其他 Lesson。

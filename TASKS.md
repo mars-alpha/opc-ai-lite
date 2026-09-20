@@ -397,11 +397,20 @@ Priority: P0
 
 当前没有迁移其他 Lesson，没有新增 Schema / Migration，没有建立复杂 Mastery / Knowledge Point / Recommendation Engine。
 
+## LEARNING-UX-001-C — Guided Learning Completion Loop
+
+Status: COMPLETE
+Priority: P0
+
+在现有 task-brief Guided Learning 样板上补齐完整体验闭环：沉浸学习模式、Step 切换保持当前视口、主动“还是不懂”、参考答案查看/一键带入/恢复、真实 AI 结果确认、能力成长展示、可跳过课程反馈。
+
+反馈不是 Completion Gate；参考答案是学习脚手架，不等于 Mastered。困难、提示、参考、真实 AI 结果等行为通过现有 Learning Event / Feedback 记录，不新增 Schema / Migration。
+
 # NEXT PHASE
 
-`AI-DAILY-001 — 最小自动采集 → 审核 → 发布`
+`LEARNING-UX-001 ACCEPTANCE — 人工体验完整 Completion Loop`
 
-目标：在当前已稳定的 Runtime + Access 基础上补齐最小内容供给链，不扩大为重型采集平台。
+先体验当前单 Lesson 样板，确认沉浸模式、参考答案、真实 AI 验证、可选反馈和移动端体验；通过后再决定是否进入 `LEARNING-CORE-001` 或推广其他课程。`AI-DAILY-001` 保持后续队列。
 
 建议后续顺序：
 

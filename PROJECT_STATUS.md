@@ -17,14 +17,15 @@ MVP-011-G Knowledge → Course Impact         COMPLETE
 RUNTIME-001 Remote Migration + Runtime      COMPLETE
 ACCESS-001 Unified Resource Access Policy   COMPLETE
 ACCESS-UX-001 Locked Content Conversion UX  COMPLETE
-LEARNING-UX-001 Guided Learning Pilot        ACCEPTANCE_FIX_READY
+LEARNING-UX-001 Guided Learning Pilot        COMPLETE_WITH_MANUAL_UX_REVIEW_PENDING
+LEARNING-UX-001-C Completion Loop            COMPLETE
 
-NEXT: LEARNING-UX-001 ACCEPTANCE — 重新体验修正版样板课
+NEXT: LEARNING-UX-001 ACCEPTANCE — 体验完整 Completion Loop
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@b3571f8`。
+业务代码验证基线：`main@14b6d63`。
 
 ```text
 npm run typecheck     PASS
@@ -37,6 +38,7 @@ ACCESS UX render      PASS
 Guided Lesson source  PASS
 Guided Preview mode   PASS
 Shared rule evaluator PASS
+Completion Loop smoke PASS
 Guided Lesson build   PASS
 Test data cleanup     PASS
 ```
@@ -71,7 +73,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-先由产品侧完整体验 `chatgpt-worker / task-brief` 6 步 Guided Lesson，确认信息密度、案例、反馈、复习建议、移动端和订阅引导。样板确认后再决定是否进入 `LEARNING-CORE-001` 并逐步迁移课程。
+先由产品侧完整体验 `chatgpt-worker / task-brief` 的完整 Completion Loop：沉浸学习、保持当前滚动位置、还是不懂、参考答案、一键带入、真实 AI 结果确认、能力成长、可选课程反馈。样板确认后再决定是否进入 `LEARNING-CORE-001` 并逐步迁移课程。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

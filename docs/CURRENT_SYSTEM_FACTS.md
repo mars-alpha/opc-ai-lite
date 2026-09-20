@@ -1,6 +1,6 @@
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
-> 业务代码验证基线：`main@be114d7`
+> 业务代码验证基线：`main@14b6d63`
 >
 > 本文件只记录当前事实。历史过程看 `docs/task-results/*`，未来规划看 `TASKS.md`。
 
@@ -116,7 +116,7 @@ Admin Lesson edit / publish
 
 正式 Lesson 优先从 PostgreSQL 读取；DB 读取失败或内容非法时仍存在静态课程 fallback。
 
-LEARNING-UX-001 已实现 1 个真实 Guided Learning 样板：`chatgpt-worker / task-brief`。该 Lesson 不再使用长页阅读作为主要体验，而是复用现有 Lesson Check / Practice / RULE Evaluation / Completion Gate，拆成 6 步“理解 → 案例 → 检查 → 实操 → 反馈复习 → 能力总结”。理解检查和实操均设有继续条件；失败时提供明确复习或修改路径。其他 Lesson 尚未迁移。
+LEARNING-UX-001 已实现 1 个真实 Guided Learning 样板：`chatgpt-worker / task-brief`。该 Lesson 不再使用长页阅读作为主要体验，而是复用现有 Lesson Check / Practice / RULE Evaluation / Completion Gate，拆成 6 步“理解 → 案例 → 检查 → 实操 → 反馈复习 → 能力总结”。LEARNING-UX-001-C 进一步补齐 Completion Loop：样板进入沉浸学习模式；Step 切换保持当前位置；用户可主动选择“还是不懂”；实操支持查看参考、一键带入、恢复自己的版本；真实 AI 操作结果可记录；课程完成后先展示能力成长，再提供可跳过的多选反馈。上述行为信号复用 learning_events / learning_feedback，不新增 Schema。其他 Lesson 尚未迁移。
 
 ### Auth
 
@@ -406,12 +406,12 @@ ACCESS-001 已完成统一资源级 Access Policy 与匿名 / 普通 / 公众号
 
 ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价值不隐藏；公众号关注与 Membership 保持两条独立转化路径。
 
-LEARNING-UX-001 已完成单 Lesson Guided Learning 样板代码实现与源码验证；等待人工 UX Review 后决定是否推广。
+LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现；仍等待人工 UX Review 后决定是否推广。
 
 下一阶段先进行：
 
 ```text
-LEARNING-UX-001 ACCEPTANCE — 人工体验样板课
+LEARNING-UX-001 ACCEPTANCE — 人工体验完整 Completion Loop
 ```
 
 样板确认后候选下一开发任务：
