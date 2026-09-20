@@ -134,7 +134,7 @@ export async function getLatestPracticeForKnowledge(knowledgeId: string) {
   return practice ?? null;
 }
 
-function validatePracticeInput(input: unknown, knowledgeStatus: PublicationStatus) {
+export function validatePracticeInput(input: unknown, knowledgeStatus: PublicationStatus) {
   if (!isRecord(input)) throw new Error("INVALID_INPUT");
 
   const status = parseStatus(input.status);

@@ -5,6 +5,7 @@ import { LatestPracticeRoutingPanel } from "./LatestPracticeRoutingPanel";
 import { KnowledgeCourseCandidatePanel } from "./KnowledgeCourseCandidatePanel";
 import { KnowledgeSourcesPanel } from "./KnowledgeSourcesPanel";
 import { KnowledgeDeepResourcesPanel } from "./KnowledgeDeepResourcesPanel";
+import { KnowledgePracticeDraftPanel } from "./KnowledgePracticeDraftPanel";
 
 type ContentForKnowledge = {
   id: string;
@@ -127,6 +128,7 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
           </div>
           <KnowledgeSourcesPanel knowledgeId={linked.id} primaryContentId={linked.sourceContentId} />
           <KnowledgeDeepResourcesPanel knowledge={linked} />
+          <KnowledgePracticeDraftPanel knowledge={linked} />
           <LatestPracticeRoutingPanel knowledge={linked} />
           <KnowledgeCourseCandidatePanel knowledge={linked} />
         </>

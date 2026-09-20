@@ -728,6 +728,7 @@ Minimal Skill v0.x
 开发原则：
 
 - 第一个真正需要 Skill 的业务任务出现时，不先建设通用 Skill Platform；
+- MVP-011-F 已落地首个真实 Skill：`skills/practice-draft/v0.1.ts`，用于 Knowledge → Practice Draft；
 - 先围绕该真实任务人工 + AI 预训练一个最小初版 Skill；
 - Skill 必须落盘、可版本化、可审计，不能只存在于聊天记录或临时 Prompt；
 - 后续基于真实输入、输出质量、人工修改和失败案例逐步优化；
@@ -753,3 +754,29 @@ Channel Publish
 ```
 
 不把 Skill、Media Asset 或渠道发布结果反向当成 Knowledge Source of Truth。
+
+---
+
+## 15. MVP-011-F Practice Draft Review Boundary
+
+当前正式链：
+
+```text
+Published Knowledge
++ optional Published Deep Resource
+↓
+Practice Draft Skill v0.1 / RULE fallback
+↓
+practice_drafts
+↓
+Human edit / review
+├─ NEEDS_REVISION
+├─ DISMISSED
+└─ APPROVED
+    ↓
+LATEST_PRACTICE(status = DRAFT)
+    ↓
+人工检查 / 发布
+```
+
+正式 `practices` 仍是唯一可运行 Practice 数据源。AI / RULE Draft 没有直接发布权限，也没有覆盖已有正式 Latest Practice 的权限。

@@ -742,3 +742,19 @@ quality risk          → REVIEW_REQUIRED
 真实 AI Provider 尚未配置，因此当前 `ANALYSIS_READY` 只表示“达到分析条件”，不代表已经产生 AI Diagnosis。
 
 MVP-010 起，Practice / Stage Project / Latest Practice 将逐步统一到同一 Practice / Submission / Evaluation 体系；不为三种入口重复建设业务模型。
+
+---
+
+## 9. Knowledge → Practice Draft 边界
+
+进阶 Practice 的自动化只允许形成审核候选：
+
+```text
+Reviewed Knowledge / Published Deep Resource
+→ Practice Draft
+→ Human Review
+→ Latest Practice DRAFT
+→ Manual Publish
+```
+
+Practice Draft 不是用户可执行 Practice；正式提交 / Evaluation 仍只针对 `practices`。AI 或 RULE 生成器不能覆盖已有正式 Practice，也不能直接把 Practice 设为 PUBLISHED。

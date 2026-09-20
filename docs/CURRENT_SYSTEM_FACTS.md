@@ -9,19 +9,20 @@
 当前治理提交后的 Git 受控文件：
 
 ```text
-TOTAL  190
-TEXT   183
+TOTAL  198
+TEXT   191
 BINARY 7
 ```
 
 主要目录：
 
 ```text
-app/         51
-components/  32
-docs/        31
-drizzle/     19
-lib/         33
+app/         53
+components/  33
+docs/        32
+drizzle/     21
+lib/         34
+skills/      1
 ```
 
 审计开始时完整盘点 176 个既有 Git 受控文件；本治理任务新增 `AGENTS.md` 与本文件，提交后共 178 个受控文件。二进制资源只做存在性与引用盘点，不作为业务事实源。
@@ -70,6 +71,7 @@ Migration：
 0006 → Multi-source Course Update Candidate
 0007 → Knowledge Provenance / Multi-source Content Links
 0008 → Knowledge Deep Resource / Feishu Bridge
+0009 → Knowledge → Practice Draft Workflow
 ```
 
 当前重要限制：
@@ -80,6 +82,7 @@ Migration：
 因此 C2 代码完成，但远程真实 DB Runtime 尚未验证
 0007_pink_spirit.sql 已生成并提交；远程数据库同样尚未执行
 0008_overrated_triton.sql 已生成；远程数据库同样尚未执行
+0009_chief_marvex.sql 已生成；远程数据库同样尚未执行
 ```
 
 ## 5. 当前核心领域
@@ -245,6 +248,23 @@ Goal / Context / Input / Constraint / Output
 
 当前默认 Evaluation 为 RULE。
 
+当前已新增 Practice Draft 审核层：
+
+```text
+practice_drafts
+sourceKnowledgeId required
+sourceDeepResourceId nullable
+generationMode = RULE | AI
+generationError nullable
+draft JSONB
+status = PENDING_REVIEW | NEEDS_REVISION | APPROVED | DISMISSED
+reviewNote / reviewedBy / reviewedAt
+resultPracticeId nullable
+UNIQUE(sourceKnowledgeId)
+```
+
+正式 `practices` 仍是唯一 Practice Source of Truth。Practice Draft APPROVED 只会创建 `LATEST_PRACTICE` 的 DRAFT；不会直接 PUBLISHED，也不会覆盖已有正式 Latest Practice。
+
 ### Feedback / Insight / Course Candidate
 
 正式链：
@@ -276,7 +296,7 @@ OPC_AI_ANALYSIS_API_KEY
 OPC_AI_ANALYSIS_MODEL
 ```
 
-无 Provider 时保持 RULE / ANALYSIS_READY，不伪造 AI Diagnosis。
+当前环境检测 `AI_PROVIDER_CONFIGURED=NO`。Course Insight 继续保持 RULE / ANALYSIS_READY 边界；Practice Draft 在 Provider 未配置或调用失败时明确生成 `generationMode=RULE` 的模板草稿并记录 `generationError`，不会冒充 AI 输出。
 
 ## 7. 当前内容资产长期边界
 
@@ -322,12 +342,12 @@ lib/learning/progress-adapter.ts
 ## 9. 当前已知未完成 / 阻塞
 
 ```text
-1. remote DB 未执行 migration 0006 / 0007 / 0008
+1. remote DB 未执行 migration 0006 / 0007 / 0008 / 0009
 2. MVP-009 AI Provider Runtime 未配置/未验证
 3. AI Daily 正式自动采集与审核未实现
 4. Feishu Deep Resource Admin Bridge 已完成代码；远程 0008 migration / 用户侧访问 / Feishu API 自动同步未完成
 5. Obsidian export 未实现
-6. Skill 尚无正式落盘资产
+6. 首个正式 Skill 已落盘：`skills/practice-draft/v0.1.ts`；真实 AI Provider 输出质量尚未验证
 7. 新权限策略尚未统一接入 Resource Access Resolver
 8. Subscription / Order / Payment / WeChat Pay 未实现
 9. 微信真实 OAuth / Official Account webhook 未实现
@@ -340,12 +360,13 @@ lib/learning/progress-adapter.ts
 ```text
 MVP-011-D — Knowledge Provenance Foundation
 MVP-011-E — Deep Resource / Feishu Bridge
+MVP-011-F — Knowledge → Practice AI Draft Workflow
 ```
 
 下一步先讨论 / 审计：
 
 ```text
-MVP-011-F — Knowledge → Practice AI Draft Workflow
+MVP-011-G — Knowledge → Course Impact Analysis
 ```
 
 先审计现有 Content / Knowledge / Practice / Course Candidate 是否已足够表达：
@@ -356,7 +377,7 @@ External Signal
 → Derived Assets
 ```
 
-E 已按最小范围完成 Knowledge-owned Feishu 引用桥接；F 仍不得把 AI Draft 直接发布为 Practice。
+F 已完成最小 Draft → Human Review → Formal Practice DRAFT 链；G 继续保持 AI 只能形成 Course Update Candidate，不能直接改 Published Course。
 
 ## 11. 每次任务后的事实同步
 

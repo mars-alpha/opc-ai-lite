@@ -251,7 +251,54 @@ Lesson / Practice
 
 ---
 
-## 10. Course Update Candidate
+## 10. Practice Draft Workflow
+
+AI / RULE 生成的 Practice 候选不能直接写入正式 `practices`。
+
+```text
+practice_drafts
+id
+source_knowledge_id required
+source_deep_resource_id nullable
+generation_mode = RULE | AI
+generation_error nullable
+draft JSONB
+status = PENDING_REVIEW | NEEDS_REVISION | APPROVED | DISMISSED
+review_note
+reviewed_by
+reviewed_at
+result_practice_id nullable
+created_at
+updated_at
+
+UNIQUE(source_knowledge_id)
+```
+
+规则：
+
+```text
+Published + active Knowledge
+→ Practice Draft Skill v0.1 / RULE fallback
+→ PENDING_REVIEW
+→ Human edit / review
+→ APPROVED
+→ create LATEST_PRACTICE(status = DRAFT)
+→ later manual publish
+```
+
+Provider 缺失或失败时必须记录 RULE + generation_error，不得把模板输出标记成 AI。
+
+如果 Knowledge 已存在正式 Latest Practice：
+
+```text
+APPROVE Draft
+→ reject LATEST_PRACTICE_EXISTS
+→ 不覆盖正式 Practice
+```
+
+---
+
+## 11. Course Update Candidate
 
 Candidate 只是 Proposal，目前支持两种真实来源：
 
@@ -291,7 +338,7 @@ Insight 来源审核可以同步 Course Insight 状态；Knowledge 来源审核�
 
 ---
 
-## 11. 行为信号
+## 12. 行为信号
 
 Interactive Lesson 可从真实行为刷新 Insight，例如：
 
@@ -306,7 +353,7 @@ HELPFULNESS
 
 ---
 
-## 12. 当前不建设
+## 13. 当前不建设
 
 ```text
 大型 BI

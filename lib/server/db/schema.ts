@@ -486,6 +486,28 @@ export const knowledgeDeepResources = pgTable(
   ]
 );
 
+export const practiceDrafts = pgTable(
+  "practice_drafts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sourceKnowledgeId: text("source_knowledge_id").notNull().references(() => knowledgeItems.id, { onDelete: "cascade" }),
+    sourceDeepResourceId: uuid("source_deep_resource_id").references(() => knowledgeDeepResources.id, { onDelete: "set null" }),
+    generationMode: text("generation_mode").notNull().default("RULE"),
+    generationError: text("generation_error"),
+    draft: jsonb("draft").notNull(),
+    status: text("status").notNull().default("PENDING_REVIEW"),
+    reviewNote: text("review_note"),
+    reviewedBy: text("reviewed_by"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    resultPracticeId: text("result_practice_id").references(() => practices.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("practice_drafts_knowledge_uidx").on(table.sourceKnowledgeId)
+  ]
+);
+
 export const courseUpdateCandidates = pgTable(
   "course_update_candidates",
   {
@@ -510,4 +532,3 @@ export const courseUpdateCandidates = pgTable(
     )
   ]
 );
-

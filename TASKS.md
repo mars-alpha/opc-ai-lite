@@ -310,13 +310,28 @@ Migration：`drizzle/0008_overrated_triton.sql`。当前 `DATABASE_URL` 为 REMO
 
 本阶段没有 Feishu API / OAuth / Bot / 自动发布 / 双向同步，没有用户侧 Deep Resource Reader，也没有 Membership Access 接入。
 
+## MVP-011-F — Knowledge → Practice AI Draft Workflow
+
+Status: COMPLETE_WITH_REMOTE_MIGRATION_AND_AI_RUNTIME_PENDING
+Priority: P0
+
+结果：`docs/task-results/MVP-011-F.md`。
+
+已完成最小 Practice Draft 审核层：新增 `practice_drafts`，每个 Knowledge 最多一个 Draft，可选引用 Published Deep Resource。Draft 保存 generationMode / generationError / 结构化候选内容 / 审核状态 / 最终 resultPracticeId。
+
+正式 `practices` 仍是唯一 Practice Source of Truth。APPROVED 只创建 `LATEST_PRACTICE` 且 status 固定 DRAFT；已有正式 Latest Practice 时拒绝覆盖，必须继续使用现有人工编辑入口。
+
+首次真实 Skill 已落盘：`skills/practice-draft/v0.1.ts`，并被生成服务实际调用。当前环境 `AI_PROVIDER_CONFIGURED=NO`，因此本阶段真实验证的是 RULE Draft fallback；没有伪造 AI 结果。
+
+Migration：`drizzle/0009_chief_marvex.sql`。当前数据库为 REMOTE，本任务未自动执行；真实 Runtime / 部署前需依次执行并验证 0006-0009。
+
 # NEXT PHASE
 
 下一步先讨论 / 审计：
 
-`MVP-011-F — Knowledge → Practice AI Draft Workflow`
+`MVP-011-G — Knowledge → Course Impact Analysis`
 
-目标：基于 Reviewed Knowledge / Deep Resource 形成可人工审核的 Practice Draft，不允许 AI 直接发布 Practice。
+目标：分析 Reviewed Knowledge 是否影响既有课程，只形成可人工审核的 Course Update Candidate，不直接修改 Published Course。
 
 建议后续顺序：
 
@@ -326,7 +341,7 @@ MVP-011-E   Deep Resource / Feishu Bridge
 MVP-011-F   Knowledge → Practice AI Draft Workflow
 MVP-011-G   Knowledge → Course Impact Analysis
 KNOWLEDGE-SYNC-001   Reviewed Knowledge → Obsidian Export
-SKILL-001            First Real Skill / Skill Factory
+SKILL-001            Skill v0.1 Review / Iteration (after real usage)
 MEDIA-001            Skill-driven Media Asset Factory
 ACCESS-001           AI Daily / Knowledge / Practice Access Policy
 ```
@@ -350,7 +365,6 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
 
 
 

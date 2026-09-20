@@ -12,8 +12,9 @@ MVP-011-C1 Knowledge → Latest Practice    COMPLETE
 MVP-011-C2 Multi-source Course Candidate  CODE COMPLETE*
 MVP-011-D Knowledge Provenance Foundation  CODE COMPLETE**
 MVP-011-E Deep Resource / Feishu Bridge     CODE COMPLETE***
+MVP-011-F Knowledge → Practice AI Draft     CODE COMPLETE****
 
-NEXT: discuss / audit MVP-011-F — Knowledge → Practice AI Draft Workflow
+NEXT: discuss / audit MVP-011-G — Knowledge → Course Impact Analysis
 ```
 
 `*` C2 的 `drizzle/0006_square_sharon_carter.sql` 已生成并提交，但远程数据库尚未执行，因此远程真实 C2 DB Runtime 尚未验证。
@@ -22,13 +23,15 @@ NEXT: discuss / audit MVP-011-F — Knowledge → Practice AI Draft Workflow
 
 `***` E 的 `drizzle/0008_overrated_triton.sql` 已生成；远程数据库尚未执行，因此 E 的远程真实 DB Runtime 尚未验证。
 
+`****` F 的 `drizzle/0009_chief_marvex.sql` 已生成；远程数据库尚未执行。当前 AI Provider 也未配置，因此只验证了 RULE Draft 路径，没有真实 AI Draft Runtime 证据。
+
 ## 当前系统健康
 
 全仓事实审计来源基线：`main@5ea3981`。
 
 ```text
-Git tracked files    190
-Text files           183
+Git tracked files    198
+Text files           191
 Binary assets        7
 npm run typecheck    PASS
 npm run build        PASS
@@ -50,6 +53,7 @@ Knowledge → Latest Practice
 Knowledge → Course Update Candidate
 Knowledge ↔ multiple Content Sources (PRIMARY / SUPPORTING)
 Knowledge → Feishu Deep Resource (Admin bridge)
+Knowledge → Practice Draft → Human Review → Latest Practice DRAFT
 Practice Read / Submit / RULE Evaluation
 Feedback / Event → Course Insight → Candidate → Human Review
 ```
@@ -57,12 +61,12 @@ Feedback / Event → Course Insight → Candidate → Human Review
 ## 当前仍未完成
 
 ```text
-remote DB migration 0006 / 0007 / 0008
+remote DB migration 0006 / 0007 / 0008 / 0009
 真实 AI Provider Runtime
 AI Daily 自动采集 / AI 初筛 / 自动摘要
 Feishu Deep Resource user access / real Feishu API sync
 Obsidian export
-正式 Skill 资产
+真实 AI Practice Draft Runtime / Skill v0.1 quality validation
 新 AI Daily / Knowledge / Practice 权限策略接入
 Subscription / Order / Payment / WeChat Pay
 微信真实 OAuth / Official Account webhook
@@ -113,7 +117,17 @@ Knowledge 保持核心知识资产。Feishu、Obsidian、Skill、Media Asset 都
 - Published Deep Resource 要求 Knowledge 先 PUBLISHED；
 - 没有接 Feishu API / OAuth / Bot / 自动同步，也没有接用户侧 Membership Access。
 
-下一步只讨论 / 审计 `MVP-011-F — Knowledge → Practice AI Draft Workflow`。远程 0006 / 0007 / 0008 migration 在真实 Runtime 前仍需明确执行。
+`MVP-011-F — Knowledge → Practice AI Draft Workflow` 已按最小范围完成：
+
+- 新增独立 `practice_drafts` 审核层，不把候选混入正式 `practices`；
+- Published / active Knowledge 才能生成 Draft；可选引用 Published Deep Resource；
+- Provider 可用时调用 Practice Draft Skill v0.1；Provider 缺失/失败时明确退回 RULE Draft 并记录原因；
+- 支持人工修改、APPROVED / NEEDS_REVISION / DISMISSED；
+- APPROVED 只创建正式 `LATEST_PRACTICE` DRAFT；
+- 已有正式 Latest Practice 时拒绝覆盖；
+- 首个版本化 Skill 已落盘到 `skills/practice-draft/v0.1.ts`。
+
+下一步只讨论 / 审计 `MVP-011-G — Knowledge → Course Impact Analysis`。远程 0006 / 0007 / 0008 / 0009 migration 在真实 Runtime 前仍需明确执行。
 
 ## 固定开发流程
 
