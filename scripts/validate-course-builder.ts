@@ -21,7 +21,7 @@ const build = createCourseBuilderReviewPacket(
     },
     pedagogy: {
       audience: "GENERAL",
-      languagePolicy: "ZH_CN_FIRST",
+      languagePolicy: "TERM_READABILITY",
       aiToolNeutral: true,
       participation: {
         kind: "CHOOSE",
@@ -115,7 +115,7 @@ try {
     },
     pedagogy: {
       audience: "GENERAL",
-      languagePolicy: "ZH_CN_FIRST",
+      languagePolicy: "TERM_READABILITY",
       aiToolNeutral: true,
       participation: {
         kind: "CHOOSE",
@@ -179,6 +179,6 @@ console.log("COURSE_BUILDER_CODE_VALIDATION=PASS");
 console.log("COURSE_BUILDER_AUTHORITY_BOUNDARY=PASS");
 console.log("COURSE_BUILDER_HUMAN_REVIEW_BOUNDARY=PASS");
 console.log("COURSE_BUILDER_GROUNDING_REQUIRED=PASS");
-console.log("COURSE_BUILDER_CHINESE_FIRST=PASS");
+console.log("COURSE_BUILDER_TERM_READABILITY=PASS");
 console.log("COURSE_BUILDER_AI_TOOL_NEUTRAL=PASS");
 console.log("COURSE_BUILDER_PARTICIPATION_REQUIRED=PASS");

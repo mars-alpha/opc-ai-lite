@@ -24,7 +24,7 @@ export type CourseBuilderParticipation = {
 
 export type CourseBuilderPedagogy = {
   audience: "BEGINNER" | "GENERAL" | "ADVANCED";
-  languagePolicy: "ZH_CN_FIRST";
+  languagePolicy: "TERM_READABILITY";
   aiToolNeutral: true;
   participation: CourseBuilderParticipation;
 };
@@ -166,8 +166,8 @@ function parseGrounding(input: unknown): CourseBuilderGrounding {
 function parsePedagogy(input: unknown): CourseBuilderPedagogy {
   if (!isRecord(input)) throw new Error("INVALID_BUILD_PEDAGOGY");
   if (!isRecord(input.participation)) throw new Error("INVALID_BUILD_PARTICIPATION");
-  if (input.languagePolicy !== "ZH_CN_FIRST") {
-    throw new Error("COURSE_BUILDER_CHINESE_FIRST_REQUIRED");
+  if (input.languagePolicy !== "TERM_READABILITY") {
+    throw new Error("COURSE_BUILDER_TERM_READABILITY_REQUIRED");
   }
   if (input.aiToolNeutral !== true) {
     throw new Error("COURSE_BUILDER_AI_TOOL_NEUTRAL_REQUIRED");
@@ -182,7 +182,7 @@ function parsePedagogy(input: unknown): CourseBuilderPedagogy {
       ["BEGINNER", "GENERAL", "ADVANCED"] as const,
       "INVALID_PEDAGOGY_AUDIENCE"
     ),
-    languagePolicy: "ZH_CN_FIRST",
+    languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
     participation: {
       kind: enumValue(

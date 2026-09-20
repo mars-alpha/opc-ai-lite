@@ -13,7 +13,7 @@ export const skillFoundationsBuildDraft = {
   },
   pedagogy: {
     audience: "BEGINNER",
-    languagePolicy: "ZH_CN_FIRST",
+    languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
     participation: {
       kind: "COPY_TO_AI",
@@ -30,7 +30,7 @@ export const skillFoundationsBuildDraft = {
     version: "1.0.0",
     courseSlug: "ai-literacy",
     lessonId: "skill-foundations",
-    title: "技能（Skill）是什么：把常用方法教给 AI",
+    title: "Skill（技能）是什么：把常用方法教给 AI",
     lessonType: "CONCEPT",
     learningObjectives: [
       "用自己的话解释什么是技能，以及它为什么适合重复任务。",
@@ -39,8 +39,8 @@ export const skillFoundationsBuildDraft = {
     ],
     knowledgePoints: [
       "技能可以理解为交给 AI 的一套可重复使用的做事方法，通常包含步骤、规则、输出要求和必要资料。",
-      "提示词（Prompt）通常解决当前一次任务；技能把反复验证过的方法保存下来，供以后继续使用。",
-      "工具（Tool）提供能力，技能规定做法，智能体（Agent）可以在完成目标时组合多种工具和技能。",
+      "Prompt（提示词）通常解决当前一次任务；Skill（技能）把反复验证过的方法保存下来，供以后继续使用。",
+      "Tool（工具）提供能力，Skill 规定做法，Agent（智能体）可以在完成目标时组合多种工具和技能。",
       "不同 AI 产品对技能的名称和实现可能不同，因此课程学习的是通用思想，而不是绑定某一个 AI 软件。"
     ],
     prerequisites: [
@@ -76,6 +76,12 @@ export const skillFoundationsBuildDraft = {
         objective: "用生活化场景判断什么任务适合沉淀为可复用方法。"
       },
       {
+        id: "practice",
+        kind: "PRACTICE",
+        title: "把方法交给你的 AI 试一次",
+        objective: "亲手复制一套固定方法到自己正在使用的 AI 软件，观察它如何按步骤工作。"
+      },
+      {
         id: "review",
         kind: "REVIEW",
         title: "用一句话分清四个概念",
@@ -104,7 +110,7 @@ export const skillFoundationsBuildDraft = {
     summary:
       "你不需要懂程序。先用一个重复工作的例子，亲手体验“把一套做法保存下来，让 AI 下次继续照着做”是什么意思。",
     plainExplanation:
-      "假设你每周都把会议记录交给 AI，每次都要重新说一遍：“先找决定，再找负责人，再找截止时间，最后列出未解决的问题。”如果这套做法已经证明很好用，就没必要每次重新解释。把这套方法保存成可以重复使用的工作流程，就是“技能（Skill）”最容易理解的方式。",
+      "假设你每周都把会议记录交给 AI，每次都要重新说一遍：“先找决定，再找负责人，再找截止时间，最后列出未解决的问题。”如果这套做法已经证明很好用，就没必要每次重新解释。把这套方法保存成可以重复使用的工作流程，就是 Skill（技能）最容易理解的方式。",
     whyItMatters:
       "学会技能，不是为了多记一个专业名词，而是为了让 AI 从“每次都要重新教”变成“已经知道这类事情应该怎么做”。以后无论你用哪一种 AI 软件，只要它支持类似的可复用工作流程，你都能理解它在解决什么问题。",
     points: [
@@ -131,10 +137,10 @@ export const skillFoundationsBuildDraft = {
         "你少了一次重复解释，输出也更稳定。这种“把已经验证过的方法留下来继续用”的思路，就是技能最核心的价值。"
     },
     mistakes: [
-      "以为技能就是一句特别长的提示词。真正重要的是它能不能稳定重复使用。",
-      "看到任何任务都想做成技能。一次性任务通常没必要。",
-      "以为技能就是工具。工具解决“能不能做”，技能更关注“应该按什么方法做”。",
-      "以为技能就是智能体。智能体可能会使用多个技能，但两者不是同一个东西。"
+      "误区：Skill 就是一句很长的 Prompt｜正确理解：关键不是长度，而是这套方法能不能稳定重复使用。",
+      "误区：所有任务都应该做成 Skill｜正确理解：一次性任务通常直接说明就够了，重复任务才值得沉淀。",
+      "误区：Skill 就是 Tool｜正确理解：Tool 解决“能做什么”，Skill 更关注“按什么方法做”。",
+      "误区：Skill 就是 Agent｜正确理解：Agent 可以组合多个 Skill，但它们不是同一个东西。"
     ],
     related: [
       "前置：会向 AI 软件提出清楚的要求。",

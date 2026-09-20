@@ -95,7 +95,9 @@ export function validateLessonSpec(spec: LessonSpec): LessonSpecIssue[] {
   if (!spec.requiresCheck && hasGate(spec, "CHECK")) error("CHECK_GATE_WITHOUT_CHECK", "没有 required Check 时不能设置 CHECK Completion Gate。");
 
   if (spec.practiceMode === "NONE") {
-    if (hasStep(spec, "PRACTICE")) error("PRACTICE_STEP_NOT_ALLOWED", "practiceMode=NONE 时不能包含 Practice Step。");
+    if (hasStep(spec, "PRACTICE") && spec.lessonType !== "CONCEPT") {
+      error("PRACTICE_STEP_NOT_ALLOWED", "practiceMode=NONE 时只有 CONCEPT 可以包含非验收型参与 Practice Step。");
+    }
     if (hasGate(spec, "PRACTICE")) error("PRACTICE_GATE_NOT_ALLOWED", "practiceMode=NONE 时不能设置 PRACTICE Gate。");
   } else {
     if (!hasStep(spec, "PRACTICE")) error("PRACTICE_STEP_REQUIRED", "存在 Practice Mode 时必须包含 Practice Step。");

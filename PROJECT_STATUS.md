@@ -30,8 +30,9 @@ COURSE-BUILDER-SKILL-001 Course Builder Skill v0.1 CONTRACT_COMPLETE_RUNTIME_PEN
 COURSE-BUILDER-SKILL-001-A Real Lesson Draft Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-001-B Draft Preview & Human Review PREVIEW_READY
 COURSE-BUILDER-SKILL-001-C Beginner Pedagogy & Knowledge Grounding COMPLETE
+COURSE-BUILDER-SKILL-001-D Six-Step Beginner Experience & Visual Hierarchy COMPLETE
 
-NEXT: Human Review — re-open /course-builder/preview/skill-foundations and review the rebuilt beginner lesson
+NEXT: Human Review — re-open /course-builder/preview/skill-foundations and review the six-step beginner experience
 ```
 
 ## 当前系统健康
@@ -58,9 +59,11 @@ Course Builder contract PASS
 Real Lesson Draft       PASS
 Draft Preview route     PASS
 Course grounding rules  PASS
-Chinese-first rules     PASS
+Terminology readability PASS
 AI-tool-neutral rules   PASS
 Beginner participation  PASS
+Six-step concept UX     PASS
+Visual hierarchy        PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -100,7 +103,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-001-C` 已完成 Course Builder 教学规则改造：BUILD 现在必须带已审核 Knowledge 或研究资料包来源；初学者内容强制中文优先、通用课程保持 AI 软件中立，并必须包含低门槛参与活动。`skill-foundations` 已按这些规则重写，并在只读预览中加入“复制到你正在使用的 AI 软件”体验。下一步重新进行 Human Review；通过前仍不进入正式课程目录、Runtime 注册、数据库或发布流程。
+`COURSE-BUILDER-SKILL-001-D` 已恢复初学者 CONCEPT 的 6 步体验：EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY。第 4 步 PRACTICE 允许作为非验收型参与，不自动成为 Completion Gate；`skill-foundations` 仍只以 CHECK 作为正式完成条件。预览同时缩小首屏/Explain 字号、增加重点底色、卡片自适应布局，并把 4 条“避免”改为“容易误解 / 正确理解”对照卡。下一步重新进行 Human Review。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

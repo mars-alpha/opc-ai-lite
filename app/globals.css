@@ -3723,3 +3723,68 @@ img { display: block; max-width: 100%; }
   line-height: 1.75;
   white-space: pre-wrap;
 }
+
+
+/* COURSE-BUILDER-SKILL-001-D visual hierarchy */
+.guided-lesson-hero h1 { font-size:30px; }
+.guided-lesson-top h2 { font-size:26px; }
+.guided-step-content > h3 { font-size:22px; line-height:1.35; }
+.guided-step-content > p { font-size:14px; }
+.guided-key-highlight {
+  margin:16px 0 18px;
+  padding:16px 18px;
+  border-radius:18px;
+  background:rgba(255,247,230,.92);
+  border:1px solid rgba(190,140,40,.14);
+}
+.guided-key-highlight strong { display:block; margin-bottom:6px; color:#8a661f; }
+.guided-key-highlight p { margin:0; color:#6f6041; line-height:1.7; }
+.guided-review-points {
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+}
+.guided-explain-notes {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+  margin-top:16px;
+}
+.guided-explain-notes > div {
+  padding:16px 18px;
+  border-radius:17px;
+  background:rgba(42,104,255,.045);
+  border:1px solid rgba(42,104,255,.08);
+  line-height:1.7;
+}
+.guided-misconception-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin:20px 0;
+}
+.guided-misconception-card {
+  overflow:hidden;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:#fff;
+}
+.guided-misconception-card > div { padding:15px 17px; }
+.guided-misconception-card > div:first-child { background:#fff7f4; }
+.guided-misconception-card > div:last-child { background:#f2f8ff; }
+.guided-misconception-card span {
+  display:block;
+  margin-bottom:5px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.06em;
+  color:#7b8499;
+}
+.guided-misconception-card p { margin:0; line-height:1.65; }
+@media (max-width:820px) {
+  .guided-misconception-grid { grid-template-columns:1fr; }
+}
+@media (max-width:640px) {
+  .guided-lesson-hero h1 { font-size:26px; }
+  .guided-lesson-top h2 { font-size:23px; }
+  .guided-step-content > h3 { font-size:20px; }
+  .guided-explain-notes { grid-template-columns:1fr; }
+}

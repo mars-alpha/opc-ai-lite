@@ -36,6 +36,7 @@ assert(lessonSpec.lessonType === "CONCEPT", "REAL_DRAFT_LESSON_TYPE");
 assert(lessonSpec.courseSlug === "ai-literacy", "REAL_DRAFT_COURSE");
 assert(plan.requiresCheck, "REAL_DRAFT_CHECK_GATE");
 assert(!plan.requiresPractice, "REAL_DRAFT_UNEXPECTED_PRACTICE_GATE");
+assert(lessonSpec.steps.some((step) => step.kind === "PRACTICE"), "REAL_DRAFT_PARTICIPATION_STEP_MISSING");
 assert(!plan.requiresRealAi, "REAL_DRAFT_UNEXPECTED_REAL_AI_GATE");
 assert(plan.realAiEvidenceSupported, "REAL_DRAFT_REAL_AI_SUPPORT");
 assert(practice === null, "REAL_DRAFT_PRACTICE_MUST_BE_NULL");
@@ -55,7 +56,7 @@ for (const step of plan.steps) {
 
 assert(
   plan.steps.map((step) => step.kind).join(">") ===
-    "EXPLAIN>EXAMPLE>CHECK>REVIEW>CAPABILITY",
+    "EXPLAIN>EXAMPLE>CHECK>PRACTICE>REVIEW>CAPABILITY",
   "REAL_DRAFT_STEP_COMPOSITION"
 );
 
@@ -76,13 +77,13 @@ assert(grounding.status === "REVIEWED", "REAL_DRAFT_GROUNDING_NOT_REVIEWED");
 assert(grounding.sourceKind === "RESEARCH_PACKET", "REAL_DRAFT_GROUNDING_SOURCE");
 assert(grounding.sourceLabels.length >= 2, "REAL_DRAFT_GROUNDING_SOURCES");
 assert(pedagogy.audience === "BEGINNER", "REAL_DRAFT_BEGINNER_AUDIENCE");
-assert(pedagogy.languagePolicy === "ZH_CN_FIRST", "REAL_DRAFT_LANGUAGE_POLICY");
+assert(pedagogy.languagePolicy === "TERM_READABILITY", "REAL_DRAFT_LANGUAGE_POLICY");
 assert(pedagogy.aiToolNeutral, "REAL_DRAFT_AI_TOOL_NEUTRAL");
 assert(pedagogy.participation.kind === "COPY_TO_AI", "REAL_DRAFT_PARTICIPATION_KIND");
 assert(Boolean(pedagogy.participation.prompt), "REAL_DRAFT_PARTICIPATION_PROMPT");
 assert(!JSON.stringify(skillFoundationsBuildDraft).includes("ChatGPT"), "REAL_DRAFT_VENDOR_LOCK_IN");
 
-console.log("REAL_LESSON_TOPIC=技能（Skill）是什么：把常用方法教给 AI");
+console.log("REAL_LESSON_TOPIC=Skill（技能）是什么：把常用方法教给 AI");
 console.log("REAL_DRAFT_CODE_VALIDATION=PASS");
 console.log("REAL_DRAFT_CONCEPT_RULES=PASS");
 console.log("REAL_DRAFT_RUNTIME_PLAN=PASS");

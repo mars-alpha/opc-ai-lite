@@ -239,7 +239,7 @@ export function GenericLessonRuntimePanel({
     step?.kind === "CHECK"
       ? Boolean(checkPassed)
       : step?.kind === "PRACTICE"
-        ? Boolean(practicePassed) && Boolean(realAiPassed)
+        ? !plan.requiresPractice || (Boolean(practicePassed) && Boolean(realAiPassed))
         : step?.kind === "CAPABILITY"
           ? requiredGateStates.every(Boolean)
           : true;
@@ -446,11 +446,16 @@ export function GenericLessonRuntimePanel({
         <div className="guided-step-content">
           <div className="guided-step-label">理解核心概念</div>
           <h3>{lesson.plainExplanation}</h3>
-          <p>{lesson.whyItMatters}</p>
+          <div className="guided-key-highlight">
+            <strong>为什么值得学</strong>
+            <p>{lesson.whyItMatters}</p>
+          </div>
           <div className="guided-review-points">
             {lesson.points.map((point) => <div key={point}><strong>{point}</strong></div>)}
           </div>
-          {lesson.content.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          <div className="guided-explain-notes">
+            {lesson.content.map((paragraph) => <div key={paragraph}>{paragraph}</div>)}
+          </div>
         </div>
       )}
 
@@ -464,32 +469,7 @@ export function GenericLessonRuntimePanel({
             {lesson.example.after && <div><span>调整后的做法</span><p>{lesson.example.after}</p></div>}
           </div>}
           <div className="guided-gain"><strong>结果</strong><p>{lesson.example.result}</p></div>
-          {previewMode && previewActivity && (
-            <div className="guided-preview-activity">
-              <div className="guided-step-label">现在参与一下</div>
-              <h3>{previewActivity.title}</h3>
-              <p>{previewActivity.instruction}</p>
-              {previewActivity.prompt && (
-                <>
-                  <div className="guided-preview-prompt">{previewActivity.prompt}</div>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={async () => {
-                      await navigator.clipboard.writeText(previewActivity.prompt ?? "");
-                      setCopiedActivity(true);
-                    }}
-                  >
-                    {copiedActivity ? "✓ 已复制，去你的 AI 软件试一下" : "复制这段话"}
-                  </button>
-                </>
-              )}
-              <div className="guided-gain">
-                <strong>试完后想一想</strong>
-                <p>{previewActivity.reflection}</p>
-              </div>
-            </div>
-          )}
+
         </div>
       )}
 
@@ -536,6 +516,33 @@ export function GenericLessonRuntimePanel({
           <div className="kicker">理解检查</div>
           <h3>Required Check 尚未配置</h3>
           <p>{runtimeBlockerMessage("CHECK_NOT_CONFIGURED")}</p>
+        </div>
+      )}
+
+      {step.kind === "PRACTICE" && previewMode && !plan.requiresPractice && previewActivity && (
+        <div className="guided-step-content guided-preview-activity">
+          <div className="guided-step-label">动手体验</div>
+          <h3>{previewActivity.title}</h3>
+          <p>{previewActivity.instruction}</p>
+          {previewActivity.prompt && (
+            <>
+              <div className="guided-preview-prompt">{previewActivity.prompt}</div>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(previewActivity.prompt ?? "");
+                  setCopiedActivity(true);
+                }}
+              >
+                {copiedActivity ? "✓ 已复制，去你的 AI 软件试一下" : "复制这段话"}
+              </button>
+            </>
+          )}
+          <div className="guided-gain">
+            <strong>你应该得到什么</strong>
+            <p>{previewActivity.reflection}</p>
+          </div>
         </div>
       )}
 
@@ -665,8 +672,16 @@ export function GenericLessonRuntimePanel({
         <div className="guided-step-content">
           <div className="guided-step-label">学习回顾</div>
           <h3>用结果反查你是否真的理解</h3>
-          <div className="guided-review-points">
-            {lesson.mistakes.map((item) => <div key={item}><strong>避免</strong><p>{item}</p></div>)}
+          <div className="guided-misconception-grid">
+            {lesson.mistakes.map((item) => {
+              const [misconception, correction] = item.split("｜");
+              return (
+                <div key={item} className="guided-misconception-card">
+                  <div><span>容易误解</span><p>{misconception.replace(/^误区：/, "")}</p></div>
+                  <div><span>正确理解</span><p>{(correction ?? "").replace(/^正确理解：/, "")}</p></div>
+                </div>
+              );
+            })}
           </div>
           <div className="guided-gain">
             <strong>下一步关联</strong>
