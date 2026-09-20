@@ -513,6 +513,12 @@ Status: COMPLETE
 
 根据最新 Human Review，本任务只重做第一步，不改第 4/5 节。`skill-foundations` Step 1 现在先给会议记录重复场景，让学员在“每次重新说明 / 把方法保存下来”之间选择；选择后才显示简短解释、Prompt（提示词）/ Skill（技能）对比和一句核心判断。Preview 通过通用 `previewIntroChoice` 驱动，不新增独立课程模板，也不改变 Completion。
 
+### COURSE-BUILDER-SKILL-001-F — First Step Direct Comparison
+
+Status: COMPLETE
+
+根据 Human Review，Step 1 的两个选择答案过于明显，属于“为了互动而互动”。现已移除按钮，改为直接显示真实场景、临时做法 / 可复用做法、Prompt / Skill 对比和一句核心结论。Renderer 使用通用 `previewIntroComparison`，Step 3/4/5/6 不变。
+
 建议后续顺序：
 
 ```text

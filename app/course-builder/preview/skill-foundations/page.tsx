@@ -97,7 +97,7 @@ export default function SkillFoundationsDraftPreviewPage() {
             previewMode
             previewCheck={skillFoundationsBuildDraft.check}
             previewActivity={skillFoundationsBuildDraft.pedagogy.participation}
-            previewIntroChoice={skillFoundationsIntroPreview}
+            previewIntroComparison={skillFoundationsIntroPreview}
           />
 
           <div className="draft-human-review-card">

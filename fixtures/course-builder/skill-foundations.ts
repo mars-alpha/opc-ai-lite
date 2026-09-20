@@ -1,28 +1,26 @@
 export const skillFoundationsIntroPreview = {
-  question: "你每周都让 AI 整理会议记录，为什么每次还要重新告诉它怎么做？",
-  options: [
+  situation: "你每周都让 AI 整理会议记录，而且每次都要重复输入同一套要求。",
+  approaches: [
     {
-      value: "repeat",
-      label: "每次重新说明",
-      explanation: "这样当然可以，但你会不断重复同一套要求，而且结果容易忽好忽坏。"
+      label: "临时做法",
+      text: "每次重新说明要找决定、负责人、截止时间和待解决问题。"
     },
     {
-      value: "reuse",
-      label: "把这套方法保存下来",
-      explanation: "更适合重复任务。把已经验证过的方法留下来，下次遇到同类任务就可以直接沿用。"
+      label: "可复用做法",
+      text: "把这套步骤保存下来，下次处理同类会议记录时直接继续用。"
     }
   ],
   comparison: [
     {
       term: "Prompt（提示词）",
-      meaning: "告诉 AI 这一次怎么做"
+      meaning: "解决这一次怎么做"
     },
     {
       term: "Skill（技能）",
-      meaning: "把以后同类事情怎么做保存下来"
+      meaning: "解决以后同类事情怎么做"
     }
   ],
-  takeaway: "判断一个任务是否值得做成 Skill，先问：这件事以后还会不会重复？"
+  takeaway: "真正值得做成 Skill 的，不是“重要的任务”，而是“会重复、而且希望稳定执行的方法”。"
 } as const;
 
 export const skillFoundationsBuildDraft = {

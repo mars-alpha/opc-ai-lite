@@ -78,12 +78,11 @@ type PreviewActivity = {
   reflection: string;
 };
 
-type PreviewIntroChoice = {
-  question: string;
-  options: ReadonlyArray<{
-    value: string;
+type PreviewIntroComparison = {
+  situation: string;
+  approaches: ReadonlyArray<{
     label: string;
-    explanation: string;
+    text: string;
   }>;
   comparison: ReadonlyArray<{
     term: string;
@@ -126,7 +125,7 @@ export function GenericLessonRuntimePanel({
   previewMode = false,
   previewCheck = null,
   previewActivity = null,
-  previewIntroChoice = null
+  previewIntroComparison = null
 }: {
   courseSlug: string;
   lessonSlug: string;
@@ -135,7 +134,7 @@ export function GenericLessonRuntimePanel({
   previewMode?: boolean;
   previewCheck?: PreviewCheck | null;
   previewActivity?: PreviewActivity | null;
-  previewIntroChoice?: PreviewIntroChoice | null;
+  previewIntroComparison?: PreviewIntroComparison | null;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
     previewMode
@@ -182,7 +181,6 @@ export function GenericLessonRuntimePanel({
   const [currentStep, setCurrentStep] = useState(0);
   const [confusedOpen, setConfusedOpen] = useState(false);
   const [copiedActivity, setCopiedActivity] = useState(false);
-  const [introChoice, setIntroChoice] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (previewMode) return;
@@ -459,42 +457,30 @@ export function GenericLessonRuntimePanel({
       )}
 
       <div className="guided-step-panel">
-      {step.kind === "EXPLAIN" && previewMode && previewIntroChoice ? (
-        <div className="guided-step-content guided-intro-choice">
-          <div className="guided-step-label">先做一个判断</div>
-          <h3>{previewIntroChoice.question}</h3>
-          <div className="guided-intro-options">
-            {previewIntroChoice.options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={introChoice === option.value ? "is-selected" : ""}
-                onClick={() => setIntroChoice(option.value)}
-              >
-                {option.label}
-              </button>
+      {step.kind === "EXPLAIN" && previewMode && previewIntroComparison ? (
+        <div className="guided-step-content guided-intro-comparison">
+          <div className="guided-step-label">从一个真实场景开始</div>
+          <h3>{previewIntroComparison.situation}</h3>
+          <div className="guided-intro-approaches">
+            {previewIntroComparison.approaches.map((item) => (
+              <div key={item.label}>
+                <span>{item.label}</span>
+                <p>{item.text}</p>
+              </div>
             ))}
           </div>
-          {introChoice && (
-            <>
-              <div className="guided-intro-reveal">
-                <strong>为什么</strong>
-                <p>{previewIntroChoice.options.find((option) => option.value === introChoice)?.explanation}</p>
+          <div className="guided-intro-compare">
+            {previewIntroComparison.comparison.map((item) => (
+              <div key={item.term}>
+                <span>{item.term}</span>
+                <strong>{item.meaning}</strong>
               </div>
-              <div className="guided-intro-compare">
-                {previewIntroChoice.comparison.map((item) => (
-                  <div key={item.term}>
-                    <span>{item.term}</span>
-                    <strong>{item.meaning}</strong>
-                  </div>
-                ))}
-              </div>
-              <div className="guided-key-highlight guided-intro-takeaway">
-                <strong>记住这一句</strong>
-                <p>{previewIntroChoice.takeaway}</p>
-              </div>
-            </>
-          )}
+            ))}
+          </div>
+          <div className="guided-key-highlight guided-intro-takeaway">
+            <strong>记住这一句</strong>
+            <p>{previewIntroComparison.takeaway}</p>
+          </div>
         </div>
       ) : step.kind === "EXPLAIN" && (
         <div className="guided-step-content">

@@ -32,8 +32,9 @@ COURSE-BUILDER-SKILL-001-B Draft Preview & Human Review PREVIEW_READY
 COURSE-BUILDER-SKILL-001-C Beginner Pedagogy & Knowledge Grounding COMPLETE
 COURSE-BUILDER-SKILL-001-D Six-Step Beginner Experience & Visual Hierarchy COMPLETE
 COURSE-BUILDER-SKILL-001-E First Step Interactive Intro COMPLETE
+COURSE-BUILDER-SKILL-001-F First Step Direct Comparison COMPLETE
 
-NEXT: Human Review — re-open /course-builder/preview/skill-foundations and focus on Step 1 interactive intro
+NEXT: Human Review — re-open /course-builder/preview/skill-foundations and focus on Step 1 direct comparison
 ```
 
 ## 当前系统健康
@@ -65,7 +66,7 @@ AI-tool-neutral rules   PASS
 Beginner participation  PASS
 Six-step concept UX     PASS
 Visual hierarchy        PASS
-First-step interaction  PASS
+First-step direct compare PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -105,7 +106,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-001-E` 只重做了 `skill-foundations` 第一节 EXPLAIN：长文入口替换为“情境问题 → 两个选择 → 结果解释 → Prompt/Skill 对比 → 一句核心结论”。实现仍复用 Generic Lesson Runtime Renderer，通过通用 `previewIntroChoice` 数据驱动，不按 lesson slug 分支；第 4/5 节保持上一轮观感不变。下一步 Human Review 重点只看第一节。
+`COURSE-BUILDER-SKILL-001-F` 进一步简化 `skill-foundations` 第一节 EXPLAIN：移除两个答案过于明显的选择按钮，改为“真实场景 → 临时做法/可复用做法 → Prompt/Skill 对比 → 一句核心结论”。实现通过通用 `previewIntroComparison` 数据驱动，不按 lesson slug 分支；Step 3/4/5/6 不变。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 
