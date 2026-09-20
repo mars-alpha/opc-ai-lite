@@ -46,8 +46,9 @@ CURRICULUM-001 Formal Curriculum Definition COMPLETE_DEFINED_V1_MAINLINE_LOCKED
 CURRICULUM-002 Foundation Knowledge Map & Lesson Briefs COMPLETE_DEFINED_V1
 CURRICULUM-003 Foundation Batch A Brief Finalization COMPLETE_BRIEF_READY_V1
 CURRICULUM-004 Foundation Catalog Metadata Completion COMPLETE_CATALOG_READY_V1
+LEARNING-CATALOG-001 Formal Curriculum Catalog UI COMPLETE_UI_V1
 
-NEXT: LEARNING-CATALOG-001 — Formal Curriculum Catalog UI
+NEXT: HUMAN REVIEW — /learning-path formal catalog, then Foundation Batch A real course production
 ```
 
 ## 当前系统健康

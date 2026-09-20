@@ -605,6 +605,12 @@ Status: COMPLETE_CATALOG_READY_V1
 
 新增 `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`。AI 基础认知完整 7 Stage / 28 Lesson 均已补齐前端目录元数据，包括 lessonId、title、subtitle、learnerOutcome、lessonType、estimatedMinutes、curriculumStatus、availability、stage/module/order、prerequisites、badge，以及 Stage title/promise/count。F1-01～F1-04 为 BRIEF_READY + COMING_SOON，其余 24 节为 PLANNED + COMING_SOON；当前没有 AVAILABLE。目录可完整展示，但所有未发布课程不得进入空 Lesson Runtime。下一步：`LEARNING-CATALOG-001 — Formal Curriculum Catalog UI`。
 
+### LEARNING-CATALOG-001 — Formal Curriculum Catalog UI
+
+Status: COMPLETE_UI_V1
+
+`/learning-path` 已接入正式 Foundation Catalog。新增 `lib/learning/foundation-catalog.ts` typed planning-data bridge 与 `components/FoundationCatalog.tsx`，展示完整 7 Stage / 28 Lesson；F1-01～F1-04 为“准备中 / 即将开放”，其余 24 节为“规划中 / 即将开放”。当前没有 AVAILABLE，所有 COMING_SOON 均不可进入空 Runtime。旧页面的六阶段、3 个开放阶段和 `lib/courses.ts` 派生 StageProgress 已从正式学习路径页移除，并对齐五大长期课程主线。typecheck/build PASS。下一步先 Human Review `/learning-path`，通过后进入 Foundation Batch A 正式课程生产。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

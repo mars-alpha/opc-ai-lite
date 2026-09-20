@@ -3926,3 +3926,61 @@ img { display: block; max-width: 100%; }
 @media (max-width:720px) {
   .guided-knowledge-depth { grid-template-columns:1fr; gap:14px; }
 }
+
+
+/* Formal Foundation Catalog */
+.foundation-catalog-heading { align-items: center; }
+.foundation-catalog-summary { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 2px 10px; min-width: 170px; }
+.foundation-catalog-summary strong { font-size: 30px; letter-spacing: -.04em; }
+.foundation-catalog-summary span { color: var(--muted); font-size: 13px; }
+.foundation-catalog { display: grid; gap: 18px; }
+.foundation-catalog-legend { display: flex; flex-wrap: wrap; gap: 18px; padding: 0 4px 4px; color: var(--muted); font-size: 12px; }
+.foundation-catalog-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.catalog-dot { width: 7px; height: 7px; border-radius: 999px; background: #c3ccdc; }
+.catalog-dot.is-ready { background: #5b78ff; }
+.foundation-stage { overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.86); box-shadow: var(--shadow-soft); }
+.foundation-stage-head { display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 16px; align-items: center; padding: 22px 24px; border-bottom: 1px solid var(--line); }
+.foundation-stage-index { color: var(--blue); font-size: 12px; font-weight: 900; letter-spacing: .12em; }
+.foundation-stage-copy h3 { margin: 0; font-size: 22px; letter-spacing: -.025em; }
+.foundation-stage-copy p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.foundation-stage-count { color: #8190ae; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.foundation-lesson-list { display: grid; }
+.foundation-lesson-row { display: grid; grid-template-columns: 42px minmax(0,1fr) 88px; gap: 14px; align-items: center; min-height: 88px; padding: 14px 24px; border-top: 1px solid rgba(220,227,240,.72); }
+.foundation-lesson-row:first-child { border-top: 0; }
+.foundation-lesson-number { color: #9aa6bd; font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.foundation-lesson-main { min-width: 0; }
+.foundation-lesson-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+.foundation-lesson-main h4 { margin: 0; font-size: 16px; line-height: 1.4; letter-spacing: -.018em; }
+.foundation-lesson-main p { margin: 6px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+.foundation-lesson-meta { display: flex; gap: 6px; flex: 0 0 auto; }
+.foundation-lesson-meta span { padding: 4px 8px; border-radius: 999px; background: #f4f7fc; color: #71809c; font-size: 10px; font-weight: 750; white-space: nowrap; }
+.foundation-status { justify-self: end; text-align: right; }
+.foundation-status strong { display: block; font-size: 11px; }
+.foundation-status span { display: block; margin-top: 3px; color: #a0aabc; font-size: 10px; }
+.foundation-status.is-ready strong { color: #4966ef; }
+.foundation-status.is-planned strong { color: #8895aa; }
+.formal-path-strip { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 12px; }
+.formal-path-item { min-height: 205px; padding: 22px 18px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255,255,255,.84); box-shadow: var(--shadow-soft); }
+.formal-path-item h3 { margin: 8px 0 10px; font-size: 18px; line-height: 1.35; }
+.formal-path-item p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+
+@media (max-width: 1020px) {
+  .formal-path-strip { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width: 760px) {
+  .foundation-catalog-heading { gap: 14px; }
+  .foundation-catalog-summary { grid-template-columns: auto 1fr auto 1fr; min-width: 0; }
+  .foundation-catalog-summary strong { font-size: 24px; }
+  .foundation-stage { border-radius: 20px; }
+  .foundation-stage-head { grid-template-columns: 38px minmax(0,1fr) auto; gap: 10px; padding: 18px 16px; }
+  .foundation-stage-copy h3 { font-size: 18px; }
+  .foundation-stage-copy p { font-size: 12px; }
+  .foundation-lesson-row { grid-template-columns: 28px minmax(0,1fr); gap: 10px; padding: 14px 16px; }
+  .foundation-lesson-title-row { display: block; }
+  .foundation-lesson-meta { margin-top: 7px; }
+  .foundation-status { grid-column: 2; justify-self: start; display: flex; align-items: center; gap: 7px; margin-top: 2px; text-align: left; }
+  .foundation-status span { margin-top: 0; }
+  .formal-path-strip { grid-template-columns: 1fr; }
+  .formal-path-item { min-height: 0; }
+}

@@ -1,27 +1,16 @@
 import Link from "next/link";
+import { FoundationCatalog } from "../../components/FoundationCatalog";
 import { HeroVisual } from "../../components/HeroVisual";
 import { PageHero } from "../../components/PageHero";
 import { Reveal } from "../../components/Reveal";
-import { StageProgress } from "../../components/StageProgress";
 import { stageProjects } from "../../lib/stageProjects";
-import { courses } from "../../lib/courses";
-
-const progressCatalog = courses.map((course) => ({
-  slug: course.slug,
-  title: course.title,
-  stageLabel: course.stageLabel,
-  lessons: course.modules.flatMap((module) =>
-    module.lessons.map((lesson) => ({ id: lesson.id, title: lesson.title, summary: lesson.summary }))
-  )
-}));
 
 const stages = [
-  ["01", "AI Literacy", "看懂 AI", "理解 AI 的能力、边界与基本原理"],
-  ["02", "AI Worker", "用好 AI", "把 AI 用到真实工作任务中"],
-  ["03", "AI Workflow", "建立工作流认知", "把单点使用变成可重复的工作流程"],
-  ["04", "AI Growth", "AI 运营与增长", "用 AI 支持内容、运营与增长"],
-  ["05", "AI Solution Builder", "做出 AI 解决方案", "围绕真实问题设计并验证解决方案"],
-  ["06", "FDE", "真实业务落地", "进入真实业务现场，交付、验证并持续优化"]
+  ["01", "AI Foundation", "AI 基础认知", "真正看懂 AI、模型、Prompt、RAG、Tool、Agent 与现代 AI 能力边界"],
+  ["02", "AI Work", "AI 工作应用", "把 AI 用进研究、写作、文件、数据、知识和重复工作"],
+  ["03", "AI Growth", "AI 推广运营与业务增长", "把 AI 放进内容、获客、销售、客服与运营流程"],
+  ["04", "AI Workflow", "AI Workflow 与自动化", "设计可控、可重复、可评估的 AI 工作系统"],
+  ["05", "FDE", "FDE / AI 解决方案落地", "从真实业务问题出发，完成发现、设计、试点、评估与落地"]
 ];
 
 export default function LearningPathPage() {
@@ -29,54 +18,63 @@ export default function LearningPathPage() {
     <>
       <PageHero
         eyebrow="Learning Path"
-        title={<>六阶段学习路径</>}
-        description="从看懂 AI、用好 AI，到把 AI 应用到真实工作、流程与业务场景。六个阶段逐步建立解决真实问题所需要的能力。"
-        actions={<Link className="btn btn-primary" href="#progress">进入我的学习地图</Link>}
+        title={<>从看懂 AI，到把 AI 用进真实业务</>}
+        description="OPC 的学习主线分成五大板块。第一阶段 AI 基础认知已经完成 7 个学习阶段、28 节课程的正式目录规划，后续内容会按批次逐步开放。"
+        actions={<Link className="btn btn-primary" href="#foundation-catalog">查看基础课程目录</Link>}
         metrics={[
-          { value: "6", label: "六个能力阶段" },
-          { value: "3", label: "当前已开放阶段" },
-          { value: "Practice", label: "实操项目验证学习" }
+          { value: "5", label: "五大长期学习板块" },
+          { value: "7", label: "基础认知学习阶段" },
+          { value: "28", label: "基础课程目录" }
         ]}
         visual={
           <HeroVisual
             cards={[
-              { title: "01", value: "AI Literacy", detail: "看懂 AI · 理解能力与边界" },
-              { title: "02", value: "AI Worker", detail: "用好 AI · 完成真实工作任务" },
-              { title: "03", value: "AI Workflow", detail: "建立工作流 · 形成可重复流程" }
+              { title: "FOUNDATION", value: "7 个阶段", detail: "先建立完整 AI 世界模型" },
+              { title: "CATALOG", value: "28 节", detail: "目录完整 · 内容分批生产" },
+              { title: "PATH", value: "5 大板块", detail: "工作 → 业务 → Workflow → FDE" }
             ]}
-            eyebrow="Better you"
-            caption="从会用 AI，到解决真实问题"
+            eyebrow="OPC Learning"
+            caption="完整路径，分批开放"
           />
         }
       />
 
-      <section className="section compact" id="progress">
+      <section className="section compact" id="foundation-catalog">
+        <div className="container">
+          <Reveal className="section-head foundation-catalog-heading">
+            <div>
+              <div className="eyebrow">AI Foundation</div>
+              <h2 className="section-title">AI 基础认知</h2>
+              <p className="section-subtitle">先把 AI 讲明白，再进入工作和业务应用。课程目录已经完整规划；内容会按批次制作，未开放课程不会进入空页面。</p>
+            </div>
+            <div className="foundation-catalog-summary">
+              <strong>7</strong><span>学习阶段</span>
+              <strong>28</strong><span>基础课程</span>
+            </div>
+          </Reveal>
+          <FoundationCatalog />
+        </div>
+      </section>
+
+      <section className="section compact">
         <div className="container">
           <Reveal className="section-head">
             <div>
-              <div className="eyebrow">Your learning map</div>
-              <h2 className="section-title">Stage 总进度</h2>
-              <p className="section-subtitle">这里就是你的主学习地图。进入阶段、继续课程、查看完成度，都从这一处完成，不再重复展示相同入口。</p>
+              <div className="eyebrow">Full Learning Path</div>
+              <h2 className="section-title">从基础认知走向真实落地</h2>
+              <p className="section-subtitle">基础课负责建立完整 AI 世界模型；后续逐步进入工作应用、推广运营、Workflow 与 FDE。</p>
             </div>
           </Reveal>
-          <div className="learning-access-legend" aria-label="学习权益说明">
-            <div>
-              <span>免费体验</span>
-              <strong>先完成基础课程体验</strong>
-              <p>基础阶段提供免费课时，让你先完整体验学习方式和核心能力。</p>
-            </div>
-            <div>
-              <span>关注公众号</span>
-              <strong>解锁指定后续基础内容</strong>
-              <p>当前规则下，第一阶段前三节免费；后续指定基础课与完整 AI Daily 由公众号关注权益解锁。</p>
-            </div>
-            <div>
-              <span>OPC 会员</span>
-              <strong>进入系统进阶学习</strong>
-              <p>Knowledge 正文、深度资料、正式实操与由进阶内容进入的课程入口属于会员权益。</p>
-            </div>
+          <div className="formal-path-strip">
+            {stages.map(([index, en, title, detail], i) => (
+              <Reveal className="formal-path-item" key={index} delay={i * 45}>
+                <div className="path-index">{index}</div>
+                <span className="path-en">{en}</span>
+                <h3>{title}</h3>
+                <p>{detail}</p>
+              </Reveal>
+            ))}
           </div>
-          <StageProgress catalog={progressCatalog} />
         </div>
       </section>
 
@@ -86,7 +84,7 @@ export default function LearningPathPage() {
             <div>
               <div className="eyebrow">Practice Projects</div>
               <h2 className="section-title">实操项目</h2>
-              <p className="section-subtitle">课程学完之后，用一个真实项目把多个知识点组合起来，验证是否真正能用。</p>
+              <p className="section-subtitle">课程学完之后，用真实项目把多个知识点组合起来，验证是否真正能用。</p>
             </div>
             <Link className="btn btn-secondary" href="/projects">查看更多</Link>
           </Reveal>
@@ -104,33 +102,6 @@ export default function LearningPathPage() {
           </div>
         </div>
       </section>
-
-      <section className="section compact">
-        <div className="container">
-          <Reveal className="section-head">
-            <div>
-              <div className="eyebrow">Learning Path</div>
-              <h2 className="section-title">用 AI 解决真实业务问题</h2>
-              <p className="section-subtitle">六个阶段从基础认知、真实工作、工作流，到增长、解决方案与业务落地，逐步建立可执行能力。</p>
-            </div>
-          </Reveal>
-          <div className="path-strip">
-            {stages.map(([index, en, title, detail], i) => (
-              <Reveal className="path-item" key={index} delay={i * 45}>
-                <div className="path-index">{index}</div>
-                <span className="path-en">{en}</span>
-                <h3>{title}</h3>
-                <p>{detail}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
     </>
   );
 }
-
-
-
-
-
