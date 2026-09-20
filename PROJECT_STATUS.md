@@ -28,8 +28,9 @@ LEARNING-RUNTIME-001-A Pilot Provisioning & Acceptance COMPLETE
 LEARNING-UX-RUNTIME-ALIGN-001 Reference UX Unification COMPLETE
 COURSE-BUILDER-SKILL-001 Course Builder Skill v0.1 CONTRACT_COMPLETE_RUNTIME_PENDING
 COURSE-BUILDER-SKILL-001-A Real Lesson Draft Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+COURSE-BUILDER-SKILL-001-B Draft Preview & Human Review PREVIEW_READY
 
-NEXT: Human Review — skill-foundations BUILD Draft
+NEXT: Human Review — open /course-builder/preview/skill-foundations
 ```
 
 ## 当前系统健康
@@ -54,6 +55,7 @@ Generic Runtime check PASS
 Unified Reference UX   PASS
 Course Builder contract PASS
 Real Lesson Draft       PASS
+Draft Preview route     PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -93,7 +95,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-001-A` 已完成首个真实 BUILD Draft 技术验收：`ai-literacy/skill-foundations`（“Skill 是什么：把可复用方法交给 AI”）通过 Course Builder Code Validation、CONCEPT 规则、Generic Runtime Plan 与 Unified Lesson Shell compatibility，当前只保存在 acceptance fixture 中，状态仍为 `PENDING_REVIEW`，未注册、未写入课程目录、未发布。下一步是对这份真实 Draft 做 Human Review；Human Review 通过前不进入 persistence / Provider / Publish。
+`COURSE-BUILDER-SKILL-001-B` 已提供只读 Human Review 预览路由 `/course-builder/preview/skill-foundations`。页面直接读取 acceptance fixture，复用 Generic Lesson Runtime Renderer 的 Step 视觉与本地 Check 交互，但 previewMode 不读取或写入 Runtime / Progress / Completion API；Draft 仍未加入正式课程目录或 Lesson Spec Registry。下一步由产品负责人直接在浏览器体验并给出 Human Review 反馈。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

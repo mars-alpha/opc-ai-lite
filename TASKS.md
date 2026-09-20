@@ -483,6 +483,14 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 Draft 当前仅保存在 `fixtures/course-builder/skill-foundations.ts`，未进入 `lib/courses.ts`、Lesson Spec Registry 或 Production Data。Review Packet 仍为 `PENDING_REVIEW`。下一步先由 Human Review 判断内容、难度、位置与表达是否符合正式课程，再决定是否进入下一层 Runtime。
 
+### COURSE-BUILDER-SKILL-001-B — Draft Preview & Human Review
+
+Status: PREVIEW_READY
+
+新增只读预览路由 `/course-builder/preview/skill-foundations`。它直接读取 acceptance fixture 并复用 Generic Lesson Runtime Renderer 的 Step 结构；`previewMode` 下 Check 只在浏览器本地判断，不读取/写入正式 Runtime API，也不产生 Progress、Completion、Feedback 或 Published Course 状态。
+
+该路由用于非技术产品负责人直接体验课程。下一步不是继续开发，而是先完成 Human Review：看得懂 / 是否太技术 / 案例与 Check 是否有效 / 是否愿意继续下一课。
+
 建议后续顺序：
 
 ```text

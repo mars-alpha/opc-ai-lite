@@ -63,6 +63,14 @@ type RuntimeData = {
   };
 };
 
+type PreviewCheck = {
+  id: string;
+  question: string;
+  options: ReadonlyArray<{ value: string; label: string }>;
+  correctValue: string;
+  explanation: string;
+};
+
 function emptyPracticeContent(
   instructions: Array<{ key: string }>
 ): PracticeContent {
@@ -93,15 +101,51 @@ export function GenericLessonRuntimePanel({
   courseSlug,
   lessonSlug,
   plan,
-  lesson
+  lesson,
+  previewMode = false,
+  previewCheck = null
 }: {
   courseSlug: string;
   lessonSlug: string;
   plan: LessonRuntimePlan;
   lesson: Lesson;
+  previewMode?: boolean;
+  previewCheck?: PreviewCheck | null;
 }) {
-  const [interactive, setInteractive] = useState<InteractiveData | null>(null);
-  const [runtime, setRuntime] = useState<RuntimeData | null>(null);
+  const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
+    previewMode
+      ? {
+          authenticated: false,
+          checks: previewCheck
+            ? [{
+                id: previewCheck.id,
+                question: previewCheck.question,
+                options: [...previewCheck.options],
+                required: true,
+                state: null
+              }]
+            : [],
+          practices: []
+        }
+      : null
+  );
+  const [runtime, setRuntime] = useState<RuntimeData | null>(() =>
+    previewMode
+      ? {
+          registered: false,
+          configurationReady: true,
+          enforcementActive: false,
+          blockers: [],
+          gates: {
+            realAi: {
+              required: false,
+              satisfied: true,
+              evidenceKind: "NONE"
+            }
+          }
+        }
+      : null
+  );
   const [answer, setAnswer] = useState("");
   const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
   const [content, setContent] = useState<PracticeContent>({});
@@ -114,6 +158,7 @@ export function GenericLessonRuntimePanel({
   const [confusedOpen, setConfusedOpen] = useState(false);
 
   const refresh = useCallback(async () => {
+    if (previewMode) return;
     const params = new URLSearchParams({ courseSlug, lessonSlug });
     const [runtimeResponse, interactiveResponse] = await Promise.all([
       fetch("/api/learning/runtime?" + params.toString(), { cache: "no-store" }),
@@ -142,13 +187,14 @@ export function GenericLessonRuntimePanel({
         ...(nextPractice.state?.content ?? {})
       });
     }
-  }, [courseSlug, lessonSlug]);
+  }, [courseSlug, lessonSlug, previewMode]);
 
   useEffect(() => {
+    if (previewMode) return;
     refresh().catch(() =>
       setMessage("互动学习暂时读取失败，请稍后刷新。")
     );
-  }, [refresh]);
+  }, [previewMode, refresh]);
 
   const check = useMemo(
     () =>
@@ -190,6 +236,16 @@ export function GenericLessonRuntimePanel({
 
   async function submitCheck() {
     if (!check || !answer) return;
+    if (previewMode) {
+      const correct = answer === previewCheck?.correctValue;
+      setLocalCheckCorrect(correct);
+      setMessage(
+        correct
+          ? "理解检查已通过。这只是 Draft Preview，不会保存学习记录。"
+          : previewCheck?.explanation ?? "还没有通过。对照本课说明后再试一次。"
+      );
+      return;
+    }
     setBusy("check");
     setMessage(null);
     try {
@@ -342,6 +398,12 @@ export function GenericLessonRuntimePanel({
       </div>
 
       <div className="guided-progress-track" aria-label="学习进度">
+        {previewMode && (
+          <div className="guided-preview-mode-note">
+            <strong>Human Review 预览</strong>
+            <span>本页只用于体验课程草稿，不保存进度、不产生完成状态、不会发布。</span>
+          </div>
+        )}
         {plan.steps.map((item, index) => (
           <button
             type="button"
