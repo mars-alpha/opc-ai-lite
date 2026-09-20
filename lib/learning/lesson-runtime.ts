@@ -23,6 +23,7 @@ export type LessonRuntimePlan = {
   completionGates: CompletionGate[];
   requiresCheck: boolean;
   requiresPractice: boolean;
+  requiresDeliverable: boolean;
   requiresRealAi: boolean;
   realAiEvidence: RealAiEvidence;
   realAiEvidenceSupported: boolean;
@@ -38,6 +39,7 @@ export function buildLessonRuntimePlan(spec: LessonSpec): LessonRuntimePlan {
     completionGates: [...new Set(spec.completionGates)],
     requiresCheck: spec.completionGates.includes("CHECK"),
     requiresPractice: spec.completionGates.includes("PRACTICE"),
+    requiresDeliverable: spec.completionGates.includes("DELIVERABLE"),
     requiresRealAi: spec.completionGates.includes("REAL_AI"),
     realAiEvidence: spec.realAiEvidence,
     realAiEvidenceSupported: isRealAiEvidenceRuntimeSupported(spec.realAiEvidence),

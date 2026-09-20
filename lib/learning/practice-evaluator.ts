@@ -43,7 +43,12 @@ const taskBriefSuggestions: Record<string, string> = {
   owner: "写清一个具体负责人或明确角色；一个明确负责人就足够，不需要为了得分凑人数。",
   deadline: "填写一个可以判断是否逾期的具体时间，例如“本周五前”“9 月 25 日 18:00 前”。",
   action: "写成可以判断是否完成的具体行动，不要只写“推进”“跟进”。",
-  openIssue: "把还没确定的条件、依赖或决策单独写出来，并说明谁去确认会更清楚。"
+  openIssue: "把还没确定的条件、依赖或决策单独写出来，并说明谁去确认会更清楚。",
+  projectGoal: "写清项目服务谁、要解决什么具体问题，以及希望改善什么结果。",
+  triggerInput: "说明工作流什么时候启动，以及允许使用哪些真实输入资料。",
+  workflowSteps: "按顺序写清普通规则、AI、人工分别做什么，并形成从触发到记录结果的闭环。",
+  humanReview: "明确哪些高风险内容或动作必须由人确认，以及 AI 不允许自行决定什么。",
+  successMetric: "列出可以真实观察或统计的指标，不要只写“效率更高”“体验更好”。"
 };
 
 const strongMarkers: Partial<Record<string, RegExp>> = {

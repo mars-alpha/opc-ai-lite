@@ -551,6 +551,12 @@ Human Review 修复：共享 RULE evaluator 已从纯文字长度判断升级为
 
 Step 1 视觉层级继续调整：`摘要 / 行动清单` 的概念定义移到第一步最底部，复用轻量 knowledge-depth 样式；主对比区只展示“只有会议摘要 / 可执行行动清单”两种做法，避免概念定义与场景对比混淆。通过 `comparisonPlacement=BOTTOM` 数据驱动，不按 lesson slug 分支。
 
+### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
+
+Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
+
+新增真实 PROJECT Draft：`ai-literacy/ai-workflow-project`，题目“完成一份 AI 客户跟进工作流方案”。继续复用统一六步与六步职责 Contract；`practiceMode=PROJECT`，Completion Gates 为 CHECK + DELIVERABLE。第 4 步要求完成项目目标 / 触发输入 / 工作流步骤 / 人工确认 / 成功指标五部分项目草稿，本地 RULE evaluator 只验证草稿质量。Runtime Plan 已识别 `requiresDeliverable`，但正式 Deliverable Runtime 尚未接入，因此不会把本地草稿 PASS 写成正式项目完成。Preview：`/course-builder/preview/ai-workflow-project`。
+
 建议后续顺序：
 
 ```text

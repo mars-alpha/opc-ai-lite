@@ -354,6 +354,10 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `PreviewIntroComparison` 当前支持可选 `comparisonPlacement=MIDDLE|BOTTOM`。`meeting-action-list` 使用 `BOTTOM`：EXPLAIN 主区只保留场景与两种做法，核心 takeaway 后再以轻量 knowledge-depth 样式展示“摘要 = 回顾发生了什么 / 行动清单 = 帮助下一步执行”。默认仍为 MIDDLE，因此现有 Prompt Preview 不变。
 
+第四个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/ai-workflow-project.ts`：`ai-literacy/ai-workflow-project`，类型 PROJECT。它使用统一六步，`practiceMode=PROJECT`，Completion Gates 为 CHECK + DELIVERABLE，`realAiOperation=NONE`、`realAiEvidence=NONE`。只读 Preview 为 `/course-builder/preview/ai-workflow-project`。项目草稿包含目标 / 触发输入 / 工作流步骤 / 人工确认 / 成功指标五部分，并复用本地 RULE evaluator、Hint、参考答案和一键填充。
+
+`LessonRuntimePlan` 当前新增 `requiresDeliverable`，可显式识别 PROJECT 的 DELIVERABLE Completion Gate。Generic Lesson Preview 在 PROJECT 下允许对结构化项目草稿做本地质量检查并继续体验后续 Step，但 Preview Runtime 会加入 `DELIVERABLE_RUNTIME_NOT_SUPPORTED` blocker。当前没有正式 Deliverable Resolver / Submission / Completion 状态，因此本地项目草稿 PASS 不等于正式 PROJECT 完成，也不会写正式 Progress / Completion。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

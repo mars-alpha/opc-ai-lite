@@ -137,6 +137,9 @@ function runtimeBlockerMessage(blocker: string) {
   if (blocker === "PRACTICE_NOT_CONFIGURED") {
     return "本课 required Practice 尚未完成正式配置，因此实操提交与评分不会伪造为可用。";
   }
+  if (blocker === "DELIVERABLE_RUNTIME_NOT_SUPPORTED") {
+    return "本课要求正式 Deliverable（项目交付物）作为 Completion Gate。当前 Deliverable Runtime 尚未接入，因此这里只能验证项目草稿质量，不会伪造正式项目完成状态。";
+  }
   if (blocker.startsWith("REAL_AI_EVIDENCE_RUNTIME_NOT_SUPPORTED:")) {
     return "本课真实 AI 证据链尚未受 Runtime 支持；系统不会用用户手填引用绕过 Completion Gate。";
   }
@@ -205,7 +208,7 @@ export function GenericLessonRuntimePanel({
           registered: false,
           configurationReady: true,
           enforcementActive: false,
-          blockers: [],
+          blockers: plan.requiresDeliverable ? ["DELIVERABLE_RUNTIME_NOT_SUPPORTED"] : [],
           gates: {
             realAi: {
               required: false,
@@ -288,13 +291,16 @@ export function GenericLessonRuntimePanel({
   const checkPassed = check?.state?.isCorrect || localCheckCorrect === true;
   const practicePassed =
     practice?.state?.status === "PASSED" || evaluation?.passed === true;
+  const projectDraftPassed =
+    plan.lessonType === "PROJECT" && evaluation?.passed === true;
   const realAiPassed =
     !plan.requiresRealAi || runtime?.gates.realAi.satisfied === true;
 
   const requiredGateStates = [
     ...(plan.requiresCheck ? [Boolean(checkPassed)] : []),
     ...(plan.requiresPractice ? [Boolean(practicePassed)] : []),
-    ...(plan.requiresRealAi ? [Boolean(realAiPassed)] : [])
+    ...(plan.requiresRealAi ? [Boolean(realAiPassed)] : []),
+    ...(plan.requiresDeliverable ? [false] : [])
   ];
 
   const step = plan.steps[currentStep];
@@ -302,7 +308,9 @@ export function GenericLessonRuntimePanel({
     step?.kind === "CHECK"
       ? Boolean(checkPassed)
       : step?.kind === "PRACTICE"
-        ? !plan.requiresPractice || (Boolean(practicePassed) && Boolean(realAiPassed))
+        ? plan.lessonType === "PROJECT"
+          ? Boolean(projectDraftPassed)
+          : !plan.requiresPractice || (Boolean(practicePassed) && Boolean(realAiPassed))
         : step?.kind === "CAPABILITY"
           ? requiredGateStates.every(Boolean)
           : true;
@@ -657,9 +665,9 @@ export function GenericLessonRuntimePanel({
         </div>
       )}
 
-      {step.kind === "PRACTICE" && plan.requiresPractice && practice && (
+      {step.kind === "PRACTICE" && (plan.requiresPractice || (previewMode && plan.lessonType === "PROJECT")) && practice && (
         <div className="interactive-block" id="interactive-practice">
-          <div className="kicker">实操验收</div>
+          <div className="kicker">{plan.lessonType === "PROJECT" ? "项目草稿验收" : "实操验收"}</div>
           <h3>{practice.title}</h3>
           <p>{practice.goal}</p>
           <div className="guided-practice-fields">
@@ -695,10 +703,12 @@ export function GenericLessonRuntimePanel({
               type="button"
               className="btn btn-primary"
               onClick={submitPractice}
-              disabled={busy === "practice" || practicePassed}
+              disabled={busy === "practice" || (plan.lessonType === "PROJECT" ? projectDraftPassed : practicePassed)}
             >
-              {practicePassed
-                ? "✓ 实操已通过"
+              {(plan.lessonType === "PROJECT" ? projectDraftPassed : practicePassed)
+                ? plan.lessonType === "PROJECT"
+                  ? "✓ 项目草稿已通过"
+                  : "✓ 实操已通过"
                 : busy === "practice"
                   ? "正在检查…"
                   : evaluation
@@ -792,7 +802,7 @@ export function GenericLessonRuntimePanel({
         </div>
       )}
 
-      {step.kind === "PRACTICE" && plan.requiresPractice && !practice && (
+      {step.kind === "PRACTICE" && (plan.requiresPractice || (previewMode && plan.lessonType === "PROJECT")) && !practice && (
         <div className="interactive-block" id="interactive-practice">
           <div className="kicker">实操验收</div>
           <h3>Required Practice 尚未配置</h3>

@@ -37,8 +37,9 @@ COURSE-BUILDER-SKILL-002-A Real APPLICATION Lesson Acceptance TECHNICAL_ACCEPTAN
 COURSE-BUILDER-SKILL-002-B Knowledge Depth Expansion COMPLETE_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-002-C Six-Step Knowledge Responsibility Contract COMPLETE
 COURSE-BUILDER-SKILL-003-A Real PRACTICE Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+COURSE-BUILDER-SKILL-004-A Real PROJECT Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
 
-NEXT: Human Review — open /course-builder/preview/meeting-action-list and review the real PRACTICE lesson
+NEXT: Human Review — open /course-builder/preview/ai-workflow-project and review the real PROJECT lesson
 ```
 
 ## 当前系统健康
@@ -48,7 +49,7 @@ NEXT: Human Review — open /course-builder/preview/meeting-action-list and revi
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      33 static pages generated
+Production build      34 static pages generated
 Remote migrations     0000 → 0009 APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
@@ -84,6 +85,10 @@ PRACTICE independent mode PASS
 PRACTICE completion gate PASS
 PRACTICE one-owner scoring PASS
 PRACTICE knowledge depth PASS
+PROJECT Draft           PASS
+PROJECT mode            PASS
+PROJECT Deliverable gate declared PASS
+PROJECT Deliverable runtime BLOCKED (expected)
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -123,7 +128,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-003-A` Human Review 修复继续收口：Step 1 的“摘要 / 行动清单”概念说明已从中间对比区移到最底部，以轻量知识补充方式呈现。中间只保留真实场景下“两种做法”的对比，避免把做法差异和概念定义混在一起；Prompt 课仍保持原有中间对比。
+`COURSE-BUILDER-SKILL-004-A` 已新增第四种真实 Course Builder 样板：`ai-workflow-project`，类型 PROJECT。课程继续复用统一六步，`practiceMode=PROJECT`，Completion Gates 为 CHECK + DELIVERABLE。第 4 步完成项目目标 / 触发输入 / 工作流步骤 / 人工确认 / 成功指标五部分草稿并做本地质量检查。Runtime 现在能识别 `requiresDeliverable`，但正式 Deliverable Runtime 尚未接入，因此草稿 PASS 不会被伪造成正式 PROJECT Completion。下一步先做 Human Review。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 
