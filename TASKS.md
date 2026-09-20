@@ -440,11 +440,20 @@ Priority: P0
 
 `memory-rag` required Check 与 `task-decomposition` required Practice 的 seed 定义已完成，但没有执行远程 `db:seed`，所以本任务只完成 Foundation，不声称两个 Pilot 已正式上线。
 
+## LEARNING-RUNTIME-001-A — Pilot Provisioning & Acceptance
+
+Status: COMPLETE
+Priority: P0
+
+已通过窄范围、幂等脚本正式 provision 两个 Pilot：`memory-rag` 的 required Check 与 `task-decomposition` 的 required `STRUCTURED_TEXT_V1` Practice。未运行全量 `db:seed`，未改 Schema / Migration / Access Core。
+
+真实 HTTP Acceptance 使用一次性测试用户验证：`memory-rag` 未通过 Check 时 Completion 返回 `CHECK_REQUIRED`，答对后可完成；`task-decomposition` 未通过 Practice 时返回 `PRACTICE_REQUIRED`，提交有效结构化练习并通过 Rule Evaluation 后可完成。`task-brief` Reference Preview 保持兼容，匿名 workflow 仍受 Stage prerequisite 阻断，`writing-files` 仍未注册 Runtime，ARTIFACT 仍 unsupported。测试身份及其进度、响应、提交、评估、事件均已级联清理。
+
 # NEXT PHASE
 
-`LEARNING-RUNTIME-001-A — Pilot Provisioning & Acceptance`
+`COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1`
 
-在用户明确授权远程数据写入后，对 `memory-rag` 与 `task-decomposition` 执行最小 Provisioning，再做真实 Check / Practice / Completion Gate Runtime Acceptance。通过后再判断是否进入 `COURSE-BUILDER-SKILL-001`。
+基于已验证的 `docs/LEARNING_SPEC.md` + Generic Lesson Runtime，先实现最小 BUILD / IMPROVE Structured Draft Contract，用 2–3 节现有课程生成 Draft / Proposal 并人工 Review；不允许 Skill 直接 Publish、改 Access、改 Progress 或批量覆盖 Published Course。
 
 建议后续顺序：
 

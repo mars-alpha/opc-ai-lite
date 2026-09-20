@@ -24,13 +24,14 @@ LEARNING-SPEC-001 Course Construction Spec    COMPLETE
 LEARNING-UX-001-D Reference Lesson Finalization COMPLETE
 LEARNING-SPEC-002 Multi-type Lesson Validation COMPLETE
 LEARNING-RUNTIME-001 Generic Lesson Runtime Foundation COMPLETE
+LEARNING-RUNTIME-001-A Pilot Provisioning & Acceptance COMPLETE
 
-NEXT: LEARNING-RUNTIME-001-A — Pilot Provisioning & Acceptance
+NEXT: COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@4b147cc`。
+业务代码验证基线：`main@39e900e`。
 
 ```text
 npm run typecheck     PASS
@@ -49,6 +50,8 @@ Reference Lesson flow PASS
 Multi-type Spec check PASS
 Generic Runtime check PASS
 Generic Practice      PASS
+Pilot provisioning    PASS
+Pilot runtime accept  PASS
 Real AI boundary      PASS
 Required Check gate   PASS
 Guided Lesson build   PASS
@@ -85,7 +88,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-RUNTIME-001` 已完成 Generic Lesson Runtime Foundation：新增 Spec Runtime Plan / Registry / Runtime API / Generic Runtime Panel；Practice Submission 新增 `STRUCTURED_TEXT_V1` 并保持 `TASK_BRIEF_V1` 兼容；Completion Core 可确定性执行 CHECK / PRACTICE / REAL_AI Gate；Real AI Evidence 复用 `learning_events`，当前支持 USER_CONFIRMATION 与可信 SYSTEM_RESULT。ARTIFACT 因尚无正式 Artifact Resolver 明确保持 unsupported，`writing-files` 不进入 Runtime Registry。`memory-rag` 与 `task-decomposition` 的 Check / Practice seed 已准备，但本任务未执行远程 seed，因此正式数据 Provisioning 与 Runtime Acceptance 仍待下一阶段。
+`LEARNING-RUNTIME-001-A` 已完成两个 Generic Runtime Pilot 的正式 Provisioning 与真实 Runtime Acceptance：`memory-rag` required Check、`task-decomposition` required `STRUCTURED_TEXT_V1` Practice 已写入正式数据库并保持 `PUBLISHED`。两个 Pilot 在合法身份下均 `configurationReady=true / enforcementActive=true`；Completion Core 在 Gate 未满足时分别返回 `CHECK_REQUIRED / PRACTICE_REQUIRED`，满足后允许完成。Acceptance 使用一次性测试用户并已清理；Access Core、task-brief Reference Preview 与 writing-files ARTIFACT 边界保持不变。下一步可进入 `COURSE-BUILDER-SKILL-001`，但不自动批量迁移课程。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

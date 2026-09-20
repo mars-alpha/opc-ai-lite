@@ -748,6 +748,7 @@ required Check 与 required Practice 都属于 Core Completion Gate，由服务�
 real_ai_operation = REQUIRED 时必须定义 real_ai_evidence，并由 REAL_AI Completion Gate 证明完成；不能只靠课程文案
 Real AI Evidence 的可信度必须由证据类型决定：USER_CONFIRMATION 是用户声明，SYSTEM_RESULT 只能由可信服务端写入；ARTIFACT 必须先有正式 Artifact Resolver，不能把任意字符串 / URL 当作已验证证据
 Lesson Spec 只有在所需 Interactive Data 已配置且 evidence Runtime 受支持时才进入 enforcementActive；否则 Runtime Read Model 暴露 blocker 并保持 staged rollout
+`memory-rag` 与 `task-decomposition` 是第一批正式 provision 并完成真实 Runtime Acceptance 的 Generic Runtime Pilot；Pilot 成功不等于允许批量迁移，后续课程仍必须经过 Spec Validation / Runtime Readiness / Human Review
 ```
 
 参考答案属于 Learning Scaffold：

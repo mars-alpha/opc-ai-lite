@@ -408,13 +408,15 @@ ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价�
 
 LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现；`chatgpt-worker / task-brief` 是第一份 Reference Lesson。LEARNING-SPEC-001 / 002 已固定 Lesson Spec。LEARNING-RUNTIME-001 进一步建立 Generic Lesson Runtime Foundation：`TASK_BRIEF_V1` 与 `STRUCTURED_TEXT_V1` 共用 Practice Submission / Evaluation Runtime；Completion Core 可执行 CHECK / PRACTICE / REAL_AI Gate；Runtime Read Model 暴露 configurationReady / blockers；Interactive API 遵守 Access Core，只有既有 task-brief Reference Preview 保留明确白名单。Real AI Evidence 复用 `learning_events`，当前只把 USER_CONFIRMATION 与可信 SYSTEM_RESULT 视为 Runtime 支持；ARTIFACT 因没有正式 Resolver 保持 unsupported。没有新增数据库 Schema / Migration，也未改变 Access Core。
 
+LEARNING-RUNTIME-001-A 已完成正式 Pilot Provisioning 与真实 Runtime Acceptance：`check_memory_rag_source` 已绑定 `lesson_ai_literacy_memory_rag`，required + PUBLISHED；`practice_task_decomposition_nodes` 已绑定 `lesson_ai_workflow_task_decomposition`，required + PUBLISHED + `STRUCTURED_TEXT_V1` + passScore 80。Acceptance 确认两个 Pilot 都已 `configurationReady=true / enforcementActive=true`，且 Completion Core 会在 required Gate 未满足时阻断、通过后放行。一次性测试用户及其所有关联数据已清理。没有新增 Migration / Schema，也没有改变 Access Core。
+
 下一阶段候选：
 
 ```text
-LEARNING-RUNTIME-001-A — Pilot Provisioning & Acceptance
+COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
 ```
 
-`memory-rag` required Check 与 `task-decomposition` required `STRUCTURED_TEXT_V1` Practice 已有 seed 定义，但尚未执行远程 seed，因此当前正式数据库是否存在这些 Interactive Data 不能由代码状态推断。下一阶段只有在用户明确授权后才执行 Provisioning，并以真实 Runtime 验收作为完成条件。`writing-files` 继续等待可信 Artifact Resolver，不允许用户手填引用绕过 REAL_AI Gate。
+Runtime 已具备承载不同 Lesson Type 的最小确定性基础；下一步只建设最小 BUILD / IMPROVE Structured Draft Contract，并以人工 Review 为发布前置。`writing-files` 继续等待可信 Artifact Resolver，不允许用户手填引用绕过 REAL_AI Gate。
 
 AI-DAILY-001 保持排队，不在本阶段扩展。
 
