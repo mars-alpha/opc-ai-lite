@@ -3536,3 +3536,91 @@ img { display: block; max-width: 100%; }
   .guided-outcome-options,
   .guided-feedback-options { display:grid; grid-template-columns:1fr; }
 }
+
+
+
+/* LEARNING-UX-001-C manual acceptance refinement */
+.guided-learning-shell .lesson-content-guided { min-width:0; }
+.guided-learning-path-action { display:flex; justify-content:flex-end; margin-top:18px; }
+.guided-learning-path-action .btn { min-width:118px; }
+
+.lesson-feedback-after-nav {
+  margin-top:18px;
+  padding:18px 20px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.82);
+}
+.lesson-feedback-after-nav.is-done {
+  background:#f7fafc;
+  color:var(--muted);
+  font-weight:700;
+}
+.lesson-feedback-after-nav-head {
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:flex-start;
+}
+.lesson-feedback-after-nav-head span {
+  display:block;
+  margin-bottom:5px;
+  color:#7183a8;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.04em;
+}
+.lesson-feedback-after-nav-head strong { display:block; font-size:16px; }
+.lesson-feedback-after-nav > p { margin:8px 0 0; color:var(--muted); line-height:1.65; }
+.lesson-feedback-after-nav textarea { width:100%; margin-top:14px; resize:vertical; }
+.lesson-feedback-skip {
+  flex:0 0 auto;
+  border:0;
+  background:transparent;
+  color:#7c8ca8;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:750;
+}
+
+@media (max-width:820px) {
+  .guided-learning-shell { grid-template-columns:1fr; }
+}
+@media (max-width:640px) {
+  .lesson-feedback-after-nav-head { display:block; }
+  .lesson-feedback-skip { margin-top:10px; padding:0; }
+}
+
+
+
+.learning-access-legend {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:0 0 18px;
+}
+.learning-access-legend > div {
+  padding:16px 18px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.78);
+}
+.learning-access-legend span,
+.learning-access-legend strong { display:block; }
+.learning-access-legend span {
+  margin-bottom:5px;
+  color:#7183a8;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.04em;
+}
+.learning-access-legend strong { font-size:14px; }
+.learning-access-legend p {
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+@media (max-width:820px) {
+  .learning-access-legend { grid-template-columns:1fr; }
+}

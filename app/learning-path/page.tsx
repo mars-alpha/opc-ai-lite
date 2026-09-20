@@ -59,6 +59,23 @@ export default function LearningPathPage() {
               <p className="section-subtitle">这里就是你的主学习地图。进入阶段、继续课程、查看完成度，都从这一处完成，不再重复展示相同入口。</p>
             </div>
           </Reveal>
+          <div className="learning-access-legend" aria-label="学习权益说明">
+            <div>
+              <span>免费体验</span>
+              <strong>先完成基础课程体验</strong>
+              <p>基础阶段提供免费课时，让你先完整体验学习方式和核心能力。</p>
+            </div>
+            <div>
+              <span>关注公众号</span>
+              <strong>解锁指定后续基础内容</strong>
+              <p>当前规则下，第一阶段前三节免费；后续指定基础课与完整 AI Daily 由公众号关注权益解锁。</p>
+            </div>
+            <div>
+              <span>OPC 会员</span>
+              <strong>进入系统进阶学习</strong>
+              <p>Knowledge 正文、深度资料、正式实操与由进阶内容进入的课程入口属于会员权益。</p>
+            </div>
+          </div>
           <StageProgress catalog={progressCatalog} />
         </div>
       </section>

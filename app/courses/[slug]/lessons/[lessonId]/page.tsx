@@ -6,6 +6,7 @@ import { LessonCompleteButton } from "../../../../../components/LessonCompleteBu
 import { LessonCourseSidebar } from "../../../../../components/LessonCourseSidebar";
 import { InteractiveLessonPanel } from "../../../../../components/InteractiveLessonPanel";
 import { LessonHelpPanel } from "../../../../../components/LessonHelpPanel";
+import { LessonFeedbackPrompt } from "../../../../../components/LessonFeedbackPrompt";
 import { LockedAccessCta } from "../../../../../components/LockedAccessCta";
 import { courses,getAllLessons,getCourse,getLesson } from "../../../../../lib/courses";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
@@ -39,11 +40,17 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
 
   if (isGuidedPilot) {
   return <section className="lesson-page">
-      <div className="container guided-learning-mode-shell">
+      <div className="container lesson-shell guided-learning-shell">
+        <LessonCourseSidebar
+          course={course}
+          currentLessonId={lesson.id}
+          lockedLessonIds={lockedLessonIds}
+        />
+
         <article className="lesson-content lesson-content-guided">
-          <div className="lesson-topbar guided-learning-topbar">
-            <Link className="back-link" href="/learning-path#progress">← 退出学习</Link>
-            <span>{course.title} · {index+1} / {lessons.length}</span>
+          <div className="lesson-topbar">
+            <Link className="back-link" href="/learning-path#progress">← 返回学习路径</Link>
+            <span>第 {index+1} / {lessons.length} 课 · 引导式学习</span>
           </div>
 
           <div className="guided-lesson-hero">
@@ -80,6 +87,12 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
               ? <Link href={"/courses/"+course.slug+"/lessons/"+next.id} className="next"><small>下一课</small><strong>{next.title} →</strong></Link>
               : <Link href="/learning-path#progress" className="next"><small>本阶段课程完成</small><strong>返回学习路径 →</strong></Link>}
           </nav>
+
+          <LessonFeedbackPrompt
+            courseSlug={course.slug}
+            lessonSlug={lesson.id}
+            authenticated={Boolean(user)}
+          />
 
         </article>
       </div>
