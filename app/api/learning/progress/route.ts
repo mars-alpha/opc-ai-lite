@@ -46,6 +46,9 @@ export async function PUT(request: Request) {
     if (error instanceof Error && error.message === "LESSON_NOT_FOUND") {
       return NextResponse.json({ error: "LESSON_NOT_FOUND" }, { status: 404 });
     }
+    if (error instanceof Error && error.message === "CHECK_REQUIRED") {
+      return NextResponse.json({ error: "CHECK_REQUIRED" }, { status: 409 });
+    }
     if (error instanceof Error && error.message === "PRACTICE_REQUIRED") {
       return NextResponse.json({ error: "PRACTICE_REQUIRED" }, { status: 409 });
     }

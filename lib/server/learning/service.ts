@@ -11,7 +11,7 @@ import {
   stages
 } from "../db/schema";
 import { getLessonAccess, getStageAccess } from "../entitlements/service";
-import { hasPassedRequiredPractices } from "../interactive/service";
+import { hasPassedRequiredChecks, hasPassedRequiredPractices } from "../interactive/service";
 import { recordLearningEvent } from "../learning-insights/service";
 
 export async function getLearningState(userId: string): Promise<LearningStateResponse> {
@@ -118,6 +118,13 @@ export async function setLessonCompletion(
     .limit(1);
 
   if (!lesson) throw new Error("LESSON_NOT_FOUND");
+
+  if (
+    input.completed &&
+    !(await hasPassedRequiredChecks(userId, lesson.id))
+  ) {
+    throw new Error("CHECK_REQUIRED");
+  }
 
   if (
     input.completed &&

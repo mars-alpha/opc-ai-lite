@@ -503,6 +503,12 @@ real_ai_operation:
   NONE
   GUIDED
   REQUIRED
+
+real_ai_evidence:
+  NONE
+  USER_CONFIRMATION
+  ARTIFACT
+  SYSTEM_RESULT
 ```
 
 ### NONE
@@ -516,6 +522,20 @@ real_ai_operation:
 ### REQUIRED
 
 如果不在真实 AI 产品中完成操作，就无法证明学会本课核心能力。
+
+`REQUIRED` 不能只是一句课程文案，必须同时定义如何证明已经完成真实操作：
+
+- `USER_CONFIRMATION`：用户明确确认已经在真实工具完成；
+- `ARTIFACT`：提交真实操作产生的文件、结果或结构化产物；
+- `SYSTEM_RESULT`：由已接入的 Provider / Tool Runtime 返回可验证结果。
+
+当 `real_ai_operation = REQUIRED` 时：
+
+```text
+real_ai_evidence != NONE
+AND
+completion_gates includes REAL_AI
+```
 
 固定判断：
 
@@ -664,6 +684,9 @@ PRACTICE
 
 PROJECT
 → required Deliverable / Project Evaluation passed
+
+ANY LESSON WITH real_ai_operation = REQUIRED
+→ required Real AI evidence passed
 ```
 
 永远不能作为 Completion Gate：
@@ -693,6 +716,12 @@ type RealAiOperation =
   | "GUIDED"
   | "REQUIRED";
 
+type RealAiEvidence =
+  | "NONE"
+  | "USER_CONFIRMATION"
+  | "ARTIFACT"
+  | "SYSTEM_RESULT";
+
 type PracticeMode =
   | "NONE"
   | "GUIDED"
@@ -702,7 +731,8 @@ type PracticeMode =
 type CompletionGate =
   | "CHECK"
   | "PRACTICE"
-  | "DELIVERABLE";
+  | "DELIVERABLE"
+  | "REAL_AI";
 
 type LessonSpec = {
   version: string;
@@ -719,6 +749,7 @@ type LessonSpec = {
   requiresCheck: boolean;
   practiceMode: PracticeMode;
   realAiOperation: RealAiOperation;
+  realAiEvidence: RealAiEvidence;
 
   referenceAnswerEnabled: boolean;
   reviewEnabled: boolean;
@@ -780,7 +811,7 @@ type LessonStepSpec = {
   };
 
   canSkip: boolean;
-  gate?: "NONE" | "CHECK_PASSED" | "PRACTICE_PASSED";
+  gate?: "NONE" | "CHECK_PASSED" | "PRACTICE_PASSED" | "REAL_AI_PASSED";
 };
 ```
 
@@ -864,6 +895,7 @@ self_assessment
 capability_gain
 next_lesson_value
 real_ai_operation
+real_ai_evidence
 completion_gates
 ```
 

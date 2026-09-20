@@ -455,6 +455,36 @@ export async function submitPractice(
   }
 }
 
+export async function hasPassedRequiredChecks(userId: string, lessonId: string) {
+  const required = await getDatabase()
+    .select({ id: lessonChecks.id })
+    .from(lessonChecks)
+    .where(
+      and(
+        eq(lessonChecks.lessonId, lessonId),
+        eq(lessonChecks.required, true),
+        eq(lessonChecks.status, "PUBLISHED")
+      )
+    );
+
+  for (const check of required) {
+    const [passed] = await getDatabase()
+      .select({ checkId: lessonCheckResponses.checkId })
+      .from(lessonCheckResponses)
+      .where(
+        and(
+          eq(lessonCheckResponses.userId, userId),
+          eq(lessonCheckResponses.checkId, check.id),
+          eq(lessonCheckResponses.isCorrect, true)
+        )
+      )
+      .limit(1);
+    if (!passed) return false;
+  }
+
+  return true;
+}
+
 export async function hasPassedRequiredPractices(userId: string, lessonId: string) {
   const required = await getDatabase()
     .select({ id: practices.id })

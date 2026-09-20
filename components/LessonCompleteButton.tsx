@@ -36,7 +36,9 @@ export function LessonCompleteButton({
     try {
       await toggleLesson(courseSlug, lessonId);
     } catch (cause) {
-      if (cause instanceof Error && cause.message === "PRACTICE_REQUIRED") {
+      if (cause instanceof Error && cause.message === "CHECK_REQUIRED") {
+        setError("还不能完成：请先通过本课必做的理解检查。");
+      } else if (cause instanceof Error && cause.message === "PRACTICE_REQUIRED") {
         setError("还不能完成：请先把上方必做实操做到“已通过”。");
       } else if (cause instanceof Error && cause.message === "STAGE_PREREQUISITE_REQUIRED") {
         setError("当前阶段还有前置课程未完成。请先按学习路径完成前置内容，再回来继续。");
