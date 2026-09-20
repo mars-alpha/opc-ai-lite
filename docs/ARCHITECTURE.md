@@ -730,7 +730,7 @@ Access Core 仍决定真实数据是否读取 / 返回
 用户界面默认中文；真实 AI 行业术语保留中英双语。
 ```
 
-LEARNING-UX-001 先以单 Lesson 样板验证体验；`chatgpt-worker / task-brief` 已由 LEARNING-UX-001-D 固化为第一份 Reference Lesson。LEARNING-SPEC-002 已进一步用 CONCEPT / APPLICATION / PRACTICE 三类真实 Lesson 验证 `docs/LEARNING_SPEC.md`，并落地 `lib/learning/lesson-spec.ts` 作为机器可读 Contract。课程建造、Lesson Type、Step Flow、Completion Gate、真实 AI 操作、Feedback、Access Presentation 与 Course Builder Skill Contract 均以该规范为基线。批量迁移前必须先补通用 Lesson Runtime。
+LEARNING-UX-001 先以单 Lesson 样板验证体验；`chatgpt-worker / task-brief` 是第一份 Reference Lesson。LEARNING-SPEC-002 已用 CONCEPT / APPLICATION / PRACTICE 三类真实 Lesson 验证 `docs/LEARNING_SPEC.md`。LEARNING-RUNTIME-001 已落地最小 Generic Runtime：Lesson Spec → Runtime Plan / Registry → Runtime Read Model → Generic Renderer；Practice Submission / Evaluation 不再绑定 task-brief 五字段。当前仍采用 Pilot Registry + staged rollout，不把验证样本自动视为正式已上线课程。
 
 Guided Learning 的稳定体验规则：
 
@@ -746,6 +746,8 @@ Lesson 必须保持当前课程位置 / 课程目录 / 学习进度可见，主�
 课程反馈可引导，但永远不是 Completion Gate；默认只在 Lesson 完成、用户继续下一课时出现，不放进课程 Step 内
 required Check 与 required Practice 都属于 Core Completion Gate，由服务端确定性执行
 real_ai_operation = REQUIRED 时必须定义 real_ai_evidence，并由 REAL_AI Completion Gate 证明完成；不能只靠课程文案
+Real AI Evidence 的可信度必须由证据类型决定：USER_CONFIRMATION 是用户声明，SYSTEM_RESULT 只能由可信服务端写入；ARTIFACT 必须先有正式 Artifact Resolver，不能把任意字符串 / URL 当作已验证证据
+Lesson Spec 只有在所需 Interactive Data 已配置且 evidence Runtime 受支持时才进入 enforcementActive；否则 Runtime Read Model 暴露 blocker 并保持 staged rollout
 ```
 
 参考答案属于 Learning Scaffold：

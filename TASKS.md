@@ -431,11 +431,20 @@ Priority: P0
 
 Runtime 验证暴露：当前 Interactive Data 只正式配置 `task-brief`；Practice Submission Schema 只支持 `TASK_BRIEF_V1`；Real AI Evidence / Completion Gate 尚未实现。因此不直接进入 Course Builder Skill。
 
+## LEARNING-RUNTIME-001 — Generic Lesson Runtime Foundation
+
+Status: COMPLETE
+Priority: P0
+
+已完成 Lesson Spec → Runtime Plan / Registry / Read Model / Generic Runtime Panel 的最小通用链路；Practice Submission 新增 `STRUCTURED_TEXT_V1`，`rulePracticeEvaluator` 不再绑定 task-brief 五字段；Completion Core 支持 CHECK / PRACTICE / REAL_AI Gate。Real AI Evidence 复用 `learning_events`：USER_CONFIRMATION 可由用户确认，SYSTEM_RESULT 只能由可信服务端写入；ARTIFACT 因没有正式 Artifact Resolver 明确不支持，`writing-files` 暂不注册 Runtime。
+
+`memory-rag` required Check 与 `task-decomposition` required Practice 的 seed 定义已完成，但没有执行远程 `db:seed`，所以本任务只完成 Foundation，不声称两个 Pilot 已正式上线。
+
 # NEXT PHASE
 
-`LEARNING-RUNTIME-001 — Generic Lesson Runtime Foundation`
+`LEARNING-RUNTIME-001-A — Pilot Provisioning & Acceptance`
 
-先把 Lesson Spec 接到可复用 Runtime：通用 Interactive Data、通用 Practice Submission / Evaluation Contract、REAL_AI evidence + Completion Gate，以及 Spec-driven renderer 的最小边界。仍不批量迁移课程；Runtime 稳定后再进入 `COURSE-BUILDER-SKILL-001`。
+在用户明确授权远程数据写入后，对 `memory-rag` 与 `task-decomposition` 执行最小 Provisioning，再做真实 Check / Practice / Completion Gate Runtime Acceptance。通过后再判断是否进入 `COURSE-BUILDER-SKILL-001`。
 
 建议后续顺序：
 

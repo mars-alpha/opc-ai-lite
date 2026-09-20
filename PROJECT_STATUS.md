@@ -23,13 +23,14 @@ LEARNING-UX-001-C Acceptance Refinement      COMPLETE
 LEARNING-SPEC-001 Course Construction Spec    COMPLETE
 LEARNING-UX-001-D Reference Lesson Finalization COMPLETE
 LEARNING-SPEC-002 Multi-type Lesson Validation COMPLETE
+LEARNING-RUNTIME-001 Generic Lesson Runtime Foundation COMPLETE
 
-NEXT: LEARNING-RUNTIME-001 — Generic Lesson Runtime Foundation
+NEXT: LEARNING-RUNTIME-001-A — Pilot Provisioning & Acceptance
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@afdfa77`。
+业务代码验证基线：`main@4b147cc`。
 
 ```text
 npm run typecheck     PASS
@@ -46,6 +47,9 @@ Completion Loop smoke PASS
 Acceptance refinement PASS
 Reference Lesson flow PASS
 Multi-type Spec check PASS
+Generic Runtime check PASS
+Generic Practice      PASS
+Real AI boundary      PASS
 Required Check gate   PASS
 Guided Lesson build   PASS
 Test data cleanup     PASS
@@ -81,7 +85,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-SPEC-002` 已使用 `memory-rag`（CONCEPT）、`writing-files`（APPLICATION）、`task-decomposition`（PRACTICE）验证同一 Lesson Spec，三种结构均 `SPEC=PASS`。同时新增机器可读 Lesson Contract / validator，并补齐 required Check Completion Core Gate。验证也确认正式 Runtime 尚未通用：非 task-brief Practice 仍缺通用 Submission Schema；`real_ai_operation=REQUIRED` 仍缺 Real AI Evidence + Completion Gate。下一步先做 `LEARNING-RUNTIME-001`，不直接进入 Course Builder Skill 或批量迁移课程。
+`LEARNING-RUNTIME-001` 已完成 Generic Lesson Runtime Foundation：新增 Spec Runtime Plan / Registry / Runtime API / Generic Runtime Panel；Practice Submission 新增 `STRUCTURED_TEXT_V1` 并保持 `TASK_BRIEF_V1` 兼容；Completion Core 可确定性执行 CHECK / PRACTICE / REAL_AI Gate；Real AI Evidence 复用 `learning_events`，当前支持 USER_CONFIRMATION 与可信 SYSTEM_RESULT。ARTIFACT 因尚无正式 Artifact Resolver 明确保持 unsupported，`writing-files` 不进入 Runtime Registry。`memory-rag` 与 `task-decomposition` 的 Check / Practice seed 已准备，但本任务未执行远程 seed，因此正式数据 Provisioning 与 Runtime Acceptance 仍待下一阶段。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 
