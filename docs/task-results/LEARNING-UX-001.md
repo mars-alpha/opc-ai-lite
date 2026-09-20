@@ -127,6 +127,25 @@ PILOT_ONLY                        PASS
 
 当前 `localhost:3000` 检测为异常旧 Next 进程并返回 500；当前仓库在独立 `3001` dev server 上返回 200，Interactive Read API 可正常读取 check / practice 数据。
 
+## Acceptance Fix 2 — Pilot Preview / Access 解耦
+
+第二次人工体验确认根因：样板分支被写在 `!access.allowed` 内部，同时 `InteractiveLessonPanel` 又依赖正式 Practice Read Model；当 Stage 前置条件未满足时，Practice `content=null`，面板直接消失，只剩外壳和完成按钮。
+
+修复后：
+
+```text
+Guided Pilot 先于正式 Lesson Access 分支渲染
+→ 无正式 Access 时进入 Preview Mode
+→ 使用 Interactive 数据显示 Check / Practice / Hint / Rubric
+→ Preview 评分与正式提交共用同一个 rulePracticeEvaluator
+→ Preview 不写 Check / Practice / Progress
+→ 正式 Lesson Completion 仍受原 Access / Prerequisite 控制
+```
+
+同时修复 `if (!data || !check || !practice) return null` 的空白体验：加载中或数据异常时会显示明确状态，不再整块消失。
+
+Runtime 规则：不要在 `next dev` 运行时执行 `next build` 共用 `.next`；验收顺序固定为 `stop dev → clear .next → typecheck/build → clear .next → dev`。
+
 ## No Schema Expansion
 
 本任务没有新增 Schema / Migration，没有建立复杂 Knowledge Point / Mastery / Recommendation Engine，也没有迁移其他 Lesson。

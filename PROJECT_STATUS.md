@@ -24,7 +24,7 @@ NEXT: LEARNING-UX-001 ACCEPTANCE — 重新体验修正版样板课
 
 ## 当前系统健康
 
-业务代码验证基线：`main@bbaa24c`。
+业务代码验证基线：`main@b3571f8`。
 
 ```text
 npm run typecheck     PASS
@@ -35,6 +35,8 @@ Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
 ACCESS UX render      PASS
 Guided Lesson source  PASS
+Guided Preview mode   PASS
+Shared rule evaluator PASS
 Guided Lesson build   PASS
 Test data cleanup     PASS
 ```
