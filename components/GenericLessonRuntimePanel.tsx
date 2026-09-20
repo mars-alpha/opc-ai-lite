@@ -72,11 +72,13 @@ type PreviewCheck = {
 };
 
 type PreviewActivity = {
+  kind?: "CHOOSE" | "CLASSIFY" | "SHORT_RESPONSE" | "COPY_TO_AI" | "COMPARE" | "REVEAL" | "MINI_TASK";
   title: string;
   instruction: string;
   prompt: string | null;
   reflection: string;
 };
+
 
 type PreviewPractice = {
   id: string;
@@ -692,7 +694,7 @@ export function GenericLessonRuntimePanel({
             </button>
           </div>
 
-          {previewMode && previewActivity && (
+          {previewMode && previewActivity?.kind === "COPY_TO_AI" && (
             <div className="guided-preview-activity guided-application-test">
               <div className="guided-step-label">放进你的 AI 软件试一下</div>
               <p>{previewActivity.instruction}</p>

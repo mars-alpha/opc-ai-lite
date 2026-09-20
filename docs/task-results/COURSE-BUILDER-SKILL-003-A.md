@@ -84,6 +84,26 @@ PRACTICE Draft 完整携带：
 
 只读 Preview，不写正式 Progress / Completion / PostgreSQL。
 
+## Human Review Refinement
+
+评分规则修复：
+
+- 旧 RULE evaluator 主要按文字长度评分，导致“负责人：小林”这种短但正确的答案得分过低。
+- `owner` 现在按语义判断：一个明确负责人即可拿满该项；“大家 / 相关同事 / 待定”等模糊责任人不会满分。
+- `deadline` 现在检查是否包含可以判断逾期的时间表达。
+- acceptance 使用真实参考答案回归，要求只有一个负责人“小林”时仍然整份通过且 owner 满分。
+
+课程内容扩充：
+
+- Step 1：增加“记录很多但仍没人执行”的原因和“不凭空补信息”原则。
+- Step 2：增加“讨论 vs 行动”“负责人 vs 未决问题”两条知识深化。
+- Step 3：明确解释 A / C 为什么失败，而不只说明 B 正确。
+- Step 4：增加找证据、一个负责人即可、缺失信息不能编造等分层提示。
+- Step 5：增加“行动 → 负责人 → 时间 → 未决问题”的诊断顺序和证据边界。
+- Step 6：扩展到项目周会、客户跟进、需求评审、团队协作等场景。
+
+同时 Generic Lesson Preview 只在 `COPY_TO_AI` participation 下显示 AI 软件测试区；本 PRACTICE 的 `MINI_TASK` 不再错误继承 Prompt 课交互。
+
 ## Validation
 
 - npm run course-builder:check PASS
@@ -106,4 +126,4 @@ PRACTICE Draft 完整携带：
 
 ## Next
 
-Human Review：体验 /course-builder/preview/meeting-action-list，重点判断第 4 步是否真的像完成一个工作任务，而不是填教学表格。
+Human Review：重新体验 /course-builder/preview/meeting-action-list，重点检查一个负责人是否能正常得分，以及六步知识扩充后是否仍然保持“实操为主”。

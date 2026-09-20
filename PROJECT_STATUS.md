@@ -82,6 +82,8 @@ Six-step responsibility contract PASS
 PRACTICE Draft          PASS
 PRACTICE independent mode PASS
 PRACTICE completion gate PASS
+PRACTICE one-owner scoring PASS
+PRACTICE knowledge depth PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -121,7 +123,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-003-A` 已新增第三种真实 Course Builder 样板：`meeting-action-list`，类型 PRACTICE。课程使用统一六步与六步职责契约，`practiceMode=INDEPENDENT`，Completion Gates 为 CHECK + PRACTICE；第 4 步用行动 / 负责人 / 截止时间 / 未决问题四字段做本地确定性验收，失败后继续使用 Hint / 参考答案 / 一键填充。下一步先做 Human Review，不进入正式目录或 Runtime。
+`COURSE-BUILDER-SKILL-003-A` Human Review 修复已补齐：共享本地评分器不再把短文本一律当成低质量答案。负责人字段改为语义判断，一个明确负责人（如“小林”）即可拿满该项；截止时间按是否可判断逾期评分。PRACTICE 六步内容也已加厚：Step 1 补失败原因，Step 2 增加“讨论 vs 行动 / 负责人 vs 未决问题”，Step 3 扩充错误选项解释，Step 4 增加分层提示，Step 5 加入四步诊断框架，Step 6 扩展真实应用场景。`MINI_TASK` 不再错误显示“放进 AI 软件试一下”。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

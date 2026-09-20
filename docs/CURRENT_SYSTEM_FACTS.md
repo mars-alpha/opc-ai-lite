@@ -348,6 +348,10 @@ Course Builder BUILD 的 `pedagogy` 当前必须包含 `sixStepResponsibilities`
 
 第三个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/meeting-action-list.ts`：`ai-literacy/meeting-action-list`，类型 PRACTICE。它使用统一 `EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY`，`practiceMode=INDEPENDENT`，Completion Gates 为 CHECK + PRACTICE，`realAiOperation=NONE`、`realAiEvidence=NONE`。只读 Preview 为 `/course-builder/preview/meeting-action-list`。Practice 使用行动 / 负责人 / 截止时间 / 未决问题四字段和本地确定性 Rubric 验收，失败后可使用 Hint、参考答案与一键填充；不会写正式 Progress / Completion。该 Lesson 不替代独立 Practice / 进阶练习领域。
 
+`rulePracticeEvaluator` 当前对 meeting-action-list 需要的短字段采用语义评分：`owner` 只要是一个明确人名 / 角色即可满分，`大家 / 相关同事 / 待定` 等模糊责任人不会满分；`deadline` 要包含可判断时间表达。行动与未决问题仍要求足够具体。PRACTICE acceptance 直接使用结构化参考答案做回归，固定验证单一负责人“小林”可满分且整份答案通过。
+
+Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participation.kind=COPY_TO_AI` 时显示“放进你的 AI 软件试一下”；`MINI_TASK` 不再渲染该 Prompt 专属区域。`meeting-action-list` 还复用 `previewKnowledgeDepth`，在 EXAMPLE / REVIEW 增加更深知识，但不增加新的 Gate。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

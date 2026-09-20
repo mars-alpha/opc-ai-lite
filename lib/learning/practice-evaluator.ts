@@ -39,7 +39,11 @@ const taskBriefSuggestions: Record<string, string> = {
   context: "补充使用者、背景和用途，让 AI 知道这个结果为什么要做、给谁用。",
   input: "说明 AI 可以依据哪些材料、数据或事实，不要让它自己猜数据来源。",
   constraint: "补充必须遵守和不能做的事，例如不能编造、字数、语气、范围或禁区。",
-  output: "明确最终结构、长度或格式，例如表格、分点、固定栏目或字数范围。"
+  output: "明确最终结构、长度或格式，例如表格、分点、固定栏目或字数范围。",
+  owner: "写清一个具体负责人或明确角色；一个明确负责人就足够，不需要为了得分凑人数。",
+  deadline: "填写一个可以判断是否逾期的具体时间，例如“本周五前”“9 月 25 日 18:00 前”。",
+  action: "写成可以判断是否完成的具体行动，不要只写“推进”“跟进”。",
+  openIssue: "把还没确定的条件、依赖或决策单独写出来，并说明谁去确认会更清楚。"
 };
 
 const strongMarkers: Partial<Record<string, RegExp>> = {
@@ -49,7 +53,28 @@ const strongMarkers: Partial<Record<string, RegExp>> = {
   node_roles: /(AI|规则|人工|工具|模型|审批)/
 };
 
+const ownerInvalid = /^(大家|相关同事|相关人员|团队|有人|某人|待定|未知)$/;
+const deadlineMarker = /(今天|明天|后天|本周|下周|周[一二三四五六日天]|星期[一二三四五六日天]|\d{1,2}[月/-]\d{1,2}|\d{1,2}[:：]\d{2}|前|之前|截止)/;
+
+function semanticScore(key: string, value: string, maxScore: number): number | null {
+  const text = value.trim();
+  if (!text) return 0;
+
+  if (key === "owner") {
+    return ownerInvalid.test(text) ? Math.round(maxScore * 0.4) : maxScore;
+  }
+
+  if (key === "deadline") {
+    return deadlineMarker.test(text) ? maxScore : Math.round(maxScore * 0.5);
+  }
+
+  return null;
+}
+
 function scoreText(key: string, value: string, maxScore: number) {
+  const semantic = semanticScore(key, value, maxScore);
+  if (semantic !== null) return semantic;
+
   const text = value.trim();
   let base = 0;
   if (!text) base = 0;

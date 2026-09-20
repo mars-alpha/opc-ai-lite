@@ -6,6 +6,7 @@ import type { Lesson } from "../../../../lib/courses";
 import {
   meetingActionListBuildDraft,
   meetingActionListIntroPreview,
+  meetingActionListKnowledgeDepth,
   meetingActionListReferenceFill
 } from "../../../../fixtures/course-builder/meeting-action-list";
 
@@ -92,6 +93,7 @@ export default function MeetingActionListDraftPreviewPage() {
             previewPractice={meetingActionListBuildDraft.practice}
             previewReferenceAnswer={meetingActionListBuildDraft.referenceAnswer}
             previewReferenceFill={meetingActionListReferenceFill}
+            previewKnowledgeDepth={meetingActionListKnowledgeDepth}
             previewActivity={meetingActionListBuildDraft.pedagogy.participation}
             previewIntroComparison={meetingActionListIntroPreview}
           />

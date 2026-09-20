@@ -547,6 +547,8 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 新增真实 PRACTICE Draft：`ai-literacy/meeting-action-list`，题目“把会议记录整理成可执行行动清单”。继续复用统一六步与六步职责 Contract；`practiceMode=INDEPENDENT`，Completion Gates 为 CHECK + PRACTICE，不新增 REAL_AI Gate。第 4 步要求学员从会议记录中填写行动 / 负责人 / 截止时间 / 未决问题，由本地确定性规则检查；失败后提供 Hint、参考答案和一键填充。Preview：`/course-builder/preview/meeting-action-list`。
 
+Human Review 修复：共享 RULE evaluator 已从纯文字长度判断升级为字段语义优先。`owner` 一个明确负责人即可满分，不再要求凑多人；`deadline` 必须能判断是否逾期。标准答案只有“小林”一个负责人时，整份 Practice 必须通过并由 acceptance 自动锁定。PRACTICE 六步内容同步扩充，且 `MINI_TASK` 类型不再出现 Prompt 课专属的“放进 AI 软件试一下”区域。
+
 建议后续顺序：
 
 ```text
