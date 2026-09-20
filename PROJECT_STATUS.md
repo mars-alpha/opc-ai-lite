@@ -37,6 +37,7 @@ COURSE-BUILDER-SKILL-002-A Real APPLICATION Lesson Acceptance TECHNICAL_ACCEPTAN
 COURSE-BUILDER-SKILL-002-B Knowledge Depth Expansion COMPLETE_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-002-C Six-Step Knowledge Responsibility Contract COMPLETE
 COURSE-BUILDER-SKILL-002-D Concept Mastery Before Practice Contract COMPLETE
+COURSE-BUILDER-SKILL-002-E Formal Check Types Runtime Completion CODE_COMPLETE_LOCAL_MIGRATION_READY_REMOTE_PENDING
 COURSE-BUILDER-SKILL-003-A Real PRACTICE Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-004-A Real PROJECT Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
 
@@ -51,7 +52,7 @@ NEXT: Human Review — open /course-builder/preview/ai-workflow-project and revi
 npm run typecheck     PASS
 npm run build         PASS
 Production build      34 static pages generated
-Remote migrations     0000 → 0009 APPLIED
+Remote migrations     0000 → 0009 APPLIED; 0010 GENERATED / NOT APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
 ACCESS UX render      PASS
@@ -83,6 +84,7 @@ APPLICATION knowledge depth PASS
 Six-step responsibility contract PASS
 Concept mastery before practice PASS
 Check single / true-false / multi-select PASS
+Formal Check Runtime   CODE PASS / MIGRATION 0010 PENDING
 PRACTICE Draft          PASS
 PRACTICE independent mode PASS
 PRACTICE completion gate PASS
@@ -131,7 +133,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-002-D` 已固化 Concept Mastery Before Practice：四种 Lesson Type 的 BUILD Draft 必须 `conceptMasteryBeforePractice=true`，前 3 步按 EXPLAIN → EXAMPLE → CHECK 完成概念理解闭环，第 4 步 PRACTICE 原则上不得首次教授新的核心概念。Course Builder Check 现在支持 SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT；Draft Preview 可确定性判分。正式学习 Runtime 的 Check 持久化仍为旧单答案模型，本任务未改 DB/API。
+`COURSE-BUILDER-SKILL-002-E` 已把 SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT 从 Draft Preview 推进到正式学习 Runtime 代码：正式 API 支持 `answer` / `answers`，多选使用精确集合判分，Generic Lesson Runtime 正式模式可按题型渲染 radio / checkbox 并恢复保存答案。Schema 已向后兼容扩展 `correct_answers` / `answers`，本地 migration `0010_famous_blockbuster.sql` 已生成但未执行远程 migration；远程 DB 仍为 0009。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

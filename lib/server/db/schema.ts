@@ -71,7 +71,11 @@ export const knowledgeValidity = pgEnum("knowledge_validity", [
   "OUTDATED",
   "DEPRECATED"
 ]);
-export const lessonCheckType = pgEnum("lesson_check_type", ["SINGLE_CHOICE"]);
+export const lessonCheckType = pgEnum("lesson_check_type", [
+  "SINGLE_CHOICE",
+  "TRUE_FALSE",
+  "MULTI_SELECT"
+]);
 
 export const practiceType = pgEnum("practice_type", [
   "LESSON_PRACTICE",
@@ -240,6 +244,7 @@ export const lessonChecks = pgTable("lesson_checks", {
   question: text("question").notNull(),
   options: jsonb("options").notNull(),
   correctAnswer: text("correct_answer").notNull(),
+  correctAnswers: jsonb("correct_answers"),
   explanation: text("explanation").notNull(),
   required: boolean("required").notNull().default(true),
   order: integer("order").notNull().default(0),
@@ -255,6 +260,7 @@ export const lessonCheckResponses = pgTable(
     checkId: text("check_id").notNull().references(() => lessonChecks.id, { onDelete: "cascade" }),
     userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     answer: text("answer").notNull(),
+    answers: jsonb("answers"),
     isCorrect: boolean("is_correct").notNull(),
     attempts: integer("attempts").notNull().default(1),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

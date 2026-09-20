@@ -15,11 +15,13 @@ type InteractiveData = {
   authenticated: boolean;
   checks: Array<{
     id: string;
+    type: "SINGLE_CHOICE" | "TRUE_FALSE" | "MULTI_SELECT";
     question: string;
     options: Array<{ value: string; label: string }>;
     required: boolean;
     state: null | {
       answer: string;
+      answers: string[];
       isCorrect: boolean;
       attempts: number;
       explanation: string | null;
@@ -187,6 +189,7 @@ export function GenericLessonRuntimePanel({
           checks: previewCheck
             ? [{
                 id: previewCheck.id,
+                type: previewCheck.questionType ?? "SINGLE_CHOICE",
                 question: previewCheck.question,
                 options: [...previewCheck.options],
                 required: true,
@@ -260,7 +263,16 @@ export function GenericLessonRuntimePanel({
     const nextCheck =
       nextInteractive.checks.find((item) => item.required) ??
       nextInteractive.checks[0];
-    if (nextCheck?.state?.answer) setAnswer(nextCheck.state.answer);
+    if (nextCheck?.state) {
+      setAnswer(nextCheck.state.answer);
+      setPreviewAnswers(
+        nextCheck.state.answers?.length
+          ? nextCheck.state.answers
+          : nextCheck.state.answer
+            ? [nextCheck.state.answer]
+            : []
+      );
+    }
 
     const nextPractice =
       nextInteractive.practices.find((item) => item.required) ??
@@ -350,7 +362,11 @@ export function GenericLessonRuntimePanel({
         {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ answer })
+          body: JSON.stringify(
+            check.type === "MULTI_SELECT"
+              ? { answers: previewAnswers }
+              : { answer: previewAnswers[0] ?? answer }
+          )
         }
       );
       const result = await response.json().catch(() => null);
@@ -623,8 +639,7 @@ export function GenericLessonRuntimePanel({
           <h3>{check.question}</h3>
           <div className="interactive-options">
             {check.options.map((option) => {
-              const multiSelect =
-                previewMode && previewCheck?.questionType === "MULTI_SELECT";
+              const multiSelect = check.type === "MULTI_SELECT";
               const checked = multiSelect
                 ? previewAnswers.includes(option.value)
                 : answer === option.value;

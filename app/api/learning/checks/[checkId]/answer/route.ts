@@ -16,10 +16,11 @@ export async function POST(
     const { checkId } = await params;
     const body = await request.json().catch(() => null);
     const preview = body?.preview === true;
+    const submittedAnswer = body?.answers ?? body?.answer;
     return NextResponse.json(
       user && !preview
-        ? await answerLessonCheck(user.id, checkId, body?.answer)
-        : await previewLessonCheck(checkId, body?.answer)
+        ? await answerLessonCheck(user.id, checkId, submittedAnswer)
+        : await previewLessonCheck(checkId, submittedAnswer)
     );
   } catch (error) {
     const code = error instanceof Error ? error.message : "CHECK_ANSWER_FAILED";
@@ -39,4 +40,3 @@ export async function POST(
     return NextResponse.json({ error: "CHECK_ANSWER_FAILED" }, { status: 500 });
   }
 }
-

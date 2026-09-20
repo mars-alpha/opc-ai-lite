@@ -364,7 +364,11 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
-`CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。Generic Lesson Draft Preview 已支持 radio / checkbox 对应交互。正式学习 Runtime 的 Check API / 数据持久化当前仍是旧单答案模型；本任务未修改 DB 或正式 Completion 语义。
+`CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。`courseBuilderCheckToRuntimeSeed()` 可把已校验 Check 直接转换为正式 Runtime seed。
+
+正式学习 Runtime 代码现也支持三种题型：`lesson_check_type` Schema 已扩展 TRUE_FALSE / MULTI_SELECT；`lesson_checks` 新增 nullable `correct_answers`，`lesson_check_responses` 新增 nullable `answers`，并保留旧 `correct_answer / answer` 以兼容 0000–0009 数据。Answer API 接受 `answer` 或 `answers`；单选/判断只允许一个答案，多选去重后精确集合判分。Interactive API 只返回题型、题目、选项和用户作答状态，不返回正确答案。Generic Lesson Runtime 正式模式按题型使用 radio / checkbox，并可恢复用户已保存选择。
+
+本地 migration `drizzle/0010_famous_blockbuster.sql` 已生成，包含枚举扩展和两个 jsonb 列；**未执行远程 migration**。当前远程 DB 仍为 0009，因此正式环境启用判断/多选前必须先授权执行 0010。
 
 ## 6. AI Provider
 

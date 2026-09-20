@@ -557,6 +557,12 @@ Status: COMPLETE
 
 四种 Lesson Type 的 BUILD Draft 现在必须 `conceptMasteryBeforePractice=true`。固定教学逻辑：Step 1 建立核心直觉和重要性；Step 2 展开方法、边界、易混淆点和常见错误；Step 3 用单选 / 判断 / 多选验证是否真正理解；Step 4 只应用前 3 步已经教过的核心知识，不在实操阶段首次补新核心概念。Check Contract 已升级为 `questionType + correctValues`，兼容旧 `correctValue`；MULTI_SELECT 使用集合完全一致判分。Draft Preview 已支持 checkbox 多选，正式 Runtime/DB 持久化暂不改变。
 
+### COURSE-BUILDER-SKILL-002-E — Formal Check Types Runtime Completion
+
+Status: CODE_COMPLETE_LOCAL_MIGRATION_READY_REMOTE_PENDING
+
+正式 Runtime 已支持 SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT。数据库 Schema 保留旧 `correct_answer / answer` 并新增 `correct_answers / answers`，旧数据自动兼容；正式 Answer API 支持单答案与多答案，MULTI_SELECT 使用精确集合判分；Generic Lesson Runtime 正式模式可渲染 radio / checkbox 并恢复已保存答案。Course Builder 新增 Draft Check → Runtime Seed 转换。已生成 `drizzle/0010_famous_blockbuster.sql`，但未执行远程 migration，远程 PostgreSQL 仍为 0009。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

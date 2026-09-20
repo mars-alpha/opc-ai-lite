@@ -24,6 +24,10 @@ import {
   type RubricCriterion,
   rulePracticeEvaluator
 } from "../../learning/practice-evaluator";
+import {
+  evaluateLessonCheckAnswers,
+  type LessonCheckQuestionType
+} from "../../learning/check-evaluator";
 
 type CheckOption = { value: string; label: string };
 type PracticeInstruction = { key: string; label: string; prompt: string };
@@ -41,6 +45,22 @@ function asOptions(value: unknown): CheckOption[] {
         typeof item.label === "string"
       )
   );
+}
+
+function asAnswerArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function correctAnswersForCheck(check: {
+  correctAnswer: string;
+  correctAnswers: unknown;
+}) {
+  const values = asAnswerArray(check.correctAnswers);
+  return (values.length > 0 ? [...new Set(values)] : [check.correctAnswer]).sort();
 }
 
 function asInstructions(value: unknown): PracticeInstruction[] {
@@ -152,7 +172,10 @@ export async function getInteractiveLesson(
       .orderBy(asc(practices.createdAt))
   ]);
 
-  const checkStates = new Map<string, { answer: string; isCorrect: boolean; attempts: number }>();
+  const checkStates = new Map<
+    string,
+    { answer: string; answers: string[]; isCorrect: boolean; attempts: number }
+  >();
   const practiceStates = new Map<
     string,
     {
@@ -171,8 +194,10 @@ export async function getInteractiveLesson(
       .where(eq(lessonCheckResponses.userId, userId));
     for (const response of responses) {
       if (checkRows.some((check) => check.id === response.checkId)) {
+        const storedAnswers = asAnswerArray(response.answers);
         checkStates.set(response.checkId, {
           answer: response.answer,
+          answers: storedAnswers.length > 0 ? storedAnswers : [response.answer],
           isCorrect: response.isCorrect,
           attempts: response.attempts
         });
@@ -249,10 +274,6 @@ async function evaluateCheckAnswer(
   checkId: string,
   answer: unknown
 ) {
-  if (typeof answer !== "string" || !answer.trim() || answer.length > 120) {
-    throw new Error("INVALID_CHECK_ANSWER");
-  }
-
   const db = getDatabase();
   const [check] = await db
     .select()
@@ -286,9 +307,19 @@ async function evaluateCheckAnswer(
     );
   }
 
-  const normalized = answer.trim();
-  const isCorrect = normalized === check.correctAnswer;
-  return { check, normalized, isCorrect };
+  const expected = correctAnswersForCheck(check);
+  const evaluated = evaluateLessonCheckAnswers(
+    check.type as LessonCheckQuestionType,
+    expected,
+    answer
+  );
+  const normalized = evaluated.answers.join("|");
+  return {
+    check,
+    normalized,
+    answers: evaluated.answers,
+    isCorrect: evaluated.isCorrect
+  };
 }
 
 function checkResult(check: { explanation: string }, isCorrect: boolean) {
@@ -313,7 +344,7 @@ export async function answerLessonCheck(
   checkId: string,
   answer: unknown
 ) {
-  const { check, normalized, isCorrect } = await evaluateCheckAnswer(
+  const { check, normalized, answers, isCorrect } = await evaluateCheckAnswer(
     userId,
     checkId,
     answer
@@ -327,6 +358,7 @@ export async function answerLessonCheck(
       checkId,
       userId,
       answer: normalized,
+      answers,
       isCorrect,
       attempts: 1,
       updatedAt: now
@@ -335,6 +367,7 @@ export async function answerLessonCheck(
       target: [lessonCheckResponses.userId, lessonCheckResponses.checkId],
       set: {
         answer: normalized,
+        answers,
         isCorrect,
         attempts: sql`${lessonCheckResponses.attempts} + 1`,
         updatedAt: now

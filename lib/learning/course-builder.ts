@@ -112,6 +112,17 @@ export function evaluateCourseBuilderCheck(
   return expected.length === actual.length && expected.every((value, index) => value === actual[index]);
 }
 
+export function courseBuilderCheckToRuntimeSeed(check: CourseBuilderCheck) {
+  return {
+    type: check.questionType,
+    question: check.question,
+    options: check.options,
+    correctAnswer: check.correctValues[0],
+    correctAnswers: check.correctValues,
+    explanation: check.explanation
+  };
+}
+
 export type CourseBuilderPractice = {
   id: string;
   title: string;
