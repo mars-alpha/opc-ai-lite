@@ -581,6 +581,12 @@ Status: COMPLETE_FROZEN_V1
 
 统一 Lesson Shell 已冻结为 v1：六步顺序与四字教学标签、前 3 步概念掌握 / Step 4 实操 / Step 5 复盘框架 / Step 6 能力迁移、新课程三题 Mastery Sequence、Desktop / Mobile 底部导航、Preview / Runtime 边界和禁止 slug/name Renderer 分支均成为稳定契约。新增 `docs/learning/UNIFIED_LESSON_SHELL_V1.md`、`lib/learning/unified-lesson-shell.ts` 与 `learning:shell:accept`。以后普通课程内容任务不得顺手改变 Shell；结构变化必须单独立项。下一步转入 `CURRICULUM-001 — Formal Curriculum Definition`。
 
+### CURRICULUM-001 — Formal Curriculum Definition
+
+Status: COMPLETE_DEFINED_V1
+
+新增 `docs/learning/FORMAL_CURRICULUM_V1.md`。正式课程主线定义为 Stage 1 AI 基础认知 → Stage 2 AI 工作应用 → Stage 3 AI Workflow → Stage 4 AI 业务增长与运营 → Stage 5 FDE / AI 解决方案落地。基础必修明确覆盖 Prompt、Context/Token、Memory/RAG、Model/API/Tool、MCP、Skill、Agent、Multimodal，并完成旧 `task-brief` / `context-token` / `api-agent` 等内容的合并拆分决策。第一批正式建设只做 5 节：生成式 AI、Prompt、Context/Token、Memory/RAG、Model/API/Tool。当前 static catalog / acceptance fixtures 仍非正式课程 Source of Truth。下一步：`CURRICULUM-002 — First Production Batch Planning`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
