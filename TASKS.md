@@ -557,6 +557,8 @@ Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
 
 新增真实 PROJECT Draft：`ai-literacy/ai-workflow-project`，题目“完成一份 AI 客户跟进工作流方案”。继续复用统一六步与六步职责 Contract；`practiceMode=PROJECT`，Completion Gates 为 CHECK + DELIVERABLE。第 4 步要求完成项目目标 / 触发输入 / 工作流步骤 / 人工确认 / 成功指标五部分项目草稿，本地 RULE evaluator 只验证草稿质量。Runtime Plan 已识别 `requiresDeliverable`，但正式 Deliverable Runtime 尚未接入，因此不会把本地草稿 PASS 写成正式项目完成。Preview：`/course-builder/preview/ai-workflow-project`。
 
+Human Review 优化：PROJECT Step 1 底部新增三段轻量价值说明——临时 AI 使用为什么越来越难维护；工作流为什么能让方法被交接、检查和持续改进；为什么这是从“会用 AI”走向“用 AI 建工作方式”的关键一步。通过通用 Intro `bottomDetails` 数据驱动，不按课程 slug 分支。
+
 建议后续顺序：
 
 ```text

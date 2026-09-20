@@ -109,6 +109,10 @@ type PreviewIntroComparison = {
     meaning: string;
   }>;
   comparisonPlacement?: "MIDDLE" | "BOTTOM";
+  bottomDetails?: ReadonlyArray<{
+    title: string;
+    text: string;
+  }>;
   takeaway: string;
 };
 
@@ -550,6 +554,16 @@ export function GenericLessonRuntimePanel({
               ))}
             </div>
           )}
+          {previewIntroComparison.bottomDetails?.length ? (
+            <div className="guided-knowledge-depth guided-knowledge-depth-review">
+              {previewIntroComparison.bottomDetails.map((item) => (
+                <div key={item.title}>
+                  <strong>{item.title}</strong>
+                  <p>{item.text}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : step.kind === "EXPLAIN" && (
         <div className="guided-step-content">

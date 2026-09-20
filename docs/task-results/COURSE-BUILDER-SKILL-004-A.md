@@ -45,6 +45,16 @@ Lesson Spec 要求 PROJECT 必须以 DELIVERABLE 作为 Completion Gate。当前
 - Step 5：形成目标 → 触发输入 → 步骤 → 人工确认 → 成功指标的项目检查框架。
 - Step 6：明确可以迁移到销售、客服、内容运营和内部协作。
 
+## Human Review Refinement
+
+Step 1 底部价值说明已加厚：
+
+- 解释临时 AI 使用会造成 Prompt / 输入 / 交接不一致，流程依赖个人记忆；
+- 解释工作流如何把个人方法变成可交接、可检查、可改进、可逐步自动化的过程；
+- 明确这一步是从“会用 AI”到“用 AI 建工作方式”的能力跃迁。
+
+通过通用 `bottomDetails` 数据驱动，不增加新交互、不改变其他 Step 或 Gate。
+
 ## Preview
 
 /course-builder/preview/ai-workflow-project

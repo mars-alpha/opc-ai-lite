@@ -128,7 +128,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-004-A` 已新增第四种真实 Course Builder 样板：`ai-workflow-project`，类型 PROJECT。课程继续复用统一六步，`practiceMode=PROJECT`，Completion Gates 为 CHECK + DELIVERABLE。第 4 步完成项目目标 / 触发输入 / 工作流步骤 / 人工确认 / 成功指标五部分草稿并做本地质量检查。Runtime 现在能识别 `requiresDeliverable`，但正式 Deliverable Runtime 尚未接入，因此草稿 PASS 不会被伪造成正式 PROJECT Completion。下一步先做 Human Review。
+`COURSE-BUILDER-SKILL-004-A` Human Review 继续优化：PROJECT Step 1 底部价值说明已加厚。除“单次使用 / 工作流”的概念区分外，现在明确说明临时使用 AI 会带来输入、Prompt、交接和执行结果不稳定的问题；工作流的价值是把个人经验变成可交接、可检查、可改进、可逐步自动化的工作方式，并明确这是从“会用 AI”走向“用 AI 建工作方式”的关键一步。其他 Step、Gate 和 Runtime 边界未改变。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

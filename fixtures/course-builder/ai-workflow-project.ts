@@ -26,8 +26,25 @@ export const aiWorkflowProjectIntroPreview = {
     }
   ],
   comparisonPlacement: "BOTTOM",
+  bottomDetails: [
+    {
+      title: "为什么临时使用会越来越难维护",
+      text:
+        "同一件事如果每次都靠人临时决定 Prompt、输入和下一步，执行结果会跟着个人习惯变化。最常见的问题不是 AI 不够聪明，而是步骤被遗漏、信息交接不完整，最后只有原来那个人知道“应该怎么做”。"
+    },
+    {
+      title: "工作流真正解决的是“可重复”",
+      text:
+        "把方法写成工作流后，别人可以接手，过程可以检查，错误可以定位，做得好的部分也能持续改进。以后要接自动化、Skill 或 API 时，也有清楚的边界可以逐步替换，而不是重做整个流程。"
+    },
+    {
+      title: "这是从“会用 AI”走向“用 AI 建工作方式”的一步",
+      text:
+        "单次使用 AI 提升的是一个人的一次效率；工作流设计开始把个人经验变成团队可复用的能力。后续真正做业务提效、Agent 或自动化，基本都会建立在这一步之上。"
+    }
+  ],
   takeaway:
-    "PROJECT 的目标不是写一段更长的 Prompt，而是把一个真实任务设计成别人也能重复执行的完整方案。"
+    "PROJECT 的目标不是写一段更长的 Prompt，而是把“只有你会做”的方法，变成别人也能接手、检查、改进和继续自动化的工作方式。"
 } as const;
 
 export const aiWorkflowProjectKnowledgeDepth = {
