@@ -35,6 +35,10 @@ assert(
     "EXPLAIN>EXAMPLE>CHECK>PRACTICE>REVIEW>CAPABILITY",
   "APPLICATION_SIX_STEP_COMPOSITION"
 );
+assert(lessonSpec.knowledgePoints.length === 4, "APPLICATION_KNOWLEDGE_DEPTH");
+assert(lessonSpec.knowledgePoints.some((item) => item.includes("Example")), "APPLICATION_EXAMPLE_KNOWLEDGE");
+assert(lessonSpec.knowledgePoints.some((item) => item.includes("Context")), "APPLICATION_CONTEXT_KNOWLEDGE");
+assert(lessonSpec.knowledgePoints.some((item) => item.includes("Iteration")), "APPLICATION_ITERATION_KNOWLEDGE");
 assert(Boolean(check), "APPLICATION_CHECK_REQUIRED");
 assert(Boolean(practice), "APPLICATION_PRACTICE_REQUIRED");
 assert((check?.options.length ?? 0) >= 3, "APPLICATION_CHECK_OPTIONS");
@@ -54,6 +58,7 @@ assert(!JSON.stringify(promptFoundationsBuildDraft).includes("ChatGPT"), "APPLIC
 console.log("APPLICATION_TOPIC=Prompt（提示词）怎么写，AI 才更容易理解你");
 console.log("APPLICATION_CODE_VALIDATION=PASS");
 console.log("APPLICATION_SPEC_RULES=PASS");
+console.log("APPLICATION_KNOWLEDGE_DEPTH=PASS");
 console.log("APPLICATION_CHECK_SCHEMA=PASS");
 console.log("APPLICATION_PRACTICE_SCHEMA=PASS");
 console.log("APPLICATION_PRACTICE_GATE=PASS");

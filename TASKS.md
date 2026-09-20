@@ -529,6 +529,12 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 Human Review 修复：Check / Practice 的底部反馈已改为步骤内有效，切换 Step 时会清除旧提示；Practice 未通过时显示完整参考答案，并提供“一键填充参考答案”与复制。填充会把参考内容分别写入任务 / 背景 / 限制 / 结果四个输入框并清除旧评分，但不会自动提交或通过。
 
+### COURSE-BUILDER-SKILL-002-B — Knowledge Depth Expansion
+
+Status: COMPLETE_HUMAN_REVIEW_PENDING
+
+保留现有六步 APPLICATION 体验、Check / Practice Gate 和一键参考答案，不增加新交互。Prompt 课程知识从基础四部分扩展到 4 个核心知识点：基础结构、Example、Context、Iteration。Step 1 保持轻量；新增深度主要进入 Step 2 案例、Step 4 提示和 Step 5 回顾。APPLICATION acceptance 现在要求这 4 个知识层存在。
+
 建议后续顺序：
 
 ```text

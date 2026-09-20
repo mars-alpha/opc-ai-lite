@@ -34,8 +34,9 @@ COURSE-BUILDER-SKILL-001-D Six-Step Beginner Experience & Visual Hierarchy COMPL
 COURSE-BUILDER-SKILL-001-E First Step Interactive Intro COMPLETE
 COURSE-BUILDER-SKILL-001-F First Step Direct Comparison COMPLETE
 COURSE-BUILDER-SKILL-002-A Real APPLICATION Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+COURSE-BUILDER-SKILL-002-B Knowledge Depth Expansion COMPLETE_HUMAN_REVIEW_PENDING
 
-NEXT: Human Review — open /course-builder/preview/prompt-foundations and review the real APPLICATION lesson
+NEXT: Human Review — re-open /course-builder/preview/prompt-foundations and review the deeper APPLICATION lesson
 ```
 
 ## 当前系统健康
@@ -74,6 +75,7 @@ APPLICATION Practice gate PASS
 Step feedback isolation PASS
 Practice reference answer PASS
 Practice one-click fill PASS
+APPLICATION knowledge depth PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -113,7 +115,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-002-A` Human Review 修复已补齐：课程底部反馈随 Step 切换清除；APPLICATION 的 Practice 本地检查失败后会显示完整参考答案，支持“一键填充参考答案”到任务 / 背景 / 限制 / 结果四个输入框，也保留复制。填充后会清除旧评分，但不会自动提交或判定通过，用户仍需修改并重新检查。
+`COURSE-BUILDER-SKILL-002-B` 已在不改变六步体验和 Completion Gate 的前提下扩充 Prompt APPLICATION 的知识深度。当前核心知识为：任务 / 背景 / 限制 / 结果基础结构，以及什么时候用 Example（示例）、什么时候必须补 Context（上下文）、怎样通过 Iteration（迭代）修正第一次结果。新增内容主要分散在 Step 2 / Step 4 / Step 5，Step 1 继续保持轻量。下一步 Human Review 判断知识增加后是否仍然易懂。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

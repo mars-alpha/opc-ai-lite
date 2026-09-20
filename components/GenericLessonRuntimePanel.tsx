@@ -109,6 +109,11 @@ type PreviewIntroComparison = {
   takeaway: string;
 };
 
+type PreviewKnowledgeDepth = {
+  example: ReadonlyArray<{ title: string; text: string }>;
+  review: ReadonlyArray<{ title: string; text: string }>;
+};
+
 function emptyPracticeContent(
   instructions: Array<{ key: string }>
 ): PracticeContent {
@@ -146,6 +151,7 @@ export function GenericLessonRuntimePanel({
   previewPractice = null,
   previewReferenceAnswer = null,
   previewReferenceFill = null,
+  previewKnowledgeDepth = null,
   previewIntroComparison = null
 }: {
   courseSlug: string;
@@ -158,6 +164,7 @@ export function GenericLessonRuntimePanel({
   previewPractice?: PreviewPractice | null;
   previewReferenceAnswer?: string | null;
   previewReferenceFill?: PreviewReferenceFill | null;
+  previewKnowledgeDepth?: PreviewKnowledgeDepth | null;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
@@ -548,6 +555,16 @@ export function GenericLessonRuntimePanel({
             {lesson.example.after && <div><span>调整后的做法</span><p>{lesson.example.after}</p></div>}
           </div>}
           <div className="guided-gain"><strong>结果</strong><p>{lesson.example.result}</p></div>
+          {previewMode && previewKnowledgeDepth?.example.length ? (
+            <div className="guided-knowledge-depth">
+              {previewKnowledgeDepth.example.map((item) => (
+                <div key={item.title}>
+                  <strong>{item.title}</strong>
+                  <p>{item.text}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
 
         </div>
       )}
@@ -825,6 +842,16 @@ export function GenericLessonRuntimePanel({
               );
             })}
           </div>
+          {previewMode && previewKnowledgeDepth?.review.length ? (
+            <div className="guided-knowledge-depth guided-knowledge-depth-review">
+              {previewKnowledgeDepth.review.map((item) => (
+                <div key={item.title}>
+                  <strong>{item.title}</strong>
+                  <p>{item.text}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <div className="guided-gain">
             <strong>下一步关联</strong>
             <p>{lesson.related.join(" · ")}</p>

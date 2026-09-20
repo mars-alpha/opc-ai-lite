@@ -6,6 +6,7 @@ import type { Lesson } from "../../../../lib/courses";
 import {
   promptFoundationsBuildDraft,
   promptFoundationsIntroPreview,
+  promptFoundationsKnowledgeDepth,
   promptFoundationsReferenceFill
 } from "../../../../fixtures/course-builder/prompt-foundations";
 
@@ -92,6 +93,7 @@ export default function PromptFoundationsDraftPreviewPage() {
             previewPractice={promptFoundationsBuildDraft.practice}
             previewReferenceAnswer={promptFoundationsBuildDraft.referenceAnswer}
             previewReferenceFill={promptFoundationsReferenceFill}
+            previewKnowledgeDepth={promptFoundationsKnowledgeDepth}
             previewActivity={promptFoundationsBuildDraft.pedagogy.participation}
             previewIntroComparison={promptFoundationsIntroPreview}
           />
