@@ -128,7 +128,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-004-A` Human Review 继续优化：PROJECT Step 1 底部价值说明已加厚。除“单次使用 / 工作流”的概念区分外，现在明确说明临时使用 AI 会带来输入、Prompt、交接和执行结果不稳定的问题；工作流的价值是把个人经验变成可交接、可检查、可改进、可逐步自动化的工作方式，并明确这是从“会用 AI”走向“用 AI 建工作方式”的关键一步。其他 Step、Gate 和 Runtime 边界未改变。
+`COURSE-BUILDER-SKILL-004-A` Human Review 继续优化：PROJECT Step 1 已移除底部重复的“单次使用 / 工作流”概念定义栏。当前层级为场景 → 两种做法 → 核心结论 → 价值说明，重点保留临时 AI 使用的维护成本、工作流的可交接/可检查/可改进价值，以及“会用 AI → 用 AI 建工作方式”的能力跃迁。其他 Step、Gate 和 Runtime 边界未改变。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

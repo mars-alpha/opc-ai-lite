@@ -360,6 +360,8 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `PreviewIntroComparison` 当前还支持可选 `bottomDetails`，用于在 Step 1 takeaway 和底部概念区之后增加轻量价值说明。`ai-workflow-project` 已使用该能力，明确临时 AI 使用的维护成本、工作流的可交接/可检查/可改进价值，以及“会用 AI → 用 AI 建工作方式”的能力跃迁。该扩展不改变 Step 结构或 Completion Gate。
 
+`PreviewIntroComparison` 当前在 `comparison` 为空时完全不渲染概念对比区。`ai-workflow-project` 已移除“单次使用 / 工作流”概念栏，因此 Step 1 当前只显示场景、两种做法、takeaway 和 `bottomDetails` 价值说明；其他 Preview 若提供 comparison 仍按原规则显示。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

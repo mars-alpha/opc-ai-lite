@@ -55,6 +55,8 @@ Step 1 底部价值说明已加厚：
 
 通过通用 `bottomDetails` 数据驱动，不增加新交互、不改变其他 Step 或 Gate。
 
+后续 Human Review 再次简化 Step 1：移除重复的“单次使用 / 工作流”概念定义栏，只保留场景 → 两种做法 → takeaway → 价值说明。Generic renderer 在 comparison 为空时不渲染该区块。
+
 ## Preview
 
 /course-builder/preview/ai-workflow-project

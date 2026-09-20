@@ -530,7 +530,7 @@ export function GenericLessonRuntimePanel({
               </div>
             ))}
           </div>
-          {previewIntroComparison.comparisonPlacement !== "BOTTOM" && (
+          {previewIntroComparison.comparison.length > 0 && previewIntroComparison.comparisonPlacement !== "BOTTOM" && (
             <div className="guided-intro-compare">
               {previewIntroComparison.comparison.map((item) => (
                 <div key={item.term}>
@@ -544,7 +544,7 @@ export function GenericLessonRuntimePanel({
             <strong>记住这一句</strong>
             <p>{previewIntroComparison.takeaway}</p>
           </div>
-          {previewIntroComparison.comparisonPlacement === "BOTTOM" && (
+          {previewIntroComparison.comparison.length > 0 && previewIntroComparison.comparisonPlacement === "BOTTOM" && (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
               {previewIntroComparison.comparison.map((item) => (
                 <div key={item.term}>

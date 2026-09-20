@@ -15,16 +15,7 @@ export const aiWorkflowProjectIntroPreview = {
         "先定义什么时候开始、需要什么输入、AI 做哪些步骤、哪里必须人工确认，以及最后怎样判断有效。"
     }
   ],
-  comparison: [
-    {
-      term: "单次使用",
-      meaning: "解决眼前的一次任务"
-    },
-    {
-      term: "工作流",
-      meaning: "把可重复的方法组织成稳定执行过程"
-    }
-  ],
+  comparison: [],
   comparisonPlacement: "BOTTOM",
   bottomDetails: [
     {

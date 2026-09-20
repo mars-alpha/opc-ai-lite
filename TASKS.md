@@ -559,6 +559,8 @@ Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
 
 Human Review 优化：PROJECT Step 1 底部新增三段轻量价值说明——临时 AI 使用为什么越来越难维护；工作流为什么能让方法被交接、检查和持续改进；为什么这是从“会用 AI”走向“用 AI 建工作方式”的关键一步。通过通用 Intro `bottomDetails` 数据驱动，不按课程 slug 分支。
 
+进一步简化 Step 1：移除 PROJECT 样板中重复的“单次使用 / 工作流”底部概念栏，仅保留场景、两种做法、核心结论和 `bottomDetails` 价值说明。Generic renderer 对空 `comparison` 不渲染任何占位，其他课程保持原样。
+
 建议后续顺序：
 
 ```text
