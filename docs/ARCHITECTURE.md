@@ -386,7 +386,9 @@ Feishu Publish Adapter / 人工发布
 关联回 Knowledge / Course / Practice
 ```
 
-后续进阶 Practice 可以分析飞书 Deep Resource 形成 AI Draft，再由人工审核发布；基础课程主干初版仍由人工讨论确定，AI 只在后续阶段分析新 Knowledge 是否影响既有 Lesson，并生成 Course Update Candidate。
+当前 E 阶段已落地 Knowledge-owned `knowledge_deep_resources`：只保存 FEISHU URL / ref / title / summary / publication status，可选关联 Lesson / Practice。它不复用 `lesson_resources`，因为 Lesson 不是 Deep Resource 的必需 owner。
+
+当前只实现 Admin 人工引用维护，不包含 Feishu API / OAuth / Bot / 自动发布 / 双向同步。后续进阶 Practice 可以分析飞书 Deep Resource 形成 AI Draft，再由人工审核发布；基础课程主干初版仍由人工讨论确定，AI 只在后续阶段分析新 Knowledge 是否影响既有 Lesson，并生成 Course Update Candidate。
 
 MVP 优先允许人工发布 + 后台保存链接；只有维护量明显增加后，再开发自动发布。
 

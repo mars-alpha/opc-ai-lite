@@ -211,7 +211,47 @@ Content → Knowledge 查询必须同时识别 Primary 与 Supporting link，避
 
 ---
 
-## 9. Course Update Candidate
+## 9. Knowledge Deep Resource / Feishu Bridge
+
+Deep Resource 是 Knowledge-owned 的外部深度研究引用，不复用 `lesson_resources`。
+
+```text
+knowledge_deep_resources
+id
+knowledge_id required
+lesson_id nullable
+practice_id nullable
+provider = FEISHU
+title
+summary nullable
+resource_ref nullable
+url
+status = DRAFT | REVIEW | PUBLISHED | ARCHIVED
+created_at
+updated_at
+
+UNIQUE(knowledge_id, url)
+```
+
+规则：
+
+```text
+Knowledge = canonical business source
+Feishu Deep Resource = external deep research / practice carrier
+
+PUBLISHED Deep Resource
+→ requires Knowledge.status = PUBLISHED
+
+Lesson / Practice
+→ optional secondary relation
+→ never required ownership
+```
+
+当前只提供 Admin 人工引用维护；没有 Feishu API 自动发布、同步或用户侧 Reader。
+
+---
+
+## 10. Course Update Candidate
 
 Candidate 只是 Proposal，目前支持两种真实来源：
 
@@ -251,7 +291,7 @@ Insight 来源审核可以同步 Course Insight 状态；Knowledge 来源审核�
 
 ---
 
-## 10. 行为信号
+## 11. 行为信号
 
 Interactive Lesson 可从真实行为刷新 Insight，例如：
 
@@ -266,7 +306,7 @@ HELPFULNESS
 
 ---
 
-## 11. 当前不建设
+## 12. 当前不建设
 
 ```text
 大型 BI

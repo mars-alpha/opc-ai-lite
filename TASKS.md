@@ -295,13 +295,28 @@ Priority: P0
 
 Migration：`drizzle/0007_pink_spirit.sql`。当前 `DATABASE_URL` 为 REMOTE，本任务未自动执行远程 migration；真实 D Runtime / 部署前需按顺序执行并验证 0006、0007。
 
+## MVP-011-E — Deep Resource / Feishu Bridge
+
+Status: COMPLETE_WITH_REMOTE_MIGRATION_PENDING
+Priority: P0
+
+结果：`docs/task-results/MVP-011-E.md`。
+
+已完成最小 Knowledge-owned Deep Resource：新增 `knowledge_deep_resources`，Knowledge 必填，Lesson / Practice 可选；provider 固定 FEISHU，保存 title / summary / resourceRef / HTTPS URL / publication status。没有复用 `lesson_resources`，避免把 Knowledge 深度资料错误建模为 Lesson 附件。
+
+Admin 已可在 Content → Knowledge 工作区查看、新建、编辑 Deep Resource。只有 Published Knowledge 才能把 Deep Resource 设为 PUBLISHED；未发布 Knowledge 只能保存 DRAFT / REVIEW 等不可用状态。
+
+Migration：`drizzle/0008_overrated_triton.sql`。当前 `DATABASE_URL` 为 REMOTE，本任务未自动执行；真实 Runtime / 部署前需依次执行并验证 0006、0007、0008。
+
+本阶段没有 Feishu API / OAuth / Bot / 自动发布 / 双向同步，没有用户侧 Deep Resource Reader，也没有 Membership Access 接入。
+
 # NEXT PHASE
 
 下一步先讨论 / 审计：
 
-`MVP-011-E — Deep Resource / Feishu Bridge`
+`MVP-011-F — Knowledge → Practice AI Draft Workflow`
 
-目标仍是最小关系与真实运行，不提前建设通用 Asset Platform。
+目标：基于 Reviewed Knowledge / Deep Resource 形成可人工审核的 Practice Draft，不允许 AI 直接发布 Practice。
 
 建议后续顺序：
 
@@ -335,7 +350,6 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
 
 
 

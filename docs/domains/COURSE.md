@@ -533,7 +533,7 @@ Publish New Version
 
 正式课程与正式 Knowledge：PostgreSQL / OPC Production Data。
 
-Feishu Deep Resource：人工学习、分析、实践形成的深度研究载体，通过引用关系关联回 Knowledge / Course / Practice，不取代 Production Source of Truth。
+Feishu Deep Resource：人工学习、分析、实践形成的深度研究载体，通过 `knowledge_deep_resources` 归属 Knowledge；Lesson / Practice 只允许可选关联，不取代 Production Source of Truth，也不复用 `lesson_resources` 作为 owner。
 
 Obsidian：筛选后的长期个人知识沉淀与研究辅助，不作为课程正文或正式 Knowledge 的唯一事实源。
 

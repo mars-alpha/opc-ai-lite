@@ -11,21 +11,24 @@ MVP-011-B Content → Knowledge Routing     COMPLETE
 MVP-011-C1 Knowledge → Latest Practice    COMPLETE
 MVP-011-C2 Multi-source Course Candidate  CODE COMPLETE*
 MVP-011-D Knowledge Provenance Foundation  CODE COMPLETE**
+MVP-011-E Deep Resource / Feishu Bridge     CODE COMPLETE***
 
-NEXT: discuss / audit MVP-011-E — Deep Resource / Feishu Bridge
+NEXT: discuss / audit MVP-011-F — Knowledge → Practice AI Draft Workflow
 ```
 
 `*` C2 的 `drizzle/0006_square_sharon_carter.sql` 已生成并提交，但远程数据库尚未执行，因此远程真实 C2 DB Runtime 尚未验证。
 
 `**` D 的 `drizzle/0007_pink_spirit.sql` 已生成并包含旧 Primary Source backfill；远程数据库同样尚未执行，因此 D 的远程真实 DB Runtime 尚未验证。
 
+`***` E 的 `drizzle/0008_overrated_triton.sql` 已生成；远程数据库尚未执行，因此 E 的远程真实 DB Runtime 尚未验证。
+
 ## 当前系统健康
 
 全仓事实审计来源基线：`main@5ea3981`。
 
 ```text
-Git tracked files    184
-Text files           177
+Git tracked files    190
+Text files           183
 Binary assets        7
 npm run typecheck    PASS
 npm run build        PASS
@@ -46,6 +49,7 @@ Content → Knowledge
 Knowledge → Latest Practice
 Knowledge → Course Update Candidate
 Knowledge ↔ multiple Content Sources (PRIMARY / SUPPORTING)
+Knowledge → Feishu Deep Resource (Admin bridge)
 Practice Read / Submit / RULE Evaluation
 Feedback / Event → Course Insight → Candidate → Human Review
 ```
@@ -53,10 +57,10 @@ Feedback / Event → Course Insight → Candidate → Human Review
 ## 当前仍未完成
 
 ```text
-remote DB migration 0006 / 0007
+remote DB migration 0006 / 0007 / 0008
 真实 AI Provider Runtime
 AI Daily 自动采集 / AI 初筛 / 自动摘要
-Feishu Deep Resource bridge
+Feishu Deep Resource user access / real Feishu API sync
 Obsidian export
 正式 Skill 资产
 新 AI Daily / Knowledge / Practice 权限策略接入
@@ -100,7 +104,16 @@ Knowledge 保持核心知识资产。Feishu、Obsidian、Skill、Media Asset 都
 - Admin 可查看来源并补充 Supporting Content；
 - 没有提前建设 Feishu、Obsidian、Skill、Media Factory。
 
-下一步只讨论 / 审计 `MVP-011-E — Deep Resource / Feishu Bridge`。远程 0006 / 0007 migration 在真实 Runtime 前仍需明确执行。
+`MVP-011-E — Deep Resource / Feishu Bridge` 已按最小范围完成：
+
+- 新增 Knowledge-owned `knowledge_deep_resources`，不复用强制 Lesson ownership 的 `lesson_resources`；
+- Knowledge 必填，Lesson / Practice 可选；
+- 只保存 FEISHU URL / ref / title / summary / status；
+- Admin 可创建、查看、更新；
+- Published Deep Resource 要求 Knowledge 先 PUBLISHED；
+- 没有接 Feishu API / OAuth / Bot / 自动同步，也没有接用户侧 Membership Access。
+
+下一步只讨论 / 审计 `MVP-011-F — Knowledge → Practice AI Draft Workflow`。远程 0006 / 0007 / 0008 migration 在真实 Runtime 前仍需明确执行。
 
 ## 固定开发流程
 

@@ -462,6 +462,30 @@ export const knowledgeSourceLinks = pgTable(
   ]
 );
 
+export const knowledgeDeepResources = pgTable(
+  "knowledge_deep_resources",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    knowledgeId: text("knowledge_id").notNull().references(() => knowledgeItems.id, { onDelete: "cascade" }),
+    lessonId: text("lesson_id").references(() => lessons.id, { onDelete: "set null" }),
+    practiceId: text("practice_id").references(() => practices.id, { onDelete: "set null" }),
+    provider: text("provider").notNull().default("FEISHU"),
+    title: text("title").notNull(),
+    summary: text("summary"),
+    resourceRef: text("resource_ref"),
+    url: text("url").notNull(),
+    status: publicationStatus("status").notNull().default("DRAFT"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("knowledge_deep_resources_knowledge_url_uidx").on(
+      table.knowledgeId,
+      table.url
+    )
+  ]
+);
+
 export const courseUpdateCandidates = pgTable(
   "course_update_candidates",
   {
@@ -486,5 +510,4 @@ export const courseUpdateCandidates = pgTable(
     )
   ]
 );
-
 
