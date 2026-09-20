@@ -94,6 +94,7 @@ export default function PromptFoundationsDraftPreviewPage() {
             previewReferenceAnswer={promptFoundationsBuildDraft.referenceAnswer}
             previewReferenceFill={promptFoundationsReferenceFill}
             previewKnowledgeDepth={promptFoundationsKnowledgeDepth}
+            previewReviewCardFill
             previewActivity={promptFoundationsBuildDraft.pedagogy.participation}
             previewIntroComparison={promptFoundationsIntroPreview}
           />

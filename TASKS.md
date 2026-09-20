@@ -569,7 +569,7 @@ Status: COMPLETE_CODE_READY_REMOTE_MIGRATIONS_PENDING
 
 新课程 Step 3 默认使用三题 Sequence：`SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS`，一次只显示一题。每题必须显式提供不同的正确反馈与错误反馈。交互固定为：选择 → 检测；答错解释误区并要求重新选择，不能下一题；答对解释判断依据后才允许下一题；三题全部答对后 CHECK Gate 才完成。Prompt APPLICATION 样板已升级为真实三题 Preview。旧单题 Check 继续兼容。正式 Runtime 复用现有 `lesson_checks + order`；新增本地 `0011_milky_sharon_carter.sql` 存储 `incorrect_explanation`。远程 PostgreSQL 仍为 0009，0010–0011 均未执行。
 
-Human Review 继续优化 Prompt APPLICATION：Step 1 将“模糊 / 清楚”的概念解释移动到底部，主区只保留场景与两种做法；底部改成“模糊 = AI 还要猜 / 清楚 = AI 知道怎么做”的轻量解释。Step 5 misconception 卡片改为内容自适应高度，短卡片不再被同排长卡片拉高产生明显底色留白。
+Human Review 继续优化 Prompt APPLICATION：Step 1 将“模糊 / 清楚”的概念解释移动到底部，主区只保留场景与两种做法；底部改成“模糊 = AI 还要猜 / 清楚 = AI 知道怎么做”的轻量解释。Step 5 按后续反馈改为 Prompt Preview 专用的等高填色布局：卡片高度不压缩，“正确理解”色块填满剩余空间；撤回通用卡片自适应高度修改，避免影响其他课程。
 
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 

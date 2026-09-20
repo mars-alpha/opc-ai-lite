@@ -362,7 +362,7 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `PreviewIntroComparison` 当前在 `comparison` 为空时完全不渲染概念对比区。`ai-workflow-project` 已移除“单次使用 / 工作流”概念栏，因此 Step 1 当前只显示场景、两种做法、takeaway 和 `bottomDetails` 价值说明；其他 Preview 若提供 comparison 仍按原规则显示。
 
-`prompt-foundations` 当前也使用 `comparisonPlacement=BOTTOM`：Step 1 主区只显示“只说一句要求 / 把关键条件说出来”，takeaway 之后才以轻量 knowledge-depth 样式解释“模糊 = AI 还要猜 / 清楚 = AI 知道怎么做”。REVIEW misconception grid 采用内容自适应高度，短卡片不会被同排长卡片强制拉高。
+`prompt-foundations` 当前也使用 `comparisonPlacement=BOTTOM`：Step 1 主区只显示“只说一句要求 / 把关键条件说出来”，takeaway 之后才以轻量 knowledge-depth 样式解释“模糊 = AI 还要猜 / 清楚 = AI 知道怎么做”。Prompt Preview 单独启用 `previewReviewCardFill`：REVIEW 卡片仍保持同排等高，但“正确理解”区域会自动填满剩余高度；其他课程沿用原有通用 Review 布局。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 

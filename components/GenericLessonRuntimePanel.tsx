@@ -174,6 +174,7 @@ export function GenericLessonRuntimePanel({
   previewReferenceAnswer = null,
   previewReferenceFill = null,
   previewKnowledgeDepth = null,
+  previewReviewCardFill = false,
   previewIntroComparison = null
 }: {
   courseSlug: string;
@@ -188,6 +189,7 @@ export function GenericLessonRuntimePanel({
   previewReferenceAnswer?: string | null;
   previewReferenceFill?: PreviewReferenceFill | null;
   previewKnowledgeDepth?: PreviewKnowledgeDepth | null;
+  previewReviewCardFill?: boolean;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
@@ -1027,7 +1029,9 @@ export function GenericLessonRuntimePanel({
         <div className="guided-step-content">
           <div className="guided-step-label">学习回顾</div>
           <h3>用结果反查你是否真的理解</h3>
-          <div className="guided-misconception-grid">
+          <div
+            className={`guided-misconception-grid${previewReviewCardFill ? " is-fill-layout" : ""}`}
+          >
             {lesson.mistakes.map((item) => {
               const [misconception, correction] = item.split("｜");
               return (

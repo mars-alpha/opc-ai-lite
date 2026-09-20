@@ -3761,8 +3761,6 @@ img { display: block; max-width: 100%; }
   gap:14px;
   margin:20px 0;
 }
-.guided-misconception-grid { align-items:start; }
-.guided-misconception-card { align-self:start; }
 .guided-misconception-card {
   overflow:hidden;
   border-radius:18px;
@@ -3772,6 +3770,13 @@ img { display: block; max-width: 100%; }
 .guided-misconception-card > div { padding:15px 17px; }
 .guided-misconception-card > div:first-child { background:#fff7f4; }
 .guided-misconception-card > div:last-child { background:#f2f8ff; }
+.guided-misconception-grid.is-fill-layout .guided-misconception-card {
+  display:flex;
+  flex-direction:column;
+}
+.guided-misconception-grid.is-fill-layout .guided-misconception-card > div:last-child {
+  flex:1;
+}
 .guided-misconception-card span {
   display:block;
   margin-bottom:5px;
