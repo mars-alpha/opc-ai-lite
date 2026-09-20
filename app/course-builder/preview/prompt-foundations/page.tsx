@@ -89,7 +89,7 @@ export default function PromptFoundationsDraftPreviewPage() {
             plan={plan}
             lesson={lesson}
             previewMode
-            previewCheck={promptFoundationsBuildDraft.check}
+            previewCheckSequence={promptFoundationsBuildDraft.checkSequence}
             previewPractice={promptFoundationsBuildDraft.practice}
             previewReferenceAnswer={promptFoundationsBuildDraft.referenceAnswer}
             previewReferenceFill={promptFoundationsReferenceFill}

@@ -1,0 +1,1 @@
+ALTER TABLE "lesson_checks" ADD COLUMN "incorrect_explanation" text;

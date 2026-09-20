@@ -38,6 +38,7 @@ const base = promptFoundationsBuildDraft;
 
 const single = validateCourseBuilderOutput({
   ...base,
+  checkSequence: null,
   check: {
     id: "single-choice",
     question: "哪一个最清楚？",
@@ -55,6 +56,7 @@ assert(evaluateCourseBuilderCheck(single.check, ["B"]), "SINGLE_CHOICE_EVALUATIO
 
 const trueFalse = validateCourseBuilderOutput({
   ...base,
+  checkSequence: null,
   check: {
     id: "true-false",
     questionType: "TRUE_FALSE",
@@ -73,6 +75,7 @@ assert(evaluateCourseBuilderCheck(trueFalse.check, ["FALSE"]), "TRUE_FALSE_EVALU
 
 const multi = validateCourseBuilderOutput({
   ...base,
+  checkSequence: null,
   check: {
     id: "multi-select",
     questionType: "MULTI_SELECT",

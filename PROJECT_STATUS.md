@@ -38,10 +38,11 @@ COURSE-BUILDER-SKILL-002-B Knowledge Depth Expansion COMPLETE_HUMAN_REVIEW_PENDI
 COURSE-BUILDER-SKILL-002-C Six-Step Knowledge Responsibility Contract COMPLETE
 COURSE-BUILDER-SKILL-002-D Concept Mastery Before Practice Contract COMPLETE
 COURSE-BUILDER-SKILL-002-E Formal Check Types Runtime Completion CODE_COMPLETE_LOCAL_MIGRATION_READY_REMOTE_PENDING
+COURSE-BUILDER-SKILL-002-F Three-Question Mastery Sequence COMPLETE_CODE_READY_REMOTE_MIGRATIONS_PENDING
 COURSE-BUILDER-SKILL-003-A Real PRACTICE Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-004-A Real PROJECT Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
 
-NEXT: Human Review — open /course-builder/preview/ai-workflow-project and review the real PROJECT lesson
+NEXT: Human Review — open /course-builder/preview/prompt-foundations and review the Three-Question Mastery Sequence
 ```
 
 ## 当前系统健康
@@ -52,7 +53,7 @@ NEXT: Human Review — open /course-builder/preview/ai-workflow-project and revi
 npm run typecheck     PASS
 npm run build         PASS
 Production build      34 static pages generated
-Remote migrations     0000 → 0009 APPLIED; 0010 GENERATED / NOT APPLIED
+Remote migrations     0000 → 0009 APPLIED; 0010–0011 GENERATED / NOT APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
 ACCESS UX render      PASS
@@ -85,6 +86,7 @@ Six-step responsibility contract PASS
 Concept mastery before practice PASS
 Check single / true-false / multi-select PASS
 Formal Check Runtime   CODE PASS / MIGRATION 0010 PENDING
+Three-question mastery PASS / MIGRATIONS 0010–0011 PENDING
 PRACTICE Draft          PASS
 PRACTICE independent mode PASS
 PRACTICE completion gate PASS
@@ -133,7 +135,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-002-E` 已把 SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT 从 Draft Preview 推进到正式学习 Runtime 代码：正式 API 支持 `answer` / `answers`，多选使用精确集合判分，Generic Lesson Runtime 正式模式可按题型渲染 radio / checkbox 并恢复保存答案。Schema 已向后兼容扩展 `correct_answers` / `answers`，本地 migration `0010_famous_blockbuster.sql` 已生成但未执行远程 migration；远程 DB 仍为 0009。
+`COURSE-BUILDER-SKILL-002-F` 已把新课程 Step 3 固化为 Three-Question Mastery Sequence：SINGLE_CHOICE → TRUE_FALSE → MULTI_SELECT，一次只显示一题。答错必须展示错误反馈并重新选择，不能跳题；答对后展示正确反馈才出现“下一题”；三题全部答对后 CHECK Gate 才通过。Prompt APPLICATION 已作为真实样板升级。正式 Runtime 复用 `lesson_checks` 多行 + order，不新增题组表。0010 与新增 0011 migration 均只在本地生成，远程 DB 仍为 0009。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

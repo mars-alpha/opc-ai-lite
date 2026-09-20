@@ -93,6 +93,10 @@ export type CourseBuilderLessonContent = {
 };
 
 export type CourseBuilderCheckQuestionType = "SINGLE_CHOICE" | "TRUE_FALSE" | "MULTI_SELECT";
+export type CourseBuilderMasteryRole =
+  | "BEST_JUDGMENT"
+  | "MISCONCEPTION"
+  | "BOUNDARY_CONDITIONS";
 
 export type CourseBuilderCheck = {
   id: string;
@@ -101,6 +105,9 @@ export type CourseBuilderCheck = {
   options: Array<{ value: string; label: string }>;
   correctValues: string[];
   explanation: string;
+  correctFeedback: string;
+  incorrectFeedback: string;
+  masteryRole?: CourseBuilderMasteryRole;
 };
 
 export function evaluateCourseBuilderCheck(
@@ -119,8 +126,19 @@ export function courseBuilderCheckToRuntimeSeed(check: CourseBuilderCheck) {
     options: check.options,
     correctAnswer: check.correctValues[0],
     correctAnswers: check.correctValues,
-    explanation: check.explanation
+    explanation: check.correctFeedback,
+    incorrectExplanation: check.incorrectFeedback
   };
+}
+
+export function courseBuilderCheckSequenceToRuntimeSeeds(
+  checks: readonly CourseBuilderCheck[]
+) {
+  return checks.map((check, order) => ({
+    ...courseBuilderCheckToRuntimeSeed(check),
+    order,
+    required: true
+  }));
 }
 
 export type CourseBuilderPractice = {
@@ -146,6 +164,7 @@ export type CourseBuilderBuildDraft = {
   lessonSpec: LessonSpec;
   content: CourseBuilderLessonContent;
   check: CourseBuilderCheck | null;
+  checkSequence: CourseBuilderCheck[] | null;
   practice: CourseBuilderPractice | null;
   hints: string[];
   referenceAnswer: null | string;
@@ -450,14 +469,86 @@ function parseCheck(input: unknown): CourseBuilderCheck {
   if (correctValues.some((value) => !optionValues.has(value))) {
     throw new Error("BUILD_CHECK_CORRECT_VALUE_NOT_FOUND");
   }
+  const explanation = requiredText(
+    input.explanation,
+    "INVALID_BUILD_CHECK_EXPLANATION",
+    3000
+  );
   return {
     id: requiredText(input.id, "INVALID_BUILD_CHECK_ID", 160),
     questionType,
     question: requiredText(input.question, "INVALID_BUILD_CHECK_QUESTION", 3000),
     options,
     correctValues: [...new Set(correctValues)],
-    explanation: requiredText(input.explanation, "INVALID_BUILD_CHECK_EXPLANATION", 3000)
+    explanation,
+    correctFeedback:
+      typeof input.correctFeedback === "string"
+        ? requiredText(input.correctFeedback, "INVALID_BUILD_CHECK_CORRECT_FEEDBACK", 3000)
+        : explanation,
+    incorrectFeedback:
+      typeof input.incorrectFeedback === "string"
+        ? requiredText(input.incorrectFeedback, "INVALID_BUILD_CHECK_INCORRECT_FEEDBACK", 3000)
+        : explanation,
+    masteryRole:
+      input.masteryRole === undefined
+        ? undefined
+        : enumValue(
+            input.masteryRole,
+            ["BEST_JUDGMENT", "MISCONCEPTION", "BOUNDARY_CONDITIONS"] as const,
+            "INVALID_BUILD_CHECK_MASTERY_ROLE"
+          )
   };
+}
+
+function parseCheckSequence(input: unknown): CourseBuilderCheck[] {
+  if (!Array.isArray(input) || input.length !== 3) {
+    throw new Error("MASTERY_SEQUENCE_REQUIRES_THREE_QUESTIONS");
+  }
+  for (const item of input) {
+    if (!isRecord(item)) throw new Error("INVALID_BUILD_CHECK");
+    requiredText(
+      item.correctFeedback,
+      "MASTERY_SEQUENCE_CORRECT_FEEDBACK_REQUIRED",
+      3000
+    );
+    requiredText(
+      item.incorrectFeedback,
+      "MASTERY_SEQUENCE_INCORRECT_FEEDBACK_REQUIRED",
+      3000
+    );
+  }
+  const checks = input.map(parseCheck);
+  const expectedTypes: CourseBuilderCheckQuestionType[] = [
+    "SINGLE_CHOICE",
+    "TRUE_FALSE",
+    "MULTI_SELECT"
+  ];
+  const expectedRoles: CourseBuilderMasteryRole[] = [
+    "BEST_JUDGMENT",
+    "MISCONCEPTION",
+    "BOUNDARY_CONDITIONS"
+  ];
+  checks.forEach((check, index) => {
+    if (check.questionType !== expectedTypes[index]) {
+      throw new Error("INVALID_MASTERY_SEQUENCE_ORDER");
+    }
+    if (check.masteryRole !== expectedRoles[index]) {
+      throw new Error("INVALID_MASTERY_SEQUENCE_ROLE");
+    }
+    if (!check.correctFeedback.trim() || !check.incorrectFeedback.trim()) {
+      throw new Error("MASTERY_SEQUENCE_FEEDBACK_REQUIRED");
+    }
+    if (check.correctFeedback === check.incorrectFeedback) {
+      throw new Error("MASTERY_SEQUENCE_FEEDBACK_MUST_DIFFER");
+    }
+  });
+  if (new Set(checks.map((check) => check.id)).size !== 3) {
+    throw new Error("MASTERY_SEQUENCE_IDS_MUST_BE_UNIQUE");
+  }
+  if (new Set(checks.map((check) => check.question)).size !== 3) {
+    throw new Error("MASTERY_SEQUENCE_QUESTIONS_MUST_DIFFER");
+  }
+  return checks;
 }
 
 function parsePractice(input: unknown): CourseBuilderPractice {
@@ -526,10 +617,19 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
     const lessonSpec = parseLessonSpec(input.lessonSpec);
     const content = parseContent(input.content);
     const check = input.check === null ? null : parseCheck(input.check);
+    const checkSequence =
+      input.checkSequence === undefined || input.checkSequence === null
+        ? null
+        : parseCheckSequence(input.checkSequence);
     const practice = input.practice === null ? null : parsePractice(input.practice);
 
-    if (lessonSpec.requiresCheck && !check) throw new Error("BUILD_REQUIRED_CHECK_MISSING");
-    if (!lessonSpec.requiresCheck && check) throw new Error("BUILD_UNEXPECTED_CHECK");
+    if (check && checkSequence) throw new Error("BUILD_CHECK_AND_SEQUENCE_CONFLICT");
+    if (lessonSpec.requiresCheck && !check && !checkSequence) {
+      throw new Error("BUILD_REQUIRED_CHECK_MISSING");
+    }
+    if (!lessonSpec.requiresCheck && (check || checkSequence)) {
+      throw new Error("BUILD_UNEXPECTED_CHECK");
+    }
     if (lessonSpec.practiceMode !== "NONE" && !practice) throw new Error("BUILD_REQUIRED_PRACTICE_MISSING");
     if (lessonSpec.practiceMode === "NONE" && practice) throw new Error("BUILD_UNEXPECTED_PRACTICE");
     if (lessonSpec.lessonType === "CONCEPT" && !pedagogy.participation) {
@@ -543,6 +643,7 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
       lessonSpec,
       content,
       check,
+      checkSequence,
       practice,
       hints: textArray(input.hints ?? [], "INVALID_BUILD_HINTS", true),
       referenceAnswer:

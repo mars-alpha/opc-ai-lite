@@ -246,6 +246,7 @@ export const lessonChecks = pgTable("lesson_checks", {
   correctAnswer: text("correct_answer").notNull(),
   correctAnswers: jsonb("correct_answers"),
   explanation: text("explanation").notNull(),
+  incorrectExplanation: text("incorrect_explanation"),
   required: boolean("required").notNull().default(true),
   order: integer("order").notNull().default(0),
   status: publicationStatus("status").notNull().default("DRAFT"),

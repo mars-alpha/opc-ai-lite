@@ -26,6 +26,7 @@ import {
 } from "../../learning/practice-evaluator";
 import {
   evaluateLessonCheckAnswers,
+  isThreeQuestionMasterySequence,
   type LessonCheckQuestionType
 } from "../../learning/check-evaluator";
 
@@ -250,7 +251,9 @@ export async function getInteractiveLesson(
         state: state
           ? {
               ...state,
-              explanation: state.isCorrect ? check.explanation : null
+              explanation: state.isCorrect
+                ? check.explanation
+                : check.incorrectExplanation ?? check.explanation
             }
           : null
       };
@@ -322,12 +325,15 @@ async function evaluateCheckAnswer(
   };
 }
 
-function checkResult(check: { explanation: string }, isCorrect: boolean) {
+function checkResult(
+  check: { explanation: string; incorrectExplanation: string | null },
+  isCorrect: boolean
+) {
   return {
     correct: isCorrect,
     explanation: isCorrect
       ? check.explanation
-      : "再看一下本课说明和选项之间的区别，然后重试。"
+      : check.incorrectExplanation ?? check.explanation
   };
 }
 
@@ -564,7 +570,7 @@ export async function getRequiredCheckGateState(
   lessonId: string
 ): Promise<RequiredGateState> {
   const required = await getDatabase()
-    .select({ id: lessonChecks.id })
+    .select({ id: lessonChecks.id, type: lessonChecks.type })
     .from(lessonChecks)
     .where(
       and(
@@ -572,13 +578,42 @@ export async function getRequiredCheckGateState(
         eq(lessonChecks.required, true),
         eq(lessonChecks.status, "PUBLISHED")
       )
-    );
+    )
+    .orderBy(asc(lessonChecks.order));
 
   if (required.length === 0) {
     return { configured: false, passed: false, requiredIds: [] };
   }
   if (!userId) {
     return { configured: true, passed: false, requiredIds: required.map((item) => item.id) };
+  }
+
+  if (isThreeQuestionMasterySequence(required)) {
+    for (const check of required) {
+      const [passed] = await getDatabase()
+        .select({ checkId: lessonCheckResponses.checkId })
+        .from(lessonCheckResponses)
+        .where(
+          and(
+            eq(lessonCheckResponses.userId, userId),
+            eq(lessonCheckResponses.checkId, check.id),
+            eq(lessonCheckResponses.isCorrect, true)
+          )
+        )
+        .limit(1);
+      if (!passed) {
+        return {
+          configured: true,
+          passed: false,
+          requiredIds: required.map((item) => item.id)
+        };
+      }
+    }
+    return {
+      configured: true,
+      passed: true,
+      requiredIds: required.map((item) => item.id)
+    };
   }
 
   for (const check of required) {

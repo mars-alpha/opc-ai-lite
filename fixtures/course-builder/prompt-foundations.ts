@@ -215,28 +215,73 @@ export const promptFoundationsBuildDraft = {
       "后续：稳定且会重复使用的方法可以进一步沉淀成 Skill（技能）或工作流程。"
     ]
   },
-  check: {
-    id: "check_prompt_clarity",
-    question:
-      "你要让 AI 根据一份会议记录整理给老板看的项目风险。下面哪一个提示更容易得到可用结果？",
-    options: [
-      {
-        value: "A",
-        label: "帮我把这个会议记录总结得专业一点。"
-      },
-      {
-        value: "B",
-        label: "根据这份会议记录，找出项目风险；只使用原文信息；按“风险 / 影响 / 负责人 / 下一步”四栏输出，给项目负责人查看。"
-      },
-      {
-        value: "C",
-        label: "你是世界顶级项目管理专家，请认真思考。"
-      }
-    ],
-    correctValue: "B",
-    explanation:
-      "B 把任务、使用场景、限制和输出结构都交代清楚。关键不是“专业”“顶级”等词，而是减少 AI 对目标和标准的猜测。"
-  },
+  check: null,
+  checkSequence: [
+    {
+      id: "check_prompt_best_judgment",
+      questionType: "SINGLE_CHOICE",
+      masteryRole: "BEST_JUDGMENT",
+      question:
+        "你要让 AI 根据一份会议记录整理给老板看的项目风险。下面哪一个提示更容易得到可用结果？",
+      options: [
+        {
+          value: "A",
+          label: "帮我把这个会议记录总结得专业一点。"
+        },
+        {
+          value: "B",
+          label: "根据这份会议记录，找出项目风险；只使用原文信息；按“风险 / 影响 / 负责人 / 下一步”四栏输出，给项目负责人查看。"
+        },
+        {
+          value: "C",
+          label: "你是世界顶级项目管理专家，请认真思考。"
+        }
+      ],
+      correctValues: ["B"],
+      explanation:
+        "B 把任务、使用场景、限制和输出结构都交代清楚。关键不是“专业”“顶级”等词，而是减少 AI 对目标和标准的猜测。",
+      correctFeedback:
+        "判断正确。B 让 AI 少猜四件事：要做什么、基于什么、不能越过什么边界、最后怎样交付。以后遇到结果太泛，优先检查这些信息是否缺失。",
+      incorrectFeedback:
+        "这里容易把“语气更专业”误当成“任务更清楚”。AI 真正缺的是任务、背景、限制和输出要求。先判断它还需要猜哪些关键信息，再决定怎样补提示。"
+    },
+    {
+      id: "check_prompt_misconception",
+      questionType: "TRUE_FALSE",
+      masteryRole: "MISCONCEPTION",
+      question: "判断：Prompt 写得越长，AI 的结果通常就一定越好。",
+      options: [
+        { value: "TRUE", label: "对" },
+        { value: "FALSE", label: "错" }
+      ],
+      correctValues: ["FALSE"],
+      explanation:
+        "长度不是目标。有效 Prompt 的核心是补足会改变结果的关键信息，并减少不必要的歧义。",
+      correctFeedback:
+        "判断正确。Prompt 不是越长越好，而是越能减少关键猜测越好。无关背景、重复要求和空泛形容词反而会增加噪声。",
+      incorrectFeedback:
+        "这是一个常见误区。长 Prompt 可能包含更多信息，但如果信息与任务无关，仍然不会让结果更可靠。判断标准应该是：这些内容是否真的会改变 AI 的执行结果。"
+    },
+    {
+      id: "check_prompt_boundaries",
+      questionType: "MULTI_SELECT",
+      masteryRole: "BOUNDARY_CONDITIONS",
+      question: "下面哪些做法通常能减少 AI 对任务的猜测？（多选）",
+      options: [
+        { value: "TASK", label: "明确要完成的具体任务" },
+        { value: "CONTEXT", label: "提供完成任务真正需要的上下文" },
+        { value: "OUTPUT", label: "说明结果希望怎样组织或交付" },
+        { value: "FLUFF", label: "加入更多“专业、顶级、完美”等形容词" }
+      ],
+      correctValues: ["TASK", "CONTEXT", "OUTPUT"],
+      explanation:
+        "明确任务、必要上下文和结果要求都会减少歧义；堆叠形容词并不能替代真正缺失的信息。",
+      correctFeedback:
+        "选择正确。你已经抓住了 Prompt 的核心边界：补任务、补必要上下文、补结果标准；如果只是增加空泛形容词，并没有减少 AI 的关键猜测。",
+      incorrectFeedback:
+        "再检查每个选项是否真的减少了 AI 必须自己猜的内容。任务、必要上下文和结果要求会改变执行；“专业、顶级、完美”通常没有提供可执行的新信息。"
+    }
+  ],
   practice: {
     id: "practice_prompt_rewrite",
     title: "把“帮我写一份活动方案”改成可执行提示",

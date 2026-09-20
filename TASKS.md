@@ -563,6 +563,12 @@ Status: CODE_COMPLETE_LOCAL_MIGRATION_READY_REMOTE_PENDING
 
 正式 Runtime 已支持 SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT。数据库 Schema 保留旧 `correct_answer / answer` 并新增 `correct_answers / answers`，旧数据自动兼容；正式 Answer API 支持单答案与多答案，MULTI_SELECT 使用精确集合判分；Generic Lesson Runtime 正式模式可渲染 radio / checkbox 并恢复已保存答案。Course Builder 新增 Draft Check → Runtime Seed 转换。已生成 `drizzle/0010_famous_blockbuster.sql`，但未执行远程 migration，远程 PostgreSQL 仍为 0009。
 
+### COURSE-BUILDER-SKILL-002-F — Three-Question Mastery Sequence
+
+Status: COMPLETE_CODE_READY_REMOTE_MIGRATIONS_PENDING
+
+新课程 Step 3 默认使用三题 Sequence：`SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS`，一次只显示一题。每题必须显式提供不同的正确反馈与错误反馈。交互固定为：选择 → 检测；答错解释误区并要求重新选择，不能下一题；答对解释判断依据后才允许下一题；三题全部答对后 CHECK Gate 才完成。Prompt APPLICATION 样板已升级为真实三题 Preview。旧单题 Check 继续兼容。正式 Runtime 复用现有 `lesson_checks + order`；新增本地 `0011_milky_sharon_carter.sql` 存储 `incorrect_explanation`。远程 PostgreSQL 仍为 0009，0010–0011 均未执行。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

@@ -45,3 +45,28 @@ export function evaluateLessonCheckAnswers(
       target.every((value, index) => value === answers[index])
   };
 }
+
+export function isThreeQuestionMasterySequence(
+  checks: readonly { type: LessonCheckQuestionType; required?: boolean }[]
+) {
+  const required = checks.filter((check) => check.required !== false);
+  return (
+    required.length === 3 &&
+    required[0]?.type === "SINGLE_CHOICE" &&
+    required[1]?.type === "TRUE_FALSE" &&
+    required[2]?.type === "MULTI_SELECT"
+  );
+}
+
+export function isThreeQuestionMasteryComplete(
+  checks: readonly {
+    type: LessonCheckQuestionType;
+    required?: boolean;
+    isCorrect: boolean;
+  }[]
+) {
+  return (
+    isThreeQuestionMasterySequence(checks) &&
+    checks.filter((check) => check.required !== false).every((check) => check.isCorrect)
+  );
+}

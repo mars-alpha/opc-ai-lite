@@ -18,6 +18,7 @@
     "course-builder:accept:project": "tsx scripts/accept-course-builder-project-draft.ts",
     "course-builder:accept:mastery": "tsx scripts/accept-course-builder-concept-mastery.ts",
     "learning:check-types:accept": "tsx scripts/accept-formal-check-types-runtime.ts",
+    "course-builder:accept:three-question-mastery": "tsx scripts/accept-three-question-mastery.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx lib/server/db/seed.ts"

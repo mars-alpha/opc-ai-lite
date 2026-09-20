@@ -20,7 +20,15 @@ assert(packet.status === "PENDING_REVIEW", "APPLICATION_DRAFT_NOT_PENDING_REVIEW
 assert(packet.output.mode === "BUILD", "APPLICATION_DRAFT_BUILD_REQUIRED");
 if (packet.output.mode !== "BUILD") throw new Error("APPLICATION_DRAFT_BUILD_REQUIRED");
 
-const { lessonSpec, check, practice, grounding, pedagogy, referenceAnswer } = packet.output;
+const {
+  lessonSpec,
+  check,
+  checkSequence,
+  practice,
+  grounding,
+  pedagogy,
+  referenceAnswer
+} = packet.output;
 const plan = buildLessonRuntimePlan(lessonSpec);
 
 assert(lessonSpec.lessonType === "APPLICATION", "APPLICATION_TYPE");
@@ -51,9 +59,26 @@ for (const kind of ["EXPLAIN", "EXAMPLE", "CHECK", "PRACTICE", "REVIEW", "CAPABI
   assert(Boolean(responsibility.include), "APPLICATION_RESPONSIBILITY_INCLUDE:" + kind);
   assert(Boolean(responsibility.avoid), "APPLICATION_RESPONSIBILITY_AVOID:" + kind);
 }
-assert(Boolean(check), "APPLICATION_CHECK_REQUIRED");
+assert(check === null, "APPLICATION_LEGACY_CHECK_MUST_BE_NULL");
+assert(Boolean(checkSequence), "APPLICATION_MASTERY_SEQUENCE_REQUIRED");
+assert(checkSequence?.length === 3, "APPLICATION_MASTERY_SEQUENCE_SIZE");
+assert(
+  checkSequence?.map((item) => item.questionType).join(">") ===
+    "SINGLE_CHOICE>TRUE_FALSE>MULTI_SELECT",
+  "APPLICATION_MASTERY_SEQUENCE_ORDER"
+);
+assert(
+  checkSequence?.map((item) => item.masteryRole).join(">") ===
+    "BEST_JUDGMENT>MISCONCEPTION>BOUNDARY_CONDITIONS",
+  "APPLICATION_MASTERY_SEQUENCE_ROLES"
+);
+assert(
+  checkSequence?.every(
+    (item) => Boolean(item.correctFeedback) && Boolean(item.incorrectFeedback)
+  ),
+  "APPLICATION_MASTERY_FEEDBACK"
+);
 assert(Boolean(practice), "APPLICATION_PRACTICE_REQUIRED");
-assert((check?.options.length ?? 0) >= 3, "APPLICATION_CHECK_OPTIONS");
 assert((practice?.instructions.length ?? 0) === 4, "APPLICATION_PRACTICE_FIELDS");
 assert((practice?.rubric.length ?? 0) === 4, "APPLICATION_PRACTICE_RUBRIC");
 assert(practice?.passScore === 70, "APPLICATION_PRACTICE_PASS_SCORE");
@@ -72,7 +97,8 @@ console.log("APPLICATION_CODE_VALIDATION=PASS");
 console.log("APPLICATION_SPEC_RULES=PASS");
 console.log("APPLICATION_KNOWLEDGE_DEPTH=PASS");
 console.log("APPLICATION_SIX_STEP_RESPONSIBILITIES=PASS");
-console.log("APPLICATION_CHECK_SCHEMA=PASS");
+console.log("APPLICATION_THREE_QUESTION_MASTERY=PASS");
+console.log("APPLICATION_MASTERY_FEEDBACK=PASS");
 console.log("APPLICATION_PRACTICE_SCHEMA=PASS");
 console.log("APPLICATION_PRACTICE_GATE=PASS");
 console.log("APPLICATION_REFERENCE_ANSWER=PASS");

@@ -62,6 +62,7 @@ assert(invalidSingleRejected, "FORMAL_SINGLE_MULTIPLE_REJECTED");
 
 const parsed = validateCourseBuilderOutput({
   ...promptFoundationsBuildDraft,
+  checkSequence: null,
   check: {
     id: "formal-runtime-multi",
     questionType: "MULTI_SELECT",

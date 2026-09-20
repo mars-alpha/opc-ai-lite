@@ -10,6 +10,10 @@ import {
   type PracticeContent
 } from "../lib/learning/practice-evaluator";
 import { evaluateCourseBuilderCheck } from "../lib/learning/course-builder";
+import {
+  isThreeQuestionMasteryComplete,
+  isThreeQuestionMasterySequence
+} from "../lib/learning/check-evaluator";
 
 type InteractiveData = {
   authenticated: boolean;
@@ -74,6 +78,8 @@ type PreviewCheck = {
   correctValue?: string;
   correctValues?: ReadonlyArray<string>;
   explanation: string;
+  correctFeedback?: string;
+  incorrectFeedback?: string;
 };
 
 type PreviewActivity = {
@@ -162,6 +168,7 @@ export function GenericLessonRuntimePanel({
   lesson,
   previewMode = false,
   previewCheck = null,
+  previewCheckSequence = null,
   previewActivity = null,
   previewPractice = null,
   previewReferenceAnswer = null,
@@ -175,6 +182,7 @@ export function GenericLessonRuntimePanel({
   lesson: Lesson;
   previewMode?: boolean;
   previewCheck?: PreviewCheck | null;
+  previewCheckSequence?: ReadonlyArray<PreviewCheck> | null;
   previewActivity?: PreviewActivity | null;
   previewPractice?: PreviewPractice | null;
   previewReferenceAnswer?: string | null;
@@ -186,16 +194,25 @@ export function GenericLessonRuntimePanel({
     previewMode
       ? {
           authenticated: false,
-          checks: previewCheck
-            ? [{
-                id: previewCheck.id,
-                type: previewCheck.questionType ?? "SINGLE_CHOICE",
-                question: previewCheck.question,
-                options: [...previewCheck.options],
+          checks: previewCheckSequence?.length
+            ? previewCheckSequence.map((item) => ({
+                id: item.id,
+                type: item.questionType ?? "SINGLE_CHOICE",
+                question: item.question,
+                options: [...item.options],
                 required: true,
                 state: null
-              }]
-            : [],
+              }))
+            : previewCheck
+              ? [{
+                  id: previewCheck.id,
+                  type: previewCheck.questionType ?? "SINGLE_CHOICE",
+                  question: previewCheck.question,
+                  options: [...previewCheck.options],
+                  required: true,
+                  state: null
+                }]
+              : [],
           practices: previewPractice
             ? [{
                 id: previewPractice.id,
@@ -232,6 +249,9 @@ export function GenericLessonRuntimePanel({
   const [answer, setAnswer] = useState("");
   const [previewAnswers, setPreviewAnswers] = useState<string[]>([]);
   const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
+  const [currentCheckIndex, setCurrentCheckIndex] = useState(0);
+  const [localPassedCheckIds, setLocalPassedCheckIds] = useState<string[]>([]);
+  const [checkFeedback, setCheckFeedback] = useState<string | null>(null);
   const [content, setContent] = useState<PracticeContent>({});
   const [previewEvaluation, setPreviewEvaluation] =
     useState<EvaluationResult | null>(null);
@@ -260,9 +280,18 @@ export function GenericLessonRuntimePanel({
     setRuntime(nextRuntime);
     setInteractive(nextInteractive);
 
-    const nextCheck =
-      nextInteractive.checks.find((item) => item.required) ??
-      nextInteractive.checks[0];
+    const requiredChecks = nextInteractive.checks.filter((item) => item.required);
+    const nextChecks = requiredChecks.length ? requiredChecks : nextInteractive.checks;
+    const masterySequence = isThreeQuestionMasterySequence(nextChecks);
+    const firstUnpassedIndex = masterySequence
+      ? nextChecks.findIndex((item) => item.state?.isCorrect !== true)
+      : 0;
+    const nextIndex =
+      masterySequence && firstUnpassedIndex === -1
+        ? Math.max(0, nextChecks.length - 1)
+        : Math.max(0, firstUnpassedIndex);
+    setCurrentCheckIndex(nextIndex);
+    const nextCheck = nextChecks[nextIndex];
     if (nextCheck?.state) {
       setAnswer(nextCheck.state.answer);
       setPreviewAnswers(
@@ -272,6 +301,8 @@ export function GenericLessonRuntimePanel({
             ? [nextCheck.state.answer]
             : []
       );
+      setCheckFeedback(nextCheck.state.explanation);
+      setLocalCheckCorrect(nextCheck.state.isCorrect);
     }
 
     const nextPractice =
@@ -292,12 +323,14 @@ export function GenericLessonRuntimePanel({
     );
   }, [previewMode, refresh]);
 
+  const checkSequence = useMemo(() => {
+    const requiredChecks = interactive?.checks.filter((item) => item.required) ?? [];
+    return requiredChecks.length ? requiredChecks : interactive?.checks ?? [];
+  }, [interactive]);
+  const isMasterySequence = isThreeQuestionMasterySequence(checkSequence);
   const check = useMemo(
-    () =>
-      interactive?.checks.find((item) => item.required) ??
-      interactive?.checks[0] ??
-      null,
-    [interactive]
+    () => checkSequence[currentCheckIndex] ?? checkSequence[0] ?? null,
+    [checkSequence, currentCheckIndex]
   );
   const practice = useMemo(
     () =>
@@ -308,7 +341,16 @@ export function GenericLessonRuntimePanel({
   );
   const evaluation =
     previewEvaluation ?? practice?.state?.evaluation ?? null;
-  const checkPassed = check?.state?.isCorrect || localCheckCorrect === true;
+  const checkPassed = isMasterySequence
+    ? isThreeQuestionMasteryComplete(
+        checkSequence.map((item) => ({
+          type: item.type,
+          required: item.required,
+          isCorrect:
+            item.state?.isCorrect === true || localPassedCheckIds.includes(item.id)
+        }))
+      )
+    : check?.state?.isCorrect || localCheckCorrect === true;
   const practicePassed =
     practice?.state?.status === "PASSED" || evaluation?.passed === true;
   const projectDraftPassed =
@@ -338,19 +380,27 @@ export function GenericLessonRuntimePanel({
   async function submitCheck() {
     if (!check || (!answer && previewAnswers.length === 0)) return;
     if (previewMode) {
-      const questionType = previewCheck?.questionType ?? "SINGLE_CHOICE";
+      const previewSource = isMasterySequence
+        ? previewCheckSequence?.[currentCheckIndex]
+        : previewCheck;
+      const questionType = previewSource?.questionType ?? "SINGLE_CHOICE";
       const correctValues =
-        previewCheck?.correctValues ??
-        (previewCheck?.correctValue ? [previewCheck.correctValue] : []);
+        previewSource?.correctValues ??
+        (previewSource?.correctValue ? [previewSource.correctValue] : []);
       const correct = evaluateCourseBuilderCheck(
         { questionType, correctValues: [...correctValues] },
         previewAnswers.length > 0 ? previewAnswers : [answer]
       );
       setLocalCheckCorrect(correct);
-      setMessage(
+      if (correct) {
+        setLocalPassedCheckIds((current) =>
+          current.includes(check.id) ? current : [...current, check.id]
+        );
+      }
+      setCheckFeedback(
         correct
-          ? "理解检查已通过。这只是 Draft Preview，不会保存学习记录。"
-          : previewCheck?.explanation ?? "还没有通过。对照本课说明后再试一次。"
+          ? previewSource?.correctFeedback ?? previewSource?.explanation ?? "判断正确。"
+          : previewSource?.incorrectFeedback ?? previewSource?.explanation ?? "这个判断需要调整。"
       );
       return;
     }
@@ -372,21 +422,35 @@ export function GenericLessonRuntimePanel({
       const result = await response.json().catch(() => null);
       if (!response.ok) throw new Error("CHECK_FAILED");
 
-      if (!interactive?.authenticated) {
-        setLocalCheckCorrect(result?.correct === true);
-      } else {
-        await refresh();
+      const correct = result?.correct === true;
+      setLocalCheckCorrect(correct);
+      if (correct) {
+        setLocalPassedCheckIds((current) =>
+          current.includes(check.id) ? current : [...current, check.id]
+        );
       }
-      setMessage(
-        result?.correct === true
-          ? "理解检查已通过。"
-          : "还没有通过。对照本课说明后再试一次。"
-      );
+      setCheckFeedback(result?.explanation ?? (correct ? "判断正确。" : "这个判断需要调整。"));
     } catch {
       setMessage("理解检查提交失败，请稍后重试。");
     } finally {
       setBusy("");
     }
+  }
+
+  function goToNextMasteryQuestion() {
+    if (
+      !isMasterySequence ||
+      currentCheckIndex >= checkSequence.length - 1 ||
+      !(localCheckCorrect === true || check?.state?.isCorrect === true)
+    ) {
+      return;
+    }
+    setCurrentCheckIndex((current) => current + 1);
+    setAnswer("");
+    setPreviewAnswers([]);
+    setLocalCheckCorrect(null);
+    setCheckFeedback(null);
+    setMessage(null);
   }
 
   async function submitPractice() {
@@ -635,7 +699,11 @@ export function GenericLessonRuntimePanel({
 
       {step.kind === "CHECK" && plan.requiresCheck && check && (
         <div className="interactive-block">
-          <div className="kicker">理解检查</div>
+          <div className="kicker">
+            {isMasterySequence
+              ? `理解检查 · ${currentCheckIndex + 1}/3`
+              : "理解检查"}
+          </div>
           <h3>{check.question}</h3>
           <div className="interactive-options">
             {check.options.map((option) => {
@@ -662,6 +730,7 @@ export function GenericLessonRuntimePanel({
                         setPreviewAnswers([event.target.value]);
                       }
                       setLocalCheckCorrect(null);
+                      setCheckFeedback(null);
                     }}
                   />
                   <span>{option.label}</span>
@@ -674,15 +743,61 @@ export function GenericLessonRuntimePanel({
               type="button"
               className="btn btn-primary"
               onClick={submitCheck}
-              disabled={(!answer && previewAnswers.length === 0) || busy === "check" || checkPassed}
+              disabled={
+                (!answer && previewAnswers.length === 0) ||
+                busy === "check" ||
+                (isMasterySequence
+                  ? localCheckCorrect === true || check.state?.isCorrect === true
+                  : checkPassed)
+              }
             >
-              {checkPassed
+              {!isMasterySequence && checkPassed
                 ? "✓ 理解检查已通过"
                 : busy === "check"
                   ? "正在检查…"
                   : "检查答案"}
             </button>
           </div>
+          {checkFeedback && (
+            <div className="guided-gain">
+              <strong>
+                {localCheckCorrect === true || check.state?.isCorrect === true
+                  ? "为什么这个判断正确"
+                  : "为什么这个判断不成立"}
+              </strong>
+              <p>{checkFeedback}</p>
+            </div>
+          )}
+          {isMasterySequence &&
+            checkFeedback &&
+            !(localCheckCorrect === true || check.state?.isCorrect === true) && (
+              <div className="guided-key-highlight">
+                <strong>根据反馈再选一次</strong>
+                <p>先理解上面的判断依据，再重新选择。答对后才会进入下一题。</p>
+              </div>
+            )}
+          {isMasterySequence &&
+            checkFeedback &&
+            (localCheckCorrect === true || check.state?.isCorrect === true) &&
+            currentCheckIndex < checkSequence.length - 1 && (
+              <div className="interactive-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={goToNextMasteryQuestion}
+                >
+                  下一题
+                </button>
+              </div>
+            )}
+          {isMasterySequence &&
+            checkPassed &&
+            currentCheckIndex === checkSequence.length - 1 && (
+              <div className="guided-key-highlight">
+                <strong>理解检查已完成</strong>
+                <p>三道题都已答对，可以进入下一步实操。</p>
+              </div>
+            )}
         </div>
       )}
 
