@@ -36,7 +36,61 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
   const loginHref="/auth?mode=login&returnTo="+encodeURIComponent(currentPath);
 
   if(!access.allowed){
+    const isGuidedPilot = course.slug === "chatgpt-worker" && lesson.id === "task-brief";
+
+  if (isGuidedPilot) {
     return <section className="lesson-page">
+      <div className="container lesson-shell">
+        <LessonCourseSidebar
+          course={course}
+          currentLessonId={lesson.id}
+          lockedLessonIds={lockedLessonIds}
+        />
+
+        <article className="lesson-content lesson-content-guided">
+          <div className="lesson-topbar">
+            <Link className="back-link" href="/learning-path#progress">← 返回学习路径</Link>
+            <span>{index+1} / {lessons.length} · 引导式学习</span>
+          </div>
+
+          <div className="guided-lesson-hero">
+            <div className="kicker">OPC 引导式课程 · 样板</div>
+            <h1>{lesson.title}</h1>
+            <p>{lesson.summary}</p>
+            <div className="guided-lesson-outcome">
+              <span>完成后你会获得</span>
+              <strong>把一个真实工作需求整理成 AI 可以稳定执行的结构化任务简报</strong>
+            </div>
+          </div>
+
+          <InteractiveLessonPanel
+            courseSlug={course.slug}
+            lessonSlug={lesson.id}
+            practiceId="practice_task_brief_structured"
+          />
+
+          <div className="lesson-complete-wrap">
+            <LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice />
+          </div>
+
+          <nav className="lesson-nav" aria-label="课时导航">
+            {previous?<Link href={"/courses/"+course.slug+"/lessons/"+previous.id}><small>上一课</small><strong>← {previous.title}</strong></Link>:<span />}
+            {next
+              ? <Link href={"/courses/"+course.slug+"/lessons/"+next.id} className="next"><small>下一课</small><strong>{next.title} →</strong></Link>
+              : <Link href="/learning-path#progress" className="next"><small>本阶段课程完成</small><strong>返回学习路径 →</strong></Link>}
+          </nav>
+
+          <LessonHelpPanel
+            courseSlug={course.slug}
+            lessonSlug={lesson.id}
+            authenticated={Boolean(user)}
+          />
+        </article>
+      </div>
+    </section>;
+  }
+
+  return <section className="lesson-page">
       <div className="container lesson-shell">
         <LessonCourseSidebar
           course={course}
@@ -223,7 +277,6 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
     </div>
   </section>;
 }
-
 
 
 

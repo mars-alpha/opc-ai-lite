@@ -128,6 +128,7 @@ export function InteractiveLessonPanel({
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const refresh = useCallback(async () => {
     const params = new URLSearchParams({ courseSlug, lessonSlug });
@@ -305,208 +306,327 @@ export function InteractiveLessonPanel({
     }
   }
 
+
   if (!data || !check || !practice) return null;
 
+  const steps = [
+    "先理解",
+    "看案例",
+    "理解检查",
+    "跟着做",
+    "反馈与复习",
+    "下一步"
+  ];
+  const canGoNext =
+    currentStep === 2
+      ? Boolean(check.state?.isCorrect)
+      : currentStep === 4
+        ? Boolean(evaluation?.passed)
+        : true;
+
+  function goNext() {
+    if (!canGoNext) return;
+    setCurrentStep((value) => Math.min(value + 1, steps.length - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function goPrevious() {
+    setCurrentStep((value) => Math.max(value - 1, 0));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   return (
-    <section className="interactive-lesson" id="interactive-practice">
-      <div className="interactive-head">
+    <section className="interactive-lesson guided-lesson" id="interactive-practice">
+      <div className="guided-lesson-top">
         <div>
-          <div className="kicker">Interactive lesson · MVP</div>
-          <h2>从“看懂”到“会做”</h2>
-          <p>
-            先确认一个关键概念，再用你自己的真实任务完成一次任务简报。
-            当前 MVP 使用规则检查，重点是帮你发现缺项并修改，不是 AI 能力总分。
-          </p>
+          <div className="kicker">引导式学习</div>
+          <h2>把一个模糊任务，变成 AI 真正能执行的任务简报</h2>
+          <p>这一课不要求一次看完。每一步只完成一个目标：先理解，再判断，再用你自己的任务做一次。</p>
         </div>
-        {practice.state?.status === "PASSED" && (
-          <span className="interactive-pass">PASSED ✓</span>
-        )}
+        <div className="guided-progress-copy">
+          <strong>{currentStep + 1} / {steps.length}</strong>
+          <span>{steps[currentStep]}</span>
+        </div>
+      </div>
+
+      <div className="guided-progress-track" aria-label="学习进度">
+        {steps.map((label, index) => (
+          <button
+            type="button"
+            key={label}
+            className={index === currentStep ? "is-current" : index < currentStep ? "is-done" : ""}
+            onClick={() => {
+              if (index <= currentStep || (index === currentStep + 1 && canGoNext)) setCurrentStep(index);
+            }}
+            aria-label={"第 " + (index + 1) + " 步：" + label}
+          >
+            <span>{index + 1}</span>
+            <small>{label}</small>
+          </button>
+        ))}
       </div>
 
       {!data.authenticated && (
         <div className="interactive-login-note">
-          你可以先查看练习结构；登录后才能保存答案、评分和重试记录。
+          你可以完整体验课程结构；登录后才能保存理解检查、实操结果和重试记录。
           <Link href={"/auth?mode=login&returnTo=" + encodeURIComponent(
             "/courses/" + courseSlug + "/lessons/" + lessonSlug + "#interactive-practice"
-          )}>登录 →</Link>
+          )}>登录后保存学习进度 →</Link>
         </div>
       )}
 
-      <div className="interactive-step">
-        <div className="interactive-step-index">01</div>
-        <div className="interactive-step-body">
-          <span>理解检查</span>
-          <h3>{check.question}</h3>
-          <div className="interactive-options">
-            {check.options.map((option) => (
-              <label key={option.value} className={answer === option.value ? "is-selected" : ""}>
-                <input
-                  type="radio"
-                  name={check.id}
-                  value={option.value}
-                  checked={answer === option.value}
-                  onChange={() => setAnswer(option.value)}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </div>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={submitCheck}
-            disabled={!answer || busy === "check"}
-          >
-            {busy === "check" ? "正在检查…" : check.state?.isCorrect ? "✓ 已理解" : "提交答案"}
-          </button>
-          {check.state && (
-            <div className={"check-feedback " + (check.state.isCorrect ? "is-correct" : "is-wrong")}>
-              <strong>{check.state.isCorrect ? "回答正确" : "再想一下"}</strong>
-              <p>
-                {check.state.isCorrect
-                  ? check.state.explanation
-                  : "Constraint 才是专门定义必须遵守、不能做什么和任务边界的部分。"}
-              </p>
+      <div className="guided-step-panel">
+        {currentStep === 0 && (
+          <div className="guided-step-content">
+            <div className="guided-step-label">第 1 步 · 基础说明</div>
+            <h3>Prompt（提示词）不是“神奇句式”，而是把任务说明清楚</h3>
+            <p>一个稳定的 AI 任务，至少要让模型知道五件事：要完成什么、背景是什么、根据什么材料做、哪些边界不能违反、最后要交付什么。</p>
+            <div className="guided-five-grid">
+              <div><strong>Goal</strong><span>最终要完成什么</span></div>
+              <div><strong>Context</strong><span>背景和使用场景</span></div>
+              <div><strong>Input</strong><span>依据哪些材料</span></div>
+              <div><strong>Constraint</strong><span>必须遵守的边界</span></div>
+              <div><strong>Output</strong><span>最终交付格式</span></div>
             </div>
-          )}
-        </div>
-      </div>
-
-      <div className="interactive-step">
-        <div className="interactive-step-index">02</div>
-        <div className="interactive-step-body">
-          <span>跟着做 · 再自己做</span>
-          <h3>{practice.title}</h3>
-          <p>{practice.goal}</p>
-
-          <div className="guided-practice-fields">
-            {practice.instructions.map((item) => (
-              <label key={item.key}>
-                <span>{item.label}</span>
-                <small>{item.prompt}</small>
-                <textarea
-                  value={content[item.key]}
-                  onChange={(event) =>
-                    setContent((current) => ({
-                      ...current,
-                      [item.key]: event.target.value
-                    }))
-                  }
-                  rows={3}
-                  maxLength={3000}
-                />
-              </label>
-            ))}
+            <div className="guided-gain">
+              <strong>这一步学会什么</strong>
+              <p>你不需要背模板，只需要能判断：一个任务有没有把必要信息说明白。</p>
+            </div>
           </div>
+        )}
 
-          <div className="interactive-actions">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => {
-                setHintCount((current) => {
-                  const next = Math.min(current + 1, practice.hints.length);
-                  if (next > current) {
-                    recordClientEvent("hint_revealed", { practiceId: practice.id, hintIndex: next });
-                  }
-                  return next;
-                });
-              }}
-            >
-              {hintCount < practice.hints.length ? "给我一个提示" : "提示已全部展开"}
-            </button>
+        {currentStep === 1 && (
+          <div className="guided-step-content">
+            <div className="guided-step-label">第 2 步 · 案例对照</div>
+            <h3>同一个任务，为什么第二种写法更稳定？</h3>
+            <div className="guided-case-compare">
+              <div>
+                <span>模糊任务</span>
+                <p>帮我把这份会议记录总结一下。</p>
+              </div>
+              <div>
+                <span>可执行任务</span>
+                <p>Goal：整理给项目负责人看的行动摘要。Context：用于明早项目会。Input：只依据会议记录。Constraint：不得补充原文没有的事实。Output：按“决策 / 负责人 / 截止时间 / 风险”四栏输出。</p>
+              </div>
+            </div>
+            <div className="guided-gain">
+              <strong>观察重点</strong>
+              <p>第二种并不是更“高级”，而是减少了 AI 需要自行猜测的地方。</p>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 2 && (
+          <div className="guided-step-content">
+            <div className="guided-step-label">第 3 步 · 理解检查</div>
+            <h3>{check.question}</h3>
+            <p>先自己判断，不用返回上一页找答案。</p>
+            <div className="interactive-options">
+              {check.options.map((option) => (
+                <label key={option.value} className={answer === option.value ? "is-selected" : ""}>
+                  <input
+                    type="radio"
+                    name={check.id}
+                    value={option.value}
+                    checked={answer === option.value}
+                    onChange={() => setAnswer(option.value)}
+                  />
+                  <span>{option.label}</span>
+                </label>
+              ))}
+            </div>
             <button
               type="button"
               className="btn btn-primary"
-              onClick={submitPractice}
-              disabled={busy === "practice"}
+              onClick={submitCheck}
+              disabled={!answer || busy === "check"}
             >
-              {busy === "practice"
-                ? "正在检查…"
-                : practice.state
-                  ? "修改后重新提交"
-                  : "提交检查"}
+              {busy === "check" ? "正在检查…" : check.state?.isCorrect ? "✓ 已理解" : "检查答案"}
             </button>
-          </div>
 
-          {hintCount > 0 && (
-            <div className="interactive-hints">
-              {practice.hints.slice(0, hintCount).map((hint, index) => (
-                <p key={hint}><strong>提示 {index + 1}</strong>{hint}</p>
+            {check.state && (
+              <div className={"check-feedback " + (check.state.isCorrect ? "is-correct" : "is-wrong")}>
+                <strong>{check.state.isCorrect ? "理解正确 ✓" : "这里需要补一下基础"}</strong>
+                <p>
+                  {check.state.isCorrect
+                    ? check.state.explanation
+                    : "Constraint（约束）负责定义 AI 必须遵守的规则、禁止事项和边界。"}
+                </p>
+              </div>
+            )}
+
+            {check.state && !check.state.isCorrect && (
+              <div className="guided-review-card">
+                <span>建议复习</span>
+                <strong>Context、Token 与提示词</strong>
+                <p>你现在的问题不是不会写 Prompt，而是还没有完全区分 Goal、Context 与 Constraint 的职责。先复习这一个基础点，再回来重试。</p>
+                <Link className="btn btn-secondary" href="/courses/ai-literacy/lessons/context-token">
+                  去复习对应课程 →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {currentStep === 3 && (
+          <div className="guided-step-content">
+            <div className="guided-step-label">第 4 步 · 跟着做，再自己做</div>
+            <h3>{practice.title}</h3>
+            <p>{practice.goal}</p>
+            <div className="guided-practice-fields">
+              {practice.instructions.map((item) => (
+                <label key={item.key}>
+                  <span>{item.label}</span>
+                  <small>{item.prompt}</small>
+                  <textarea
+                    value={content[item.key]}
+                    onChange={(event) =>
+                      setContent((current) => ({ ...current, [item.key]: event.target.value }))
+                    }
+                    rows={3}
+                    maxLength={3000}
+                  />
+                </label>
               ))}
             </div>
-          )}
 
-          {practice.state?.status === "EVALUATION_FAILED" && (
-            <div className="evaluation-failed">
-              <strong>答案已经保存</strong>
-              <p>检查暂时失败，不需要重新填写。稍后可以重新检查这一次提交。</p>
+            <div className="interactive-actions">
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={retryEvaluation}
-                disabled={busy === "evaluate"}
+                onClick={() => {
+                  setHintCount((current) => {
+                    const next = Math.min(current + 1, practice.hints.length);
+                    if (next > current) recordClientEvent("hint_revealed", { practiceId: practice.id, hintIndex: next });
+                    return next;
+                  });
+                }}
               >
-                {busy === "evaluate" ? "重新检查中…" : "重新检查"}
+                {hintCount < practice.hints.length ? "给我一个提示" : "提示已全部展开"}
+              </button>
+              <button type="button" className="btn btn-primary" onClick={submitPractice} disabled={busy === "practice"}>
+                {busy === "practice" ? "正在检查…" : practice.state ? "修改后重新提交" : "提交并检查"}
               </button>
             </div>
-          )}
-        </div>
-      </div>
 
-      {evaluation && (
-        <div className="evaluation-panel">
-          <div className="evaluation-summary">
-            <div>
-              <span>本次任务得分</span>
-              <strong>{evaluation.score}<small> / 100</small></strong>
-            </div>
-            <div>
-              <span>结果</span>
-              <strong className={evaluation.passed ? "passed" : "revision"}>
-                {evaluation.passed ? "已通过" : "需要修改"}
-              </strong>
+            {hintCount > 0 && (
+              <div className="interactive-hints">
+                {practice.hints.slice(0, hintCount).map((hint, index) => (
+                  <p key={hint}><strong>提示 {index + 1}</strong>{hint}</p>
+                ))}
+              </div>
+            )}
+
+            <div className="external-ai-check">
+              <div>
+                <span>真实工具验证</span>
+                <h3>把它拿到你自己的 AI 工具里执行</h3>
+                <p>OPC 负责教方法和检查结构，不伪造模型运行结果。你可以复制当前任务简报，在 ChatGPT、Claude、Gemini 或其他工具中实际验证。</p>
+              </div>
+              <button type="button" className="btn btn-secondary" onClick={copyForExternalAI}>
+                {copied ? "已复制 ✓" : "复制任务简报"}
+              </button>
             </div>
           </div>
+        )}
 
-          <p className="evaluation-next">{evaluation.nextAction}</p>
+        {currentStep === 4 && (
+          <div className="guided-step-content">
+            <div className="guided-step-label">第 5 步 · 即时反馈</div>
+            <h3>{evaluation ? (evaluation.passed ? "你已经完成一次可用的任务简报" : "还差一点，按反馈修改") : "提交实操后，这里会告诉你具体哪里需要改"}</h3>
 
-          <div className="evaluation-criteria">
-            {evaluation.criteria.map((item) => (
-              <article key={item.key}>
-                <div className="criterion-head">
-                  <strong>{item.label}</strong>
-                  <span>{item.score}/{item.maxScore}</span>
+            {!evaluation && (
+              <div className="guided-empty-feedback">
+                <p>回到上一步完成实操并提交。系统会按 Goal / Context / Input / Constraint / Output 分项检查，而不是只给一个总分。</p>
+                <button type="button" className="btn btn-secondary" onClick={() => setCurrentStep(3)}>返回实操 →</button>
+              </div>
+            )}
+
+            {evaluation && (
+              <div className="evaluation-panel">
+                <div className="evaluation-summary">
+                  <div><span>本次得分</span><strong>{evaluation.score}<small> / 100</small></strong></div>
+                  <div><span>结果</span><strong className={evaluation.passed ? "passed" : "revision"}>{evaluation.passed ? "已通过" : "需要修改"}</strong></div>
                 </div>
-                <p><b>为什么：</b>{item.reason}</p>
-                {item.problem && <p><b>错在哪里：</b>{item.problem}</p>}
-                <p><b>怎么改：</b>{item.suggestion}</p>
-                <p className="criterion-example"><b>示例：</b>{item.example}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      )}
+                <p className="evaluation-next">{evaluation.nextAction}</p>
+                <div className="evaluation-criteria">
+                  {evaluation.criteria.map((item) => (
+                    <article key={item.key}>
+                      <div className="criterion-head"><strong>{item.label}</strong><span>{item.score}/{item.maxScore}</span></div>
+                      <p><b>为什么：</b>{item.reason}</p>
+                      {item.problem && <p><b>问题：</b>{item.problem}</p>}
+                      <p><b>怎么改：</b>{item.suggestion}</p>
+                      <p className="criterion-example"><b>参考：</b>{item.example}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
 
-      <div className="external-ai-check">
-        <div>
-          <span>去你的 AI 工具验证</span>
-          <h3>OPC 教方法，不替你运行模型</h3>
-          <p>
-            把当前任务简报复制到你常用的 AI 工具里执行。这里不上传文件、不抓取外部结果，也不需要配置 API Key。
-          </p>
-        </div>
-        <button type="button" className="btn btn-secondary" onClick={copyForExternalAI}>
-          {copied ? "已复制 ✓" : "复制到我的 AI 工具"}
-        </button>
+            {evaluation && !evaluation.passed && (
+              <div className="guided-review-card">
+                <span>没有通过不是重新从头学</span>
+                <strong>先看最低分的部分，再回到第 4 步修改</strong>
+                <p>如果你分不清 Goal / Context / Constraint，优先复习「Context、Token 与提示词」；如果只是内容不够具体，直接按上面的“怎么改”修改即可。</p>
+                <div className="interactive-actions">
+                  <button type="button" className="btn btn-primary" onClick={() => setCurrentStep(3)}>回去修改实操</button>
+                  <Link className="btn btn-secondary" href="/courses/ai-literacy/lessons/context-token">复习基础课程</Link>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {currentStep === 5 && (
+          <div className="guided-step-content">
+            <div className="guided-step-label">第 6 步 · 你现在会什么</div>
+            <h3>不是“看完一课”，而是已经获得一个能反复使用的方法</h3>
+            <div className="guided-achievement-list">
+              <div><span>✓</span><p>能把模糊需求拆成 Goal / Context / Input / Constraint / Output</p></div>
+              <div><span>✓</span><p>知道 Constraint（约束）为什么能减少 AI 自行猜测</p></div>
+              <div><span>✓</span><p>已经用自己的真实任务完成至少一次结构化任务简报</p></div>
+            </div>
+
+            <div className="guided-next-value">
+              <div>
+                <span>继续学习，你接下来可以获得</span>
+                <strong>从“会写一个任务”升级到“会处理真实文件、研究和工作流”</strong>
+                <p>后续课程会继续把这个任务简报方法用于文件处理、研究、数据分析和自动化工作流。</p>
+              </div>
+              <div className="guided-tier-grid">
+                <div><span>免费体验</span><strong>基础 Guided Learning</strong><p>完成核心概念、案例和基础练习。</p></div>
+                <div><span>关注公众号</span><strong>持续跟进</strong><p>解锁完整 AI Daily 与指定基础章节。</p></div>
+                <div className="is-member"><span>OPC 会员</span><strong>系统进阶</strong><p>Knowledge 正文、Deep Resource、正式实操与进阶课程。</p></div>
+              </div>
+              <div className="interactive-actions">
+                <Link className="btn btn-primary" href="/#membership">查看 OPC 会员学习路径</Link>
+                <Link className="btn btn-secondary" href="/#official-account">查看公众号权益</Link>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {message && <div className="interactive-message">{message}</div>}
+
+      <div className="guided-step-nav">
+        <button type="button" className="btn btn-secondary" onClick={goPrevious} disabled={currentStep === 0}>← 上一步</button>
+        <div>
+          <span>{steps[currentStep]}</span>
+          <small>{currentStep + 1} / {steps.length}</small>
+        </div>
+        {currentStep < steps.length - 1 ? (
+          <button type="button" className="btn btn-primary" onClick={goNext} disabled={!canGoNext}>
+            {currentStep === 2 && !check.state?.isCorrect
+              ? "通过检查后继续"
+              : currentStep === 4 && !evaluation?.passed
+                ? "实操通过后继续"
+                : "下一步 →"}
+          </button>
+        ) : (
+          <span />
+        )}
+      </div>
     </section>
   );
 }
-
-
-
-
-
