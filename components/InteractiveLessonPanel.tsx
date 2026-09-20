@@ -112,6 +112,26 @@ const emptyContent: PracticeContent = {
   output: ""
 };
 
+const referenceContent: PracticeContent = {
+  goal: "把本周项目会议记录整理成一份可执行的行动摘要，帮助项目负责人快速安排后续工作。",
+  context: "这份摘要用于明天上午的项目例会，阅读者是项目负责人和各任务负责人。",
+  input: "只依据本周会议记录、现有任务清单和已确认的截止时间。",
+  constraint: "不得补充原文没有的事实；不确定的信息必须标记“待确认”；必须保留负责人和截止时间。",
+  output: "按“事项 / 决策 / 负责人 / 截止时间 / 风险”五栏表格输出，最后补充 3 条最需要关注的风险。"
+};
+
+const lessonFeedbackOptions = [
+  "有些地方没讲清楚",
+  "专业术语还是偏多",
+  "案例不够贴近实际",
+  "操作步骤不够明确",
+  "提示还不够",
+  "通过标准不够直观",
+  "练习难度不合适",
+  "内容太长",
+  "我还是不知道实际工作中怎么用"
+] as const;
+
 export function InteractiveLessonPanel({
   courseSlug,
   lessonSlug,
@@ -134,6 +154,14 @@ export function InteractiveLessonPanel({
   const [currentStep, setCurrentStep] = useState(0);
   const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
   const [previewEvaluation, setPreviewEvaluation] = useState<Evaluation | null>(null);
+  const [referenceVisible, setReferenceVisible] = useState(false);
+  const [savedUserContent, setSavedUserContent] = useState<PracticeContent | null>(null);
+  const [stillConfusedOpen, setStillConfusedOpen] = useState(false);
+  const [externalOutcome, setExternalOutcome] = useState<"GOOD" | "ADJUST" | "MISUNDERSTOOD" | "UNSURE" | null>(null);
+  const [feedbackReasons, setFeedbackReasons] = useState<string[]>([]);
+  const [feedbackComment, setFeedbackComment] = useState("");
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackSkipped, setFeedbackSkipped] = useState(false);
 
   const refresh = useCallback(async () => {
     const params = new URLSearchParams({ courseSlug, lessonSlug });
@@ -306,7 +334,15 @@ export function InteractiveLessonPanel({
   }
 
   function recordClientEvent(
-    eventName: "hint_revealed" | "external_ai_copy",
+    eventName:
+      | "hint_revealed"
+      | "external_ai_copy"
+      | "external_ai_outcome"
+      | "still_confused"
+      | "reference_viewed"
+      | "reference_applied"
+      | "reference_restored"
+      | "lesson_feedback_skipped",
     properties: Record<string, unknown>
   ) {
     if (!data?.authenticated) return;
@@ -333,6 +369,77 @@ export function InteractiveLessonPanel({
     } catch {
       setMessage("复制失败，请手动复制任务简报。");
     }
+  }
+
+  function showStillConfused() {
+    setStillConfusedOpen(true);
+    recordClientEvent("still_confused", { step: currentStep + 1, practiceId: practice?.id ?? null });
+  }
+
+  function showReference() {
+    setReferenceVisible((value) => !value);
+    recordClientEvent("reference_viewed", { practiceId: practice?.id ?? null });
+  }
+
+  function applyReference() {
+    if (!savedUserContent) setSavedUserContent(content);
+    setReferenceVisible(true);
+    setContent(referenceContent);
+    setPreviewEvaluation(null);
+    recordClientEvent("reference_applied", { practiceId: practice?.id ?? null });
+  }
+
+  function restoreUserContent() {
+    if (!savedUserContent) return;
+    setContent(savedUserContent);
+    setSavedUserContent(null);
+    setPreviewEvaluation(null);
+    recordClientEvent("reference_restored", { practiceId: practice?.id ?? null });
+  }
+
+  function selectExternalOutcome(value: "GOOD" | "ADJUST" | "MISUNDERSTOOD" | "UNSURE") {
+    setExternalOutcome(value);
+    recordClientEvent("external_ai_outcome", { practiceId: practice?.id ?? null, outcome: value });
+  }
+
+  function toggleFeedbackReason(reason: string) {
+    setFeedbackReasons((current) =>
+      current.includes(reason) ? current.filter((item) => item !== reason) : [...current, reason]
+    );
+  }
+
+  async function submitLessonFeedback() {
+    if (!data?.authenticated) {
+      setMessage("登录后才能把课程反馈保存给课程团队；你也可以直接跳过，不影响本课体验。");
+      return;
+    }
+    setBusy("feedback");
+    try {
+      const response = await fetch("/api/learning/feedback", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          courseSlug,
+          lessonSlug,
+          issueType: "LESSON_HELPFULNESS",
+          reasons: feedbackReasons,
+          comment: feedbackComment,
+          resolutionStatus: feedbackReasons.length > 0 || feedbackComment.trim() ? "UNRESOLVED" : "RESOLVED"
+        })
+      });
+      if (!response.ok) throw new Error("FEEDBACK_FAILED");
+      setFeedbackSubmitted(true);
+      setMessage("感谢反馈。它不会影响课程完成，后续会与其他学习信号一起用于课程优化。");
+    } catch {
+      setMessage("课程反馈暂时没有保存成功，你可以直接继续，不影响学习结果。");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  function skipLessonFeedback() {
+    setFeedbackSkipped(true);
+    recordClientEvent("lesson_feedback_skipped", { lessonSlug });
   }
 
 
@@ -374,13 +481,13 @@ export function InteractiveLessonPanel({
 
   function goNext() {
     if (!canGoNext) return;
+    setStillConfusedOpen(false);
     setCurrentStep((value) => Math.min(value + 1, steps.length - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goPrevious() {
+    setStillConfusedOpen(false);
     setCurrentStep((value) => Math.max(value - 1, 0));
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
@@ -526,6 +633,27 @@ export function InteractiveLessonPanel({
             <h3>用你自己的真实任务，写一份可执行任务简报</h3>
             <p>通过标准：总分至少 <b>{practice.passScore}/100</b>，并且五项每一项都至少达到 <b>12/20</b>。不是写得越长越好，而是让别人不需要猜就能执行。</p>
             <div className="guided-review-card"><span>先看一个能通过的方向</span><strong>五项都要具体</strong><p>任务目标写结果；背景信息写给谁用、为什么用；输入材料写依据什么；限制条件写不能做什么；输出要求写最终格式。</p></div>
+            <div className="guided-reference-tools">
+              <div>
+                <strong>不知道第一版怎么写？</strong>
+                <p>可以先看参考，或者一键带入一份完整示例，再把它改成你的真实任务。</p>
+              </div>
+              <div className="interactive-actions">
+                <button type="button" className="btn btn-secondary" onClick={showReference}>{referenceVisible ? "收起参考" : "查看参考"}</button>
+                <button type="button" className="btn btn-secondary" onClick={applyReference}>一键带入参考</button>
+                {savedUserContent && <button type="button" className="btn btn-secondary" onClick={restoreUserContent}>恢复我的版本</button>}
+              </div>
+            </div>
+            {referenceVisible && (
+              <div className="guided-reference-card">
+                <strong>参考写法 · 不是唯一答案</strong>
+                <p>任务目标：{referenceContent.goal}</p>
+                <p>背景信息：{referenceContent.context}</p>
+                <p>输入材料：{referenceContent.input}</p>
+                <p>限制条件：{referenceContent.constraint}</p>
+                <p>输出要求：{referenceContent.output}</p>
+              </div>
+            )}
             <div className="guided-practice-fields">
               {practice.instructions.map((item) => (
                 <label key={item.key}>
@@ -629,6 +757,29 @@ export function InteractiveLessonPanel({
                 </div>
               </div>
             )}
+
+            {evaluation?.passed && (
+              <div className="guided-real-ai-outcome">
+                <div>
+                  <span>真实工具验证 · 建议完成</span>
+                  <strong>把刚才的任务简报放到你常用的 AI 工具里运行一次</strong>
+                  <p>复制后去 ChatGPT、Claude、Gemini 或其他 AI 工具执行，再回来选择实际结果。这里不影响课程通过，但能确认你是否真的会用。</p>
+                </div>
+                <button type="button" className="btn btn-secondary" onClick={copyForExternalAI}>{copied ? "已复制 ✓" : "复制任务简报"}</button>
+                <div className="guided-outcome-options">
+                  {[
+                    ["GOOD", "基本符合预期"],
+                    ["ADJUST", "有结果，但还需要调整"],
+                    ["MISUNDERSTOOD", "AI 没理解我的意思"],
+                    ["UNSURE", "我不知道结果好不好"]
+                  ].map(([value, label]) => (
+                    <button key={value} type="button" className={externalOutcome === value ? "is-selected" : ""} onClick={() => selectExternalOutcome(value as "GOOD" | "ADJUST" | "MISUNDERSTOOD" | "UNSURE")}>{label}</button>
+                  ))}
+                </div>
+                {externalOutcome === "MISUNDERSTOOD" && <p className="guided-outcome-help">建议先检查“背景信息”和“限制条件”有没有让 AI 继续猜。你可以回到第 4 步修改后再试。</p>}
+                {externalOutcome === "UNSURE" && <p className="guided-outcome-help">先对照任务目标和输出要求：结果有没有完成你真正要的任务？如果判断不了，可以使用“还是不懂”。</p>}
+              </div>
+            )}
           </div>
         )}
 
@@ -641,6 +792,28 @@ export function InteractiveLessonPanel({
               <div><span>✓</span><p>知道限制条件（Constraint）为什么能减少 AI 自行猜测</p></div>
               <div><span>✓</span><p>已经用自己的真实任务完成至少一次结构化任务简报</p></div>
             </div>
+
+            {!feedbackSubmitted && !feedbackSkipped ? (
+              <div className="guided-course-feedback">
+                <div>
+                  <span>可选 · 约 20 秒</span>
+                  <strong>愿意帮我们把这节课讲得更好吗？</strong>
+                  <p>反馈不会影响课程完成。后续会与错误、提示使用、复习等学习信号一起汇总，再由人工审核是否更新课程。</p>
+                </div>
+                <div className="guided-feedback-options">
+                  {lessonFeedbackOptions.map((reason) => (
+                    <button key={reason} type="button" className={feedbackReasons.includes(reason) ? "is-selected" : ""} onClick={() => toggleFeedbackReason(reason)}>{reason}</button>
+                  ))}
+                </div>
+                <textarea rows={3} maxLength={1200} value={feedbackComment} onChange={(event) => setFeedbackComment(event.target.value)} placeholder="还有其他想说的？（可选）" />
+                <div className="interactive-actions">
+                  <button type="button" className="btn btn-primary" onClick={submitLessonFeedback} disabled={busy === "feedback"}>{busy === "feedback" ? "正在提交…" : "提交反馈"}</button>
+                  <button type="button" className="btn btn-secondary" onClick={skipLessonFeedback}>暂时跳过</button>
+                </div>
+              </div>
+            ) : (
+              <div className="guided-feedback-done">{feedbackSubmitted ? "✓ 已收到你的反馈，谢谢。" : "已跳过反馈，不影响本课完成。"}</div>
+            )}
 
             <div className="guided-next-value">
               <div>
@@ -662,6 +835,19 @@ export function InteractiveLessonPanel({
         )}
       </div>
 
+      {stillConfusedOpen && (
+        <div className="guided-confused-panel">
+          <span>还是不懂？换一种方式</span>
+          <strong>{currentStep <= 2 ? "先不用记英文术语，只判断每一项负责什么。" : "先从一个最小任务开始，不需要一次写得完美。"}</strong>
+          <p>{currentStep <= 2 ? "任务目标 = 要得到什么；背景信息 = 谁使用、为什么做；限制条件 = 哪些边界不能越过。" : "先把任务目标和输出要求写清，再补背景、材料和限制。你也可以查看参考答案，照着修改成自己的版本。"}</p>
+          <div className="interactive-actions">
+            {currentStep >= 3 && <button type="button" className="btn btn-secondary" onClick={showReference}>查看参考答案</button>}
+            <Link className="btn btn-secondary" href="/courses/ai-literacy/lessons/context-token">复习相关基础</Link>
+            <button type="button" className="btn btn-secondary" onClick={() => setStillConfusedOpen(false)}>我再试试</button>
+          </div>
+        </div>
+      )}
+
       {message && <div className="interactive-message">{message}</div>}
 
       <div className="guided-step-nav">
@@ -670,6 +856,7 @@ export function InteractiveLessonPanel({
           <span>{steps[currentStep]}</span>
           <small>{currentStep + 1} / {steps.length}</small>
         </div>
+        <button type="button" className="guided-confused-button" onClick={showStillConfused}>还是不懂</button>
         {currentStep < steps.length - 1 ? (
           <button type="button" className="btn btn-primary" onClick={goNext} disabled={!canGoNext}>
             {currentStep === 2 && !checkPassed

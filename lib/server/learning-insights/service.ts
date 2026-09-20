@@ -22,6 +22,12 @@ import {
 export const CLIENT_LEARNING_EVENTS = [
   "hint_revealed",
   "external_ai_copy",
+  "external_ai_outcome",
+  "still_confused",
+  "reference_viewed",
+  "reference_applied",
+  "reference_restored",
+  "lesson_feedback_skipped",
   "help_resolved"
 ] as const;
 

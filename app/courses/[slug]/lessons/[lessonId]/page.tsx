@@ -39,17 +39,11 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
 
   if (isGuidedPilot) {
   return <section className="lesson-page">
-      <div className="container lesson-shell">
-        <LessonCourseSidebar
-          course={course}
-          currentLessonId={lesson.id}
-          lockedLessonIds={lockedLessonIds}
-        />
-
+      <div className="container guided-learning-mode-shell">
         <article className="lesson-content lesson-content-guided">
-          <div className="lesson-topbar">
-            <Link className="back-link" href="/learning-path#progress">← 返回学习路径</Link>
-            <span>{index+1} / {lessons.length} · 引导式学习</span>
+          <div className="lesson-topbar guided-learning-topbar">
+            <Link className="back-link" href="/learning-path#progress">← 退出学习</Link>
+            <span>{course.title} · {index+1} / {lessons.length}</span>
           </div>
 
           <div className="guided-lesson-hero">
@@ -87,11 +81,6 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
               : <Link href="/learning-path#progress" className="next"><small>本阶段课程完成</small><strong>返回学习路径 →</strong></Link>}
           </nav>
 
-          <LessonHelpPanel
-            courseSlug={course.slug}
-            lessonSlug={lesson.id}
-            authenticated={Boolean(user)}
-          />
         </article>
       </div>
     </section>;
