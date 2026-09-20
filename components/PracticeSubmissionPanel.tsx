@@ -115,7 +115,7 @@ export function PracticeSubmissionPanel({ practiceId, compact = false }: { pract
         <strong>{data.access.reason === "MEMBERSHIP_REQUIRED" ? "会员实操" : "当前实操暂不可用"}</strong>
         <p>
           {data.access.reason === "MEMBERSHIP_REQUIRED"
-            ? "该 Stage Project 属于 OPC 会员权益。支付功能尚未接入，系统不会伪造订阅状态。"
+            ? "该正式实操属于 OPC 会员权益。支付功能尚未接入，系统不会伪造订阅状态。"
             : data.access.reason === "STAGE_PREREQUISITE_REQUIRED"
               ? "请先完成前置学习阶段，再开始这个项目。"
               : "当前访问条件尚未满足。"}

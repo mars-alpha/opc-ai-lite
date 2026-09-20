@@ -9,7 +9,7 @@ export function MembershipBenefits() {
           <div className="membership-intro">
             <div className="eyebrow">OPC Membership</div>
             <h2 className="section-title small-title">OPC 订阅会员</h2>
-            <p>会员权益按当前已开放能力与规划能力分开标注；未接入的课程、日报和深度资料不会提前承诺为已可用。</p>
+            <p>会员权益按当前真实 Access Policy 展示；支付尚未接入，不会伪造订阅状态。</p>
           </div>
 
           <div className="membership-plans">
@@ -35,7 +35,7 @@ export function MembershipBenefits() {
               <div className="eyebrow">Benefits</div>
               <h3>会员权益对照</h3>
             </div>
-            <span>✓ = 当前已开放；“规划” = 支付 / 权限正式化后再开放</span>
+            <span>✓ = 当前已开放；公众号权益与 OPC Membership 是两套独立权限</span>
           </div>
 
           <div className="membership-table-wrap">

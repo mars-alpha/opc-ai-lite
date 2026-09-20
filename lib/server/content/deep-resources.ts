@@ -2,6 +2,7 @@ import "server-only";
 
 import { asc, and, eq } from "drizzle-orm";
 
+import { resolveResourceAccess } from "../access/service";
 import { getDatabase } from "../db";
 import {
   knowledgeDeepResources,
@@ -122,6 +123,39 @@ export async function listDeepResourcesForKnowledge(knowledgeId: string) {
     .from(knowledgeDeepResources)
     .where(eq(knowledgeDeepResources.knowledgeId, knowledgeId))
     .orderBy(asc(knowledgeDeepResources.createdAt));
+}
+
+export async function listPublishedDeepResourcesForKnowledge(
+  userId: string | null,
+  knowledgeId: string
+) {
+  const access = await resolveResourceAccess(userId, "DEEP_RESOURCE");
+  if (!access.allowed) return { access, items: [] };
+
+  const knowledge = await getKnowledge(knowledgeId);
+  if (!knowledge || knowledge.status !== "PUBLISHED") {
+    return { access, items: [] };
+  }
+
+  const items = await getDatabase()
+    .select({
+      id: knowledgeDeepResources.id,
+      title: knowledgeDeepResources.title,
+      summary: knowledgeDeepResources.summary,
+      provider: knowledgeDeepResources.provider,
+      resourceRef: knowledgeDeepResources.resourceRef,
+      url: knowledgeDeepResources.url
+    })
+    .from(knowledgeDeepResources)
+    .where(
+      and(
+        eq(knowledgeDeepResources.knowledgeId, knowledgeId),
+        eq(knowledgeDeepResources.status, "PUBLISHED")
+      )
+    )
+    .orderBy(asc(knowledgeDeepResources.createdAt));
+
+  return { access, items };
 }
 
 export async function createDeepResourceForKnowledge(knowledgeId: string, input: unknown) {

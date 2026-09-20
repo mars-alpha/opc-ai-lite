@@ -59,6 +59,16 @@ export async function hasActiveMembership(userId: string | null) {
     resourceId: OPC_MEMBERSHIP_PRODUCT.resourceId
   });
 }
+
+export async function hasOfficialAccountFollowEntitlement(userId: string | null) {
+  if (!userId) return false;
+  return hasActiveEntitlement(userId, {
+    type: "CHAPTER_ACCESS",
+    resourceType: OFFICIAL_FOLLOW_UNLOCK.resourceType,
+    resourceId: OFFICIAL_FOLLOW_UNLOCK.resourceId
+  });
+}
+
 export async function getStageAccess(
   userId: string | null,
   courseSlug: string

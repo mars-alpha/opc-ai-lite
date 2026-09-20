@@ -102,7 +102,8 @@ async function requireMembership(
   userId: string | null,
   row: PracticeAccessRow
 ): Promise<PracticeAccessResult | null> {
-  if (row.accessTier !== "MEMBER") return null;
+  const requiresMembership = row.type === "LATEST_PRACTICE" || row.accessTier === "MEMBER";
+  if (!requiresMembership) return null;
   const feature = row.type === "STAGE_PROJECT" ? "STAGE_PROJECT" : "PRACTICE";
   const membership = await resolveMembershipFeatureAccess(userId, feature);
   return membership.allowed
