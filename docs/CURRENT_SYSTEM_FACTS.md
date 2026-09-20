@@ -1,6 +1,6 @@
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
-> 业务代码验证基线：`main@555687f`
+> 业务代码验证基线：`main@be114d7`
 >
 > 本文件只记录当前事实。历史过程看 `docs/task-results/*`，未来规划看 `TASKS.md`。
 
@@ -9,8 +9,8 @@
 当前治理提交后的 Git 受控文件：
 
 ```text
-TOTAL  208
-TEXT   201
+TOTAL  209
+TEXT   202
 BINARY 7
 ```
 
@@ -19,7 +19,7 @@ BINARY 7
 ```text
 app/         54
 components/  35
-docs/        36
+docs/        37
 drizzle/     21
 lib/         36
 skills/      1
@@ -115,6 +115,8 @@ Admin Lesson edit / publish
 ```
 
 正式 Lesson 优先从 PostgreSQL 读取；DB 读取失败或内容非法时仍存在静态课程 fallback。
+
+LEARNING-UX-001 已实现 1 个真实 Guided Learning 样板：`chatgpt-worker / task-brief`。该 Lesson 不再使用长页阅读作为主要体验，而是复用现有 Lesson Check / Practice / RULE Evaluation / Completion Gate，拆成 6 步“理解 → 案例 → 检查 → 实操 → 反馈复习 → 能力总结”。理解检查和实操均设有继续条件；失败时提供明确复习或修改路径。其他 Lesson 尚未迁移。
 
 ### Auth
 
@@ -404,11 +406,21 @@ ACCESS-001 已完成统一资源级 Access Policy 与匿名 / 普通 / 公众号
 
 ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价值不隐藏；公众号关注与 Membership 保持两条独立转化路径。
 
-下一阶段固定为：
+LEARNING-UX-001 已完成单 Lesson Guided Learning 样板代码实现与源码验证；等待人工 UX Review 后决定是否推广。
+
+下一阶段先进行：
 
 ```text
-AI-DAILY-001 — 最小自动采集 → 审核 → 发布
+LEARNING-UX-001 ACCEPTANCE — 人工体验样板课
 ```
+
+样板确认后候选下一开发任务：
+
+```text
+LEARNING-CORE-001 — Knowledge Point / Review Recommendation Foundation
+```
+
+AI-DAILY-001 保持排队，不在本阶段扩展。
 
 当前产品工程顺序固定为：
 

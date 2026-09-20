@@ -17,13 +17,14 @@ MVP-011-G Knowledge → Course Impact         COMPLETE
 RUNTIME-001 Remote Migration + Runtime      COMPLETE
 ACCESS-001 Unified Resource Access Policy   COMPLETE
 ACCESS-UX-001 Locked Content Conversion UX  COMPLETE
+LEARNING-UX-001 Guided Learning Pilot        COMPLETE_WITH_MANUAL_UX_REVIEW_PENDING
 
-NEXT: AI-DAILY-001 — 最小自动采集 → 审核 → 发布
+NEXT: LEARNING-UX-001 ACCEPTANCE — 人工体验样板课
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@555687f`。
+业务代码验证基线：`main@be114d7`。
 
 ```text
 npm run typecheck     PASS
@@ -33,6 +34,8 @@ Remote migrations     0000 → 0009 APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
 ACCESS UX render      PASS
+Guided Lesson source  PASS
+Guided Lesson build   PASS
 Test data cleanup     PASS
 ```
 
@@ -66,7 +69,9 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`AI-DAILY-001` 只做最小内容供给闭环：
+先由产品侧完整体验 `chatgpt-worker / task-brief` 6 步 Guided Lesson，确认信息密度、案例、反馈、复习建议、移动端和订阅引导。样板确认后再决定是否进入 `LEARNING-CORE-001` 并逐步迁移课程。
+
+`AI-DAILY-001` 仍保持后续最小内容供给闭环：
 
 ```text
 External Signal

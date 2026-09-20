@@ -384,6 +384,19 @@ Priority: P0
 
 新增共享 `LockedAccessCta` 与首页公众号解锁说明区；未接入真实微信关注验证或支付，不提供假的“我已关注”或可用支付按钮。
 
+## LEARNING-UX-001 — Guided Learning + Case Practice + Tiered Conversion MVP
+
+Status: COMPLETE_WITH_MANUAL_UX_REVIEW_PENDING
+Priority: P0
+
+结果：`docs/task-results/LEARNING-UX-001.md`。
+
+已选择 `chatgpt-worker / task-brief` 作为唯一 Guided Learning 样板，复用现有 Check / Practice / RULE Evaluation / Completion Gate，改成 6 步引导式学习：先理解 → 看案例 → 理解检查 → 跟着做 → 反馈与复习 → 下一步。
+
+理解检查未通过不能继续；会推荐复习 `ai-literacy / context-token`。Practice 未通过不能进入最终能力总结；按分项反馈修改并重试。最终步骤明确免费 / 公众号 / OPC Membership 的学习深度与继续价值。
+
+当前没有迁移其他 Lesson，没有新增 Schema / Migration，没有建立复杂 Mastery / Knowledge Point / Recommendation Engine。
+
 # NEXT PHASE
 
 `AI-DAILY-001 — 最小自动采集 → 审核 → 发布`
