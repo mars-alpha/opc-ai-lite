@@ -20,8 +20,9 @@ ACCESS-UX-001 Locked Content Conversion UX  COMPLETE
 LEARNING-UX-001 Guided Learning Pilot        COMPLETE_WITH_MANUAL_UX_REVIEW_PENDING
 LEARNING-UX-001-C Completion Loop            COMPLETE
 LEARNING-UX-001-C Acceptance Refinement      COMPLETE
+LEARNING-SPEC-001 Course Construction Spec    COMPLETE
 
-NEXT: LEARNING-UX-001 ACCEPTANCE — 体验完整 Completion Loop
+NEXT: LEARNING-UX-001-D — Reference Lesson Finalization
 ```
 
 ## 当前系统健康
@@ -75,7 +76,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-先由产品侧继续体验 `chatgpt-worker / task-brief`：课程目录与进度保持可见，主区按 Step 学习；“还是不懂”只给当前提示；选择题不提前泄露答案；课程反馈放在下一课导航之后；第 6 步只保留能力成长与“学习路径”。学习路径同时说明免费 / 公众号 / 会员权益边界。样板确认后再决定是否进入 `LEARNING-CORE-001` 并逐步迁移课程。
+`LEARNING-SPEC-001` 已完成 OPC 六阶段能力地图、AI 基础必懂概念、四类 Lesson Type、标准 Step Flow、Completion Gate、真实 AI 操作三态、Feedback / Access 规则、机器可读 Lesson Spec 草案与 Course Builder Skill Contract。下一步按 Spec 完成 `task-brief` Reference Lesson：重点重构第 4 步 Practice Closure、第 5 步学习回顾、第 6 步能力获得，以及“点击下一课 → 可选课程评分 → 下一课”的退出流程。完成后再选 2–3 节不同类型课程验证 Spec，不直接批量迁移。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

@@ -406,11 +406,20 @@ Priority: P0
 
 反馈不是 Completion Gate；参考答案是学习脚手架，不等于 Mastered。困难、提示、参考、真实 AI 结果等行为通过现有 Learning Event / Feedback 记录，不新增 Schema / Migration。
 
+## LEARNING-SPEC-001 — OPC Course Construction Specification
+
+Status: COMPLETE
+Priority: P0
+
+已新增 `docs/LEARNING_SPEC.md`，固定：六阶段课程能力地图、AI 基础必懂概念、CONCEPT / APPLICATION / PRACTICE / PROJECT 四类 Lesson Type、标准 Step Flow、Practice Closure、学习回顾、能力获得、真实 AI 操作 NONE / GUIDED / REQUIRED、学习自评与课程评分分离、Access CTA 位置、Lesson / Step Spec 草案与 Course Builder Skill BUILD / IMPROVE Contract。
+
+本任务只固化规范，不改 Schema / Migration / Access Core，不批量迁移课程，不实现 Course Builder Skill。
+
 # NEXT PHASE
 
-`LEARNING-UX-001 ACCEPTANCE — 人工体验完整 Completion Loop`
+`LEARNING-UX-001-D — Reference Lesson Finalization`
 
-继续体验当前单 Lesson 样板，重点确认课程状态可见性、Step 提示、参考答案、真实 AI 验证、课程反馈位置、学习路径权益说明和移动端体验；通过后再决定是否进入 `LEARNING-CORE-001` 或推广其他课程。`AI-DAILY-001` 保持后续队列。
+按 `docs/LEARNING_SPEC.md` 把 `task-brief` 做成正式 Reference Lesson：第 4 步自己做 → 检查 → 修改 → 通过同一步闭环；第 5 步学习回顾 + 查看最终答案 + 学习自评；第 6 步只展示能力获得 / 下一课价值 / 学习路径；点击下一课后再出现可跳过课程评分。随后选择 2–3 节不同 Lesson Type 验证 Spec，再进入 Course Builder Skill v0.1。
 
 建议后续顺序：
 

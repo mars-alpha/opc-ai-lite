@@ -730,7 +730,7 @@ Access Core 仍决定真实数据是否读取 / 返回
 用户界面默认中文；真实 AI 行业术语保留中英双语。
 ```
 
-LEARNING-UX-001 当前只验证单 Lesson 样板；在产品体验确认前，不把该结构机械迁移到全部课程，也不提前建设复杂 Mastery / Recommendation 平台。
+LEARNING-UX-001 当前只验证单 Lesson 样板；在产品体验确认前，不把该结构机械迁移到全部课程，也不提前建设复杂 Mastery / Recommendation 平台。课程建造、Lesson Type、Step Flow、Completion Gate、真实 AI 操作、Feedback、Access Presentation 与 Course Builder Skill Contract 的正式基线见 `docs/LEARNING_SPEC.md`。
 
 Guided Learning 的稳定体验规则：
 
@@ -739,7 +739,7 @@ Lesson 按知识点 / 能力拆分，不按固定时长拆分
 Step 不设硬时长，但每个 Step 只完成一个学习任务
 大多数课程应有案例
 实操课至少包含一次用户自己做
-外部 AI 操作按课程内容配置，不机械强制
+真实 AI 操作只由 Learning Objective 触发；统一使用 NONE / GUIDED / REQUIRED，不存在“可选加入外部 AI”
 用户主动点击“还是不懂”后，只展示当前 Step 的明确提示；作答前不得直接泄露答案
 课程结束先展示能力成长，再引导下一课
 Lesson 必须保持当前课程位置 / 课程目录 / 学习进度可见，主学习区采用单 Step 专注模式
