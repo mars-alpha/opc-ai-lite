@@ -3402,7 +3402,7 @@ img { display: block; max-width: 100%; }
 .guided-step-nav > div small { margin-top:3px; color:#8a96ac; }
 .guided-step-nav > .btn:last-child { justify-self:end; }
 @media (max-width:820px) { .guided-progress-track { grid-template-columns:repeat(3,1fr); } .guided-five-grid { grid-template-columns:1fr 1fr; } .guided-case-compare,.guided-tier-grid { grid-template-columns:1fr; } .guided-lesson-top { flex-direction:column; } .guided-progress-copy { text-align:left; } }
-@media (max-width:640px) { .guided-step-panel { padding:20px 16px; min-height:0; } .guided-progress-track { grid-template-columns:repeat(2,1fr); } .guided-step-nav { grid-template-columns:1fr 1fr; } .guided-step-nav > div { display:none; } .guided-step-nav .btn { width:100%; } .guided-five-grid { grid-template-columns:1fr; } .guided-lesson-hero { padding:22px 18px; } }
+@media (max-width:640px) { .guided-step-panel { padding:20px 16px; min-height:0; } .guided-progress-track { grid-template-columns:repeat(2,1fr); } .guided-five-grid { grid-template-columns:1fr; } .guided-lesson-hero { padding:22px 18px; } }
 
 
 
