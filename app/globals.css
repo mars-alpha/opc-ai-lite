@@ -3761,6 +3761,8 @@ img { display: block; max-width: 100%; }
   gap:14px;
   margin:20px 0;
 }
+.guided-misconception-grid { align-items:start; }
+.guided-misconception-card { align-self:start; }
 .guided-misconception-card {
   overflow:hidden;
   border-radius:18px;

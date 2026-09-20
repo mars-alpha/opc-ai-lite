@@ -4,25 +4,26 @@ export const promptFoundationsIntroPreview = {
   situation: "同样是让 AI 写一封客户跟进邮件，为什么有时结果很贴合，有时却像套话？",
   approaches: [
     {
-      label: "模糊提示",
+      label: "只说一句要求",
       text: "帮我写一封客户跟进邮件。"
     },
     {
-      label: "更清楚的提示",
+      label: "把关键条件说出来",
       text: "说明要做什么、给谁看、已知背景、不能忽略什么，以及最后要什么格式。"
     }
   ],
   comparison: [
     {
-      term: "模糊",
-      meaning: "AI 只能自己猜目标、背景和标准"
+      term: "模糊 = AI 还要猜",
+      meaning: "你没有说清目标、背景或标准，AI 只能自己补空白。猜得越多，结果越容易偏。"
     },
     {
-      term: "清楚",
-      meaning: "AI 知道任务、背景、限制和交付方式"
+      term: "清楚 = AI 知道怎么做",
+      meaning: "任务、必要背景、限制和结果要求已经交代清楚，AI 可以把注意力放在执行，而不是猜你的意思。"
     }
   ],
-  takeaway: "好的 Prompt（提示词）不是越长越好，而是让 AI 少猜一点。"
+  takeaway: "好的 Prompt（提示词）不是越长越好，而是让 AI 少猜一点。",
+  comparisonPlacement: "BOTTOM"
 } as const;
 
 export const promptFoundationsKnowledgeDepth = {
