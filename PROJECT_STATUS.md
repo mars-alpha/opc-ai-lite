@@ -26,12 +26,12 @@ LEARNING-SPEC-002 Multi-type Lesson Validation COMPLETE
 LEARNING-RUNTIME-001 Generic Lesson Runtime Foundation COMPLETE
 LEARNING-RUNTIME-001-A Pilot Provisioning & Acceptance COMPLETE
 
-NEXT: COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
+NEXT: LEARNING-UX-RUNTIME-ALIGN-001 — Reference UX Unification
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@39e900e`。
+业务代码验证基线：`main@b235da6`。
 
 ```text
 npm run typecheck     PASS
@@ -42,7 +42,6 @@ Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
 ACCESS UX render      PASS
 Guided Lesson source  PASS
-Guided Preview mode   PASS
 Shared rule evaluator PASS
 Completion Loop smoke PASS
 Acceptance refinement PASS
@@ -88,7 +87,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-RUNTIME-001-A` 已完成两个 Generic Runtime Pilot 的正式 Provisioning 与真实 Runtime Acceptance：`memory-rag` required Check、`task-decomposition` required `STRUCTURED_TEXT_V1` Practice 已写入正式数据库并保持 `PUBLISHED`。两个 Pilot 在合法身份下均 `configurationReady=true / enforcementActive=true`；Completion Core 在 Gate 未满足时分别返回 `CHECK_REQUIRED / PRACTICE_REQUIRED`，满足后允许完成。Acceptance 使用一次性测试用户并已清理；Access Core、task-brief Reference Preview 与 writing-files ARTIFACT 边界保持不变。下一步可进入 `COURSE-BUILDER-SKILL-001`，但不自动批量迁移课程。
+`LEARNING-RUNTIME-001-A` 已完成两个 Generic Runtime Pilot 的正式 Provisioning 与真实 Runtime Acceptance：`memory-rag` required Check、`task-decomposition` required `STRUCTURED_TEXT_V1` Practice 已写入正式数据库并保持 `PUBLISHED`。Runtime / Completion Gate 已跑通，但这不代表两个 Pilot 已采用最终课程 UX。最新 UX 决策固定：正式课程只保留一套 `task-brief` Reference Lesson Shell（课程上下文 / 侧栏 / 当前课位置 + 单 Step Guided Learning），Lesson Type 只改变 Step 组合、内容与 Completion Gate，不建立 CONCEPT / APPLICATION / PRACTICE 三套视觉产品。此前 `/learning-preview` 三课型演示页因偏离 Reference UX 已删除。下一步先做 `LEARNING-UX-RUNTIME-ALIGN-001`，再进入 Course Builder Skill。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

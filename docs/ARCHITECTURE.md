@@ -749,6 +749,8 @@ real_ai_operation = REQUIRED 时必须定义 real_ai_evidence，并由 REAL_AI C
 Real AI Evidence 的可信度必须由证据类型决定：USER_CONFIRMATION 是用户声明，SYSTEM_RESULT 只能由可信服务端写入；ARTIFACT 必须先有正式 Artifact Resolver，不能把任意字符串 / URL 当作已验证证据
 Lesson Spec 只有在所需 Interactive Data 已配置且 evidence Runtime 受支持时才进入 enforcementActive；否则 Runtime Read Model 暴露 blocker 并保持 staged rollout
 `memory-rag` 与 `task-decomposition` 是第一批正式 provision 并完成真实 Runtime Acceptance 的 Generic Runtime Pilot；Pilot 成功不等于允许批量迁移，后续课程仍必须经过 Spec Validation / Runtime Readiness / Human Review
+正式课程只有一套 Guided Lesson Shell：课程上下文 / 侧栏 / 当前课位置保持可见，主区域单 Step 专注。CONCEPT / APPLICATION / PRACTICE / PROJECT 不建立独立页面产品；Lesson Type 只决定 Step 组合、内容模块与 Completion Gate
+`task-brief` Reference Lesson 是当前正式 UX 基线。任何新 Lesson Renderer / Pilot 必须优先对齐该 Shell；不得用独立 Preview / Lab 页面替代正式 UX 验证
 ```
 
 参考答案属于 Learning Scaffold：

@@ -451,9 +451,23 @@ Priority: P0
 
 # NEXT PHASE
 
-`COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1`
+`LEARNING-UX-RUNTIME-ALIGN-001 — Reference UX Unification`
 
-基于已验证的 `docs/LEARNING_SPEC.md` + Generic Lesson Runtime，先实现最小 BUILD / IMPROVE Structured Draft Contract，用 2–3 节现有课程生成 Draft / Proposal 并人工 Review；不允许 Skill 直接 Publish、改 Access、改 Progress 或批量覆盖 Published Course。
+Status: READY
+Priority: P0
+
+最新 UX 决策：正式课程不再为 CONCEPT / APPLICATION / PRACTICE 各做独立页面形态。所有 Lesson 统一使用 `task-brief` 已确认的 Reference Lesson Shell：课程上下文 / 侧栏 / 当前课位置 + 单 Step Guided Learning。Lesson Type 只决定 Step 组合、内容与 Completion Gate。
+
+第一轮只把已完成 Runtime Pilot 的 `memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）接入同一套 Reference UX；不新增三课型 Preview，不复制页面，不批量迁移其他课程。若两类 UX 验证稳定，再补 APPLICATION 对齐，之后才进入 `COURSE-BUILDER-SKILL-001`。
+
+此前 `/learning-preview` 三课型演示页因与 Reference Lesson 差异过大已删除，不作为后续实现基线。
+
+## COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
+
+Status: BLOCKED_BY_UX_ALIGNMENT
+Priority: P0
+
+等待 `LEARNING-UX-RUNTIME-ALIGN-001` 完成。之后基于已验证的 `docs/LEARNING_SPEC.md` + Generic Lesson Runtime + 统一 Reference UX，实现最小 BUILD / IMPROVE Structured Draft Contract；不允许 Skill 直接 Publish、改 Access、改 Progress 或批量覆盖 Published Course。
 
 建议后续顺序：
 

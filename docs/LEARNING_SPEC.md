@@ -252,6 +252,30 @@ Skill 不得因为遇到新主题就随意创建：
 
 Skill 不允许自由发明新的核心课程流程。
 
+### 4.6 Unified Lesson Shell
+
+Lesson Type 不对应独立页面模板或独立产品形态。
+
+所有正式 Lesson 共享同一套 Reference Lesson Shell：
+
+```text
+课程上下文 / 侧栏 / 当前课位置 / 进度
++
+单 Step Guided Learning 主区域
+```
+
+CONCEPT / APPLICATION / PRACTICE / PROJECT 的差异只能体现在：
+
+```text
+Step 组合
+Step 内容
+交互模块
+Completion Gate
+real_ai_operation / evidence 要求
+```
+
+不得为了表现 Lesson Type 而创建三套视觉产品、三套导航或三套课程页面。当前 UX 参考基线为 `chatgpt-worker / task-brief` Reference Lesson；后续 Generic Renderer 必须向该 Shell 对齐。
+
 ---
 
 ## 5. Standard Lesson Experience
