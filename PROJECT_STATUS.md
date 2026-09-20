@@ -13,8 +13,9 @@ MVP-011-C2 Multi-source Course Candidate  CODE COMPLETE*
 MVP-011-D Knowledge Provenance Foundation  CODE COMPLETE**
 MVP-011-E Deep Resource / Feishu Bridge     CODE COMPLETE***
 MVP-011-F Knowledge → Practice AI Draft     CODE COMPLETE****
+MVP-011-G Knowledge → Course Impact Analysis CODE COMPLETE
 
-NEXT: discuss / audit MVP-011-G — Knowledge → Course Impact Analysis
+NEXT: re-audit product priority before next implementation task
 ```
 
 `*` C2 的 `drizzle/0006_square_sharon_carter.sql` 已生成并提交，但远程数据库尚未执行，因此远程真实 C2 DB Runtime 尚未验证。
@@ -54,6 +55,7 @@ Knowledge → Course Update Candidate
 Knowledge ↔ multiple Content Sources (PRIMARY / SUPPORTING)
 Knowledge → Feishu Deep Resource (Admin bridge)
 Knowledge → Practice Draft → Human Review → Latest Practice DRAFT
+Knowledge → Course Impact Analysis → Human Confirm → Course Candidate
 Practice Read / Submit / RULE Evaluation
 Feedback / Event → Course Insight → Candidate → Human Review
 ```
@@ -127,7 +129,16 @@ Knowledge 保持核心知识资产。Feishu、Obsidian、Skill、Media Asset 都
 - 已有正式 Latest Practice 时拒绝覆盖；
 - 首个版本化 Skill 已落盘到 `skills/practice-draft/v0.1.ts`。
 
-下一步只讨论 / 审计 `MVP-011-G — Knowledge → Course Impact Analysis`。远程 0006 / 0007 / 0008 / 0009 migration 在真实 Runtime 前仍需明确执行。
+`MVP-011-G — Knowledge → Course Impact Analysis` 已按最小范围完成：
+
+- 没有新增 Analysis 表或 migration；
+- 只分析 Published Lesson catalog，并返回临时建议；
+- Provider 可用时调用 AI；当前环境未配置 Provider，因此验证的是 conservative RULE 路径；
+- RULE 只有在 Knowledge 已有 lessonId / stageId 关联时才建议 Lesson，否则返回空；
+- 管理员必须点击采用、人工确认 lessonId / disposition / proposal 后，才复用现有 Candidate API 落库；
+- Candidate 仍进入 PENDING_REVIEW，AI/RULE 不会自动批准，也不会修改 Lesson。
+
+下一步先重新审计产品主线优先级，不自动进入新功能。远程 0006-0009 migration 仍需在真实 Runtime 前明确执行。
 
 ## 固定开发流程
 

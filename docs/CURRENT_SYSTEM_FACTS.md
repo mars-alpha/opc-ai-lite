@@ -9,19 +9,19 @@
 当前治理提交后的 Git 受控文件：
 
 ```text
-TOTAL  198
-TEXT   191
+TOTAL  201
+TEXT   194
 BINARY 7
 ```
 
 主要目录：
 
 ```text
-app/         53
+app/         54
 components/  33
-docs/        32
+docs/        33
 drizzle/     21
-lib/         34
+lib/         35
 skills/      1
 ```
 
@@ -286,6 +286,20 @@ sourceType = KNOWLEDGE
 
 Knowledge 来源审核不会反向修改 Knowledge；任何 Candidate APPROVED 都不会自动覆盖 Published Lesson。
 
+当前已新增 Knowledge → Course Impact Analysis：
+
+```text
+Published + active Knowledge
+→ analyze against Published Lesson catalog
+→ AI (configured) or conservative RULE suggestion
+→ transient suggestions only
+→ Admin selects / edits
+→ existing Course Update Candidate API
+→ PENDING_REVIEW
+```
+
+Impact Analysis 本身不落新表、不生成新 migration。RULE 模式只在 Knowledge 已明确关联 lessonId 或 stageId 时给建议；没有课程关联时返回空建议，不随意猜测 Lesson。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：
@@ -296,7 +310,7 @@ OPC_AI_ANALYSIS_API_KEY
 OPC_AI_ANALYSIS_MODEL
 ```
 
-当前环境检测 `AI_PROVIDER_CONFIGURED=NO`。Course Insight 继续保持 RULE / ANALYSIS_READY 边界；Practice Draft 在 Provider 未配置或调用失败时明确生成 `generationMode=RULE` 的模板草稿并记录 `generationError`，不会冒充 AI 输出。
+当前环境检测 `AI_PROVIDER_CONFIGURED=NO`。Course Insight 继续保持 RULE / ANALYSIS_READY 边界；Practice Draft 在 Provider 未配置或调用失败时明确生成 `generationMode=RULE` 的模板草稿并记录 `generationError`；Course Impact Analysis 同样明确返回 `generationMode=RULE` 与 `AI_PROVIDER_NOT_CONFIGURED`，不会冒充 AI 输出。
 
 ## 7. 当前内容资产长期边界
 
@@ -361,13 +375,10 @@ lib/learning/progress-adapter.ts
 MVP-011-D — Knowledge Provenance Foundation
 MVP-011-E — Deep Resource / Feishu Bridge
 MVP-011-F — Knowledge → Practice AI Draft Workflow
-```
-
-下一步先讨论 / 审计：
-
-```text
 MVP-011-G — Knowledge → Course Impact Analysis
 ```
+
+下一步先重新审计主线优先级，再决定是否进入 Obsidian Sync / Skill v0.1 真实迭代 / Access Policy；不自动扩大任务。
 
 先审计现有 Content / Knowledge / Practice / Course Candidate 是否已足够表达：
 
@@ -377,7 +388,7 @@ External Signal
 → Derived Assets
 ```
 
-F 已完成最小 Draft → Human Review → Formal Practice DRAFT 链；G 继续保持 AI 只能形成 Course Update Candidate，不能直接改 Published Course。
+G 已完成最小 Impact Analysis → Human Confirm → Existing Candidate 链；AI/RULE 分析结果不直接落课程，也不会自动 APPROVE Candidate。
 
 ## 11. 每次任务后的事实同步
 

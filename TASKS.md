@@ -325,13 +325,24 @@ Priority: P0
 
 Migration：`drizzle/0009_chief_marvex.sql`。当前数据库为 REMOTE，本任务未自动执行；真实 Runtime / 部署前需依次执行并验证 0006-0009。
 
+## MVP-011-G — Knowledge → Course Impact Analysis
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/MVP-011-G.md`。
+
+已完成最小课程影响分析层：Published / active Knowledge 会与当前 Published Lesson catalog 对比，返回 lessonId / disposition / affectedArea / proposedChange / rationale / confidence 建议。
+
+分析结果只存在于当前 Admin 会话，不新增表、不新增 migration。管理员必须明确点击“采用”，再人工确认表单，最后才复用现有 Knowledge → Course Update Candidate API。已有 Knowledge + Lesson Candidate 继续由现有唯一约束与服务保持幂等。
+
+Provider 配置存在时才调用真实 AI。当前 `AI_PROVIDER_CONFIGURED=NO`，因此已验证的是 conservative RULE 分析：只在 Knowledge 已关联 lessonId / stageId 时提供候选，否则返回空建议，不随意猜 Lesson。
+
+Candidate 仍固定进入 PENDING_REVIEW；分析层没有 APPROVE 权限，不写 Lesson、不发布课程。
+
 # NEXT PHASE
 
-下一步先讨论 / 审计：
-
-`MVP-011-G — Knowledge → Course Impact Analysis`
-
-目标：分析 Reviewed Knowledge 是否影响既有课程，只形成可人工审核的 Course Update Candidate，不直接修改 Published Course。
+下一步先重新读取当前事实与产品价值，讨论主线优先级。不要自动进入 Obsidian / Skill / Media / Access 中的任一项。
 
 建议后续顺序：
 
@@ -365,7 +376,6 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
 
 
 

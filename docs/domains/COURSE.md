@@ -758,3 +758,19 @@ Reviewed Knowledge / Published Deep Resource
 ```
 
 Practice Draft 不是用户可执行 Practice；正式提交 / Evaluation 仍只针对 `practices`。AI 或 RULE 生成器不能覆盖已有正式 Practice，也不能直接把 Practice 设为 PUBLISHED。
+
+---
+
+## 10. Knowledge → Course Impact Analysis 边界
+
+新的 Reviewed Knowledge 可以先分析是否影响已有 Published Lesson，但分析结果不是课程更新任务本身：
+
+```text
+Impact Suggestion
+→ Human choose lesson / disposition / proposal
+→ Course Update Candidate
+→ Human Review
+→ later manual course update
+```
+
+只有人工确认后才形成 Candidate。AI / RULE 不直接更新 Lesson，不自动批准 Candidate；无明确课程关联的 RULE 分析允许返回空结果。

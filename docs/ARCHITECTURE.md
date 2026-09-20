@@ -780,3 +780,27 @@ LATEST_PRACTICE(status = DRAFT)
 ```
 
 正式 `practices` 仍是唯一可运行 Practice 数据源。AI / RULE Draft 没有直接发布权限，也没有覆盖已有正式 Latest Practice 的权限。
+
+---
+
+## 16. MVP-011-G Course Impact Analysis Boundary
+
+课程影响分析固定为非持久化建议层：
+
+```text
+Published Knowledge
+↓
+Published Lesson Catalog
+↓
+AI / conservative RULE
+↓
+Transient Impact Suggestions
+↓
+Human Confirm
+↓
+Course Update Candidate(PENDING_REVIEW)
+↓
+Human Review
+```
+
+AI / RULE 没有 Candidate APPROVE 权限，也不能写入或发布 Lesson。为了减少噪音，RULE 模式在没有 Knowledge→Lesson / Stage 明确关系时返回空建议，而不是随机匹配课程。

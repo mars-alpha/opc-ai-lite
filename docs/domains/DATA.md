@@ -298,7 +298,37 @@ APPROVE Draft
 
 ---
 
-## 11. Course Update Candidate
+## 11. Course Impact Analysis
+
+Knowledge 对课程的影响分析不建立独立持久化事实源。
+
+```text
+Published + active Knowledge
+↓
+Published Lesson catalog
+↓
+AI (configured) / conservative RULE
+↓
+transient suggestions
+├─ lessonId
+├─ disposition
+├─ affectedArea
+├─ proposedChange
+├─ rationale
+└─ confidence
+↓
+Human select / edit
+↓
+existing Course Update Candidate
+```
+
+RULE 模式只在 Knowledge 已有明确 `lessonId` 或 `stageId` 关联时建议目标 Lesson；没有关联时返回空结果，避免制造噪音。
+
+Impact Analysis 不自动创建 Candidate，不保存独立 Analysis 表，不自动 APPROVE，也不修改 Lesson。
+
+---
+
+## 12. Course Update Candidate
 
 Candidate 只是 Proposal，目前支持两种真实来源：
 
@@ -338,7 +368,7 @@ Insight 来源审核可以同步 Course Insight 状态；Knowledge 来源审核�
 
 ---
 
-## 12. 行为信号
+## 13. 行为信号
 
 Interactive Lesson 可从真实行为刷新 Insight，例如：
 
@@ -353,7 +383,7 @@ HELPFULNESS
 
 ---
 
-## 13. 当前不建设
+## 14. 当前不建设
 
 ```text
 大型 BI

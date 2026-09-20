@@ -23,6 +23,22 @@ type Candidate = {
   reviewedAt: string | null;
 };
 
+type ImpactSuggestion = {
+  lessonId: string;
+  lessonTitle: string;
+  disposition: string;
+  affectedArea: string;
+  proposedChange: string;
+  rationale: string;
+  confidence: number;
+};
+
+type ImpactResult = {
+  generationMode: "RULE" | "AI";
+  generationError: string | null;
+  suggestions: ImpactSuggestion[];
+};
+
 export function KnowledgeCourseCandidatePanel({ knowledge }: { knowledge: KnowledgeForCandidate }) {
   const [items, setItems] = useState<Candidate[]>([]);
   const [lessonId, setLessonId] = useState(knowledge.lessonId ?? "");
@@ -32,6 +48,8 @@ export function KnowledgeCourseCandidatePanel({ knowledge }: { knowledge: Knowle
   const [affectedArea, setAffectedArea] = useState("Lesson content");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [impact, setImpact] = useState<ImpactResult | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   async function load() {
@@ -46,12 +64,62 @@ export function KnowledgeCourseCandidatePanel({ knowledge }: { knowledge: Knowle
 
   useEffect(() => {
     setLessonId(knowledge.lessonId ?? "");
+    setImpact(null);
     setMessage(null);
     setLoading(true);
     load()
       .catch((error) => setMessage(error instanceof Error ? error.message : "课程更新候选读取失败"))
       .finally(() => setLoading(false));
   }, [knowledge.id, knowledge.lessonId]);
+
+  async function analyzeImpact() {
+    setAnalyzing(true);
+    setMessage(null);
+    try {
+      const response = await fetch(
+        "/api/admin/knowledge/items/" + encodeURIComponent(knowledge.id) + "/course-impact",
+        { method: "POST" }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const messages: Record<string, string> = {
+          KNOWLEDGE_NOT_PUBLISHED: "Knowledge 尚未 PUBLISHED，不能执行课程影响分析。",
+          KNOWLEDGE_NOT_ACTIVE: "Knowledge 已过时或废弃，不能执行课程影响分析。",
+          NO_PUBLISHED_LESSONS: "当前没有可供分析的 Published Lesson。"
+        };
+        throw new Error(messages[data.error] ?? data.error ?? "课程影响分析失败");
+      }
+
+      const result = data as ImpactResult;
+      setImpact(result);
+      if (result.suggestions.length === 0) {
+        setMessage(
+          result.generationMode === "AI"
+            ? "分析未发现明确需要更新的 Lesson；不会自动生成 Candidate。"
+            : "RULE 分析没有足够课程关联，未生成建议；请人工判断目标 Lesson。"
+        );
+      } else {
+        setMessage(
+          result.generationMode === "AI"
+            ? "AI 已给出课程影响建议；请人工确认后再创建 Candidate。"
+            : "当前未使用真实 AI Provider，已给出 RULE 影响建议；请人工确认。"
+        );
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "课程影响分析失败");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  function applySuggestion(suggestion: ImpactSuggestion) {
+    setLessonId(suggestion.lessonId);
+    setDisposition(suggestion.disposition);
+    setProposedChange(suggestion.proposedChange);
+    setRationale(suggestion.rationale);
+    setAffectedArea(suggestion.affectedArea);
+    setMessage("已填入影响分析建议；请人工确认并按需修改后再创建 Candidate。");
+  }
 
   async function create() {
     setBusy(true);
@@ -107,6 +175,48 @@ export function KnowledgeCourseCandidatePanel({ knowledge }: { knowledge: Knowle
 
       {loading ? <p className="admin-routing-note">正在检查已有课程更新候选…</p> : (
         <>
+          <div className="admin-routing-actions">
+            <small>
+              影响分析只提供候选 Lesson 与修改建议；不会自动创建、批准或修改课程。
+            </small>
+            <button
+              className="btn btn-ghost"
+              type="button"
+              disabled={analyzing || knowledge.status !== "PUBLISHED"}
+              onClick={analyzeImpact}
+            >
+              {analyzing ? "分析中…" : "分析课程影响"}
+            </button>
+          </div>
+
+          {impact ? (
+            <div className="admin-candidate-linked-list">
+              <div className="admin-routing-note">
+                {impact.generationMode}
+                {impact.generationError ? " · " + impact.generationError : ""}
+              </div>
+              {impact.suggestions.map((suggestion) => (
+                <div className="admin-routing-linked" key={suggestion.lessonId}>
+                  <div>
+                    <span>
+                      影响建议 · {Math.round(suggestion.confidence * 100)}%
+                    </span>
+                    <strong>{suggestion.lessonTitle}</strong>
+                    <small>{suggestion.disposition} · {suggestion.affectedArea}</small>
+                    <small>{suggestion.rationale}</small>
+                  </div>
+                  <button
+                    className="btn btn-ghost"
+                    type="button"
+                    onClick={() => applySuggestion(suggestion)}
+                  >
+                    采用
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
           {items.length > 0 ? (
             <div className="admin-candidate-linked-list">
               {items.map((item) => (
