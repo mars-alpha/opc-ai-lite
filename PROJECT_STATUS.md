@@ -21,13 +21,14 @@ LEARNING-UX-001 Guided Learning Pilot        COMPLETE_WITH_MANUAL_UX_REVIEW_PEND
 LEARNING-UX-001-C Completion Loop            COMPLETE
 LEARNING-UX-001-C Acceptance Refinement      COMPLETE
 LEARNING-SPEC-001 Course Construction Spec    COMPLETE
+LEARNING-UX-001-D Reference Lesson Finalization COMPLETE
 
-NEXT: LEARNING-UX-001-D — Reference Lesson Finalization
+NEXT: LEARNING-SPEC-002 — Multi-type Lesson Validation
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@605d231`。
+业务代码验证基线：`main@7262713`。
 
 ```text
 npm run typecheck     PASS
@@ -42,6 +43,7 @@ Guided Preview mode   PASS
 Shared rule evaluator PASS
 Completion Loop smoke PASS
 Acceptance refinement PASS
+Reference Lesson flow PASS
 Guided Lesson build   PASS
 Test data cleanup     PASS
 ```
@@ -76,7 +78,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-SPEC-001` 已完成 OPC 六阶段能力地图、AI 基础必懂概念、四类 Lesson Type、标准 Step Flow、Completion Gate、真实 AI 操作三态、Feedback / Access 规则、机器可读 Lesson Spec 草案与 Course Builder Skill Contract。下一步按 Spec 完成 `task-brief` Reference Lesson：重点重构第 4 步 Practice Closure、第 5 步学习回顾、第 6 步能力获得，以及“点击下一课 → 可选课程评分 → 下一课”的退出流程。完成后再选 2–3 节不同类型课程验证 Spec，不直接批量迁移。
+`LEARNING-UX-001-D` 已按 `docs/LEARNING_SPEC.md` 完成 `task-brief` Reference Lesson：第 4 步在原地完成检查 / 修改 / 重检 / 通过；第 5 步改为学习回顾、最终答案与学习自评；第 6 步只保留能力获得、下一课价值和学习路径；课程评分只有在 Core 已确认本课完成且用户点击继续下一课时才出现，可提交或跳过。下一步只选 2–3 节不同 Lesson Type 验证同一 Spec，不直接批量迁移。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

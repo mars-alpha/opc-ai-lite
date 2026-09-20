@@ -415,11 +415,18 @@ Priority: P0
 
 本任务只固化规范，不改 Schema / Migration / Access Core，不批量迁移课程，不实现 Course Builder Skill。
 
+## LEARNING-UX-001-D — Reference Lesson Finalization
+
+Status: COMPLETE
+Priority: P0
+
+`chatgpt-worker / task-brief` 已按 `docs/LEARNING_SPEC.md` 完成 Reference Lesson：Step 4 Practice Closure 单一闭环；Step 5 学习回顾 + 最终答案 + 学习自评；Step 6 能力获得；正式完成后点击下一课才触发可跳过课程评分。该课不需要真实 AI 操作证明学会，因此当前 `real_ai_operation = NONE`，已移除原 copy / outcome 流程。新增 `learning_self_assessment` 与 `practice_retry_requested` 行为事件；未新增 Schema / Migration。
+
 # NEXT PHASE
 
-`LEARNING-UX-001-D — Reference Lesson Finalization`
+`LEARNING-SPEC-002 — Multi-type Lesson Validation`
 
-按 `docs/LEARNING_SPEC.md` 把 `task-brief` 做成正式 Reference Lesson：第 4 步自己做 → 检查 → 修改 → 通过同一步闭环；第 5 步学习回顾 + 查看最终答案 + 学习自评；第 6 步只展示能力获得 / 下一课价值 / 学习路径；点击下一课后再出现可跳过课程评分。随后选择 2–3 节不同 Lesson Type 验证 Spec，再进入 Course Builder Skill v0.1。
+先从现有课程选择 2–3 节不同 Lesson Type 验证同一 Spec，不批量迁移。通过后再进入 `COURSE-BUILDER-SKILL-001`。
 
 建议后续顺序：
 

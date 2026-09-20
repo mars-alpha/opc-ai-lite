@@ -269,3 +269,124 @@ npm run build          PASS
 ```text
 LEARNING-CORE-001 — Knowledge Point / Review Recommendation Foundation
 ```
+
+
+## LEARNING-UX-001-D — Reference Lesson Finalization
+
+Status: COMPLETE
+
+基于 `docs/LEARNING_SPEC.md`，`chatgpt-worker / task-brief` 已升级为第一份 OPC Reference Lesson。
+
+### Step 4 — Practice Closure
+
+```text
+未检查
+→ 检查我的答案
+
+未通过
+→ 原地显示具体分项反馈
+→ 用户原地修改
+→ 修改后重新检查
+
+已通过
+→ 继续学习
+```
+
+第 4 步不再同时出现 Practice 主按钮和竞争性的底部“下一步”。Practice 评分后保持在当前 Step，直到通过。
+
+### Step 5 — 学习回顾
+
+```text
+核心知识回顾
+→ 查看我的最终答案
+→ 学习自评
+   ├─ 我可以自己完成
+   ├─ 我基本明白，但还需要参考
+   └─ 我还需要再练一次
+```
+
+学习自评不是 Completion Gate。“再练一次”保留当前内容并回到 Practice。
+
+本 Lesson 的学习目标不要求必须在外部 AI 产品运行才能证明学会，因此按 Spec 固定：
+
+```text
+real_ai_operation = NONE
+```
+
+已移除原“复制任务简报 → 外部 AI → outcome”流程。
+
+### Step 6 — 能力获得
+
+只展示：
+
+```text
+我现在会什么
+我完成了什么
+下一课能获得什么
+学习路径 →
+```
+
+没有课程评分、公众号 CTA 或会员 CTA。
+
+### Exit Course Rating
+
+课程评分不再常驻 Lesson 页面。
+
+```text
+Core 已确认 Lesson COMPLETED
+→ 用户点击继续下一课
+→ 展开可选课程评分
+→ 提交并进入下一课
+   OR
+   暂时跳过
+→ 下一课
+```
+
+评分三档：
+
+```text
+没太学懂
+基本有帮助
+很有帮助
+```
+
+可继续选择原因和填写文字。评分永远不是 Completion Gate。
+
+### Learning Events
+
+新增现有事件白名单：
+
+```text
+learning_self_assessment
+practice_retry_requested
+```
+
+没有新增 Schema / Migration。
+
+### Validation
+
+```text
+npm run typecheck            PASS
+npm run build                PASS
+Production build             30 static pages generated
+STEP4_SINGLE_FLOW            PASS
+STEP4_STAYS_LOCAL            PASS
+STEP5_REVIEW                 PASS
+NO_EXTERNAL_AI_STEP5         PASS
+STEP6_CAPABILITY_ONLY        PASS
+SELF_ASSESS_NOT_GATE         PASS
+RATING_ON_NEXT               PASS
+RATING_REQUIRES_COMPLETION   PASS
+RATING_NOT_STATIC            PASS
+EVENTS_ALLOWED               PASS
+```
+
+现有非阻塞 warning 保持不变：`app/globals.css` 的 autoprefixer 提示 `end` 建议改为 `flex-end`。
+
+### Next
+
+```text
+LEARNING-SPEC-002 — Multi-type Lesson Validation
+```
+
+从现有课程选择 2–3 节不同 Lesson Type 验证同一 Spec；不直接批量迁移。

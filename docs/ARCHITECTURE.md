@@ -730,7 +730,7 @@ Access Core 仍决定真实数据是否读取 / 返回
 用户界面默认中文；真实 AI 行业术语保留中英双语。
 ```
 
-LEARNING-UX-001 当前只验证单 Lesson 样板；在产品体验确认前，不把该结构机械迁移到全部课程，也不提前建设复杂 Mastery / Recommendation 平台。课程建造、Lesson Type、Step Flow、Completion Gate、真实 AI 操作、Feedback、Access Presentation 与 Course Builder Skill Contract 的正式基线见 `docs/LEARNING_SPEC.md`。
+LEARNING-UX-001 当前只验证单 Lesson 样板；在产品体验确认前，不把该结构机械迁移到全部课程，也不提前建设复杂 Mastery / Recommendation 平台。课程建造、Lesson Type、Step Flow、Completion Gate、真实 AI 操作、Feedback、Access Presentation 与 Course Builder Skill Contract 的正式基线见 `docs/LEARNING_SPEC.md`。`chatgpt-worker / task-brief` 已由 LEARNING-UX-001-D 固化为第一份 Reference Lesson，用于后续多类型课程验证。
 
 Guided Learning 的稳定体验规则：
 

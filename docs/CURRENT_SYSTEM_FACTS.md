@@ -406,15 +406,15 @@ ACCESS-001 已完成统一资源级 Access Policy 与匿名 / 普通 / 公众号
 
 ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价值不隐藏；公众号关注与 Membership 保持两条独立转化路径。
 
-LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现。LEARNING-SPEC-001 已新增 `docs/LEARNING_SPEC.md`，正式固化六阶段课程能力地图、AI 基础必懂概念、四类 Lesson Type、Lesson / Step 建造规则、Completion Gate、真实 AI 操作 NONE / GUIDED / REQUIRED、Feedback / Access 位置、机器可读 Lesson Spec 草案以及 Course Builder Skill BUILD / IMPROVE Contract。该任务仅新增规范，不改数据库 Schema / Migration / Access Core / Published Course。
+LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现。LEARNING-SPEC-001 已新增 `docs/LEARNING_SPEC.md`。LEARNING-UX-001-D 已进一步把 `chatgpt-worker / task-brief` 固化为 Reference Lesson：Step 4 Practice Closure 在同一步完成检查 / 修改 / 重检 / 通过；Step 5 为学习回顾 + 最终答案 + 学习自评；Step 6 只展示能力获得 / 下一课价值 / 学习路径；课程评分只在正式 Completion 后点击下一课时出现，可提交或跳过。该 Lesson 的 `real_ai_operation = NONE`，已移除原先真实 AI copy / outcome 流程。未改数据库 Schema / Migration / Access Core。
 
-下一阶段先进行：
+下一阶段候选：
 
 ```text
-LEARNING-UX-001-D — Reference Lesson Finalization
+LEARNING-SPEC-002 — Multi-type Lesson Validation
 ```
 
-按 `docs/LEARNING_SPEC.md` 完成 task-brief 最终交互后，再用 2–3 节不同 Lesson Type 验证同一 Spec；验证稳定后才进入 Course Builder Skill v0.1 和批量课程完善。
+从现有课程中选择 2–3 节不同 Lesson Type（至少覆盖 CONCEPT 与 PRACTICE / APPLICATION，再补一节 Workflow / Tool-concept 相关课）验证同一 Spec；验证稳定后才进入 Course Builder Skill v0.1 和批量课程完善。
 
 AI-DAILY-001 保持排队，不在本阶段扩展。
 
