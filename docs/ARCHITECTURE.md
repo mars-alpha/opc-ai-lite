@@ -176,6 +176,232 @@ Agent Orchestration
 
 ---
 
+## 4.1 Deterministic Core / Skill Runtime Boundary
+
+OPC 固定采用：
+
+```text
+Code = Truth
+Skill = Intelligence
+Workflow = Controlled Bridge
+Core System = Authority
+```
+
+所有新能力先按以下六条规则分类：
+
+```text
+Rule 1
+能确定性实现 → Code First
+
+Rule 2
+需要语义理解 / 生成 / 推理 → Skill
+
+Rule 3
+Skill 不直接拥有核心业务状态
+
+Rule 4
+Skill 输出必须结构化
+
+Rule 5
+最终写库、发布、权限、状态变化 → Core System
+
+Rule 6
+Skill 挂掉，核心系统仍可运行
+```
+
+标准运行架构：
+
+```text
+┌─────────────────────────┐
+│ Deterministic Core      │
+│ 普通代码                 │
+│                         │
+│ DB / Auth / Access      │
+│ State / CRUD / Schema   │
+│ Validation / Workflow   │
+└────────────┬────────────┘
+             │ controlled context
+             ▼
+┌─────────────────────────┐
+│ Skill Runtime           │
+│                         │
+│ Summarize               │
+│ Analyze                 │
+│ Classify                │
+│ Generate                │
+│ Synthesize              │
+└────────────┬────────────┘
+             │ structured output
+             ▼
+┌─────────────────────────┐
+│ Structured Draft        │
+│ Proposal / Candidate    │
+└────────────┬────────────┘
+             │
+      Code Validation
+             │
+             ▼
+       Human / Rules
+             │
+             ▼
+        Production Data
+```
+
+### Deterministic Core
+
+以下能力默认 Code First：
+
+```text
+Database CRUD
+Authentication
+Authorization / Access
+Entitlement / Membership
+State Machine
+Lifecycle / Status Transition
+Schema
+Validation
+Field Mapping
+Formatting
+Sorting / Filtering
+Idempotency
+Publish / Unpublish
+Production write
+```
+
+如果业务要求“同样输入必须得到可证明、可测试、可断言的系统结果”，优先由普通代码实现。
+
+尤其是：
+
+```text
+Access / Permission
+DB Write
+Publish
+State Transition
+Core Business Fact
+```
+
+必须由 Core System 最终决定，Skill 没有 authority。
+
+### Skill Runtime
+
+以下能力适合 Skill：
+
+```text
+Semantic Understanding
+Summarization
+Analysis
+Classification
+Reasoning
+Generation
+Synthesis
+Multi-source Judgment
+Ambiguous Boundary Judgment
+```
+
+Skill 不直接操作 Production Data，而是生成：
+
+```text
+Structured Draft
+Proposal
+Candidate
+Suggestion
+Classification Result
+Analysis Result
+```
+
+### Context Boundary
+
+Skill 默认不自行遍历数据库、文件系统或第三方 API。
+
+正确模式：
+
+```text
+Core System
+→ Context Builder
+→ controlled context
+→ Skill
+```
+
+由系统决定：
+
+```text
+读取哪些 Knowledge
+读取哪些 Deep Resource
+允许哪些 Lesson / Practice / Content
+允许多大输入
+是否允许外部工具
+```
+
+这样权限、成本、可审计性和数据泄漏边界都由 Core System 控制。
+
+### Structured Output + Validation
+
+Skill 输出必须有结构化 Contract / Schema。
+
+```text
+Skill Result
+↓
+Schema Validation
+↓
+Business Rule Validation
+↓
+Human / Rule Gate
+↓
+Core System Action
+```
+
+Skill 生成的 ID、枚举、状态、关联关系等均不能直接信任，必须由系统重新验证。
+
+### Failure Boundary
+
+Skill / Provider 属于增强能力，不得成为核心系统单点故障。
+
+```text
+Skill Success
+→ Structured Result
+→ Validation
+→ Continue
+
+Skill Timeout / Provider Failure / Invalid Output
+→ RULE fallback
+or NEEDS_REVIEW
+or no generation
+```
+
+具体 fallback 由业务任务定义，但以下能力必须继续工作：
+
+```text
+Auth
+Access
+Existing Course
+Existing Knowledge
+Existing Practice
+DB Read / Write
+Core State Machine
+```
+
+不得为了“保持 AI 功能可用”伪造 AI 结果。
+
+### Access 特别规则
+
+Access Control 永远属于 Deterministic Core：
+
+```text
+User
++ Resource
++ Entitlement
++ Membership
++ Resource Policy
+↓
+Access Resolver
+↓
+ALLOW / DENY / PREVIEW
+```
+
+Skill 不参与最终权限判断。
+
+---
+
 ## 5. Content Engine
 
 内容流水线应保持可审计：

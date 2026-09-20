@@ -123,6 +123,74 @@ npm run build
 
 第一个真实需要 Skill 的任务出现时，先做最小 Skill v0.x 并落盘版本化，再用真实结果迭代；不提前建设空的通用 Skill Platform。
 
+### 7.1 Core / Skill 六条固定规则
+
+所有新功能在设计前必须先判断属于 Deterministic Core、Skill Runtime，还是连接两者的 Workflow。
+
+固定规则：
+
+```text
+Rule 1
+能确定性实现 → Code First
+
+Rule 2
+需要语义理解 / 生成 / 推理 → Skill
+
+Rule 3
+Skill 不直接拥有核心业务状态
+
+Rule 4
+Skill 输出必须结构化
+
+Rule 5
+最终写库、发布、权限、状态变化 → Core System
+
+Rule 6
+Skill 挂掉，核心系统仍可运行
+```
+
+架构职责固定为：
+
+```text
+Code = Truth
+Skill = Intelligence
+Workflow = Controlled Bridge
+Core System = Authority
+```
+
+具体边界：
+
+- DB / Auth / Access / State / CRUD / Schema / Validation 属于 Deterministic Core；
+- 权限判断必须由 Core System 确定执行，禁止交给 Skill 猜测；
+- Skill 负责 Summarize / Analyze / Classify / Generate / Synthesize 等语义任务；
+- 系统负责决定 Skill 允许读取哪些 Context，并将受控 Context 传给 Skill；Skill 不默认拥有任意数据库 / 文件 / API 访问权；
+- Skill 只能返回 Structured Draft / Proposal / Candidate 等结构化候选；
+- Skill 输出必须经过 Code Validation，必要时再进入 Human Review / Rules；
+- 最终 Production Data 写入、发布、权限结果、状态流转只能由 Core System 执行；
+- Skill timeout / Provider failure / invalid output 时，核心系统仍必须可运行；按任务允许使用 RULE fallback / NEEDS_REVIEW / no generation，不得让 Skill failure 破坏 Auth、Access、Course、Knowledge、Practice 等核心 Runtime。
+
+标准执行链：
+
+```text
+Deterministic Core
+DB / Auth / Access
+State / CRUD / Schema
+Validation / Workflow
+        ↓
+Skill Runtime
+Summarize / Analyze / Classify
+Generate / Synthesize
+        ↓
+Structured Draft
+Proposal / Candidate
+        ↓
+Code Validation
+        ↓
+Human / Rules
+        ↓
+Production Data
+```
+
 ## 8. 任务完成后的固定收口
 
 固定流程：
