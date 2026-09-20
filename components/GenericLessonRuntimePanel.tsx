@@ -145,6 +145,15 @@ function evidenceLabel(kind: RealAiEvidence) {
   return "无需真实 AI 证据";
 }
 
+function stepPedagogyLabel(kind: LessonRuntimePlan["steps"][number]["kind"]) {
+  if (kind === "EXPLAIN") return "建立直觉";
+  if (kind === "EXAMPLE") return "讲透方法";
+  if (kind === "CHECK") return "检查理解";
+  if (kind === "PRACTICE") return "动手实操";
+  if (kind === "REVIEW") return "复盘框架";
+  return "能力获得";
+}
+
 function runtimeBlockerMessage(blocker: string) {
   if (blocker === "CHECK_NOT_CONFIGURED") {
     return "本课 required Check 尚未完成正式配置，因此理解检查不会伪造为可用。";
@@ -1087,7 +1096,7 @@ export function GenericLessonRuntimePanel({
           setMessage(null);
           setConfusedOpen(false);
         }} disabled={currentStep === 0}>← 上一步</button>
-        <div><span>{step.title}</span><small>{currentStep + 1} / {plan.steps.length}</small></div>
+        <div><span>{stepPedagogyLabel(step.kind)}</span><small>{currentStep + 1} / {plan.steps.length}</small></div>
         <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>
         {currentStep < plan.steps.length - 1 && (
           <button type="button" className="btn btn-primary" disabled={!canAdvance} onClick={() => {

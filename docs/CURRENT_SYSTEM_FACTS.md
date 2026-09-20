@@ -364,6 +364,8 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `prompt-foundations` 当前也使用 `comparisonPlacement=BOTTOM`：Step 1 主区只显示“只说一句要求 / 把关键条件说出来”，takeaway 之后才以轻量 knowledge-depth 样式解释“模糊 = AI 还要猜 / 清楚 = AI 知道怎么做”。Prompt Preview 单独启用 `previewReviewCardFill`：REVIEW 卡片仍保持同排等高，但“正确理解”区域会自动填满剩余高度；其他课程沿用原有通用 Review 布局。
 
+统一 Lesson Shell 底部导航不再重复具体 Step 标题，而是按 Step Kind 显示固定四字教学标签：EXPLAIN=建立直觉、EXAMPLE=讲透方法、CHECK=检查理解、PRACTICE=动手实操、REVIEW=复盘框架、CAPABILITY=能力获得。具体课程 Step 标题在正文中保持不变。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。

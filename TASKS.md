@@ -571,6 +571,8 @@ Status: COMPLETE_CODE_READY_REMOTE_MIGRATIONS_PENDING
 
 Human Review 继续优化 Prompt APPLICATION：Step 1 将“模糊 / 清楚”的概念解释移动到底部，主区只保留场景与两种做法；底部改成“模糊 = AI 还要猜 / 清楚 = AI 知道怎么做”的轻量解释。Step 5 按后续反馈改为 Prompt Preview 专用的等高填色布局：卡片高度不压缩，“正确理解”色块填满剩余空间；撤回通用卡片自适应高度修改，避免影响其他课程。
 
+统一课程底部导航标签已固定为六个四字教学阶段：建立直觉 / 讲透方法 / 检查理解 / 动手实操 / 复盘框架 / 能力获得。导航只按 Step Kind 映射，不按课程内容或 slug 分支；正文中的具体 Step 标题不变。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
