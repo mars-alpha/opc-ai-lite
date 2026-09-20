@@ -587,6 +587,12 @@ Status: COMPLETE_DEFINED_V1_MAINLINE_LOCKED
 
 `docs/learning/FORMAL_CURRICULUM_V1.md` 已同步为长期主线：AI 基础认知 → AI 工作应用 → AI 推广运营与业务增长 → AI Workflow 与自动化 → FDE / AI 解决方案落地。基础课自身按 7 个学习阶段建立完整 AI 世界模型；工作应用覆盖研究/写作/文件/数据/知识/重复任务；业务层覆盖内容运营/获客/销售/客服/运营分析/渠道；Workflow 层覆盖任务拆解、Context Engineering、Code/Skill/Tool/Agent 分工、Integration、Human-in-the-loop、Evaluation；FDE 覆盖 Discovery → Design → Pilot → Evaluation → Adoption → Capstone。每个核心概念只允许一个 Primary Knowledge Home。完整目录与 Production Batch 分离，3–5 节仅代表一次制作批次。当前 static catalog / acceptance fixtures 仍非正式课程 Source of Truth。下一步：`CURRICULUM-002 — Foundation Knowledge Map & Lesson Briefs`。
 
+### CURRICULUM-002 — Foundation Knowledge Map & Lesson Briefs
+
+Status: COMPLETE_DEFINED_V1
+
+新增 `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`。AI 基础认知 7 个阶段已展开为 28 个 Lesson Brief：4 + 4 + 4 + 4 + 4 + 6 + 6。每节固定 Primary Knowledge Home、Supporting Concepts、Prerequisite、Lesson Type、Planning Gate、Grounding freshness、Learner Outcome 和 Anti-overlap；同时建立全局知识主归属矩阵，避免 Prompt/Context/Memory/RAG/API/Tool/MCP/Skill/Workflow/Agent/HITL/Evaluation 等重复定义。现有 prompt-foundations/skill-foundations 可 REUSE+FORMALIZE；task-brief MERGE；context-token/memory-rag SPLIT；api-agent 作为单一正式课 RETIRE 并拆分。下一步：`CURRICULUM-003 — Foundation Batch A Brief Finalization`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

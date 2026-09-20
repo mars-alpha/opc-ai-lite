@@ -372,6 +372,8 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `CURRICULUM-001` 已将正式课程主线锁定为：AI 基础认知 → AI 工作应用 → AI 推广运营与业务增长 → AI Workflow 与自动化 → FDE / AI 解决方案落地。AI 基础认知内部按 7 个学习阶段组织：认识 AI、模型工作方式、AI 沟通、记忆与知识、外部能力连接、复用与执行方式、现代 AI 能力与边界。完整目录与内容生产批次明确分离；3–5 节只代表单次 Production Batch，不代表基础知识范围。每个核心概念只设一个 Primary Knowledge Home，后续课程只应用或深化，禁止从定义开始重复教学。当前 `lib/courses.ts` 与 Course Builder acceptance fixtures 仍不是正式 Curriculum Source of Truth。
 
+`CURRICULUM-002` 已新增 `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`，将 AI 基础认知 7 个阶段展开为 28 个 Lesson Brief，并为每节固定 Primary Knowledge Home、前置依赖、Lesson Type、规划级 Completion Gate、Grounding freshness、Anti-overlap 与现有资产迁移决策。基础课不包含 SDK 编程、MCP Server、Agent Runtime、Vector DB tuning 等工程实现；这些继续属于 Advanced Technical Track。Production Batch 只用于分批开发，不改变 28 节 Foundation Map 的完整范围。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。
