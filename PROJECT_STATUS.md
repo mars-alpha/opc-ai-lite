@@ -44,8 +44,9 @@ COURSE-BUILDER-SKILL-004-A Real PROJECT Lesson Acceptance TECHNICAL_ACCEPTANCE_P
 LEARNING-UX-FINAL-001 Unified Lesson Shell Freeze COMPLETE_FROZEN_V1
 CURRICULUM-001 Formal Curriculum Definition COMPLETE_DEFINED_V1_MAINLINE_LOCKED
 CURRICULUM-002 Foundation Knowledge Map & Lesson Briefs COMPLETE_DEFINED_V1
+CURRICULUM-003 Foundation Batch A Brief Finalization COMPLETE_BRIEF_READY_V1
 
-NEXT: CURRICULUM-003 — Foundation Batch A Brief Finalization
+NEXT: LEARNING-CATALOG-001 — Formal Curriculum Catalog UI
 ```
 
 ## 当前系统健康

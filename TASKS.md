@@ -593,6 +593,12 @@ Status: COMPLETE_DEFINED_V1
 
 新增 `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`。AI 基础认知 7 个阶段已展开为 28 个 Lesson Brief：4 + 4 + 4 + 4 + 4 + 6 + 6。每节固定 Primary Knowledge Home、Supporting Concepts、Prerequisite、Lesson Type、Planning Gate、Grounding freshness、Learner Outcome 和 Anti-overlap；同时建立全局知识主归属矩阵，避免 Prompt/Context/Memory/RAG/API/Tool/MCP/Skill/Workflow/Agent/HITL/Evaluation 等重复定义。现有 prompt-foundations/skill-foundations 可 REUSE+FORMALIZE；task-brief MERGE；context-token/memory-rag SPLIT；api-agent 作为单一正式课 RETIRE 并拆分。下一步：`CURRICULUM-003 — Foundation Batch A Brief Finalization`。
 
+### CURRICULUM-003 — Foundation Batch A Brief Finalization
+
+Status: COMPLETE_BRIEF_READY_V1
+
+新增 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md`。F1-01～F1-04 已提升为 Course Builder-ready Formal Brief，分别覆盖 AI/ML/Generative AI、LLM Model vs Product、Training vs Inference、Generation vs Retrieval vs Deterministic Logic。每节已固定最终标题、Catalog subtitle/outcome、预计时长、Prerequisite、Lesson Type/Gate、Learning Objectives、Canonical Knowledge、Misconceptions、Scenario、六步教学意图、Three-Question Mastery focus、Grounding 与 Anti-overlap。新增 Catalog Display Contract，明确 curriculumStatus 与 availability 分离；PLANNED/BRIEF_READY 可展示但不可进入空课程页。下一步：`LEARNING-CATALOG-001 — Formal Curriculum Catalog UI`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
