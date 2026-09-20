@@ -491,6 +491,14 @@ Status: PREVIEW_READY
 
 该路由用于非技术产品负责人直接体验课程。下一步不是继续开发，而是先完成 Human Review：看得懂 / 是否太技术 / 案例与 Check 是否有效 / 是否愿意继续下一课。
 
+### COURSE-BUILDER-SKILL-001-C — Beginner Pedagogy & Knowledge Grounding
+
+Status: COMPLETE
+
+根据 Human Review，Course Builder 已新增四项硬规则：课程生成必须基于已审核 Knowledge 或研究资料包；初学者课程中文优先；通用课程保持 AI 软件中立；CONCEPT 也必须有参与活动和可感知获得感，参与活动与正式 Completion Gate 分离。
+
+真实样本 `skill-foundations` 已重写为生活化“会议记录”场景，并加入“复制到你正在使用的 AI 软件”互动。研究资料包记录了 OpenAI 官方关于技能可复用工作流程、指令、配套资料与脚本的公开说明。下一步重新由产品负责人进行 Human Review。
+
 建议后续顺序：
 
 ```text

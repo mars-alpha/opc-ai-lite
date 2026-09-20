@@ -7,6 +7,28 @@ import {
 export type CourseBuilderMode = "BUILD" | "IMPROVE";
 export type CourseBuilderReviewStatus = "PENDING_REVIEW";
 
+export type CourseBuilderGrounding = {
+  status: "REVIEWED";
+  sourceKind: "APPROVED_KNOWLEDGE" | "RESEARCH_PACKET";
+  sourceLabels: string[];
+  researchSummary: string;
+};
+
+export type CourseBuilderParticipation = {
+  kind: "CHOOSE" | "CLASSIFY" | "SHORT_RESPONSE" | "COPY_TO_AI" | "COMPARE" | "REVEAL" | "MINI_TASK";
+  title: string;
+  instruction: string;
+  prompt: string | null;
+  reflection: string;
+};
+
+export type CourseBuilderPedagogy = {
+  audience: "BEGINNER" | "GENERAL" | "ADVANCED";
+  languagePolicy: "ZH_CN_FIRST";
+  aiToolNeutral: true;
+  participation: CourseBuilderParticipation;
+};
+
 export type CourseBuilderLessonContent = {
   summary: string;
   plainExplanation: string;
@@ -26,6 +48,8 @@ export type CourseBuilderLessonContent = {
 
 export type CourseBuilderBuildDraft = {
   mode: "BUILD";
+  grounding: CourseBuilderGrounding;
+  pedagogy: CourseBuilderPedagogy;
   lessonSpec: LessonSpec;
   content: CourseBuilderLessonContent;
   check: null | Record<string, unknown>;
@@ -124,6 +148,56 @@ function rejectAuthorityFields(input: Record<string, unknown>) {
   }
 }
 
+function parseGrounding(input: unknown): CourseBuilderGrounding {
+  if (!isRecord(input)) throw new Error("INVALID_BUILD_GROUNDING");
+  if (input.status !== "REVIEWED") throw new Error("BUILD_GROUNDING_NOT_REVIEWED");
+  return {
+    status: "REVIEWED",
+    sourceKind: enumValue(
+      input.sourceKind,
+      ["APPROVED_KNOWLEDGE", "RESEARCH_PACKET"] as const,
+      "INVALID_GROUNDING_SOURCE_KIND"
+    ),
+    sourceLabels: textArray(input.sourceLabels, "INVALID_GROUNDING_SOURCE_LABELS"),
+    researchSummary: requiredText(input.researchSummary, "INVALID_GROUNDING_SUMMARY", 5000)
+  };
+}
+
+function parsePedagogy(input: unknown): CourseBuilderPedagogy {
+  if (!isRecord(input)) throw new Error("INVALID_BUILD_PEDAGOGY");
+  if (!isRecord(input.participation)) throw new Error("INVALID_BUILD_PARTICIPATION");
+  if (input.languagePolicy !== "ZH_CN_FIRST") {
+    throw new Error("COURSE_BUILDER_CHINESE_FIRST_REQUIRED");
+  }
+  if (input.aiToolNeutral !== true) {
+    throw new Error("COURSE_BUILDER_AI_TOOL_NEUTRAL_REQUIRED");
+  }
+  const prompt =
+    input.participation.prompt === null
+      ? null
+      : requiredText(input.participation.prompt, "INVALID_PARTICIPATION_PROMPT", 6000);
+  return {
+    audience: enumValue(
+      input.audience,
+      ["BEGINNER", "GENERAL", "ADVANCED"] as const,
+      "INVALID_PEDAGOGY_AUDIENCE"
+    ),
+    languagePolicy: "ZH_CN_FIRST",
+    aiToolNeutral: true,
+    participation: {
+      kind: enumValue(
+        input.participation.kind,
+        ["CHOOSE", "CLASSIFY", "SHORT_RESPONSE", "COPY_TO_AI", "COMPARE", "REVEAL", "MINI_TASK"] as const,
+        "INVALID_PARTICIPATION_KIND"
+      ),
+      title: requiredText(input.participation.title, "INVALID_PARTICIPATION_TITLE", 500),
+      instruction: requiredText(input.participation.instruction, "INVALID_PARTICIPATION_INSTRUCTION", 3000),
+      prompt,
+      reflection: requiredText(input.participation.reflection, "INVALID_PARTICIPATION_REFLECTION", 3000)
+    }
+  };
+}
+
 function parseLessonSpec(input: unknown): LessonSpec {
   if (!isRecord(input)) throw new Error("INVALID_LESSON_SPEC_DRAFT");
   rejectAuthorityFields(input);
@@ -219,6 +293,8 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
   const mode = enumValue(input.mode, ["BUILD", "IMPROVE"] as const, "INVALID_COURSE_BUILDER_MODE");
 
   if (mode === "BUILD") {
+    const grounding = parseGrounding(input.grounding);
+    const pedagogy = parsePedagogy(input.pedagogy);
     const lessonSpec = parseLessonSpec(input.lessonSpec);
     const content = parseContent(input.content);
     const check = input.check === null ? null : isRecord(input.check) ? input.check : (() => {
@@ -232,9 +308,14 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
     if (!lessonSpec.requiresCheck && check) throw new Error("BUILD_UNEXPECTED_CHECK");
     if (lessonSpec.practiceMode !== "NONE" && !practice) throw new Error("BUILD_REQUIRED_PRACTICE_MISSING");
     if (lessonSpec.practiceMode === "NONE" && practice) throw new Error("BUILD_UNEXPECTED_PRACTICE");
+    if (lessonSpec.lessonType === "CONCEPT" && !pedagogy.participation) {
+      throw new Error("CONCEPT_PARTICIPATION_REQUIRED");
+    }
 
     return {
       mode,
+      grounding,
+      pedagogy,
       lessonSpec,
       content,
       check,

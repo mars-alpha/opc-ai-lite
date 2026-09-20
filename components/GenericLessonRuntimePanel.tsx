@@ -71,6 +71,13 @@ type PreviewCheck = {
   explanation: string;
 };
 
+type PreviewActivity = {
+  title: string;
+  instruction: string;
+  prompt: string | null;
+  reflection: string;
+};
+
 function emptyPracticeContent(
   instructions: Array<{ key: string }>
 ): PracticeContent {
@@ -103,7 +110,8 @@ export function GenericLessonRuntimePanel({
   plan,
   lesson,
   previewMode = false,
-  previewCheck = null
+  previewCheck = null,
+  previewActivity = null
 }: {
   courseSlug: string;
   lessonSlug: string;
@@ -111,6 +119,7 @@ export function GenericLessonRuntimePanel({
   lesson: Lesson;
   previewMode?: boolean;
   previewCheck?: PreviewCheck | null;
+  previewActivity?: PreviewActivity | null;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
     previewMode
@@ -156,6 +165,7 @@ export function GenericLessonRuntimePanel({
   const [message, setMessage] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [confusedOpen, setConfusedOpen] = useState(false);
+  const [copiedActivity, setCopiedActivity] = useState(false);
 
   const refresh = useCallback(async () => {
     if (previewMode) return;
@@ -454,6 +464,32 @@ export function GenericLessonRuntimePanel({
             {lesson.example.after && <div><span>调整后的做法</span><p>{lesson.example.after}</p></div>}
           </div>}
           <div className="guided-gain"><strong>结果</strong><p>{lesson.example.result}</p></div>
+          {previewMode && previewActivity && (
+            <div className="guided-preview-activity">
+              <div className="guided-step-label">现在参与一下</div>
+              <h3>{previewActivity.title}</h3>
+              <p>{previewActivity.instruction}</p>
+              {previewActivity.prompt && (
+                <>
+                  <div className="guided-preview-prompt">{previewActivity.prompt}</div>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(previewActivity.prompt ?? "");
+                      setCopiedActivity(true);
+                    }}
+                  >
+                    {copiedActivity ? "✓ 已复制，去你的 AI 软件试一下" : "复制这段话"}
+                  </button>
+                </>
+              )}
+              <div className="guided-gain">
+                <strong>试完后想一想</strong>
+                <p>{previewActivity.reflection}</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

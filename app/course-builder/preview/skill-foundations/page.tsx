@@ -93,6 +93,7 @@ export default function SkillFoundationsDraftPreviewPage() {
             lesson={lesson}
             previewMode
             previewCheck={skillFoundationsBuildDraft.check}
+            previewActivity={skillFoundationsBuildDraft.pedagogy.participation}
           />
 
           <div className="draft-human-review-card">
@@ -101,10 +102,10 @@ export default function SkillFoundationsDraftPreviewPage() {
             <ol>
               <li>这节课你能不能看懂？</li>
               <li>有没有哪一步太长、太技术化或重复？</li>
-              <li>案例和理解检查有没有帮助你真正理解 Skill？</li>
+              <li>动手复制到自己的 AI 软件、案例和理解检查，有没有让你真正理解“技能”？</li>
               <li>如果这是正式课程，你愿不愿意继续下一课？</li>
             </ol>
-            <p>你的反馈不会在这个页面自动保存。直接回到 ChatGPT 告诉我哪里需要改即可。</p>
+            <p>你的反馈不会在这个页面自动保存。直接回到这里告诉我哪里需要改即可。</p>
           </div>
         </article>
       </div>

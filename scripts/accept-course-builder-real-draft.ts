@@ -29,7 +29,7 @@ if (packet.output.mode !== "BUILD") {
   throw new Error("REAL_DRAFT_BUILD_REQUIRED");
 }
 
-const { lessonSpec, content, check, practice } = packet.output;
+const { lessonSpec, content, check, practice, grounding, pedagogy } = packet.output;
 const plan = buildLessonRuntimePlan(lessonSpec);
 
 assert(lessonSpec.lessonType === "CONCEPT", "REAL_DRAFT_LESSON_TYPE");
@@ -69,18 +69,27 @@ assert(content.mistakes.length >= 3, "REAL_DRAFT_MISTAKES");
 assert(content.related.length >= 2, "REAL_DRAFT_RELATED");
 
 assert(
-  content.related.some((item) => item.includes("API、Tool、MCP 与 Agent")),
+  content.related.some((item) => item.includes("接口、工具、模型上下文协议与智能体")),
   "REAL_DRAFT_CURRICULUM_LINK"
 );
-assert(
-  lessonSpec.knowledgePoints.some((item) => item.includes("核心状态")),
-  "REAL_DRAFT_SKILL_CORE_BOUNDARY"
-);
+assert(grounding.status === "REVIEWED", "REAL_DRAFT_GROUNDING_NOT_REVIEWED");
+assert(grounding.sourceKind === "RESEARCH_PACKET", "REAL_DRAFT_GROUNDING_SOURCE");
+assert(grounding.sourceLabels.length >= 2, "REAL_DRAFT_GROUNDING_SOURCES");
+assert(pedagogy.audience === "BEGINNER", "REAL_DRAFT_BEGINNER_AUDIENCE");
+assert(pedagogy.languagePolicy === "ZH_CN_FIRST", "REAL_DRAFT_LANGUAGE_POLICY");
+assert(pedagogy.aiToolNeutral, "REAL_DRAFT_AI_TOOL_NEUTRAL");
+assert(pedagogy.participation.kind === "COPY_TO_AI", "REAL_DRAFT_PARTICIPATION_KIND");
+assert(Boolean(pedagogy.participation.prompt), "REAL_DRAFT_PARTICIPATION_PROMPT");
+assert(!JSON.stringify(skillFoundationsBuildDraft).includes("ChatGPT"), "REAL_DRAFT_VENDOR_LOCK_IN");
 
-console.log("REAL_LESSON_TOPIC=Skill 是什么：把可复用方法交给 AI");
+console.log("REAL_LESSON_TOPIC=技能（Skill）是什么：把常用方法教给 AI");
 console.log("REAL_DRAFT_CODE_VALIDATION=PASS");
 console.log("REAL_DRAFT_CONCEPT_RULES=PASS");
 console.log("REAL_DRAFT_RUNTIME_PLAN=PASS");
 console.log("REAL_DRAFT_UNIFIED_SHELL_COMPATIBILITY=PASS");
 console.log("REAL_DRAFT_CURRICULUM_FIT=PASS");
+console.log("REAL_DRAFT_GROUNDING=PASS");
+console.log("REAL_DRAFT_BEGINNER_PEDAGOGY=PASS");
+console.log("REAL_DRAFT_AI_TOOL_NEUTRAL=PASS");
+console.log("REAL_DRAFT_PARTICIPATION=PASS");
 console.log("REAL_DRAFT_STATUS=PENDING_REVIEW");

@@ -1,24 +1,50 @@
 export const skillFoundationsBuildDraft = {
   mode: "BUILD",
+  grounding: {
+    status: "REVIEWED",
+    sourceKind: "RESEARCH_PACKET",
+    sourceLabels: [
+      "OpenAI Academy：Using skills（2026-04-10）",
+      "OpenAI API 中文文档：技能",
+      "OpenAI Developers：构建技能"
+    ],
+    researchSummary:
+      "公开资料把技能描述为可复用的工作流程或指令集合，可包含配套资料与脚本，用来减少重复解释并提高同类任务的一致性。课程因此把技能讲成“把一套反复使用的方法保存下来交给 AI”，同时明确不同 AI 产品对技能的实现和名称可能不同。"
+  },
+  pedagogy: {
+    audience: "BEGINNER",
+    languagePolicy: "ZH_CN_FIRST",
+    aiToolNeutral: true,
+    participation: {
+      kind: "COPY_TO_AI",
+      title: "现在就把一套做法交给你的 AI",
+      instruction:
+        "把下面这段话复制到你正在使用的 AI 软件中。你用什么 AI 都可以。执行后观察：它是不是开始按照一套固定步骤工作，而不是只回答一个临时问题。",
+      prompt:
+        "以后我发给你一段会议记录时，请固定按这 4 步处理：1. 找出已经确定的决定；2. 找出每个负责人；3. 找出截止时间；4. 列出仍未解决的问题。最后用“决定 / 负责人 / 截止时间 / 待解决问题”四个栏目输出。",
+      reflection:
+        "如果下一次再处理会议记录，你还希望 AI 沿用这套步骤，那么你已经体会到“可复用方法”的价值。这就是理解技能最重要的一步。"
+    }
+  },
   lessonSpec: {
     version: "1.0.0",
     courseSlug: "ai-literacy",
     lessonId: "skill-foundations",
-    title: "Skill 是什么：把可复用方法交给 AI",
+    title: "技能（Skill）是什么：把常用方法教给 AI",
     lessonType: "CONCEPT",
     learningObjectives: [
-      "理解 Skill 不是模型本身，而是可版本化、可复用的方法与规则资产。",
-      "区分 Prompt、Tool、Skill 与 Agent 在 AI 系统中的不同职责。",
-      "知道什么时候应该把重复做法沉淀成 Skill，而不是继续依赖临时对话。"
+      "用自己的话解释什么是技能，以及它为什么适合重复任务。",
+      "区分一次性的提示词、可调用的工具、可复用的技能和负责多步行动的智能体。",
+      "看到一个重复 AI 任务时，能判断它是否值得沉淀成一套可复用方法。"
     ],
     knowledgePoints: [
-      "Skill 把 Prompt、规则、SOP、结构化输出要求等组织成可复用能力。",
-      "Skill 负责智能方法，不应该直接拥有数据库、权限、发布或学习进度等核心状态。",
-      "当一个任务反复出现、输入输出边界稳定且需要语义判断时，适合逐步沉淀成 Skill。"
+      "技能可以理解为交给 AI 的一套可重复使用的做事方法，通常包含步骤、规则、输出要求和必要资料。",
+      "提示词（Prompt）通常解决当前一次任务；技能把反复验证过的方法保存下来，供以后继续使用。",
+      "工具（Tool）提供能力，技能规定做法，智能体（Agent）可以在完成目标时组合多种工具和技能。",
+      "不同 AI 产品对技能的名称和实现可能不同，因此课程学习的是通用思想，而不是绑定某一个 AI 软件。"
     ],
     prerequisites: [
-      "理解生成式 AI 与 Prompt 的基本概念。",
-      "知道 Tool / Agent 可以让 AI 与外部系统交互。"
+      "会向 AI 软件输入问题或要求即可，不需要编程基础。"
     ],
     requiresExample: true,
     requiresCheck: true,
@@ -34,39 +60,40 @@ export const skillFoundationsBuildDraft = {
       {
         id: "explain",
         kind: "EXPLAIN",
-        title: "先把 Skill 和 Prompt 分开",
-        objective: "理解 Skill 是可复用、可版本化的方法资产，而不是一次性的聊天指令。"
+        title: "先从一个重复的小麻烦开始",
+        objective: "从日常重复使用 AI 的场景理解为什么需要保存一套做事方法。"
       },
       {
         id: "example",
         kind: "EXAMPLE",
-        title: "从每次重写提示词到固定课程生成方法",
-        objective: "通过真实重复任务理解 Skill 为什么需要稳定输入、规则和结构化输出。"
+        title: "亲手让 AI 按固定方法工作一次",
+        objective: "通过复制一段方法到自己的 AI 软件，直接感受“可复用方法”和临时提问的区别。"
       },
       {
         id: "check",
         kind: "CHECK",
-        title: "判断什么应该做成 Skill",
-        objective: "能区分临时 Prompt、普通代码、Tool 与真正需要 Skill 的语义任务。"
+        title: "你会把哪一种任务变成技能？",
+        objective: "用生活化场景判断什么任务适合沉淀为可复用方法。"
       },
       {
         id: "review",
         kind: "REVIEW",
-        title: "记住 Skill 的边界",
-        objective: "复盘 Skill 与 Core System、Tool、Agent 的职责边界。"
+        title: "用一句话分清四个概念",
+        objective: "用中文复盘提示词、工具、技能和智能体各自解决什么问题。"
       },
       {
         id: "capability",
         kind: "CAPABILITY",
-        title: "你现在能判断什么时候需要 Skill",
-        objective: "能为一个重复 AI 任务判断是否值得沉淀为 Skill。"
+        title: "你已经会判断什么时候值得做成技能",
+        objective: "把概念转化成以后选择 AI 用法时可以直接使用的判断能力。"
       }
     ],
     capabilityGain: [
-      "看到重复 AI 任务时，能判断应该用普通代码、Prompt、Tool 还是 Skill。",
-      "理解 Skill 可以持续优化，但不能直接掌握系统核心状态。"
+      "遇到重复 AI 任务时，能判断是否值得把做法保存成一套可复用方法。",
+      "不再把提示词、工具、技能和智能体混成同一个概念。"
     ],
-    nextLessonValue: "理解 Skill 后，再学习 Agent 如何组合模型、Context、Tool 与 Skill 完成多步任务。",
+    nextLessonValue:
+      "下一步可以继续理解智能体如何为了一个目标组合模型、工具、技能和上下文信息。",
     accessPresentation: {
       showCourseContext: true,
       showLearningPathLink: true,
@@ -74,76 +101,88 @@ export const skillFoundationsBuildDraft = {
     }
   },
   content: {
-    summary: "理解 Skill 在 AI 系统里的位置：它把反复验证过的方法、Prompt、规则和输出要求沉淀成可复用能力。",
-    plainExplanation: "你可以把 Skill 理解成“教 AI 怎么稳定完成某一类任务的方法包”。一次 Prompt 只解决当前对话；Skill 则把经过反复验证的做法固定下来，让系统以后遇到同类任务时继续使用，而且还能按版本迭代。",
-    whyItMatters: "如果所有智能逻辑都散落在临时 Prompt 里，系统会越来越难维护；但如果什么都叫 Skill，又会把本来应该由普通代码完成的确定性规则交给模型。学会区分两者，是后面理解 Agent、自动化和 AI 应用架构的基础。",
+    summary:
+      "你不需要懂程序。先用一个重复工作的例子，亲手体验“把一套做法保存下来，让 AI 下次继续照着做”是什么意思。",
+    plainExplanation:
+      "假设你每周都把会议记录交给 AI，每次都要重新说一遍：“先找决定，再找负责人，再找截止时间，最后列出未解决的问题。”如果这套做法已经证明很好用，就没必要每次重新解释。把这套方法保存成可以重复使用的工作流程，就是“技能（Skill）”最容易理解的方式。",
+    whyItMatters:
+      "学会技能，不是为了多记一个专业名词，而是为了让 AI 从“每次都要重新教”变成“已经知道这类事情应该怎么做”。以后无论你用哪一种 AI 软件，只要它支持类似的可复用工作流程，你都能理解它在解决什么问题。",
     points: [
-      "Prompt 是一次任务说明，Skill 是可复用的方法资产。",
-      "确定性规则优先用普通代码；需要理解、生成、分类、综合等语义能力时再考虑 Skill。",
-      "Skill 的输出应该结构化，并交给代码校验；最终发布、权限和状态变化仍由 Core System 决定。"
+      "一次提示词：告诉 AI 这一次怎么做。",
+      "技能：把以后还会反复使用的方法保存下来。",
+      "工具：让 AI 有能力去搜索、读文件、查数据或执行操作。",
+      "智能体：为了一个目标，自己决定下一步该用什么信息、工具或技能。"
     ],
     content: [
-      "一个 Skill 通常不只是几句 Prompt。它可以包含角色与目标、允许读取的上下文、执行步骤、判断规则、输出 Schema、失败处理方式，以及哪些事情明确禁止做。",
-      "Skill 和 Tool 也不是一回事。Tool 是“能做什么”，例如查数据库、搜索网页、发送消息；Skill 是“应该怎么做”，例如如何把一条已审核 Knowledge 转成课程草稿，并保持课程结构和审核边界。",
-      "Skill 也不等于 Agent。Agent 是一个围绕目标持续判断、调用能力、观察结果并决定下一步的运行模式；一个 Agent 可以调用多个 Tool，也可以使用多个 Skill。",
-      "最适合沉淀 Skill 的任务通常同时满足三个条件：会重复出现、输入输出边界相对稳定、又不能完全靠固定规则解决。第一次出现的任务不必急着做 Skill，先把真实流程跑通，再从重复做法中沉淀。"
+      "先不要背定义。你只要记住一个问题：这件事以后还会不会重复做？如果答案是“会”，而且每次都希望 AI 按类似步骤完成，就值得考虑把方法保存下来。",
+      "技能不一定是一段很长的文字。它可以包含操作步骤、输出格式、判断规则、参考资料，甚至可重复执行的脚本。不同 AI 软件会用不同方式实现，但核心目的都是减少重复说明。",
+      "也不是所有东西都要做成技能。像固定公式计算、权限判断这类结果必须完全确定的事情，更适合普通程序。技能更适合需要理解文字、整理内容、分类、生成和综合判断的重复任务。",
+      "你现在不需要学习技能文件怎么写，也不需要记住任何系统架构。基础阶段只需要会判断：这是一次性的要求，还是一套以后还想继续使用的方法。"
     ],
     example: {
-      title: "为什么 Course Builder 值得做成 Skill？",
-      situation: "OPC 以后会持续把 Reviewed Knowledge 和课程规划转成新的 Lesson Draft，也会根据学习反馈改进已有课程。",
-      before: "每次临时要求 AI“帮我写一节课”，课程结构、Step、Check 和 Completion Gate 都可能漂移，而且 AI 可能误以为自己可以直接发布。",
-      after: "把 Lesson Spec、BUILD / IMPROVE 输出格式、禁止行为和 Human Review 边界固定进 Course Builder Skill，再由 Code Validation 检查结果。",
-      result: "Skill 负责课程设计中的语义生成，Core 继续掌握规则、校验和正式写入权限；Skill 可以迭代，但系统不会跟着失控。"
+      title: "每周整理会议记录：从重复解释到保存一套方法",
+      situation:
+        "你每周都会把会议记录交给 AI，希望得到相同结构的整理结果。",
+      before:
+        "每次都重新告诉 AI：找出决定、负责人、截止时间和未解决问题；有时还会漏掉其中一项。",
+      after:
+        "把这套步骤固定成一套可重复使用的方法。下一次处理同类会议记录时，直接沿用这套方法。",
+      result:
+        "你少了一次重复解释，输出也更稳定。这种“把已经验证过的方法留下来继续用”的思路，就是技能最核心的价值。"
     },
     mistakes: [
-      "把一段常用 Prompt 直接当成成熟 Skill，而没有稳定输入、输出和验证规则。",
-      "把数据库写入、权限判断、价格计算等确定性规则交给 Skill。",
-      "认为有 Tool 就等于有 Skill，或有 Skill 就等于 Agent。",
-      "在真实任务还没跑通前先建设庞大的通用 Skill 平台。"
+      "以为技能就是一句特别长的提示词。真正重要的是它能不能稳定重复使用。",
+      "看到任何任务都想做成技能。一次性任务通常没必要。",
+      "以为技能就是工具。工具解决“能不能做”，技能更关注“应该按什么方法做”。",
+      "以为技能就是智能体。智能体可能会使用多个技能，但两者不是同一个东西。"
     ],
     related: [
-      "前置：API、Tool、MCP 与 Agent。",
-      "后续：Agent 如何组合 Tool、Skill 与 Context。",
-      "实战：OPC Course Builder Skill 如何把 Lesson Draft 送入 Code Validation 与 Human Review。"
+      "前置：会向 AI 软件提出清楚的要求。",
+      "关联：接口、工具、模型上下文协议与智能体。",
+      "后续：智能体怎样组合工具、技能和上下文信息完成多步任务。"
     ]
   },
   check: {
     id: "check_skill_boundary",
-    question: "下面哪一项最适合由 Skill 负责？",
+    question:
+      "你每周都要把客户反馈交给 AI，并希望它固定分成“问题、原因、紧急程度、建议动作”四部分。下面哪种做法最接近“技能”的思路？",
     options: [
       {
         value: "A",
-        label: "根据固定公式计算订单总价"
+        label: "每周重新打一遍同样的要求"
       },
       {
         value: "B",
-        label: "判断当前用户是否拥有会员权限"
+        label: "把这套分类步骤和输出格式保存成以后可以重复使用的方法"
       },
       {
         value: "C",
-        label: "根据已审核资料生成符合固定 Lesson Spec 的课程草稿"
+        label: "换一个更贵的 AI 模型"
       },
       {
         value: "D",
-        label: "直接把课程状态修改为 PUBLISHED"
+        label: "让 AI 自己修改公司的客户权限"
       }
     ],
-    correctValue: "C",
-    explanation: "课程草稿生成需要语义理解与内容组织，适合 Skill；价格、权限和正式状态变化属于确定性 Core。"
+    correctValue: "B",
+    explanation:
+      "关键不是模型贵不贵，也不是让 AI 获得更多权限，而是把已经反复使用的方法保存下来，下次继续沿用。"
   },
   practice: null,
   hints: [
-    "先问：这件事能不能用确定性代码稳定完成？",
-    "再问：它是不是会反复出现，而且需要语义理解、生成或综合？"
+    "先问自己：这个任务以后会不会重复出现？",
+    "再问：我是不是希望 AI 下一次继续按照相似步骤和格式完成？"
   ],
   referenceAnswer: null,
   review: [
-    "Code = Truth：确定性规则与核心状态由代码负责。",
-    "Skill = Intelligence：负责需要语义理解、生成、分类、综合的方法。",
-    "Workflow = Controlled Bridge：Skill 输出必须经过 Code Validation / Human Review 才能进入正式数据。"
+    "提示词：这一次你希望 AI 怎么做。",
+    "技能：以后遇到同类任务时，继续沿用的一套方法。",
+    "工具：让 AI 获得搜索、读取、查询或执行等能力。",
+    "智能体：围绕目标决定下一步做什么，并组合需要的信息、工具和技能。"
   ],
   selfAssessment: [
-    "我能解释 Prompt、Tool、Skill、Agent 的区别。",
-    "我能判断一个任务什么时候应该 Code First，什么时候值得沉淀成 Skill。"
+    "我能用“会议记录”的例子向别人解释什么是技能。",
+    "我能判断一个重复 AI 任务是否值得保存成可复用方法。",
+    "我知道技能不等于工具，也不等于智能体。"
   ]
 } as const;

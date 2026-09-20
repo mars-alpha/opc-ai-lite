@@ -29,8 +29,9 @@ LEARNING-UX-RUNTIME-ALIGN-001 Reference UX Unification COMPLETE
 COURSE-BUILDER-SKILL-001 Course Builder Skill v0.1 CONTRACT_COMPLETE_RUNTIME_PENDING
 COURSE-BUILDER-SKILL-001-A Real Lesson Draft Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-BUILDER-SKILL-001-B Draft Preview & Human Review PREVIEW_READY
+COURSE-BUILDER-SKILL-001-C Beginner Pedagogy & Knowledge Grounding COMPLETE
 
-NEXT: Human Review — open /course-builder/preview/skill-foundations
+NEXT: Human Review — re-open /course-builder/preview/skill-foundations and review the rebuilt beginner lesson
 ```
 
 ## 当前系统健康
@@ -40,7 +41,7 @@ NEXT: Human Review — open /course-builder/preview/skill-foundations
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      30 static pages generated
+Production build      31 static pages generated
 Remote migrations     0000 → 0009 APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
@@ -56,6 +57,10 @@ Unified Reference UX   PASS
 Course Builder contract PASS
 Real Lesson Draft       PASS
 Draft Preview route     PASS
+Course grounding rules  PASS
+Chinese-first rules     PASS
+AI-tool-neutral rules   PASS
+Beginner participation  PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -95,7 +100,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-001-B` 已提供只读 Human Review 预览路由 `/course-builder/preview/skill-foundations`。页面直接读取 acceptance fixture，复用 Generic Lesson Runtime Renderer 的 Step 视觉与本地 Check 交互，但 previewMode 不读取或写入 Runtime / Progress / Completion API；Draft 仍未加入正式课程目录或 Lesson Spec Registry。下一步由产品负责人直接在浏览器体验并给出 Human Review 反馈。
+`COURSE-BUILDER-SKILL-001-C` 已完成 Course Builder 教学规则改造：BUILD 现在必须带已审核 Knowledge 或研究资料包来源；初学者内容强制中文优先、通用课程保持 AI 软件中立，并必须包含低门槛参与活动。`skill-foundations` 已按这些规则重写，并在只读预览中加入“复制到你正在使用的 AI 软件”体验。下一步重新进行 Human Review；通过前仍不进入正式课程目录、Runtime 注册、数据库或发布流程。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

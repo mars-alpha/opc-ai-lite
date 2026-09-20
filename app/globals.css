@@ -3703,3 +3703,23 @@ img { display: block; max-width: 100%; }
 .draft-human-review-card ol { margin:0; padding-left:22px; color:var(--text); line-height:1.9; }
 .draft-human-review-card p { margin:14px 0 0; color:var(--muted); line-height:1.6; }
 @media (max-width:720px) { .draft-review-banner { align-items:flex-start; flex-direction:column; } }
+
+
+.guided-preview-activity {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid rgba(42,104,255,.14);
+  border-radius: 20px;
+  background: rgba(42,104,255,.045);
+}
+.guided-preview-activity h3 { margin: 8px 0 10px; }
+.guided-preview-activity > p { color: var(--muted); line-height: 1.7; }
+.guided-preview-prompt {
+  margin: 16px 0 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+  line-height: 1.75;
+  white-space: pre-wrap;
+}

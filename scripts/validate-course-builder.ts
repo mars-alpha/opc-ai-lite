@@ -13,6 +13,24 @@ if (!sourceSpec) throw new Error("SOURCE_SPEC_NOT_FOUND");
 const build = createCourseBuilderReviewPacket(
   {
     mode: "BUILD",
+    grounding: {
+      status: "REVIEWED",
+      sourceKind: "APPROVED_KNOWLEDGE",
+      sourceLabels: ["validation knowledge"],
+      researchSummary: "用于验证 Course Builder 的受控课程资料。"
+    },
+    pedagogy: {
+      audience: "GENERAL",
+      languagePolicy: "ZH_CN_FIRST",
+      aiToolNeutral: true,
+      participation: {
+        kind: "CHOOSE",
+        title: "先做一个选择",
+        instruction: "先判断这份草稿应不应该直接发布。",
+        prompt: null,
+        reflection: "课程草稿必须先经过代码校验和人工审核。"
+      }
+    },
     lessonSpec: {
       ...sourceSpec,
       lessonId: "course-builder-validation",
@@ -89,6 +107,24 @@ let invalidSpecRejected = false;
 try {
   createCourseBuilderReviewPacket({
     mode: "BUILD",
+    grounding: {
+      status: "REVIEWED",
+      sourceKind: "APPROVED_KNOWLEDGE",
+      sourceLabels: ["validation knowledge"],
+      researchSummary: "用于非法 Spec 校验。"
+    },
+    pedagogy: {
+      audience: "GENERAL",
+      languagePolicy: "ZH_CN_FIRST",
+      aiToolNeutral: true,
+      participation: {
+        kind: "CHOOSE",
+        title: "测试参与",
+        instruction: "测试",
+        prompt: null,
+        reflection: "测试"
+      }
+    },
     lessonSpec: {
       ...sourceSpec,
       lessonId: "invalid-build",
@@ -109,8 +145,40 @@ try {
 }
 assert(invalidSpecRejected, "INVALID_LESSON_SPEC_NOT_REJECTED");
 
+let missingGroundingRejected = false;
+try {
+  const valid = build.output.mode === "BUILD" ? build.output : null;
+  if (!valid) throw new Error("BUILD_REQUIRED");
+  createCourseBuilderReviewPacket({
+    ...valid,
+    grounding: undefined
+  });
+} catch (error) {
+  missingGroundingRejected =
+    error instanceof Error && error.message === "INVALID_BUILD_GROUNDING";
+}
+assert(missingGroundingRejected, "GROUNDING_NOT_ENFORCED");
+
+let nonNeutralRejected = false;
+try {
+  const valid = build.output.mode === "BUILD" ? build.output : null;
+  if (!valid) throw new Error("BUILD_REQUIRED");
+  createCourseBuilderReviewPacket({
+    ...valid,
+    pedagogy: { ...valid.pedagogy, aiToolNeutral: false }
+  });
+} catch (error) {
+  nonNeutralRejected =
+    error instanceof Error && error.message === "COURSE_BUILDER_AI_TOOL_NEUTRAL_REQUIRED";
+}
+assert(nonNeutralRejected, "AI_TOOL_NEUTRALITY_NOT_ENFORCED");
+
 console.log("COURSE_BUILDER_BUILD=PASS");
 console.log("COURSE_BUILDER_IMPROVE=PASS");
 console.log("COURSE_BUILDER_CODE_VALIDATION=PASS");
 console.log("COURSE_BUILDER_AUTHORITY_BOUNDARY=PASS");
 console.log("COURSE_BUILDER_HUMAN_REVIEW_BOUNDARY=PASS");
+console.log("COURSE_BUILDER_GROUNDING_REQUIRED=PASS");
+console.log("COURSE_BUILDER_CHINESE_FIRST=PASS");
+console.log("COURSE_BUILDER_AI_TOOL_NEUTRAL=PASS");
+console.log("COURSE_BUILDER_PARTICIPATION_REQUIRED=PASS");
