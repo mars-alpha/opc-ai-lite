@@ -48,7 +48,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
         ).catch(() => null)
       : null;
   const genericRuntimePlan =
-    runtimeReadModel?.registered && runtimeReadModel.configurationReady
+    runtimeReadModel?.registered
       ? runtimeReadModel.plan
       : null;
 
@@ -85,7 +85,14 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           />
 
           <div className="lesson-complete-wrap">
-            <LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice={genericRuntimePlan.requiresPractice} />
+            {runtimeReadModel?.configurationReady ? (
+              <LessonCompleteButton courseSlug={course.slug} lessonId={lesson.id} requiresPractice={genericRuntimePlan.requiresPractice} />
+            ) : (
+              <div className="guided-preview-complete-note">
+                <strong>本课完成条件尚未全部接入</strong>
+                <p>你仍然使用同一套引导式课程体验学习，但系统不会在 required Check / Practice / REAL_AI 证据链未准备好时提前开放正式完成状态。</p>
+              </div>
+            )}
           </div>
 
           <nav className="lesson-nav lesson-nav-with-rating" aria-label="课时导航">

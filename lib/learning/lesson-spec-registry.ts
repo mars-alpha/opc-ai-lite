@@ -3,6 +3,7 @@ import type { LessonSpec } from "./lesson-spec";
 
 const runtimeRegisteredLessonKeys = new Set([
   "chatgpt-worker/task-brief",
+  "chatgpt-worker/writing-files",
   "ai-literacy/memory-rag",
   "ai-workflow/task-decomposition"
 ]);

@@ -53,6 +53,7 @@ type RuntimeData = {
   registered: boolean;
   configurationReady: boolean;
   enforcementActive: boolean;
+  blockers: string[];
   gates: {
     realAi: {
       required: boolean;
@@ -73,6 +74,19 @@ function evidenceLabel(kind: RealAiEvidence) {
   if (kind === "ARTIFACT") return "真实操作产物";
   if (kind === "SYSTEM_RESULT") return "系统验证结果";
   return "无需真实 AI 证据";
+}
+
+function runtimeBlockerMessage(blocker: string) {
+  if (blocker === "CHECK_NOT_CONFIGURED") {
+    return "本课 required Check 尚未完成正式配置，因此理解检查不会伪造为可用。";
+  }
+  if (blocker === "PRACTICE_NOT_CONFIGURED") {
+    return "本课 required Practice 尚未完成正式配置，因此实操提交与评分不会伪造为可用。";
+  }
+  if (blocker.startsWith("REAL_AI_EVIDENCE_RUNTIME_NOT_SUPPORTED:")) {
+    return "本课真实 AI 证据链尚未受 Runtime 支持；系统不会用用户手填引用绕过 Completion Gate。";
+  }
+  return "本课有一项 required Runtime 配置尚未准备完成。";
 }
 
 export function GenericLessonRuntimePanel({
@@ -346,6 +360,15 @@ export function GenericLessonRuntimePanel({
         ))}
       </div>
 
+      {!runtime.configurationReady && (
+        <div className="interactive-message">
+          <strong>当前课程 Runtime 尚未全部准备完成</strong>
+          {runtime.blockers.map((blocker) => (
+            <p key={blocker}>{runtimeBlockerMessage(blocker)}</p>
+          ))}
+        </div>
+      )}
+
       <div className="guided-step-panel">
       {step.kind === "EXPLAIN" && (
         <div className="guided-step-content">
@@ -407,6 +430,14 @@ export function GenericLessonRuntimePanel({
                   : "检查答案"}
             </button>
           </div>
+        </div>
+      )}
+
+      {step.kind === "CHECK" && plan.requiresCheck && !check && (
+        <div className="interactive-block">
+          <div className="kicker">理解检查</div>
+          <h3>Required Check 尚未配置</h3>
+          <p>{runtimeBlockerMessage("CHECK_NOT_CONFIGURED")}</p>
         </div>
       )}
 
@@ -479,6 +510,14 @@ export function GenericLessonRuntimePanel({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {step.kind === "PRACTICE" && plan.requiresPractice && !practice && (
+        <div className="interactive-block" id="interactive-practice">
+          <div className="kicker">实操验收</div>
+          <h3>Required Practice 尚未配置</h3>
+          <p>{runtimeBlockerMessage("PRACTICE_NOT_CONFIGURED")}</p>
         </div>
       )}
 

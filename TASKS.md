@@ -453,23 +453,23 @@ Priority: P0
 
 `LEARNING-UX-RUNTIME-ALIGN-001 — Reference UX Unification`
 
-Status: IN_PROGRESS_FIRST_ROUND_COMPLETE
+Status: COMPLETE
 Priority: P0
 
 最新 UX 决策：正式课程不再为 CONCEPT / APPLICATION / PRACTICE 各做独立页面形态。所有 Lesson 统一使用 `task-brief` 已确认的 Reference Lesson Shell：课程上下文 / 侧栏 / 当前课位置 + 单 Step Guided Learning。Lesson Type 只决定 Step 组合、内容、交互模块与 Completion Gate。
 
-第一轮已完成：`task-brief`、`memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）均由同一 Generic Guided Lesson Shell 渲染；页面不再按 lesson 名分支，Runtime Core 不再保留 task-brief Preview 白名单；旧 `InteractiveLessonPanel` 已删除。未新增三课型 Preview、未复制页面、未批量迁移其他课程。
+已完成：`task-brief`、`memory-rag`（CONCEPT）、`task-decomposition`（PRACTICE）与 `writing-files`（APPLICATION）均使用同一 Generic Guided Lesson Shell。页面不按 lesson 名分支；Lesson Type 只决定 Step 组合、内容、交互模块与 Completion Gate。
 
-下一步仍属于本任务：补 APPLICATION 对齐。`writing-files` 的 Lesson Spec 已通过，但 REAL_AI evidence = ARTIFACT；在可信 Artifact Resolver 接入前保持 Runtime blocker，不允许用手填引用绕过 Gate。APPLICATION 验证稳定后，才进入 `COURSE-BUILDER-SKILL-001`。
+`writing-files` 用于验证“注册到统一 UX，但 Runtime 尚未 Ready”的边界：required Check / Practice 尚未 provision，REAL_AI evidence = ARTIFACT 且可信 Resolver 未实现，因此保持 configurationReady=false / enforcementActive=false；同一 Shell 显示 blocker，并不提供正式完成动作。UX 对齐不等于绕过 Runtime Gate。
 
 此前 `/learning-preview` 三课型演示页因与 Reference Lesson 差异过大已删除，不作为后续实现基线。
 
 ## COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
 
-Status: BLOCKED_BY_UX_ALIGNMENT
+Status: READY
 Priority: P0
 
-等待 `LEARNING-UX-RUNTIME-ALIGN-001` 完成。之后基于已验证的 `docs/LEARNING_SPEC.md` + Generic Lesson Runtime + 统一 Reference UX，实现最小 BUILD / IMPROVE Structured Draft Contract；不允许 Skill 直接 Publish、改 Access、改 Progress 或批量覆盖 Published Course。
+`LEARNING-UX-RUNTIME-ALIGN-001` 已完成。下一步基于已验证的 `docs/LEARNING_SPEC.md` + Generic Lesson Runtime + 统一 Reference UX，实现最小 BUILD / IMPROVE Structured Draft Contract；不允许 Skill 直接 Publish、改 Access、改 Progress、绕过 Runtime blocker 或批量覆盖 Published Course。
 
 建议后续顺序：
 

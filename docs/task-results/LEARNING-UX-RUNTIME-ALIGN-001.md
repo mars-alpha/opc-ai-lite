@@ -1,6 +1,6 @@
 # LEARNING-UX-RUNTIME-ALIGN-001 — Reference UX Unification
 
-Status: IN_PROGRESS — FIRST ROUND COMPLETE
+Status: COMPLETE
 
 ## Goal
 
@@ -41,8 +41,27 @@ Status: IN_PROGRESS — FIRST ROUND COMPLETE
 - npm run build
 - source search: app / components / lib/server 无 task-brief course-name Runtime branch
 
-## Remaining In This Task
+## APPLICATION Alignment
 
-下一轮补 APPLICATION 对齐。writing-files 当前 REAL_AI evidence = ARTIFACT，正式 Artifact Resolver 尚未接入，因此继续保持 Runtime blocker；不得用手填 URL / 引用绕过 REAL_AI Gate。
+- `writing-files / APPLICATION` 已注册到同一 Lesson Spec Registry 和 Generic Guided Lesson Renderer。
+- Registry registration 与 Runtime readiness 明确分离：注册只代表使用统一 UX，不代表 Completion Gate 已可执行。
+- 当 `configurationReady=false` 时，正式 Lesson 仍保持课程侧栏、当前位置、Step 进度、Explain / Example 等统一体验；required Check / Practice 缺失时显示确定性 Runtime blocker，不伪造互动模块。
+- REAL_AI evidence = ARTIFACT 继续显示可信证据链缺口，按钮不可提交手填链接或引用。
+- configuration 未完成时不渲染正式 Lesson Complete 动作，避免 UX 误导为“可完成”。
+- `writing-files` 当前仍为 `SPEC=PASS / RUNTIME=NEEDS_RUNTIME`，这与 APPLICATION UX 对齐完成不冲突。
 
-APPLICATION 对齐通过后，才进入 COURSE-BUILDER-SKILL-001。
+## Final Validation
+
+- `npm run typecheck` PASS
+- `npm run learning:spec:check` PASS
+- `npm run learning:runtime:check` PASS
+- `npm run build` PASS
+- Production build: 30 static pages generated
+- app / components / lib 中无 writing-files lesson-name Renderer 分支
+- app / components / lib/server 中无 chatgpt-worker course-name Runtime 分支
+
+## Next
+
+`COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1`
+
+Artifact Resolver 仍是后续 Runtime 能力缺口，不属于本 UX 对齐任务，也不得被 Course Builder Skill 绕过。

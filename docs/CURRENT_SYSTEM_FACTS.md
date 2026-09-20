@@ -410,15 +410,15 @@ LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Comp
 
 LEARNING-RUNTIME-001-A 已完成正式 Pilot Provisioning 与真实 Runtime Acceptance：`check_memory_rag_source` 已绑定 `lesson_ai_literacy_memory_rag`，required + PUBLISHED；`practice_task_decomposition_nodes` 已绑定 `lesson_ai_workflow_task_decomposition`，required + PUBLISHED + `STRUCTURED_TEXT_V1` + passScore 80。Acceptance 确认两个 Pilot 都已 `configurationReady=true / enforcementActive=true`，且 Completion Core 会在 required Gate 未满足时阻断、通过后放行。一次性测试用户及其所有关联数据已清理。没有新增 Migration / Schema，也没有改变 Access Core。
 
-LEARNING-UX-RUNTIME-ALIGN-001 第一轮已完成 Reference UX 对齐：`task-brief`、`memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）现在由同一 Generic Guided Lesson Shell 渲染，统一保留课程上下文 / 侧栏 / 当前课位置 / 进度 / 单 Step Guided Learning / Review / Capability / 下一课流程。Core 只依据 Lesson Spec、Step Kind 与 Completion Gate 组合行为，不再按课程名选择 Renderer；旧 `InteractiveLessonPanel` 已删除。未注册课程暂时继续旧长页，不能视为新的正式 Lesson 形态。此前 `/learning-preview` 三课型演示页已删除。
+LEARNING-UX-RUNTIME-ALIGN-001 已完成 Reference UX 对齐：`task-brief`、`memory-rag`（CONCEPT）、`task-decomposition`（PRACTICE）与 `writing-files`（APPLICATION）均进入同一 Generic Guided Lesson Shell。Core 只依据 Lesson Spec、Step Kind、Runtime configuration 与 Completion Gate 组合行为，不按课程名选择 Renderer。`writing-files` 已注册用于统一 APPLICATION UX，但仍保持 `configurationReady=false / enforcementActive=false`：required Check / Practice 尚未 provision，REAL_AI evidence = ARTIFACT 仍缺可信 Resolver；同一 Shell 会明确显示 blocker，并隐藏正式完成动作，不允许手填引用绕过 Gate。此前 `/learning-preview` 三课型演示页与旧 `InteractiveLessonPanel` 均已删除。
 
 下一阶段候选：
 
 ```text
-LEARNING-UX-RUNTIME-ALIGN-001 — APPLICATION Alignment（第一轮 CONCEPT / PRACTICE 已完成）
+COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
 ```
 
-下一步只补 APPLICATION 对齐，继续复用同一 Guided Lesson Shell，不新增 APPLICATION 页面形态。当前 `writing-files` 的 Spec 已通过，但因 REAL_AI evidence = ARTIFACT 且正式 Artifact Resolver 尚未接入，仍不得进入可完成的正式 Runtime；不允许用户手填引用绕过 REAL_AI Gate。APPLICATION 对齐通过后才进入 Course Builder Skill。
+统一 Reference UX 已覆盖 CONCEPT / PRACTICE / APPLICATION 三类验证样本。下一步进入 `COURSE-BUILDER-SKILL-001`：基于已稳定的 Lesson Spec + Generic Runtime + Unified Lesson Shell 生成受控 Structured Draft / Improvement Proposal；Skill 不得直接 Publish、改 Access、改 Progress 或绕过 Runtime blocker。`writing-files` 的 ARTIFACT Resolver 仍是独立 Runtime 缺口，不因 UX 对齐完成而视为已解决。
 
 AI-DAILY-001 保持排队，不在本阶段扩展。
 

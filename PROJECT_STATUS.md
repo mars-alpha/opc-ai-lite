@@ -25,9 +25,9 @@ LEARNING-UX-001-D Reference Lesson Finalization COMPLETE
 LEARNING-SPEC-002 Multi-type Lesson Validation COMPLETE
 LEARNING-RUNTIME-001 Generic Lesson Runtime Foundation COMPLETE
 LEARNING-RUNTIME-001-A Pilot Provisioning & Acceptance COMPLETE
-LEARNING-UX-RUNTIME-ALIGN-001 Reference UX Unification IN_PROGRESS_FIRST_ROUND_COMPLETE
+LEARNING-UX-RUNTIME-ALIGN-001 Reference UX Unification COMPLETE
 
-NEXT: LEARNING-UX-RUNTIME-ALIGN-001 — APPLICATION Alignment
+NEXT: COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
 ```
 
 ## 当前系统健康
@@ -49,7 +49,7 @@ Acceptance refinement PASS
 Reference Lesson flow PASS
 Multi-type Spec check PASS
 Generic Runtime check PASS
-Reference UX Round 1  PASS
+Unified Reference UX   PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -89,7 +89,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-UX-RUNTIME-ALIGN-001` 第一轮已完成：`task-brief`、`memory-rag`（CONCEPT）与 `task-decomposition`（PRACTICE）共用同一 Generic Guided Lesson Shell；Lesson Type 只通过 Step 组合、内容模块与 Completion Gate 改变流程。页面与 Runtime Core 不再包含 task-brief / 特定课程名 Renderer 分支，旧 `InteractiveLessonPanel` 已删除；Interactive Read / Check 全部遵守 Access Core。下一步仍在本任务内补 APPLICATION 对齐；`writing-files` 因 ARTIFACT Resolver 未实现继续保持 Runtime blocker。APPLICATION 通过后才进入 Course Builder Skill。
+`LEARNING-UX-RUNTIME-ALIGN-001` 已完成：CONCEPT / PRACTICE / APPLICATION 验证样本共用同一 Generic Guided Lesson Shell。`writing-files` 已注册用于 APPLICATION UX，但其 required Check / Practice 尚未 provision，ARTIFACT Resolver 仍未实现，因此 Runtime 明确保持 configurationReady=false / enforcementActive=false，并在同一 Shell 内展示 blocker、禁止正式完成。下一步进入 `COURSE-BUILDER-SKILL-001`，不改变上述 Runtime 边界。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

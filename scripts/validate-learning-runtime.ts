@@ -95,8 +95,12 @@ assert(
   "TASK_DECOMPOSITION_RUNTIME_REGISTERED"
 );
 assert(
-  getLessonSpec("chatgpt-worker", "writing-files") === null,
-  "WRITING_FILES_NOT_REGISTERED_WITHOUT_ARTIFACT_RESOLVER"
+  getLessonSpec("chatgpt-worker", "writing-files") !== null,
+  "WRITING_FILES_REGISTERED_FOR_UNIFIED_APPLICATION_UX"
+);
+assert(
+  !writingPlan.realAiEvidenceSupported,
+  "WRITING_FILES_REGISTERED_BUT_NOT_RUNTIME_READY"
 );
 
 console.log("TASK_BRIEF_V1=PASS score=" + taskBriefEvaluation.score);
@@ -105,6 +109,7 @@ console.log("MISSING_FIELD_REJECTED=PASS");
 console.log("MEMORY_RAG_PLAN=PASS");
 console.log("TASK_DECOMPOSITION_PLAN=PASS");
 console.log("WRITING_FILES_REAL_AI_PLAN=PASS");
+console.log("APPLICATION_UX_REGISTRATION_BOUNDARY=PASS");
 console.log("REAL_AI_EVIDENCE_BOUNDARY=PASS");
 console.log("RUNTIME_REGISTRY_BOUNDARY=PASS");
 }
