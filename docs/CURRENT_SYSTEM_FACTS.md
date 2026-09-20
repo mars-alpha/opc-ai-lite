@@ -334,6 +334,8 @@ Course Builder BUILD 当前新增教学治理契约：`grounding.status=REVIEWED
 
 Lesson Spec 当前允许 CONCEPT 在 `practiceMode=NONE` 时包含一个非验收型 PRACTICE Step，用于参与式学习；此时禁止 PRACTICE Completion Gate。`skill-foundations` 当前采用 6 步 `EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY`，正式 Gate 仍只有 CHECK。Preview Renderer 会在该 PRACTICE Step 展示 Course Builder participation，而不会调用正式 Practice API。
 
+`skill-foundations` Preview 的 EXPLAIN 当前额外支持通用 `previewIntroChoice`：先显示情境和两项选择，用户选择后再揭示原因、Prompt / Skill 对比与核心结论。该能力只属于 Preview 教学呈现，不改变 Lesson Spec、Runtime Gate、Progress 或正式课程状态。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

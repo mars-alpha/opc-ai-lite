@@ -507,6 +507,12 @@ Status: COMPLETE
 
 `skill-foundations` 新增第 4 步“把方法交给你的 AI 试一次”；视觉上缩小第一步标题字号，长内容改成重点底色和卡片，自适应卡片在桌面端按 1/2/3/4 项自动铺排；原 4 条“避免”改成误区/正确理解对照卡。
 
+### COURSE-BUILDER-SKILL-001-E — First Step Interactive Intro
+
+Status: COMPLETE
+
+根据最新 Human Review，本任务只重做第一步，不改第 4/5 节。`skill-foundations` Step 1 现在先给会议记录重复场景，让学员在“每次重新说明 / 把方法保存下来”之间选择；选择后才显示简短解释、Prompt（提示词）/ Skill（技能）对比和一句核心判断。Preview 通过通用 `previewIntroChoice` 驱动，不新增独立课程模板，也不改变 Completion。
+
 建议后续顺序：
 
 ```text

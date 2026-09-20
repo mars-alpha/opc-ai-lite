@@ -3,7 +3,10 @@ import { GenericLessonRuntimePanel } from "../../../../components/GenericLessonR
 import { buildLessonRuntimePlan } from "../../../../lib/learning/lesson-runtime";
 import { createCourseBuilderReviewPacket } from "../../../../lib/learning/course-builder";
 import type { Lesson } from "../../../../lib/courses";
-import { skillFoundationsBuildDraft } from "../../../../fixtures/course-builder/skill-foundations";
+import {
+  skillFoundationsBuildDraft,
+  skillFoundationsIntroPreview
+} from "../../../../fixtures/course-builder/skill-foundations";
 
 export const dynamic = "force-static";
 
@@ -94,6 +97,7 @@ export default function SkillFoundationsDraftPreviewPage() {
             previewMode
             previewCheck={skillFoundationsBuildDraft.check}
             previewActivity={skillFoundationsBuildDraft.pedagogy.participation}
+            previewIntroChoice={skillFoundationsIntroPreview}
           />
 
           <div className="draft-human-review-card">

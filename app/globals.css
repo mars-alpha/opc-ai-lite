@@ -3788,3 +3788,89 @@ img { display: block; max-width: 100%; }
   .guided-step-content > h3 { font-size:20px; }
   .guided-explain-notes { grid-template-columns:1fr; }
 }
+
+/* COURSE-BUILDER-SKILL-001-E first-step interactive intro */
+.guided-intro-choice > h3 {
+  max-width:760px;
+  margin:10px 0 20px;
+  font-size:24px;
+  line-height:1.45;
+}
+.guided-intro-options {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+.guided-intro-options button {
+  padding:18px 20px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  color:var(--text);
+  text-align:left;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.5;
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.guided-intro-options button:hover {
+  transform:translateY(-1px);
+  border-color:rgba(42,104,255,.24);
+}
+.guided-intro-options button.is-selected {
+  border-color:rgba(42,104,255,.34);
+  background:rgba(42,104,255,.065);
+}
+.guided-intro-reveal {
+  padding:16px 18px;
+  border-radius:18px;
+  background:#f7fafc;
+  border:1px solid var(--line);
+}
+.guided-intro-reveal strong {
+  display:block;
+  margin-bottom:5px;
+  font-size:12px;
+}
+.guided-intro-reveal p {
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+}
+.guided-intro-compare {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:18px;
+}
+.guided-intro-compare > div {
+  padding:18px;
+  border-radius:18px;
+  background:#fff;
+  border:1px solid var(--line);
+}
+.guided-intro-compare > div:last-child {
+  background:rgba(42,104,255,.045);
+  border-color:rgba(42,104,255,.12);
+}
+.guided-intro-compare span {
+  display:block;
+  margin-bottom:6px;
+  color:#7183a8;
+  font-size:11px;
+  font-weight:850;
+}
+.guided-intro-compare strong {
+  display:block;
+  line-height:1.55;
+}
+.guided-intro-takeaway {
+  margin-top:18px;
+}
+@media (max-width:640px) {
+  .guided-intro-choice > h3 { font-size:21px; }
+  .guided-intro-options,
+  .guided-intro-compare { grid-template-columns:1fr; }
+}
