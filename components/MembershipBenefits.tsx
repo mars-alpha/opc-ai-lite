@@ -3,7 +3,7 @@ import { Reveal } from "./Reveal";
 
 export function MembershipBenefits() {
   return (
-    <section className="section membership-section">
+    <section className="section membership-section" id="membership">
       <div className="container">
         <Reveal className="membership-shell">
           <div className="membership-intro">

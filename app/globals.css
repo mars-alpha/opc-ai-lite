@@ -3306,3 +3306,31 @@ img { display: block; max-width: 100%; }
   .latest-article-head h1 { font-size: 40px; }
   .latest-article-body { padding: 22px; border-radius: 22px; }
 }
+
+/* ACCESS-UX-001 locked content conversion */
+.locked-access-cta { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:18px; align-items:center; padding:22px; margin-top:18px; border-radius:22px; border:1px solid rgba(42,104,255,.14); background:linear-gradient(145deg,rgba(245,249,255,.98),rgba(255,255,255,.98)); box-shadow:var(--shadow-soft); }
+.locked-access-cta.is-compact { margin-top:20px; padding:18px; }
+.locked-access-icon { width:42px; height:42px; display:grid; place-items:center; border-radius:14px; background:rgba(42,104,255,.08); color:var(--blue); font-weight:900; }
+.locked-access-copy { min-width:0; }
+.locked-access-copy > span { display:block; margin-bottom:4px; color:#7082a4; font-size:10px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }
+.locked-access-copy > strong { display:block; font-size:18px; letter-spacing:-.02em; }
+.locked-access-copy > p { margin:7px 0 0; color:var(--muted); line-height:1.65; font-size:13px; }
+.locked-access-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.official-unlock-section { scroll-margin-top:90px; }
+.official-unlock-card { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr); gap:28px; align-items:center; padding:28px 30px; border-radius:28px; background:linear-gradient(145deg,rgba(247,250,255,.98),rgba(255,255,255,.96)); border:1px solid rgba(42,104,255,.10); box-shadow:var(--shadow-soft); }
+.official-unlock-card h2 { margin:5px 0 10px; font-size:28px; letter-spacing:-.04em; }
+.official-unlock-card p { margin:0; color:var(--muted); line-height:1.75; }
+.official-unlock-rule { display:grid; gap:8px; padding:18px; border-radius:20px; background:rgba(42,104,255,.05); }
+.official-unlock-rule > span { color:#7485a5; font-size:10px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }
+.official-unlock-rule > strong { font-size:15px; }
+.official-unlock-rule > small { color:var(--muted); line-height:1.6; }
+.official-unlock-rule .btn { margin-top:4px; justify-self:start; }
+.membership-section { scroll-margin-top:90px; }
+.daily-item.is-locked { position:relative; background:linear-gradient(145deg,rgba(249,251,255,.96),rgba(255,255,255,.90)); }
+.daily-item.is-locked::after { content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(42,104,255,.05); }
+.daily-item.is-locked .daily-item-copy { opacity:.82; }
+.locked-badge,.locked-tag { color:#6f7f9f !important; background:rgba(42,104,255,.06) !important; border-color:rgba(42,104,255,.10) !important; }
+.round-arrow.is-locked { color:#7183a8; background:rgba(42,104,255,.07); }
+#daily-unlock { scroll-margin-top:90px; }
+@media (max-width:820px) { .locked-access-cta,.official-unlock-card { grid-template-columns:1fr; } .locked-access-actions { justify-content:flex-start; } }
+@media (max-width:640px) { .locked-access-cta { padding:18px; } .locked-access-actions { display:grid; } .locked-access-actions .btn { width:100%; } .official-unlock-card { padding:22px 18px; border-radius:24px; } }

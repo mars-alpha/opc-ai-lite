@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { PracticeSubmissionPanel } from "../../../../components/PracticeSubmissionPanel";
+import { LockedAccessCta } from "../../../../components/LockedAccessCta";
 import { resolveResourceAccess } from "../../../../lib/server/access/service";
 import { getSessionUser, SESSION_COOKIE } from "../../../../lib/server/auth/service";
 import { listPublishedDeepResourcesForKnowledge } from "../../../../lib/server/content/deep-resources";
@@ -52,16 +53,12 @@ export default async function LatestPracticeDetailPage({ params }: { params: Pro
         {!access.allowed ? (
           <div className="latest-article-layout">
             <article className="latest-article-body">
-              <div className="interactive-login-note">
-                <strong>Knowledge 正文属于 OPC 会员内容</strong>
-                <p>公开卡片和摘要可以直接查看；正文、Deep Resource、正式 Latest Practice 与关联课程入口需要有效 OPC Membership。</p>
-                {!user ? <Link href={loginHref}>登录后查看会员状态 →</Link> : <Link href="/">查看会员权益 →</Link>}
-              </div>
+              <LockedAccessCta kind="MEMBER" loginHref={!user ? loginHref : undefined} />
             </article>
             <aside className="latest-article-aside">
-              <div className="kicker">Access</div>
-              <h2>当前为公开预览</h2>
-              <p>系统不会因为登录或公众号关注自动授予会员内容。公众号关注只解锁完整 AI Daily。</p>
+              <div className="kicker">Member preview</div>
+              <h2>内容已锁定，但价值保持可见</h2>
+              <p>公众号关注只解锁完整 AI Daily；会员内容需要 OPC Membership。加入会员后可继续阅读正文、使用 Deep Resource、提交正式实操并进入关联进阶课程。</p>
             </aside>
           </div>
         ) : (

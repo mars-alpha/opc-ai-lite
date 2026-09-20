@@ -22,13 +22,11 @@ async function DailyFeedContent() {
     resolveResourceAccess(user?.id ?? null, "AI_DAILY_FULL"),
     resolveResourceAccess(user?.id ?? null, "ADVANCED_COURSE_ENTRY")
   ]);
-  const visibleItems = access.allowed ? items : items.slice(0, 3);
-
   return (
     <DailyFeed
-      items={visibleItems}
+      items={items}
       fullAccess={access}
-      lockedCount={Math.max(0, items.length - visibleItems.length)}
+      lockedFrom={access.allowed ? items.length : Math.min(3, items.length)}
       courseEntryAllowed={courseEntryAccess.allowed}
     />
   );

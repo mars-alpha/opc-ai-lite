@@ -6,6 +6,7 @@ import { LessonCompleteButton } from "../../../../../components/LessonCompleteBu
 import { LessonCourseSidebar } from "../../../../../components/LessonCourseSidebar";
 import { InteractiveLessonPanel } from "../../../../../components/InteractiveLessonPanel";
 import { LessonHelpPanel } from "../../../../../components/LessonHelpPanel";
+import { LockedAccessCta } from "../../../../../components/LockedAccessCta";
 import { courses,getAllLessons,getCourse,getLesson } from "../../../../../lib/courses";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
@@ -78,16 +79,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
                   <strong>前三节免费学习 → 关注公众号解锁后续课程</strong>
                   <small>登录、加入课程、学习进度和公众号权益是四个独立状态。</small>
                 </div>
-                {!user ? (
-                  <div className="lesson-lock-actions">
-                    <Link className="btn btn-primary" href={loginHref}>登录后查看解锁状态 →</Link>
-                    <Link className="btn btn-secondary" href="/learning-path#progress">返回学习路径</Link>
-                  </div>
-                ) : (
-                  <div className="lesson-lock-note">
-                    真实公众号关注验证将在微信渠道接入后自动完成；这里不会提供“我已关注”的手动确认按钮。
-                  </div>
-                )}
+                <LockedAccessCta kind="FOLLOW" loginHref={!user ? loginHref : undefined} compact />
               </>
             )}
           </div>

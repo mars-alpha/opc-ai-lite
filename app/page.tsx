@@ -3,6 +3,7 @@ import { ContinueLearning } from "../components/ContinueLearning";
 import { HeroVisual } from "../components/HeroVisual";
 import { HomeKnowledge } from "../components/HomeKnowledge";
 import { MembershipBenefits } from "../components/MembershipBenefits";
+import { OfficialAccountUnlock } from "../components/OfficialAccountUnlock";
 import { PageHero } from "../components/PageHero";
 import { Reveal } from "../components/Reveal";
 import { courses } from "../lib/courses";
@@ -87,6 +88,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      <OfficialAccountUnlock />
       <MembershipBenefits />
     </>
   );
