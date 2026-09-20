@@ -373,6 +373,17 @@ Priority: P0
 
 匿名 / 普通 / FOLLOW / MEMBER 四身份 Runtime smoke 全部通过；无新 Schema / Migration，测试数据已清理。
 
+## ACCESS-UX-001 — Locked Content Conversion UX
+
+Status: COMPLETE
+Priority: P0
+
+结果：`docs/task-results/ACCESS-UX-001.md`。
+
+已把“锁定即消失”改成“价值可发现、Access 仍受控”。AI Daily 第 4 条及以后继续显示标题 / 摘要 / 标签并进入锁定态；公众号关注与 OPC Membership 分别给出明确 CTA。Knowledge / Latest Practice / Deep Resource / 进阶课程保持会员 Access，但公开摘要与会员价值说明继续可见。
+
+新增共享 `LockedAccessCta` 与首页公众号解锁说明区；未接入真实微信关注验证或支付，不提供假的“我已关注”或可用支付按钮。
+
 # NEXT PHASE
 
 `AI-DAILY-001 — 最小自动采集 → 审核 → 发布`

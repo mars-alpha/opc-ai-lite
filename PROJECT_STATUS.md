@@ -22,7 +22,7 @@ NEXT: AI-DAILY-001 — 最小自动采集 → 审核 → 发布
 
 ## 当前系统健康
 
-业务代码验证基线：`main@1622a79`。
+业务代码验证基线：`main@555687f`。
 
 ```text
 npm run typecheck     PASS
@@ -48,7 +48,7 @@ Latest Practice 详情 / 正式实操  MEMBER
 进阶内容关联课程入口             MEMBER
 ```
 
-公众号关注不等价于 Membership。公开 Reader 不读取会员正文 / Deep Resource URL / Practice-Course 私有关系，会员通过 Access 后才读取完整详情。
+公众号关注不等价于 Membership。公开 Reader 不读取会员正文 / Deep Resource URL / Practice-Course 私有关系，会员通过 Access 后才读取完整详情。ACCESS-UX-001 进一步固定：受限内容保持可发现，锁定状态必须显示价值说明与对应解锁 CTA，不能因为无权限就把内容入口完全隐藏。
 
 ## 当前仍未完成
 

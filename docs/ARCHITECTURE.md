@@ -683,6 +683,30 @@ Latest Practice 详情 / 正式实操 / 由进阶内容进入的正式课程
 
 正式实现使用 `resolveResourceAccess()` + Membership / Entitlement / Practice Access；不允许在各页面散落 `isMember` / `hasFollowed` 判断。公开 Reader 必须只查询 Preview 安全字段，不能先读取会员正文再依赖 JSX 隐藏；会员内容只有在 Access ALLOW 后才能读取。
 
+Locked Content Conversion 原则固定为：
+
+```text
+Restricted content should remain discoverable; access is gated, value is not hidden.
+内容可以被锁，但价值不能被隐藏。
+```
+
+因此：
+
+```text
+锁定内容的标题 / 摘要 / 价值说明可以公开
+↓
+明确显示锁定状态
+↓
+明确告诉用户解锁条件
+↓
+FOLLOW 权益 → 引导关注公众号
+MEMBER 权益 → 引导 OPC Membership
+↓
+Access Core 仍决定真实数据是否读取 / 返回
+```
+
+禁止为了转化而把受限正文、Deep Resource URL、正式 Practice 内容或会员 Course 数据提前下发到客户端；Conversion UX 只能展示 Preview 安全字段。
+
 ---
 
 ## 12. Channel Adapters

@@ -1,6 +1,6 @@
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
-> 业务代码验证基线：`main@1622a79`
+> 业务代码验证基线：`main@555687f`
 >
 > 本文件只记录当前事实。历史过程看 `docs/task-results/*`，未来规划看 `TASKS.md`。
 
@@ -9,8 +9,8 @@
 当前治理提交后的 Git 受控文件：
 
 ```text
-TOTAL  205
-TEXT   198
+TOTAL  208
+TEXT   201
 BINARY 7
 ```
 
@@ -18,8 +18,8 @@ BINARY 7
 
 ```text
 app/         54
-components/  33
-docs/        35
+components/  35
+docs/        36
 drizzle/     21
 lib/         36
 skills/      1
@@ -49,7 +49,7 @@ postgres.js
 ```text
 npm run typecheck  PASS
 npm run build      PASS
-Next production build: 31 pages/routes
+Next production build: 30 static pages generated
 Git working tree at audit start: clean
 ```
 
@@ -161,6 +161,8 @@ Latest Practice 详情 / 正式实操 MEMBER
 公众号关注不等价于 Membership；关注权益只额外解锁完整 AI Daily。普通 Learning Path / Course 的既有访问规则未被全局改成会员制。
 
 公开 Latest Practice Reader 只读取卡片 / Preview 安全字段；Knowledge body、Deep Resource URL、Practice / Course 关联只在 MEMBER Access 通过后读取，避免 Next RSC payload 泄露会员数据。
+
+ACCESS-UX-001 已固定转化原则：受限内容保持可发现，Access 仍受控。AI Daily 第 4 条及之后继续展示公开标题 / 摘要并标记锁定，Follow / Membership CTA 明确；Knowledge / Latest Practice 等会员内容显示公开摘要与会员 CTA，但不读取受限正文或链接。
 
 ### Content
 
@@ -399,6 +401,8 @@ MVP-011-G — Knowledge → Course Impact Analysis
 RUNTIME-001 已完成：0006–0009 已应用到远程数据库，并完成 C2 / D / E / F 真实 Runtime smoke 与测试数据清理。
 
 ACCESS-001 已完成统一资源级 Access Policy 与匿名 / 普通 / 公众号关注 / 会员四身份 Runtime 验收。
+
+ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价值不隐藏；公众号关注与 Membership 保持两条独立转化路径。
 
 下一阶段固定为：
 
