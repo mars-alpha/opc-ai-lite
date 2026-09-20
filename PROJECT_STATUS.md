@@ -26,8 +26,9 @@ LEARNING-SPEC-002 Multi-type Lesson Validation COMPLETE
 LEARNING-RUNTIME-001 Generic Lesson Runtime Foundation COMPLETE
 LEARNING-RUNTIME-001-A Pilot Provisioning & Acceptance COMPLETE
 LEARNING-UX-RUNTIME-ALIGN-001 Reference UX Unification COMPLETE
+COURSE-BUILDER-SKILL-001 Course Builder Skill v0.1 CONTRACT_COMPLETE_RUNTIME_PENDING
 
-NEXT: COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
+NEXT: COURSE-BUILDER-SKILL-001-A — Real Lesson Draft Acceptance
 ```
 
 ## 当前系统健康
@@ -50,6 +51,7 @@ Reference Lesson flow PASS
 Multi-type Spec check PASS
 Generic Runtime check PASS
 Unified Reference UX   PASS
+Course Builder contract PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -89,7 +91,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`LEARNING-UX-RUNTIME-ALIGN-001` 已完成：CONCEPT / PRACTICE / APPLICATION 验证样本共用同一 Generic Guided Lesson Shell。`writing-files` 已注册用于 APPLICATION UX，但其 required Check / Practice 尚未 provision，ARTIFACT Resolver 仍未实现，因此 Runtime 明确保持 configurationReady=false / enforcementActive=false，并在同一 Shell 内展示 blocker、禁止正式完成。下一步进入 `COURSE-BUILDER-SKILL-001`，不改变上述 Runtime 边界。
+`COURSE-BUILDER-SKILL-001` v0.1 契约已落地：BUILD / IMPROVE 输出结构化候选，Code Validation 复用 Lesson Spec 规则并拒绝 Core Authority 字段，只有 PASS 输出才能形成 `PENDING_REVIEW` Review Packet。当前未接 Provider、未新增 Draft 表、未接 Admin Review UI、未写 Published Course。下一步进入 `COURSE-BUILDER-SKILL-001-A — Real Lesson Draft Acceptance`。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

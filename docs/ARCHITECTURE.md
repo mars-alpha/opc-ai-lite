@@ -1112,3 +1112,13 @@ Human Review
 ```
 
 AI / RULE 没有 Candidate APPROVE 权限，也不能写入或发布 Lesson。为了减少噪音，RULE 模式在没有 Knowledge→Lesson / Stage 明确关系时返回空建议，而不是随机匹配课程。
+
+---
+
+## 17. COURSE-BUILDER-SKILL-001 v0.1 Boundary
+
+Course Builder v0.1 固定 Controlled Context → BUILD / IMPROVE Structured Output → Code Validation → PENDING_REVIEW Review Packet → Human Review。
+
+Code Validation 复用 Lesson Spec、Lesson Type / Step / Completion Gate 规则，并拒绝 Skill 写入 publish/status/access/entitlement/progress/completion 等 Core Authority 字段。
+
+当前 Review Packet 为内存受控结构，不新增数据库表。真实 Provider、Draft persistence、Admin Review UI、Approved Draft → Course write-back 均留待真实 Lesson Draft Acceptance 后再决定。

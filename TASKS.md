@@ -466,10 +466,12 @@ Priority: P0
 
 ## COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
 
-Status: READY
+Status: CONTRACT_COMPLETE_RUNTIME_PENDING
 Priority: P0
 
-`LEARNING-UX-RUNTIME-ALIGN-001` 已完成。下一步基于已验证的 `docs/LEARNING_SPEC.md` + Generic Lesson Runtime + 统一 Reference UX，实现最小 BUILD / IMPROVE Structured Draft Contract；不允许 Skill 直接 Publish、改 Access、改 Progress、绕过 Runtime blocker 或批量覆盖 Published Course。
+v0.1 最小契约已完成：skills/course-builder/v0.1.ts 固定 BUILD / IMPROVE Prompt 边界；lib/learning/course-builder.ts 提供 Structured Output parser + Code Validation；只有校验通过的结果才能形成 PENDING_REVIEW Review Packet。当前不接 Provider、不落 Draft 表、不实现自动 Publish，也不改 Access / Progress / Completion。
+
+下一步：COURSE-BUILDER-SKILL-001-A — Real Lesson Draft Acceptance。选一个真实 Lesson Topic，用 v0.1 生成 BUILD Draft，人工审阅内容质量、Step 结构、Check / Practice 与 Unified Lesson Shell 适配；通过真实样本后再决定 Provider 接入、Draft persistence 与 Admin Review UI。
 
 建议后续顺序：
 

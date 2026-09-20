@@ -324,6 +324,8 @@ Published + active Knowledge
 
 Impact Analysis 本身不落新表、不生成新 migration。RULE 模式只在 Knowledge 已明确关联 lessonId 或 stageId 时给建议；没有课程关联时返回空建议，不随意猜测 Lesson。
 
+当前已落地 Course Builder Skill v0.1 契约层：BUILD / IMPROVE Structured Output → lib/learning/course-builder.ts Code Validation → PENDING_REVIEW Review Packet。BUILD 复用 Lesson Spec validator，并校验课程正文、required Check / Practice 对齐；IMPROVE 只生成修改 Proposal。两种模式都拒绝 Skill 携带 publish/status/access/entitlement/progress/completion 等 Core Authority 字段。当前不落数据库、不调用真实 Provider、不写 Published Course。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

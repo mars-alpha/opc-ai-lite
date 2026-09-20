@@ -11,6 +11,7 @@
     "learning:runtime:check": "tsx scripts/validate-learning-runtime.ts",
     "learning:runtime:pilots": "tsx scripts/provision-learning-runtime-pilots.ts",
     "learning:runtime:accept": "tsx scripts/accept-learning-runtime-pilots.ts",
+    "course-builder:check": "tsx scripts/validate-course-builder.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx lib/server/db/seed.ts"
