@@ -28,11 +28,11 @@ NEXT: re-audit product priority before next implementation task
 
 ## 当前系统健康
 
-全仓事实审计来源基线：`main@5ea3981`。
+当前验证基线：`main@5575934`。
 
 ```text
-Git tracked files    198
-Text files           191
+Git tracked files    201
+Text files           194
 Binary assets        7
 npm run typecheck    PASS
 npm run build        PASS
