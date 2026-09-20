@@ -100,6 +100,13 @@ Preview 本地完成 Check / Practice 检查，不写正式 Runtime / Progress /
 未调用真实 AI Provider。
 未发布课程。
 
+## Human Review Fix
+
+- Check / Practice 底部反馈不再跨 Step 保留；切换步骤即清除上一节临时消息。
+- Practice 本地检查未通过时显示完整参考答案。
+- 提供“复制参考答案”按钮。
+- 参考答案不会自动把 Practice 标记为通过，仍需用户修改并重新检查。
+
 ## Next
 
 产品负责人直接体验 /course-builder/preview/prompt-foundations，重点判断 APPLICATION 是否真的带来“我会做了”的获得感。

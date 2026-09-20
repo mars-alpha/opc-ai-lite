@@ -142,6 +142,7 @@ export function GenericLessonRuntimePanel({
   previewCheck = null,
   previewActivity = null,
   previewPractice = null,
+  previewReferenceAnswer = null,
   previewIntroComparison = null
 }: {
   courseSlug: string;
@@ -152,6 +153,7 @@ export function GenericLessonRuntimePanel({
   previewCheck?: PreviewCheck | null;
   previewActivity?: PreviewActivity | null;
   previewPractice?: PreviewPractice | null;
+  previewReferenceAnswer?: string | null;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
@@ -211,6 +213,7 @@ export function GenericLessonRuntimePanel({
   const [currentStep, setCurrentStep] = useState(0);
   const [confusedOpen, setConfusedOpen] = useState(false);
   const [copiedActivity, setCopiedActivity] = useState(false);
+  const [copiedReferenceAnswer, setCopiedReferenceAnswer] = useState(false);
 
   const refresh = useCallback(async () => {
     if (previewMode) return;
@@ -468,6 +471,7 @@ export function GenericLessonRuntimePanel({
               if (index <= currentStep || (index === currentStep + 1 && canAdvance)) {
                 setCurrentStep(index);
                 setConfusedOpen(false);
+                setMessage(null);
               }
             }}
           >
@@ -714,6 +718,24 @@ export function GenericLessonRuntimePanel({
               </div>
             </div>
           )}
+
+          {previewMode && evaluation && !evaluation.passed && previewReferenceAnswer && (
+            <div className="guided-reference-answer">
+              <div className="guided-step-label">还是卡住？先参考一个完整答案</div>
+              <p>你可以先看懂它为什么合格，再修改自己的版本。复制参考答案不会自动判定练习通过。</p>
+              <div className="guided-preview-prompt">{previewReferenceAnswer}</div>
+              <button
+                type="button"
+                className="btn"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(previewReferenceAnswer);
+                  setCopiedReferenceAnswer(true);
+                }}
+              >
+                {copiedReferenceAnswer ? "✓ 已复制参考答案" : "复制参考答案"}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -812,7 +834,11 @@ export function GenericLessonRuntimePanel({
       {message && <div className="interactive-message">{message}</div>}
 
       <div className="guided-step-nav">
-        <button type="button" className="btn btn-secondary" onClick={() => setCurrentStep((value) => Math.max(0, value - 1))} disabled={currentStep === 0}>← 上一步</button>
+        <button type="button" className="btn btn-secondary" onClick={() => {
+          setCurrentStep((value) => Math.max(0, value - 1));
+          setMessage(null);
+          setConfusedOpen(false);
+        }} disabled={currentStep === 0}>← 上一步</button>
         <div><span>{step.title}</span><small>{currentStep + 1} / {plan.steps.length}</small></div>
         <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>
         {currentStep < plan.steps.length - 1 && (
@@ -820,6 +846,7 @@ export function GenericLessonRuntimePanel({
             if (!canAdvance) return;
             setCurrentStep((value) => Math.min(plan.steps.length - 1, value + 1));
             setConfusedOpen(false);
+            setMessage(null);
           }}>下一步 →</button>
         )}
       </div>

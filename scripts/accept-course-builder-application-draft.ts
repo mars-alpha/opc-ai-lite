@@ -20,7 +20,7 @@ assert(packet.status === "PENDING_REVIEW", "APPLICATION_DRAFT_NOT_PENDING_REVIEW
 assert(packet.output.mode === "BUILD", "APPLICATION_DRAFT_BUILD_REQUIRED");
 if (packet.output.mode !== "BUILD") throw new Error("APPLICATION_DRAFT_BUILD_REQUIRED");
 
-const { lessonSpec, check, practice, grounding, pedagogy } = packet.output;
+const { lessonSpec, check, practice, grounding, pedagogy, referenceAnswer } = packet.output;
 const plan = buildLessonRuntimePlan(lessonSpec);
 
 assert(lessonSpec.lessonType === "APPLICATION", "APPLICATION_TYPE");
@@ -41,6 +41,8 @@ assert((check?.options.length ?? 0) >= 3, "APPLICATION_CHECK_OPTIONS");
 assert((practice?.instructions.length ?? 0) === 4, "APPLICATION_PRACTICE_FIELDS");
 assert((practice?.rubric.length ?? 0) === 4, "APPLICATION_PRACTICE_RUBRIC");
 assert(practice?.passScore === 70, "APPLICATION_PRACTICE_PASS_SCORE");
+assert(lessonSpec.referenceAnswerEnabled, "APPLICATION_REFERENCE_ANSWER_ENABLED");
+assert(Boolean(referenceAnswer), "APPLICATION_REFERENCE_ANSWER_REQUIRED");
 assert(grounding.status === "REVIEWED", "APPLICATION_GROUNDING");
 assert(grounding.sourceKind === "RESEARCH_PACKET", "APPLICATION_RESEARCH_PACKET");
 assert(grounding.sourceLabels.length >= 2, "APPLICATION_RESEARCH_SOURCES");
@@ -55,6 +57,7 @@ console.log("APPLICATION_SPEC_RULES=PASS");
 console.log("APPLICATION_CHECK_SCHEMA=PASS");
 console.log("APPLICATION_PRACTICE_SCHEMA=PASS");
 console.log("APPLICATION_PRACTICE_GATE=PASS");
+console.log("APPLICATION_REFERENCE_ANSWER=PASS");
 console.log("APPLICATION_UNIFIED_SHELL=PASS");
 console.log("APPLICATION_AI_TOOL_NEUTRAL=PASS");
 console.log("APPLICATION_GROUNDING=PASS");

@@ -340,6 +340,8 @@ Lesson Spec 当前允许 CONCEPT 在 `practiceMode=NONE` 时包含一个非验�
 
 Course Builder BUILD 的 `check` / `practice` 当前已从任意对象升级为最小明确 Schema。Check 必须包含 id/question/options/correctValue/explanation；Practice 必须包含 id/title/goal/instructions/hints/rubric/passScore，并校验正确答案存在、Rubric key 与输入字段一致、分数范围合法。
 
+Generic Lesson Preview 的互动反馈当前会在 Step 切换时清除，避免上一节 Check / Practice 消息污染后续步骤。`prompt-foundations` 的 Practice 开启 `referenceAnswerEnabled=true`；仅当本地 Practice 评估未通过时显示完整参考答案和复制按钮。参考答案是教学支持，不会自动设置 Practice Passed，也不是可信完成证据。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：
