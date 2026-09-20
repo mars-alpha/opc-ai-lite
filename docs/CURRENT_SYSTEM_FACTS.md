@@ -336,6 +336,10 @@ Lesson Spec 当前允许 CONCEPT 在 `practiceMode=NONE` 时包含一个非验�
 
 `skill-foundations` Preview 的 EXPLAIN 当前支持通用 `previewIntroComparison`：直接显示真实场景、临时做法 / 可复用做法、Prompt / Skill 对比与核心结论，不需要额外点击。该能力只属于 Preview 教学呈现，不改变 Lesson Spec、Runtime Gate、Progress 或正式课程状态。
 
+第二个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/prompt-foundations.ts`：`ai-literacy/prompt-foundations`，类型 APPLICATION。它使用 `EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY`，Completion Gates 为 CHECK + PRACTICE，`realAiOperation=GUIDED`、`realAiEvidence=NONE`。只读 Preview 路由为 `/course-builder/preview/prompt-foundations`，可本地完成 Check / Practice 规则验收并复制用户自己填写的提示词，但不会写正式 Progress / Completion。
+
+Course Builder BUILD 的 `check` / `practice` 当前已从任意对象升级为最小明确 Schema。Check 必须包含 id/question/options/correctValue/explanation；Practice 必须包含 id/title/goal/instructions/hints/rubric/passScore，并校验正确答案存在、Rubric key 与输入字段一致、分数范围合法。
+
 ## 6. AI Provider
 
 课程 AI Analysis 代码已存在，但当前环境未确认配置：

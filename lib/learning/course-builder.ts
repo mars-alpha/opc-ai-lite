@@ -46,14 +46,38 @@ export type CourseBuilderLessonContent = {
   related: string[];
 };
 
+export type CourseBuilderCheck = {
+  id: string;
+  question: string;
+  options: Array<{ value: string; label: string }>;
+  correctValue: string;
+  explanation: string;
+};
+
+export type CourseBuilderPractice = {
+  id: string;
+  title: string;
+  goal: string;
+  instructions: Array<{ key: string; label: string; prompt: string }>;
+  hints: string[];
+  rubric: Array<{
+    key: string;
+    label: string;
+    maxScore: number;
+    minScore: number;
+    example: string;
+  }>;
+  passScore: number;
+};
+
 export type CourseBuilderBuildDraft = {
   mode: "BUILD";
   grounding: CourseBuilderGrounding;
   pedagogy: CourseBuilderPedagogy;
   lessonSpec: LessonSpec;
   content: CourseBuilderLessonContent;
-  check: null | Record<string, unknown>;
-  practice: null | Record<string, unknown>;
+  check: CourseBuilderCheck | null;
+  practice: CourseBuilderPractice | null;
   hints: string[];
   referenceAnswer: null | string;
   review: string[];
@@ -287,6 +311,86 @@ function parseContent(input: unknown): CourseBuilderLessonContent {
   };
 }
 
+function parseCheck(input: unknown): CourseBuilderCheck {
+  if (!isRecord(input)) throw new Error("INVALID_BUILD_CHECK");
+  if (!Array.isArray(input.options) || input.options.length < 2) {
+    throw new Error("INVALID_BUILD_CHECK_OPTIONS");
+  }
+  const options = input.options.map((option) => {
+    if (!isRecord(option)) throw new Error("INVALID_BUILD_CHECK_OPTION");
+    return {
+      value: requiredText(option.value, "INVALID_BUILD_CHECK_OPTION_VALUE", 120),
+      label: requiredText(option.label, "INVALID_BUILD_CHECK_OPTION_LABEL", 1000)
+    };
+  });
+  const correctValue = requiredText(input.correctValue, "INVALID_BUILD_CHECK_CORRECT_VALUE", 120);
+  if (!options.some((option) => option.value === correctValue)) {
+    throw new Error("BUILD_CHECK_CORRECT_VALUE_NOT_FOUND");
+  }
+  return {
+    id: requiredText(input.id, "INVALID_BUILD_CHECK_ID", 160),
+    question: requiredText(input.question, "INVALID_BUILD_CHECK_QUESTION", 3000),
+    options,
+    correctValue,
+    explanation: requiredText(input.explanation, "INVALID_BUILD_CHECK_EXPLANATION", 3000)
+  };
+}
+
+function parsePractice(input: unknown): CourseBuilderPractice {
+  if (!isRecord(input)) throw new Error("INVALID_BUILD_PRACTICE");
+  if (!Array.isArray(input.instructions) || input.instructions.length === 0) {
+    throw new Error("INVALID_BUILD_PRACTICE_INSTRUCTIONS");
+  }
+  if (!Array.isArray(input.rubric) || input.rubric.length === 0) {
+    throw new Error("INVALID_BUILD_PRACTICE_RUBRIC");
+  }
+  const instructions = input.instructions.map((item) => {
+    if (!isRecord(item)) throw new Error("INVALID_BUILD_PRACTICE_INSTRUCTION");
+    return {
+      key: requiredText(item.key, "INVALID_BUILD_PRACTICE_KEY", 120),
+      label: requiredText(item.label, "INVALID_BUILD_PRACTICE_LABEL", 500),
+      prompt: requiredText(item.prompt, "INVALID_BUILD_PRACTICE_PROMPT", 3000)
+    };
+  });
+  const keys = new Set(instructions.map((item) => item.key));
+  const rubric = input.rubric.map((item) => {
+    if (!isRecord(item)) throw new Error("INVALID_BUILD_PRACTICE_RUBRIC_ITEM");
+    const key = requiredText(item.key, "INVALID_BUILD_PRACTICE_RUBRIC_KEY", 120);
+    if (!keys.has(key)) throw new Error("BUILD_PRACTICE_RUBRIC_KEY_NOT_FOUND:" + key);
+    if (typeof item.maxScore !== "number" || item.maxScore <= 0) {
+      throw new Error("INVALID_BUILD_PRACTICE_MAX_SCORE");
+    }
+    if (
+      typeof item.minScore !== "number" ||
+      item.minScore < 0 ||
+      item.minScore > item.maxScore
+    ) {
+      throw new Error("INVALID_BUILD_PRACTICE_MIN_SCORE");
+    }
+    return {
+      key,
+      label: requiredText(item.label, "INVALID_BUILD_PRACTICE_RUBRIC_LABEL", 500),
+      maxScore: item.maxScore,
+      minScore: item.minScore,
+      example: requiredText(item.example, "INVALID_BUILD_PRACTICE_RUBRIC_EXAMPLE", 3000)
+    };
+  });
+  if (typeof input.passScore !== "number" || input.passScore <= 0) {
+    throw new Error("INVALID_BUILD_PRACTICE_PASS_SCORE");
+  }
+  const maxTotal = rubric.reduce((sum, item) => sum + item.maxScore, 0);
+  if (input.passScore > maxTotal) throw new Error("BUILD_PRACTICE_PASS_SCORE_TOO_HIGH");
+  return {
+    id: requiredText(input.id, "INVALID_BUILD_PRACTICE_ID", 160),
+    title: requiredText(input.title, "INVALID_BUILD_PRACTICE_TITLE", 500),
+    goal: requiredText(input.goal, "INVALID_BUILD_PRACTICE_GOAL", 3000),
+    instructions,
+    hints: textArray(input.hints ?? [], "INVALID_BUILD_PRACTICE_HINTS", true),
+    rubric,
+    passScore: input.passScore
+  };
+}
+
 export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput {
   if (!isRecord(input)) throw new Error("INVALID_COURSE_BUILDER_OUTPUT");
   rejectAuthorityFields(input);
@@ -297,12 +401,8 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
     const pedagogy = parsePedagogy(input.pedagogy);
     const lessonSpec = parseLessonSpec(input.lessonSpec);
     const content = parseContent(input.content);
-    const check = input.check === null ? null : isRecord(input.check) ? input.check : (() => {
-      throw new Error("INVALID_BUILD_CHECK");
-    })();
-    const practice = input.practice === null ? null : isRecord(input.practice) ? input.practice : (() => {
-      throw new Error("INVALID_BUILD_PRACTICE");
-    })();
+    const check = input.check === null ? null : parseCheck(input.check);
+    const practice = input.practice === null ? null : parsePractice(input.practice);
 
     if (lessonSpec.requiresCheck && !check) throw new Error("BUILD_REQUIRED_CHECK_MISSING");
     if (!lessonSpec.requiresCheck && check) throw new Error("BUILD_UNEXPECTED_CHECK");

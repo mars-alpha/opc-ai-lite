@@ -78,6 +78,22 @@ type PreviewActivity = {
   reflection: string;
 };
 
+type PreviewPractice = {
+  id: string;
+  title: string;
+  goal: string;
+  instructions: ReadonlyArray<{ key: string; label: string; prompt: string }>;
+  hints: ReadonlyArray<string>;
+  rubric: ReadonlyArray<{
+    key: string;
+    label: string;
+    maxScore: number;
+    minScore: number;
+    example: string;
+  }>;
+  passScore: number;
+};
+
 type PreviewIntroComparison = {
   situation: string;
   approaches: ReadonlyArray<{
@@ -125,6 +141,7 @@ export function GenericLessonRuntimePanel({
   previewMode = false,
   previewCheck = null,
   previewActivity = null,
+  previewPractice = null,
   previewIntroComparison = null
 }: {
   courseSlug: string;
@@ -134,6 +151,7 @@ export function GenericLessonRuntimePanel({
   previewMode?: boolean;
   previewCheck?: PreviewCheck | null;
   previewActivity?: PreviewActivity | null;
+  previewPractice?: PreviewPractice | null;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
@@ -149,7 +167,19 @@ export function GenericLessonRuntimePanel({
                 state: null
               }]
             : [],
-          practices: []
+          practices: previewPractice
+            ? [{
+                id: previewPractice.id,
+                title: previewPractice.title,
+                goal: previewPractice.goal,
+                instructions: [...previewPractice.instructions],
+                hints: [...previewPractice.hints],
+                rubric: [...previewPractice.rubric],
+                passScore: previewPractice.passScore,
+                required: true,
+                state: null
+              }]
+            : []
         }
       : null
   );
@@ -635,6 +665,35 @@ export function GenericLessonRuntimePanel({
                     : "检查我的结果"}
             </button>
           </div>
+
+          {previewMode && previewActivity && (
+            <div className="guided-preview-activity guided-application-test">
+              <div className="guided-step-label">放进你的 AI 软件试一下</div>
+              <p>{previewActivity.instruction}</p>
+              <button
+                type="button"
+                className="btn"
+                onClick={async () => {
+                  const combined = practice.instructions
+                    .map((item) => item.label + "：" + (content[item.key] ?? "").trim())
+                    .filter((item) => !item.endsWith("："))
+                    .join("\n");
+                  if (!combined) {
+                    setMessage("先把上面的练习内容填好，再复制。");
+                    return;
+                  }
+                  await navigator.clipboard.writeText(combined);
+                  setCopiedActivity(true);
+                }}
+              >
+                {copiedActivity ? "✓ 已复制我的提示词" : "复制我的提示词"}
+              </button>
+              <div className="guided-gain">
+                <strong>比较两次结果</strong>
+                <p>{previewActivity.reflection}</p>
+              </div>
+            </div>
+          )}
 
           {evaluation && (
             <div className="interactive-evaluation">

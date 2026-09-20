@@ -519,6 +519,14 @@ Status: COMPLETE
 
 根据 Human Review，Step 1 的两个选择答案过于明显，属于“为了互动而互动”。现已移除按钮，改为直接显示真实场景、临时做法 / 可复用做法、Prompt / Skill 对比和一句核心结论。Renderer 使用通用 `previewIntroComparison`，Step 3/4/5/6 不变。
 
+### COURSE-BUILDER-SKILL-002-A — Real APPLICATION Lesson Acceptance
+
+Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+新增真实 APPLICATION Draft：`ai-literacy/prompt-foundations`，题目“Prompt（提示词）怎么写，AI 才更容易理解你”。采用统一 6 步，Completion Gates 为 CHECK + PRACTICE；真实 AI 操作为 GUIDED，不进入 Completion Gate。Practice 让学员亲手填写任务 / 背景 / 限制 / 结果，通过本地规则检查后可复制自己的提示词到任意 AI 软件测试。
+
+同时 Course Builder v0.1 的 Check / Practice 已从任意 Record 升级为最小明确 Schema。Preview：`/course-builder/preview/prompt-foundations`。下一步先做 Human Review，不正式发布。
+
 建议后续顺序：
 
 ```text

@@ -52,8 +52,35 @@ const build = createCourseBuilderReviewPacket(
       mistakes: ["把 Skill 输出当成 Production Data"],
       related: ["Lesson Spec", "Generic Lesson Runtime"]
     },
-    check: { question: "谁拥有正式发布权限？" },
-    practice: { goal: "把一个主题整理成合法 Lesson Draft。" },
+    check: {
+      id: "validation-check",
+      question: "谁拥有正式发布权限？",
+      options: [
+        { value: "A", label: "Skill" },
+        { value: "B", label: "Core System" }
+      ],
+      correctValue: "B",
+      explanation: "正式状态写入属于 Core System。"
+    },
+    practice: {
+      id: "validation-practice",
+      title: "整理合法 Lesson Draft",
+      goal: "把一个主题整理成结构完整的课程草稿。",
+      instructions: [
+        { key: "goal", label: "目标", prompt: "写清课程要解决什么问题。" },
+        { key: "context", label: "背景", prompt: "补充适用对象和场景。" },
+        { key: "constraint", label: "限制", prompt: "写出不能违反的规则。" },
+        { key: "output", label: "结果", prompt: "说明最终课程输出结构。" }
+      ],
+      hints: ["先保证结构完整。"],
+      rubric: [
+        { key: "goal", label: "目标", maxScore: 25, minScore: 10, example: "明确课程目标" },
+        { key: "context", label: "背景", maxScore: 25, minScore: 10, example: "明确学习者与场景" },
+        { key: "constraint", label: "限制", maxScore: 25, minScore: 10, example: "明确边界" },
+        { key: "output", label: "结果", maxScore: 25, minScore: 10, example: "明确输出" }
+      ],
+      passScore: 60
+    },
     hints: [],
     referenceAnswer: "Core System 拥有正式状态写入权限。",
     review: ["确认 Lesson Type、Steps 与 Completion Gate 一致。"],

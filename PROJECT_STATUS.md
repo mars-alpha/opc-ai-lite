@@ -33,8 +33,9 @@ COURSE-BUILDER-SKILL-001-C Beginner Pedagogy & Knowledge Grounding COMPLETE
 COURSE-BUILDER-SKILL-001-D Six-Step Beginner Experience & Visual Hierarchy COMPLETE
 COURSE-BUILDER-SKILL-001-E First Step Interactive Intro COMPLETE
 COURSE-BUILDER-SKILL-001-F First Step Direct Comparison COMPLETE
+COURSE-BUILDER-SKILL-002-A Real APPLICATION Lesson Acceptance TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
-NEXT: Human Review — re-open /course-builder/preview/skill-foundations and focus on Step 1 direct comparison
+NEXT: Human Review — open /course-builder/preview/prompt-foundations and review the real APPLICATION lesson
 ```
 
 ## 当前系统健康
@@ -44,7 +45,7 @@ NEXT: Human Review — re-open /course-builder/preview/skill-foundations and foc
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      31 static pages generated
+Production build      32 static pages generated
 Remote migrations     0000 → 0009 APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
@@ -67,6 +68,9 @@ Beginner participation  PASS
 Six-step concept UX     PASS
 Visual hierarchy        PASS
 First-step direct compare PASS
+APPLICATION Draft       PASS
+Check / Practice schema PASS
+APPLICATION Practice gate PASS
 Generic Practice      PASS
 Pilot provisioning    PASS
 Pilot runtime accept  PASS
@@ -106,7 +110,7 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-001-F` 进一步简化 `skill-foundations` 第一节 EXPLAIN：移除两个答案过于明显的选择按钮，改为“真实场景 → 临时做法/可复用做法 → Prompt/Skill 对比 → 一句核心结论”。实现通过通用 `previewIntroComparison` 数据驱动，不按 lesson slug 分支；Step 3/4/5/6 不变。
+`COURSE-BUILDER-SKILL-002-A` 已完成第二个真实 Course Builder 样本：`ai-literacy/prompt-foundations`，类型 APPLICATION。课程采用统一 6 步，CHECK + PRACTICE 双 Gate；Practice 要求用户把模糊提示改成任务 / 背景 / 限制 / 结果四部分，并可在只读 Preview 中本地验收后复制到自己的 AI 软件测试。Course Builder 的 Check / Practice 也从任意 Record 升级为明确最小 Schema。下一步先做 Human Review，不进入正式课程目录或 Runtime。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 
