@@ -129,6 +129,7 @@ export function InteractiveLessonPanel({
   const [message, setMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
 
   const refresh = useCallback(async () => {
     const params = new URLSearchParams({ courseSlug, lessonSlug });
@@ -199,7 +200,9 @@ export function InteractiveLessonPanel({
   async function submitCheck() {
     if (!check || !answer) return;
     if (!data?.authenticated) {
-      setMessage("登录后即可保存理解检查和实操记录。");
+      const correct = answer === "CONSTRAINT";
+      setLocalCheckCorrect(correct);
+      setMessage(correct ? "回答正确。当前为体验模式，登录后可以保存学习记录。" : "还差一点。先看下面的提示，再试一次。");
       return;
     }
     setBusy("check");
@@ -317,9 +320,10 @@ export function InteractiveLessonPanel({
     "反馈与复习",
     "下一步"
   ];
+  const checkPassed = Boolean(check.state?.isCorrect) || localCheckCorrect === true;
   const canGoNext =
     currentStep === 2
-      ? Boolean(check.state?.isCorrect)
+      ? checkPassed
       : currentStep === 4
         ? Boolean(evaluation?.passed)
         : true;
@@ -379,14 +383,14 @@ export function InteractiveLessonPanel({
         {currentStep === 0 && (
           <div className="guided-step-content">
             <div className="guided-step-label">第 1 步 · 基础说明</div>
-            <h3>Prompt（提示词）不是“神奇句式”，而是把任务说明清楚</h3>
+            <h3>提示词（Prompt）不是“神奇句式”，而是把任务说明清楚</h3>
             <p>一个稳定的 AI 任务，至少要让模型知道五件事：要完成什么、背景是什么、根据什么材料做、哪些边界不能违反、最后要交付什么。</p>
             <div className="guided-five-grid">
-              <div><strong>Goal</strong><span>最终要完成什么</span></div>
-              <div><strong>Context</strong><span>背景和使用场景</span></div>
-              <div><strong>Input</strong><span>依据哪些材料</span></div>
-              <div><strong>Constraint</strong><span>必须遵守的边界</span></div>
-              <div><strong>Output</strong><span>最终交付格式</span></div>
+              <div><strong>任务目标</strong><span>Goal · 最终要完成什么</span></div>
+              <div><strong>背景信息</strong><span>Context · 谁使用、为什么做</span></div>
+              <div><strong>输入材料</strong><span>Input · 依据哪些资料或数据</span></div>
+              <div><strong>限制条件</strong><span>Constraint · 不能做什么、必须遵守什么</span></div>
+              <div><strong>输出要求</strong><span>Output · 最终交付成什么样</span></div>
             </div>
             <div className="guided-gain">
               <strong>这一步学会什么</strong>
@@ -406,7 +410,7 @@ export function InteractiveLessonPanel({
               </div>
               <div>
                 <span>可执行任务</span>
-                <p>Goal：整理给项目负责人看的行动摘要。Context：用于明早项目会。Input：只依据会议记录。Constraint：不得补充原文没有的事实。Output：按“决策 / 负责人 / 截止时间 / 风险”四栏输出。</p>
+                <p><b>任务目标：</b>整理给项目负责人看的行动摘要。<br/><b>背景信息：</b>用于明早项目会。<br/><b>输入材料：</b>只依据会议记录。<br/><b>限制条件：</b>不得补充原文没有的事实。<br/><b>输出要求：</b>按“决策 / 负责人 / 截止时间 / 风险”四栏输出。</p>
               </div>
             </div>
             <div className="guided-gain">
@@ -419,8 +423,9 @@ export function InteractiveLessonPanel({
         {currentStep === 2 && (
           <div className="guided-step-content">
             <div className="guided-step-label">第 3 步 · 理解检查</div>
-            <h3>{check.question}</h3>
-            <p>先自己判断，不用返回上一页找答案。</p>
+            <h3>哪一项主要负责告诉 AI“不能做什么、必须遵守什么”？</h3>
+            <p>通过标准：选对“限制条件（Constraint）”即可进入下一步。先自己判断；不确定时先看下面提示。</p>
+            <div className="guided-gain"><strong>提示</strong><p>“任务目标”是在说要做什么；“限制条件”是在说哪些边界不能越过。</p></div>
             <div className="interactive-options">
               {check.options.map((option) => (
                 <label key={option.value} className={answer === option.value ? "is-selected" : ""}>
@@ -431,7 +436,7 @@ export function InteractiveLessonPanel({
                     checked={answer === option.value}
                     onChange={() => setAnswer(option.value)}
                   />
-                  <span>{option.label}</span>
+                  <span>{({ GOAL: "任务目标（Goal）", CONTEXT: "背景信息（Context）", CONSTRAINT: "限制条件（Constraint）", OUTPUT: "输出要求（Output）" } as Record<string, string>)[option.value] ?? option.label}</span>
                 </label>
               ))}
             </div>
@@ -441,25 +446,21 @@ export function InteractiveLessonPanel({
               onClick={submitCheck}
               disabled={!answer || busy === "check"}
             >
-              {busy === "check" ? "正在检查…" : check.state?.isCorrect ? "✓ 已理解" : "检查答案"}
+              {busy === "check" ? "正在检查…" : checkPassed ? "✓ 已理解" : "检查答案"}
             </button>
 
-            {check.state && (
-              <div className={"check-feedback " + (check.state.isCorrect ? "is-correct" : "is-wrong")}>
-                <strong>{check.state.isCorrect ? "理解正确 ✓" : "这里需要补一下基础"}</strong>
-                <p>
-                  {check.state.isCorrect
-                    ? check.state.explanation
-                    : "Constraint（约束）负责定义 AI 必须遵守的规则、禁止事项和边界。"}
-                </p>
+            {(check.state || localCheckCorrect !== null) && (
+              <div className={"check-feedback " + (checkPassed ? "is-correct" : "is-wrong")}>
+                <strong>{checkPassed ? "理解正确 ✓" : "这里需要补一下基础"}</strong>
+                <p>{checkPassed ? (check.state?.explanation ?? "限制条件（Constraint）就是任务的行为边界。") : "限制条件（Constraint）负责定义 AI 必须遵守的规则、禁止事项和边界。"}</p>
               </div>
             )}
 
-            {check.state && !check.state.isCorrect && (
+            {(check.state || localCheckCorrect !== null) && !checkPassed && (
               <div className="guided-review-card">
                 <span>建议复习</span>
-                <strong>Context、Token 与提示词</strong>
-                <p>你现在的问题不是不会写 Prompt，而是还没有完全区分 Goal、Context 与 Constraint 的职责。先复习这一个基础点，再回来重试。</p>
+                <strong>上下文（Context）、Token 与提示词</strong>
+                <p>你现在主要是还没有完全区分“任务目标、背景信息、限制条件”的职责。先补这一小块，再回来重试，不需要整课从头学。</p>
                 <Link className="btn btn-secondary" href="/courses/ai-literacy/lessons/context-token">
                   去复习对应课程 →
                 </Link>
@@ -471,12 +472,13 @@ export function InteractiveLessonPanel({
         {currentStep === 3 && (
           <div className="guided-step-content">
             <div className="guided-step-label">第 4 步 · 跟着做，再自己做</div>
-            <h3>{practice.title}</h3>
-            <p>{practice.goal}</p>
+            <h3>用你自己的真实任务，写一份可执行任务简报</h3>
+            <p>通过标准：总分至少 <b>{practice.passScore}/100</b>，并且五项每一项都至少达到 <b>12/20</b>。不是写得越长越好，而是让别人不需要猜就能执行。</p>
+            <div className="guided-review-card"><span>先看一个能通过的方向</span><strong>五项都要具体</strong><p>任务目标写结果；背景信息写给谁用、为什么用；输入材料写依据什么；限制条件写不能做什么；输出要求写最终格式。</p></div>
             <div className="guided-practice-fields">
               {practice.instructions.map((item) => (
                 <label key={item.key}>
-                  <span>{item.label}</span>
+                  <span>{({ goal: "任务目标（Goal）", context: "背景信息（Context）", input: "输入材料（Input）", constraint: "限制条件（Constraint）", output: "输出要求（Output）" } as const)[item.key]}</span>
                   <small>{item.prompt}</small>
                   <textarea
                     value={content[item.key]}
@@ -490,6 +492,7 @@ export function InteractiveLessonPanel({
               ))}
             </div>
 
+            <div className="guided-pass-list"><strong>提交前自查</strong><ul><li>五项都已填写</li><li>每一项至少包含一个具体条件或结果</li><li>限制条件里写清至少一个“不能 / 不得 / 必须”</li><li>输出要求写清格式、栏目、长度或结构</li></ul></div>
             <div className="interactive-actions">
               <button
                 type="button"
@@ -512,7 +515,7 @@ export function InteractiveLessonPanel({
             {hintCount > 0 && (
               <div className="interactive-hints">
                 {practice.hints.slice(0, hintCount).map((hint, index) => (
-                  <p key={hint}><strong>提示 {index + 1}</strong>{hint}</p>
+                  <p key={hint}><strong>提示 {index + 1}</strong>{hint.replace("Constraint", "限制条件（Constraint）")}</p>
                 ))}
               </div>
             )}
@@ -537,7 +540,7 @@ export function InteractiveLessonPanel({
 
             {!evaluation && (
               <div className="guided-empty-feedback">
-                <p>回到上一步完成实操并提交。系统会按 Goal / Context / Input / Constraint / Output 分项检查，而不是只给一个总分。</p>
+                <p>回到上一步完成实操并提交。系统会按“任务目标 / 背景信息 / 输入材料 / 限制条件 / 输出要求”五项分别检查，而不是只给一个总分。</p>
                 <button type="button" className="btn btn-secondary" onClick={() => setCurrentStep(3)}>返回实操 →</button>
               </div>
             )}
@@ -548,11 +551,11 @@ export function InteractiveLessonPanel({
                   <div><span>本次得分</span><strong>{evaluation.score}<small> / 100</small></strong></div>
                   <div><span>结果</span><strong className={evaluation.passed ? "passed" : "revision"}>{evaluation.passed ? "已通过" : "需要修改"}</strong></div>
                 </div>
-                <p className="evaluation-next">{evaluation.nextAction}</p>
+                <p className="evaluation-next">{evaluation.passed ? "已经达到通过标准。下一步建议把这份任务简报复制到你常用的 AI 工具里真实验证一次。" : "先修改最低分的那一项。看下面的“问题 / 怎么改 / 参考”，修改后再提交。"}</p>
                 <div className="evaluation-criteria">
                   {evaluation.criteria.map((item) => (
                     <article key={item.key}>
-                      <div className="criterion-head"><strong>{item.label}</strong><span>{item.score}/{item.maxScore}</span></div>
+                      <div className="criterion-head"><strong>{({ goal: "任务目标", context: "背景信息", input: "输入材料", constraint: "限制条件", output: "输出要求" } as const)[item.key]}</strong><span>{item.score}/{item.maxScore}</span></div>
                       <p><b>为什么：</b>{item.reason}</p>
                       {item.problem && <p><b>问题：</b>{item.problem}</p>}
                       <p><b>怎么改：</b>{item.suggestion}</p>
@@ -567,7 +570,7 @@ export function InteractiveLessonPanel({
               <div className="guided-review-card">
                 <span>没有通过不是重新从头学</span>
                 <strong>先看最低分的部分，再回到第 4 步修改</strong>
-                <p>如果你分不清 Goal / Context / Constraint，优先复习「Context、Token 与提示词」；如果只是内容不够具体，直接按上面的“怎么改”修改即可。</p>
+                <p>如果你分不清“任务目标 / 背景信息 / 限制条件”，优先复习「上下文、Token 与提示词」；如果只是内容不够具体，直接按上面的“怎么改”修改即可。</p>
                 <div className="interactive-actions">
                   <button type="button" className="btn btn-primary" onClick={() => setCurrentStep(3)}>回去修改实操</button>
                   <Link className="btn btn-secondary" href="/courses/ai-literacy/lessons/context-token">复习基础课程</Link>
@@ -582,8 +585,8 @@ export function InteractiveLessonPanel({
             <div className="guided-step-label">第 6 步 · 你现在会什么</div>
             <h3>不是“看完一课”，而是已经获得一个能反复使用的方法</h3>
             <div className="guided-achievement-list">
-              <div><span>✓</span><p>能把模糊需求拆成 Goal / Context / Input / Constraint / Output</p></div>
-              <div><span>✓</span><p>知道 Constraint（约束）为什么能减少 AI 自行猜测</p></div>
+              <div><span>✓</span><p>能把模糊需求拆成任务目标、背景信息、输入材料、限制条件和输出要求</p></div>
+              <div><span>✓</span><p>知道限制条件（Constraint）为什么能减少 AI 自行猜测</p></div>
               <div><span>✓</span><p>已经用自己的真实任务完成至少一次结构化任务简报</p></div>
             </div>
 
@@ -594,9 +597,9 @@ export function InteractiveLessonPanel({
                 <p>后续课程会继续把这个任务简报方法用于文件处理、研究、数据分析和自动化工作流。</p>
               </div>
               <div className="guided-tier-grid">
-                <div><span>免费体验</span><strong>基础 Guided Learning</strong><p>完成核心概念、案例和基础练习。</p></div>
+                <div><span>免费体验</span><strong>基础引导式学习</strong><p>完成核心概念、案例和基础练习。</p></div>
                 <div><span>关注公众号</span><strong>持续跟进</strong><p>解锁完整 AI Daily 与指定基础章节。</p></div>
-                <div className="is-member"><span>OPC 会员</span><strong>系统进阶</strong><p>Knowledge 正文、Deep Resource、正式实操与进阶课程。</p></div>
+                <div className="is-member"><span>OPC 会员</span><strong>系统进阶</strong><p>知识正文、深度资料、正式实操与进阶课程。</p></div>
               </div>
               <div className="interactive-actions">
                 <Link className="btn btn-primary" href="/#membership">查看 OPC 会员学习路径</Link>
@@ -617,7 +620,7 @@ export function InteractiveLessonPanel({
         </div>
         {currentStep < steps.length - 1 ? (
           <button type="button" className="btn btn-primary" onClick={goNext} disabled={!canGoNext}>
-            {currentStep === 2 && !check.state?.isCorrect
+            {currentStep === 2 && !checkPassed
               ? "通过检查后继续"
               : currentStep === 4 && !evaluation?.passed
                 ? "实操通过后继续"

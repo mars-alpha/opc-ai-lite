@@ -37,9 +37,15 @@ export function LessonCompleteButton({
       await toggleLesson(courseSlug, lessonId);
     } catch (cause) {
       if (cause instanceof Error && cause.message === "PRACTICE_REQUIRED") {
-        setError("先完成并通过上方必做实操，再标记本课完成。");
+        setError("还不能完成：请先把上方必做实操做到“已通过”。");
+      } else if (cause instanceof Error && cause.message === "STAGE_PREREQUISITE_REQUIRED") {
+        setError("当前阶段还有前置课程未完成。请先按学习路径完成前置内容，再回来继续。");
+      } else if (cause instanceof Error && cause.message === "OFFICIAL_ACCOUNT_FOLLOW_REQUIRED") {
+        setError("当前课程需要先完成对应解锁条件。请查看页面上的解锁说明。");
+      } else if (cause instanceof Error && cause.message === "UNAUTHENTICATED") {
+        setError("登录后才能保存正式学习进度。");
       } else {
-        setError("学习状态保存失败，请稍后重试。");
+        setError("这次进度没有保存成功。请刷新后重试；如果仍失败，前面的学习内容不会丢失。");
       }
     } finally {
       setSaving(false);
@@ -62,7 +68,7 @@ export function LessonCompleteButton({
           : done
             ? "✓ 已完成 · 点击撤销"
             : requiresPractice
-              ? "通过实操后完成本课"
+              ? "实操通过后，完成本课"
               : "标记本课完成"}
     </button>
     {error && <p className="lesson-complete-error">{error}</p>}

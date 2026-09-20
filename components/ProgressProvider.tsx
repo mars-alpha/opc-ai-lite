@@ -87,14 +87,14 @@ export function ProgressProvider({
       const currentlyCompleted = (completed[course] || []).includes(lesson);
       const nextCompleted = !currentlyCompleted;
 
-      if (!enrolledCourses.includes(course)) {
-        await adapter.enroll(course);
+      await adapter.setLessonCompleted(course, lesson, nextCompleted);
+
+      if (nextCompleted && !enrolledCourses.includes(course)) {
         setEnrolledCourses((current) =>
           current.includes(course) ? current : [...current, course]
         );
       }
 
-      await adapter.setLessonCompleted(course, lesson, nextCompleted);
       setCompleted((current) => {
         const next = new Set(current[course] || []);
         nextCompleted ? next.add(lesson) : next.delete(lesson);
