@@ -16,6 +16,7 @@ MVP-011-F Knowledge → Practice AI Draft     COMPLETE_WITH_AI_RUNTIME_PENDING
 MVP-011-G Knowledge → Course Impact         COMPLETE
 RUNTIME-001 Remote Migration + Runtime      COMPLETE
 ACCESS-001 Unified Resource Access Policy   COMPLETE
+ACCESS-UX-001 Locked Content Conversion UX  COMPLETE
 
 NEXT: AI-DAILY-001 — 最小自动采集 → 审核 → 发布
 ```
@@ -31,6 +32,7 @@ Production build      30 static pages generated
 Remote migrations     0000 → 0009 APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
+ACCESS UX render      PASS
 Test data cleanup     PASS
 ```
 
