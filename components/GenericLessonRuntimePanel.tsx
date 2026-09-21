@@ -1146,9 +1146,22 @@ export function GenericLessonRuntimePanel({
             </div>
           ) : null}
           {previewMode && lesson.mistakes.length > 0 && (
-            <div className="guided-gain">
+            <div className="guided-pitfall-section">
               <strong>容易踩的坑</strong>
-              <p>{lesson.mistakes.map((item) => item.replace(/^误区：/, "").split("｜")[0]).join(" · ")}</p>
+              <div className="guided-pitfall-list">
+                {lesson.mistakes.map((item) => {
+                  const [misconception, correction] = item.split("｜");
+                  return (
+                    <div key={item} className="guided-pitfall-card">
+                      <span>注意</span>
+                      <div>
+                        <strong>{misconception.replace(/^误区：/, "")}</strong>
+                        {correction && <p>{correction.replace(/^正确理解：/, "")}</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
           <div className="guided-gain">

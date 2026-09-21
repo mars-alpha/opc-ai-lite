@@ -92,9 +92,20 @@ for (const [index, input] of drafts.entries()) {
   assert(draft.checkSequence?.length === 3, "CONTINUITY_TRIAL_CURRENT_MASTERY_COUNT:" + expectedIds[index]);
   assert(draft.checkSequence?.every((item) => item.id.startsWith("continuity_")) === true, "CONTINUITY_TRIAL_OLD_CHECK_INHERITANCE:" + expectedIds[index]);
   assert(draft.lessonSpec.steps.map((step) => step.kind).join(">") === "EXPLAIN>EXAMPLE>CHECK>PRACTICE>REVIEW>CAPABILITY", "CONTINUITY_TRIAL_SIX_STEP_ORDER:" + expectedIds[index]);
-  assert(draft.review.length >= 2 && draft.review.length <= 3, "CONTINUITY_TRIAL_REVIEW_FRAMEWORK_BUDGET:" + expectedIds[index]);
+  assert(draft.review.length >= 2 && draft.review.length <= 4, "CONTINUITY_TRIAL_REVIEW_FRAMEWORK_BUDGET:" + expectedIds[index]);
   assert(draft.review.every((item) => item.includes("｜")), "CONTINUITY_TRIAL_REVIEW_NEEDS_EXPLANATION:" + expectedIds[index]);
   assert(draft.selfAssessment.length >= 2, "CONTINUITY_TRIAL_CAPABILITY_SELF_CHECK_REQUIRED:" + expectedIds[index]);
+  const stepFocusQuestions = [
+    "为什么",
+    "核心",
+    "判断",
+    "实操",
+    "复盘",
+    "能力"
+  ];
+  assert(draft.lessonSpec.steps.every((step) => step.title.trim().length >= 4 && step.objective.trim().length >= 10), "CONTINUITY_TRIAL_STEP_FOCUS_EXPLICIT:" + expectedIds[index]);
+  assert(new Set(draft.lessonSpec.steps.map((step) => step.objective)).size === 6, "CONTINUITY_TRIAL_STEP_FOCUS_UNIQUE:" + expectedIds[index]);
+  assert(stepFocusQuestions.length === 6, "CONTINUITY_TRIAL_STEP_FOCUS_MODEL");
 
   const text = visibleText(input);
   assert(!text.includes("OPC"), "CONTINUITY_TRIAL_OPC_VISIBLE_LEAK:" + expectedIds[index]);
@@ -174,4 +185,5 @@ console.log("FOUNDATION_CONTINUITY_TRIAL_CONCEPT_STEP4_ACTIONABLE=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_REVIEW_FRAMEWORK=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CAPABILITY_EVIDENCE=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_GUIDED_SUPPORT=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_STEP_FOCUS=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CATALOG_BOUNDARY=PASS");

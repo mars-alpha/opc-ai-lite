@@ -719,6 +719,12 @@ Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 
 继续复盘六步教学职责，不改 Lesson ID/Type/Gate、Course Builder v0.2 或 Catalog/Runtime 状态。Step 5 改为以 `review` 表达真正可复用的复盘框架，2–3 项按课程需要，每项必须包含“结论｜解释”；误区只做辅助。Step 6 组合 capabilityGain / selfAssessment / nextLessonValue，补齐“会做什么、怎么知道会了、马上用在哪里、为什么继续”。`beginner-context` 非 Gate Step 4 新增完整辅助链：Hint、Reference Answer、一键填充、复制自己的练习、复制参考答案。新增 REVIEW_FRAMEWORK / CAPABILITY_EVIDENCE / GUIDED_SUPPORT 验收，全部回归、typecheck、build PASS（51 pages）。当前证据仍支持继续使用 Course Builder v0.2，不升级 Skill Schema。下一步定向 Human Review：5 节 Step 5/6 + beginner-context Step 4。
 
+### FOUNDATION-CONTINUITY-TRIAL-001-D — Step Focus & Review Clarity
+
+Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
+
+Step 5 Review budget 从 2–3 调整为 2–4 张卡，按课程知识密度决定，不固定 3 张；每张必须包含清晰结论与解释。`容易踩的坑` 改为独立白色卡片逐条排列，不再压缩成一行。新增 Every-step Clarity Gate：Step 1–6 必须分别讲清“为什么学 / 核心规律 / 会不会判断 / 能不能做 / 以后记住什么 / 现在真正会什么”，任何一步只有结构无清晰教学重点即 FAIL。专项 acceptance 新增 STEP_FOCUS，完整回归、typecheck、build PASS（51 pages）。下一步定向 Human Review Step 5/6 与 beginner-context Step 4。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

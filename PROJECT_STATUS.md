@@ -65,8 +65,9 @@ FOUNDATION-CONTINUITY-TRIAL-001 Course Builder v0.2 Continuity Trial TECHNICAL_P
 FOUNDATION-CONTINUITY-TRIAL-001-A Learner-facing Language & Case Neutralization COMPLETE_REVIEW_PENDING
 FOUNDATION-CONTINUITY-TRIAL-001-B Six-Step Content Integrity TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 FOUNDATION-CONTINUITY-TRIAL-001-C Six-Step Pedagogy Refinement TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
+FOUNDATION-CONTINUITY-TRIAL-001-D Step Focus & Review Clarity TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 
-NEXT: TARGETED HUMAN REVIEW — Step 5 + Step 6 on five Continuity Trial lessons, plus beginner-context Step 4 support flow
+NEXT: TARGETED HUMAN REVIEW — Step 5 review framework / pitfall cards + Step 6 capability on five Trial lessons, plus beginner-context Step 4 support flow
 ```
 
 ## 当前系统健康
