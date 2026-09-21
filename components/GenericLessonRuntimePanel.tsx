@@ -179,6 +179,7 @@ export function GenericLessonRuntimePanel({
   previewReviewItems = null,
   previewReviewLabels = null,
   previewPracticeHintsGrouped = false,
+  previewPracticeCopyValuesOnly = false,
   previewSelfAssessment = null,
   previewIntroComparison = null
 }: {
@@ -198,6 +199,7 @@ export function GenericLessonRuntimePanel({
   previewReviewItems?: ReadonlyArray<string> | null;
   previewReviewLabels?: { primary: string; secondary: string } | null;
   previewPracticeHintsGrouped?: boolean;
+  previewPracticeCopyValuesOnly?: boolean;
   previewSelfAssessment?: ReadonlyArray<string> | null;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
@@ -983,8 +985,12 @@ export function GenericLessonRuntimePanel({
                 className="btn"
                 onClick={async () => {
                   const combined = practice.instructions
-                    .map((item) => item.label + "：" + (content[item.key] ?? "").trim())
-                    .filter((item) => !item.endsWith("："))
+                    .map((item) => {
+                      const value = (content[item.key] ?? "").trim();
+                      if (!value) return "";
+                      return previewPracticeCopyValuesOnly ? value : item.label + "：" + value;
+                    })
+                    .filter(Boolean)
                     .join("\n");
                   if (!combined) {
                     setMessage("先把上面的练习内容填好，再复制。");

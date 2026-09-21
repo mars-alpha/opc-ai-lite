@@ -15,6 +15,7 @@ export function BeginnerFoundationDraftPreview({
   reviewCardFill = true,
   reviewLabels = null,
   practiceHintsGrouped = false,
+  practiceCopyValuesOnly = false,
   skillVersion = "0.1.0",
   batchLabel = "Beginner Batch A",
   duration,
@@ -27,6 +28,7 @@ export function BeginnerFoundationDraftPreview({
   reviewCardFill?: boolean;
   reviewLabels?: RuntimeProps["previewReviewLabels"];
   practiceHintsGrouped?: boolean;
+  practiceCopyValuesOnly?: boolean;
   skillVersion?: "0.1.0" | "0.2.0";
   batchLabel?: string;
   duration: string;
@@ -119,6 +121,7 @@ export function BeginnerFoundationDraftPreview({
             previewReviewItems={draft.review}
             previewReviewLabels={reviewLabels}
             previewPracticeHintsGrouped={practiceHintsGrouped}
+            previewPracticeCopyValuesOnly={practiceCopyValuesOnly}
             previewSelfAssessment={draft.selfAssessment}
             previewActivity={draft.pedagogy.participation}
             previewIntroComparison={introPreview}
