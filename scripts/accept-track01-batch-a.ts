@@ -1,5 +1,5 @@
 import { createCourseBuilderReviewPacket } from "../lib/learning/course-builder";
-import { track01T101Draft, track01T101Meta, track01T101ReferenceFill } from "../fixtures/course-builder/track01-batch-a";
+import { track01T101Draft, track01T101KnowledgeDepth, track01T101Meta, track01T101ReferenceFill } from "../fixtures/course-builder/track01-batch-a";
 
 function assert(condition: unknown, code: string) {
   if (!condition) throw new Error(code);
@@ -35,9 +35,10 @@ assert(draft.practice?.instructions.length === 2, "TRACK01_T101_STEP4_TWO_LEARNE
 assert(draft.practice?.instructions.map((item) => item.key).join(",") === "task,help", "TRACK01_T101_STEP4_KEYS");
 assert(draft.review.length === 3, "TRACK01_T101_REVIEW_COUNT");
 assert(draft.review.every((item) => item.includes("｜")), "TRACK01_T101_REVIEW_EXPLANATION");
-assert(draft.review[0]?.startsWith("先让 AI 帮一步｜"), "TRACK01_T101_REVIEW_ACTION_1");
-assert(draft.review[1]?.startsWith("AI 给的内容要自己看｜"), "TRACK01_T101_REVIEW_ACTION_2");
-assert(draft.review[2]?.startsWith("最后怎么发，由你决定｜"), "TRACK01_T101_REVIEW_ACTION_3");
+assert(draft.review[0]?.startsWith("先找 AI 最适合介入的一步｜"), "TRACK01_T101_REVIEW_JUDGMENT_1");
+assert(draft.review[1]?.startsWith("分清“创意建议”和“事实信息”｜"), "TRACK01_T101_REVIEW_JUDGMENT_2");
+assert(draft.review[2]?.startsWith("把 AI 放在“给方案”的位置｜"), "TRACK01_T101_REVIEW_JUDGMENT_3");
+assert(track01T101KnowledgeDepth.review.length === 0, "TRACK01_T101_REVIEW_NO_DUPLICATE_DEPTH_BLOCK");
 assert(draft.selfAssessment.length >= 2, "TRACK01_T101_SELF_ASSESSMENT");
 assert(Boolean(draft.referenceAnswer?.trim()), "TRACK01_T101_REFERENCE_ANSWER");
 assert(draft.hints.length >= 2, "TRACK01_T101_HINTS");
