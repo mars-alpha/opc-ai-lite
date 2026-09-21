@@ -57,6 +57,8 @@ Curriculum 决定学什么和顺序；Formal Brief 决定知识边界；Course B
 
 ### Step 4 — PRACTICE
 
+学员可见文案只描述学习动作本身，不展示课程实现或编排说明。除非本身就是学习任务的一部分，否则不得出现“是否需要把 AI 回复粘贴回来”“是否评分”“是否作为 Artifact”“下一步如何回填”等内部流程说明。
+
 目标：把前三步已经理解的知识转成一个最小真实动作。
 
 必须：只练前三步已经教会的内容；沿用现有 Unified Lesson Shell / Practice fields；字段必须是学习者此刻自然会产生的真实内容；Practice Goal / Instruction 必须自包含，学员单独打开本课也知道现在要做什么；Hint 只写内容本身，编号由 UI 统一生成；多条 Hint 在一个提示框内按 1、2、3… 展示；Reference Fill 只包含字段直接值。凡 Step 4 提供“复制到 AI”能力，表单字段标题只用于界面引导，剪贴板默认只复制学习者实际填写的字段值，不复制字段名、课程标题、内部编号、Artifact / Schema 名或其他课程脚手架。此类课程的 Reference Answer / Reference Fill 必须共同组成一份完整、可直接复制到 AI 验证的成品样例，而不是彼此孤立的字段碎片；默认优先使用 OPC / 自媒体真实任务构造样例，Stable Method Layer 仍保持行业中立。

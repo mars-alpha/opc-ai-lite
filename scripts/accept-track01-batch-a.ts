@@ -97,6 +97,7 @@ for (const deferred of ["Context Window", "Embedding", "MCP Server", "Agent Runt
 }
 assert(!visibleText.includes("审批流程"), "TRACK01_T101_NO_APPROVAL_TEACHING");
 assert(!visibleText.includes("权限控制"), "TRACK01_T101_NO_PERMISSION_TEACHING");
+assert(!draft.pedagogy.participation.instruction.includes("粘贴回来"), "TRACK01_T101_NO_PASTEBACK_META_COPY");
 
 const t102Packet = createCourseBuilderReviewPacket(
   track01T102Draft,
@@ -158,6 +159,7 @@ assert(!t102VisibleText.includes("System Prompt"), "TRACK01_T102_NO_SYSTEM_PROMP
 assert(!t102VisibleText.includes("Prompt Engineering"), "TRACK01_T102_NO_PROMPT_ENGINEERING_TEACHING");
 assert(!t102VisibleText.includes("Minimum Context Pack"), "TRACK01_T102_NO_CONTEXT_METHOD_TEACHING");
 assert(!t102VisibleText.includes("Clear Task Brief"), "TRACK01_T102_NO_UNNECESSARY_ENGLISH_LEARNER_COPY");
+assert(!t102.pedagogy.participation.instruction.includes("粘贴回来"), "TRACK01_T102_NO_PASTEBACK_META_COPY");
 
 const t103Packet = createCourseBuilderReviewPacket(
   track01T103Draft,
@@ -207,6 +209,8 @@ const t103VisibleText = [
 for (const forbidden of ["Knowledge Base", "Source of Truth", "Memory", "RAG", "Context Engineering", "Minimum Context Pack", "Clear Task Brief"]) {
   assert(!t103VisibleText.includes(forbidden), "TRACK01_T103_DEFERRED_OR_ENGLISH_LEAK:" + forbidden);
 }
+assert(!t103.pedagogy.participation.instruction.includes("粘贴回来"), "TRACK01_T103_NO_PASTEBACK_META_COPY");
+assert(!t103.practice?.hints.some((hint) => hint.includes("粘贴回课程")), "TRACK01_T103_NO_PASTEBACK_META_HINT");
 
 console.log("TRACK01_T101_COURSE_BUILDER_V02=PASS");
 console.log("TRACK01_T101_FORMAL_BRIEF_ALIGNMENT=PASS");
