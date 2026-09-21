@@ -994,3 +994,251 @@ export const track01T104ReferenceFill = {
   desired: "请只修改 OPC AI 学习站这条自媒体内容的第 2 个要点，把它改成 AI 初学者能马上理解的具体日常工作场景。",
   requirements: "用一个普通用户会遇到的真实使用情境来说明，控制在 2 句话以内；标题和第 1、3 个要点保持不变，不夸大 AI 能力，也不要补充未经确认的事实。"
 } as const;
+
+export const track01T105Meta = {
+  canonicalId: "T1-05",
+  draftVersion: "1.0.0-track01-a",
+  skillId: "course-builder",
+  skillVersion: "0.2.0",
+  qualityProfile: "BEGINNER_QUALITY_V1",
+  formalBrief: "TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md",
+  grounding: "REVIEWED_KNOWLEDGE",
+  caseThread: "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT",
+  inheritedArtifact: "PURPOSEFUL_REVISION_REQUEST",
+  artifactOutput: "VERIFICATION_CHECKLIST",
+  nextReuse: "TRACK02_SEARCH_RESEARCH"
+} as const;
+
+export const track01T105Intro = {
+  situation: "你已经把一条 OPC 自媒体内容改得更顺、更具体，看起来已经很像可以发布。但里面写了“这个功能本月已经免费开放”“官方数据显示效率提升 40%”这类具体说法。句子很流畅，不代表这些事实已经被确认。",
+  approaches: [
+    { label: "看起来合理就直接用", text: "AI 语气很确定，也可能把过时信息、错误数字或不存在的来源写得很像真的。" },
+    { label: "先找必须核验的说法", text: "先把数字、日期、最新功能、来源和错误后果较大的陈述挑出来，再决定去哪里核对。" }
+  ],
+  comparison: [],
+  takeaway: "AI 内容能不能用，不只看写得顺不顺；涉及可查证事实、最新变化或重要后果时，先核验再采用。",
+  bottomDetails: [
+    { title: "先找能被查证的内容", text: "数字、日期、价格、功能状态、引用来源都不是纯表达，它们可以被查对错。" },
+    { title: "越新、越重要，越要先查", text: "会变化的信息容易过时；如果写错会明显误导用户，就更不能只凭 AI 的语气判断。" }
+  ],
+  comparisonPlacement: "BOTTOM"
+} as const;
+
+export const track01T105Draft = {
+  mode: "BUILD",
+  grounding: {
+    status: "REVIEWED",
+    sourceKind: "APPROVED_KNOWLEDGE",
+    sourceLabels: [
+      "Track 01 Batch A Formal Brief · T1-05",
+      "Lesson Output Contract v1"
+    ],
+    researchSummary:
+      "本课只教 Beginner 最低可靠性判断：看到 AI 输出中的事实、数字、日期、最新功能、来源或错误后果较大的说法时，知道这些内容必须先核验，并明确应该核对什么。Hallucination 只作为原因解释；HITL、权限、审批、Evaluation Engineering、RAG、Source of Truth 与复杂证据工作均后置。"
+  },
+  pedagogy: {
+    audience: "BEGINNER",
+    languagePolicy: "TERM_READABILITY",
+    aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
+    qualityProfile: {
+      id: "BEGINNER_QUALITY_V1",
+      mainLearnerQuestion: "AI 写得很像真的，我怎么知道哪些内容一定要先查？",
+      mainConcept: "凡是可查证、会变化或写错后果较大的陈述，都不能只凭 AI 的语气采用。",
+      allowedCoreTerms: ["Hallucination"],
+      deferredTerms: [
+        "Evaluation Engineering",
+        "RAG",
+        "Source of Truth",
+        "HITL",
+        "Permission",
+        "Approval Flow",
+        "Agent",
+        "Workflow"
+      ]
+    },
+    participation: {
+      kind: "COPY_TO_AI",
+      title: "把待核验内容整理成一份清单",
+      instruction: "课程已经给出一段准备发布的内容。把必须先核验的说法和对应核验方向写清楚后，可以复制到 AI，让它只帮你整理成检查清单，不让它替你判断真假。",
+      prompt: "请只把我列出的待核验内容整理成清晰检查清单，并说明每一项应该核对哪类来源或最新信息；不要直接判断这些说法是真是假。",
+      reflection: "真正的核验还要回到可靠来源。这里先练的是：知道什么不能直接信，以及下一步应该查什么。"
+    },
+    sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
+  },
+  lessonSpec: {
+    version: "1.0.0-track01-a",
+    courseSlug: "foundation-ai",
+    lessonId: "t1-05-reliability-verification",
+    title: "结果可靠性：什么时候必须核验",
+    lessonType: "APPLICATION",
+    learningObjectives: [
+      "能识别 AI 输出中必须先核验的事实、数字、日期、功能和来源类陈述。",
+      "能判断会随时间变化的信息为什么需要检查最新状态。",
+      "能在错误后果较大时提高核验优先级，并明确下一步要核对什么。"
+    ],
+    knowledgePoints: [
+      "表达流畅、语气确定，不等于事实正确。",
+      "数字、日期、价格、功能状态、来源等可查证陈述应该先核验。",
+      "越容易过时、越可能误导用户或造成较大后果的信息，越不能直接采用。"
+    ],
+    prerequisites: ["T1-04"],
+    requiresExample: true,
+    requiresCheck: true,
+    practiceMode: "GUIDED",
+    realAiOperation: "NONE",
+    realAiEvidence: "NONE",
+    referenceAnswerEnabled: true,
+    reviewEnabled: true,
+    selfAssessmentEnabled: true,
+    courseFeedbackEnabled: true,
+    completionGates: ["CHECK", "PRACTICE"],
+    steps: [
+      { id: "explain", kind: "EXPLAIN", title: "AI 写得很确定，为什么还是不能直接相信", objective: "让学习者先建立“表达像真的 ≠ 已核实”的可靠性直觉。" },
+      { id: "example", kind: "EXAMPLE", title: "同一条内容里，哪些话必须先查", objective: "用 OPC 自媒体内容比较创意表达、稳定描述、最新功能和数字来源。" },
+      { id: "check", kind: "CHECK", title: "哪些说法不能直接拿来用", objective: "检查学习者能否识别必须核验的陈述及原因。" },
+      { id: "practice", kind: "PRACTICE", title: "整理一份发布前待核验清单", objective: "从课程给定草稿里列出必须核验的内容，并写清核验方向。" },
+      { id: "review", kind: "REVIEW", title: "准备使用 AI 内容前，记住这 3 个判断", objective: "留下“事实要查、最新信息要查、后果越大越要查”三个可复用判断。" },
+      { id: "capability", kind: "CAPABILITY", title: "你已经知道什么不能直接信", objective: "确认学习者能识别必须核验的信息，并知道下一步查什么。" }
+    ],
+    capabilityGain: [
+      "能在使用或发布 AI 内容前，识别必须核验的陈述，并明确下一步核验方向。"
+    ],
+    nextLessonValue:
+      "进入后续搜索与研究课程后，你会继续学习怎样真正找到来源、比较证据并处理信息冲突。",
+    accessPresentation
+  },
+  content: {
+    summary: "你会学会从一段看起来很完整的 AI 内容里，先挑出不能直接相信、必须核验的说法。",
+    plainExplanation:
+      "AI 可以生成很自然、很有把握的句子，但它不等于事实数据库。尤其是数字、日期、价格、最新功能、引用来源或高后果信息，不能因为读起来顺就直接采用。这里先学会判断“什么时候必须查”。",
+    whyItMatters:
+      "很多真正危险的错误不是句子写得差，而是句子写得太像真的。只要学会先挑出需要核验的陈述，你就能避免把 AI 的表达能力误当成事实保证。",
+    points: [
+      "可查证事实：数字、日期、价格、功能状态、来源、政策或明确事件，都可以被核对。",
+      "时效性：今天成立的功能、价格或规则，过一段时间可能已经变化。",
+      "错误后果：如果写错会误导用户、影响决策或造成明显损失，就应该提高核验优先级。"
+    ],
+    content: [
+      "创意标题、表达角度可以先作为候选，不代表其中夹带的事实也可以直接采用。",
+      "“据官方数据”“目前已经支持”“截至今天”等句式都应该提醒你去找真实来源和最新状态。",
+      "Hallucination 可以理解为 AI 生成了听起来合理、但未必真实可靠的内容；本课不展开技术机制。"
+    ],
+    example: {
+      title: "一条准备发布的 OPC 内容，哪些句子必须先查",
+      situation:
+        "OPC AI 学习站准备发布一条“3 个 AI 新手使用习惯”的自媒体内容，其中有几句：①“先把任务说清楚，通常更容易得到贴合需求的结果”；②“某 AI 工具本月已向所有免费用户开放文件分析”；③“官方数据显示使用该功能后效率提升 40%”。",
+      before:
+        "如果只看语气，这三句都很自然。但第②句涉及最新功能开放范围，第③句涉及具体数字和官方来源，都不能只凭 AI 输出直接发布。",
+      after:
+        "第①句可以作为一般方法表达继续检查是否符合课程内容；第②句要核对当前官方功能说明和日期；第③句要找到真实官方数据来源，并确认这个 40% 是否真的存在、适用什么条件。",
+      result:
+        "你没有让 AI 替你决定真假，而是先识别了哪些陈述必须进入真实核验。"
+    },
+    mistakes: [
+      "误区：AI 语气很肯定，说明它应该有来源｜正确理解：语气确定不是来源证明。",
+      "误区：只要以前是真的，现在就可以继续用｜正确理解：功能、价格、政策和数据都可能变化。",
+      "误区：只有数字才需要核验｜正确理解：日期、功能状态、来源、政策和高后果事实同样需要核验。"
+    ],
+    related: [
+      "这节课只建立“什么时候必须查、应该查什么”的最低判断。",
+      "真正的来源搜索、证据比较和冲突处理会在后续搜索 / 研究课程继续展开。"
+    ]
+  },
+  check: null,
+  checkSequence: [
+    {
+      id: "t105_best_judgment",
+      questionType: "SINGLE_CHOICE",
+      masteryRole: "BEST_JUDGMENT",
+      question: "AI 写道：“这个工具本月已向所有免费用户开放文件分析。”准备发布前，最合适的做法是什么？",
+      options: [
+        { value: "A", label: "句子很具体，可以直接采用" },
+        { value: "B", label: "先查看当前官方功能说明和发布日期，确认免费用户范围是否仍然成立" },
+        { value: "C", label: "让 AI 再说一次，只要两次答案一样就算确认" }
+      ],
+      correctValues: ["B"],
+      explanation: "功能开放范围会变化，而且这是一条可查证的当前事实，应该回到最新可靠来源确认。",
+      correctFeedback: "正确。越是具体、会变化的信息，越需要看当前真实来源。",
+      incorrectFeedback: "不要把 AI 的确定语气或重复回答当成核验。先问：这条信息现在还能不能在可靠来源中查到？"
+    },
+    {
+      id: "t105_misconception",
+      questionType: "TRUE_FALSE",
+      masteryRole: "MISCONCEPTION",
+      question: "判断：只要 AI 给出的内容没有明显矛盾、读起来也很顺，就可以把其中的事实信息直接发布。",
+      options: [{ value: "TRUE", label: "对" }, { value: "FALSE", label: "错" }],
+      correctValues: ["FALSE"],
+      explanation: "语言质量和事实可靠性是两件事。AI 可以把错误或过时信息写得非常自然。",
+      correctFeedback: "正确。看起来像真的，只能说明表达自然，不能替代事实核验。",
+      incorrectFeedback: "想一想：数字、日期和最新功能，即使句子写得很顺，是否仍然可能过时或错误？"
+    },
+    {
+      id: "t105_boundary",
+      questionType: "MULTI_SELECT",
+      masteryRole: "BOUNDARY_CONDITIONS",
+      question: "下面哪些内容在发布前更应该先核验？（多选）",
+      options: [
+        { value: "DATE", label: "某功能于 2026 年 9 月正式上线" },
+        { value: "NUMBER", label: "官方数据显示效率提升 40%" },
+        { value: "CURRENT", label: "目前免费版已经支持该功能" },
+        { value: "CREATIVE", label: "“让 AI 成为你的第二双手”这个标题方向" }
+      ],
+      correctValues: ["DATE", "NUMBER", "CURRENT"],
+      explanation: "日期、数字和当前功能状态都可以被查证，也可能过时；创意标题本身主要是表达选择。",
+      correctFeedback: "正确。你已经能把“需要查真的事实”和“可以先当作表达候选”的内容分开。",
+      incorrectFeedback: "优先找那些能被客观查证、会随时间变化，或者写错会误导用户的陈述。"
+    }
+  ],
+  practice: {
+    id: "t105_verification_checklist",
+    title: "整理一份发布前待核验清单",
+    goal: "课程给出的草稿里包含最新功能和具体数据。你只需要列出哪些内容必须先查，以及每一项应该去核对什么。",
+    instructions: [
+      { key: "claims", label: "我准备核验的内容", prompt: "写出 1～3 条不能直接采用的具体说法，例如日期、数字、当前功能状态或来源。" },
+      { key: "checks", label: "我会去核对什么", prompt: "对应写清要核对哪类信息，例如最新官方功能说明、发布日期、原始数据来源或适用条件。" }
+    ],
+    hints: [
+      "优先找数字、日期、最新功能、价格、政策、来源等可以查对错的内容。",
+      "如果一句话会随着时间变化，就要特别注意核对最新状态。",
+      "这里只写核验方向，不要求现在完成复杂搜索或证据比较。"
+    ],
+    rubric: [
+      { key: "claims", label: "待核验内容具体", maxScore: 50, minScore: 30, example: "“某 AI 工具本月已向所有免费用户开放文件分析”；“官方数据显示效率提升 40%”。" },
+      { key: "checks", label: "核验方向明确", maxScore: 50, minScore: 30, example: "核对当前官方功能说明和发布日期；找到 40% 的原始官方数据来源，并确认适用条件。" }
+    ],
+    passScore: 60
+  },
+  hints: [
+    "如果一句话里出现非常具体的数字、日期或“目前已经支持”，先把它当成待核验候选。",
+    "不要让 AI 的重复回答代替真实来源。"
+  ],
+  referenceAnswer:
+    "需要核验：“某 AI 工具本月已向所有免费用户开放文件分析”；“官方数据显示使用该功能后效率提升 40%”。\n核验方向：查看该工具当前官方功能说明与发布日期，确认免费用户开放范围；找到“效率提升 40%”对应的原始官方数据或报告，确认数字是否真实、统计对象和适用条件。",
+  review: [
+    "把数字、日期、功能状态、来源等可查证陈述列出来核验｜因为句子写得流畅、语气确定，就把它当成已经确认的事实。",
+    "对会变化的信息检查最新状态｜用旧文章或 AI 记忆替代当前真实信息。",
+    "错误后果越明显，越优先确认关键事实｜替你承担最终采用、发布或决策的责任。"
+  ],
+  selfAssessment: [
+    "我能从 AI 内容里找出不能直接相信的事实类陈述。",
+    "我知道最新功能、日期和数字为什么需要额外核验。",
+    "我能为待核验内容写出下一步应该查什么。"
+  ]
+} as const;
+
+export const track01T105KnowledgeDepth = {
+  example: [
+    { title: "为什么“像真的”最容易让人放松警惕", text: "AI 的强项之一就是自然表达，所以错误信息也可能被写得完整、具体、很有把握。判断可靠性不能只看语气。" }
+  ],
+  review: [
+    { title: "为什么事实类陈述必须单独检查", text: "数字、日期、功能状态和来源都有客观答案，发布前应该用真实来源确认，而不是只依赖生成结果。" },
+    { title: "为什么最新信息更容易出问题", text: "模型掌握的信息和现实更新可能不同步，功能、价格、规则等内容尤其容易变化。" },
+    { title: "为什么后果越大越要优先核验", text: "同样一个错误，如果只影响一句普通文案和如果会误导用户做重要决定，核验优先级不应该一样。" }
+  ]
+} as const;
+
+export const track01T105ReferenceFill = {
+  claims: "需要核验：“某 AI 工具本月已向所有免费用户开放文件分析”；“官方数据显示使用该功能后效率提升 40%”。",
+  checks: "核验方向：查看该工具当前官方功能说明与发布日期，确认免费用户开放范围；找到“效率提升 40%”对应的原始官方数据或报告，确认数字是否真实、统计对象和适用条件。"
+} as const;

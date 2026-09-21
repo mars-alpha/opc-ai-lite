@@ -793,9 +793,15 @@ T1-02、T1-03 均已关闭 Human Review，但仍未 Runtime Ready / AVAILABLE。
 
 ### COURSE-PRODUCTION-TRACK01-A-004 — T1-04 Purposeful Iteration Pilot
 
-Status: T1-04_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: T1-04_HUMAN_REVIEW_PASS
 
-T1-04 `迭代（Iteration）：把第一版结果改到可用` 已按 Beginner 边界生产 Pilot。课程不要求初学者先判断“哪里不对”；练习场景直接给定“第 2 个要点太抽象”，Step 4 只填写 `我希望改成什么样` / `这次的具体要求`，并形成可直接 COPY_TO_AI 的 OPC / 自媒体完整修改要求。当前只教一次有目的的定向修改，不教自动迭代、Workflow、Agent self-correction、Evaluation Engineering 或复杂 Prompt Engineering。Preview：`/course-builder/preview/track01-batch-a/t1-04`。T1-05 暂不生产，等待 T1-04 Human Review。
+T1-04 `迭代（Iteration）：把第一版结果改到可用` 已通过 Human Review。最终保持 Beginner 边界：问题由课程给定，Step 4 只填写 `我希望改成什么样` / `这次的具体要求`，只教一次有目的的定向修改。尚未 Runtime Ready / AVAILABLE。
+
+### COURSE-PRODUCTION-TRACK01-A-005 — T1-04 Closure & T1-05 Reliability Pilot
+
+Status: T1-04_HUMAN_REVIEW_PASS / T1-05_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+T1-05 `结果可靠性：什么时候必须核验` 已生产 Pilot：只建立最低可靠性判断——可查证事实 / 数字 / 日期 / 功能 / 来源要核验，会变化的信息要核对最新状态，错误后果越明显越优先核验。Step 4 只填写 `我准备核验的内容` / `我会去核对什么`；COPY_TO_AI 仅整理核验清单，不允许 AI 替学员判断真假。不教 HITL、权限/审批、Evaluation Engineering、RAG/Source of Truth、Agent/Workflow 或复杂证据研究。Preview：`/course-builder/preview/track01-batch-a/t1-05`。
 
 第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
 

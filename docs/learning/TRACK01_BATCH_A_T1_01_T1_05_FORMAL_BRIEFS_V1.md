@@ -241,52 +241,44 @@ Prerequisite: **T1-04**
 AI 写得很像真的，我怎样判断哪些可以直接参考、哪些一定要查？
 
 ### Inherited Capability / Artifact
-Iterated Draft。
+已经能把任务说清楚、提供必要信息，并把第一版结果改得更可用；本课不要求学员理解任何内部 Artifact 名称。
 
 ### Current Learner Job
-对准备发布 / 交付的结果做两层最小检查：先确认它有没有完成原始 Clear Task Brief，再识别其中哪些内容因事实性、时效性、可验证性或错误后果需要进一步核验。
+面对一段准备发布的 AI 内容，先识别哪些陈述不能因为“看起来很像真的”就直接采用，并说清楚要去核对哪类信息。
 
 ### New Capability
-能先做最低 Task-fit Evaluation，再按四个维度决定核验强度：
-- 是否完成原始任务要求；
-- 事实性；
-- 时效性；
-- 是否可验证；
-- 错误后果大小。
+能用三个 Beginner 判断决定是否必须核验：
+- 这是可以查证的事实、数字、日期、功能或来源吗？
+- 这条信息会随时间变化吗？
+- 如果它错了，会不会明显误导用户或带来较大后果？
 
-这里的 Evaluation 只回答“结果有没有完成任务、能不能继续使用”，不进入评分体系或 Evaluation Engineering。
+“能不能找到可追溯来源”作为核验方向使用，不要求本课建立正式证据体系。
 
-Hallucination 在本课作为“为什么必须检查”的解释知识，不独立成课。
+Hallucination 只用于解释“AI 可能生成听起来合理但并不可靠的内容”，不作为本课主概念。
 
 ### Artifact Action / Output
-先对照 Clear Task Brief 标记“已满足 / 未满足”的关键要求；再标出需要核验的陈述，并写清最小检查动作与结果。
+对课程给定的 OPC / 自媒体草稿列出需要核验的内容，并写清每一项应该核对什么类型的来源或最新信息。
 
-Output: **Verification Record + Verified Publishable Draft**
+Output: **可直接使用的待核验清单**
 
 ### Six-step intent
-1. EXPLAIN：结果“看起来不错”有两个不同问题：它可能没完成任务，也可能完成了任务但事实不可靠；表达流畅、语气确定不代表正确。
-2. EXAMPLE：先对照 Clear Task Brief 判断一个 Draft 是否完成任务，再比较创意措辞、公开事实、最新数据、错误后果较大的信息需要怎样不同程度地核验。
-3. CHECK：判断一个结果是“任务没完成”“任务完成但需要核验”还是“可以继续使用”，并识别需要来源或最新信息检查的内容。
-4. PRACTICE：①对照自己的 Clear Task Brief 勾选关键要求是否满足；②为当前 Draft 标出 verification flags；③至少完成 1 个真实核验动作。保留 **Task-fit checklist + Verification Flags + one completed verification + Verification Record**。
-5. REVIEW：任务对不对；事实要不要查；信息新不新；错了会怎样。
-6. CAPABILITY：能先判断结果是否完成任务，再决定哪些内容必须验证，并留下可追溯 Verification Record。
+1. EXPLAIN：AI 写得流畅、语气确定，不等于事实已经正确；尤其是数字、日期、功能、来源和会变化的信息。
+2. EXAMPLE：同一条 OPC / 自媒体内容里，对比创意表达、稳定常识、最新功能 / 数据、错误后果较大的说法，说明哪些必须先查。
+3. CHECK：只检查学员能否识别“必须核验 / 可以作为表达参考”的区别，并知道为什么。
+4. PRACTICE：课程给出一段含 3 类陈述的 OPC / 自媒体草稿。学员只填写两项：① **我准备核验的内容**；② **我会去核对什么**。不要求现场完成复杂来源研究，也不让 AI 替学员判断真伪。
+5. REVIEW：卡片数量按本课真实判断密度决定，范围 2–4 张；固定上下对比 **AI 适合做什么 / AI 不应该替你做什么**。
+6. CAPABILITY：能在准备使用 AI 内容前，识别必须核验的陈述，并明确下一步核验方向。
 
 ### Next Reuse
-Track 02 直接继承：
-- Clear Task Brief；
-- Minimum Context Pack；
-- Iteration 方法；
-- Verification Record；
-- Verified Publishable Draft。
-
-后续 Research / Writing / Files / Data 不再重复教授这五项基础协作方法。
+后续 Search / Research / Writing / Files / Data 课程可以继续使用这套最低可靠性判断：先识别需要核验的陈述，再进入真正的搜索、来源比较与证据工作。
 
 ### Anti-repeat / Deferred
 - 不展开正式 Evaluation framework / baseline / regression；
-- 不讲 RAG 工程；
+- 不讲 RAG / Source of Truth / Evidence Pipeline；
 - 不讲谁有审批权、AI 可以获得什么权限、哪些动作必须 HITL / Core Authority；这些属于 T1-20；
-- 不承诺“核验后一定正确”，只建立可追溯判断。
-- “错误后果大小”只用于决定核验强度，不在本课延伸到审批流程、权限控制或自动执行边界。
+- 不要求初学者在本课完成复杂网络搜索、来源冲突处理或正式证据记录；
+- 不承诺“核验后一定正确”；本课只建立“什么时候必须查、应该查什么”的最低判断。
+- “错误后果大小”只用于提醒核验优先级，不延伸到审批流程、权限控制或自动执行边界。
 
 ### Grounding
 REVIEWED_KNOWLEDGE + high-freshness examples where current facts are used.

@@ -15,7 +15,11 @@ import {
   track01T104Draft,
   track01T104KnowledgeDepth,
   track01T104Meta,
-  track01T104ReferenceFill
+  track01T104ReferenceFill,
+  track01T105Draft,
+  track01T105KnowledgeDepth,
+  track01T105Meta,
+  track01T105ReferenceFill
 } from "../fixtures/course-builder/track01-batch-a";
 
 function assert(condition: unknown, code: string) {
@@ -260,6 +264,49 @@ for (const forbidden of ["Workflow", "Agent", "Evaluation Engineering", "Chain-o
   assert(!t104VisibleText.includes(forbidden), "TRACK01_T104_DEFERRED_TERM:" + forbidden);
 }
 assert(!t104.practice?.instructions.some((item) => item.label.includes("哪里不对")), "TRACK01_T104_NO_DIAGNOSIS_FIELD");
+
+const t105Packet = createCourseBuilderReviewPacket(
+  track01T105Draft,
+  new Date("2026-09-21T00:00:00.000Z"),
+  "0.2.0"
+);
+if (t105Packet.output.mode !== "BUILD") throw new Error("TRACK01_T105_BUILD_REQUIRED");
+const t105 = t105Packet.output;
+
+assert(track01T105Meta.canonicalId === "T1-05", "TRACK01_T105_CANONICAL_ID");
+assert(t105.lessonSpec.lessonId === "t1-05-reliability-verification", "TRACK01_T105_LESSON_ID");
+assert(t105.lessonSpec.prerequisites.join(",") === "T1-04", "TRACK01_T105_PREREQUISITE");
+assert(t105.lessonSpec.completionGates.join(",") === "CHECK,PRACTICE", "TRACK01_T105_GATES");
+assert(t105.checkSequence?.length === 3, "TRACK01_T105_THREE_QUESTION_MASTERY");
+assert(t105.practice?.instructions.map((item) => item.key).join(",") === "claims,checks", "TRACK01_T105_STEP4_KEYS");
+assert(t105.practice?.instructions.map((item) => item.label).join(",") === "我准备核验的内容,我会去核对什么", "TRACK01_T105_STEP4_BEGINNER_LABELS");
+assert(t105.practice?.instructions.length === 2, "TRACK01_T105_STEP4_TWO_FIELDS");
+assert(t105.pedagogy.participation.kind === "COPY_TO_AI", "TRACK01_T105_COPY_TO_AI");
+assert(!t105.pedagogy.participation.instruction.includes("粘贴回来"), "TRACK01_T105_NO_PASTEBACK_META_COPY");
+assert(t105.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T105_HINTS_UI_OWNS_NUMBERING");
+assert(track01T105ReferenceFill.claims.includes("需要核验"), "TRACK01_T105_REFERENCE_CLAIMS");
+assert(track01T105ReferenceFill.checks.includes("官方"), "TRACK01_T105_REFERENCE_CHECKS");
+assert(track01T105ReferenceFill.claims.length >= 45, "TRACK01_T105_REFERENCE_CLAIMS_COMPLETE");
+assert(track01T105ReferenceFill.checks.length >= 60, "TRACK01_T105_REFERENCE_CHECKS_COMPLETE");
+assert((t105.referenceAnswer ?? "").includes("效率提升 40%"), "TRACK01_T105_REFERENCE_DIRECTLY_TESTABLE");
+assert(t105.review.length >= 2 && t105.review.length <= 4, "TRACK01_T105_REVIEW_2_TO_4");
+assert(t105.review.every((item) => item.includes("｜")), "TRACK01_T105_REVIEW_VERTICAL_CONTRAST");
+assert(t105.review.length === track01T105KnowledgeDepth.review.length, "TRACK01_T105_REVIEW_DEPTH_ALIGNED");
+assert(track01T105Meta.caseThread === "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT", "TRACK01_T105_CASE_THREAD");
+const t105VisibleText = [
+  t105.lessonSpec.title,
+  ...t105.lessonSpec.learningObjectives,
+  ...t105.lessonSpec.knowledgePoints,
+  ...t105.content.points,
+  ...t105.content.content,
+  ...t105.review,
+  ...t105.selfAssessment,
+  ...(t105.practice?.instructions.flatMap((item) => [item.label, item.prompt]) ?? [])
+].join(" ");
+for (const forbidden of ["Evaluation Engineering", "RAG", "Source of Truth", "HITL", "Permission", "Approval Flow", "Agent", "Workflow"]) {
+  assert(!t105VisibleText.includes(forbidden), "TRACK01_T105_DEFERRED_TERM:" + forbidden);
+}
+assert(!t105.practice?.goal.includes("完成复杂"), "TRACK01_T105_NO_COMPLEX_RESEARCH_PRACTICE");
 
 console.log("TRACK01_T101_COURSE_BUILDER_V02=PASS");
 console.log("TRACK01_T101_FORMAL_BRIEF_ALIGNMENT=PASS");

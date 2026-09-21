@@ -1,6 +1,6 @@
 # COURSE-PRODUCTION-TRACK01-A-004 — T1-04 Purposeful Iteration Pilot
 
-Status: **TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING**
+Status: **HUMAN_REVIEW_PASS**
 
 ## Scope
 
@@ -81,3 +81,7 @@ Clipboard behavior continues to use the global values-only COPY_TO_AI rule.
 4. Step 4 是否真的只要求两个容易填写的动作。
 5. Reference Answer 是否能直接复制验证。
 6. Step 5 的 2 张卡是否来自本课真实知识密度，而非固定模板。
+
+## Human Review closure
+
+User explicitly accepted T1-04. T1-04 is **HUMAN_REVIEW_PASS**. This does not imply Runtime Provisioning, Runtime Acceptance, AVAILABLE, or publication.
