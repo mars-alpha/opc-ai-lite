@@ -89,6 +89,9 @@ for (const [index, input] of drafts.entries()) {
   assert(meta.lessonId === expectedIds[index], "CONTINUITY_TRIAL_META_ID");
   assert(meta.caseThread === "OPC_SELF_MEDIA_AI_TOPIC", "CONTINUITY_TRIAL_CASE_THREAD");
   assert(meta.artifactOutput.length > 0 && meta.nextReuse.length > 0, "CONTINUITY_TRIAL_ARTIFACT_METADATA");
+  assert(draft.checkSequence?.length === 3, "CONTINUITY_TRIAL_CURRENT_MASTERY_COUNT:" + expectedIds[index]);
+  assert(draft.checkSequence?.every((item) => item.id.startsWith("continuity_")) === true, "CONTINUITY_TRIAL_OLD_CHECK_INHERITANCE:" + expectedIds[index]);
+  assert(draft.lessonSpec.steps.map((step) => step.kind).join(">") === "EXPLAIN>EXAMPLE>CHECK>PRACTICE>REVIEW>CAPABILITY", "CONTINUITY_TRIAL_SIX_STEP_ORDER:" + expectedIds[index]);
 
   const text = visibleText(input);
   assert(!text.includes("OPC"), "CONTINUITY_TRIAL_OPC_VISIBLE_LEAK:" + expectedIds[index]);
@@ -127,6 +130,9 @@ assert(f202Text.includes("上下文资料包"), "CONTINUITY_TRIAL_F202_CONTEXT_P
 assert(continuityTrialContextDraft.lessonSpec.title.startsWith("上下文（Context）"), "CONTINUITY_TRIAL_F202_TERM_FORMAT");
 assert(!f202Text.includes("你知道 ≠ AI"), "CONTINUITY_TRIAL_F202_OLD_EXPLANATION");
 assert(continuityTrialContextDraft.lessonSpec.nextLessonValue.includes("补充资料后的草稿"), "CONTINUITY_TRIAL_F202_NEXT_REUSE_CN");
+assert(continuityTrialContextDraft.pedagogy.participation.kind === "MINI_TASK", "CONTINUITY_TRIAL_F202_STEP4_ACTIONABLE_KIND");
+assert(Boolean(continuityTrialContextDraft.pedagogy.participation.prompt?.trim()), "CONTINUITY_TRIAL_F202_STEP4_PROMPT");
+assert(continuityTrialContextDraft.practice === null, "CONTINUITY_TRIAL_F202_NO_PRACTICE_GATE");
 
 const f203Text = visibleText(continuityTrialIterationDraft);
 assert(f203Text.includes("补充资料后的草稿"), "CONTINUITY_TRIAL_F203_INHERIT_CN");
@@ -158,4 +164,6 @@ console.log("FOUNDATION_CONTINUITY_TRIAL_LEARNER_LANGUAGE=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CASE_NEUTRALIZATION=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_ARTIFACT_CHAIN=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_ANTI_REPEAT=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_SIX_STEP_CONTENT_INTEGRITY=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_CONCEPT_STEP4_ACTIONABLE=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CATALOG_BOUNDARY=PASS");

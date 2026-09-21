@@ -266,6 +266,8 @@ export function GenericLessonRuntimePanel({
   const [copiedActivity, setCopiedActivity] = useState(false);
   const [copiedReferenceAnswer, setCopiedReferenceAnswer] = useState(false);
   const [filledReferenceAnswer, setFilledReferenceAnswer] = useState(false);
+  const [previewActivityResponse, setPreviewActivityResponse] = useState("");
+  const [previewActivityCompleted, setPreviewActivityCompleted] = useState(false);
 
   const refresh = useCallback(async () => {
     if (previewMode) return;
@@ -817,7 +819,7 @@ export function GenericLessonRuntimePanel({
           <div className="guided-step-label">动手体验</div>
           <h3>{previewActivity.title}</h3>
           <p>{previewActivity.instruction}</p>
-          {previewActivity.prompt && (
+          {previewActivity.kind === "COPY_TO_AI" && previewActivity.prompt && (
             <>
               <div className="guided-preview-prompt">{previewActivity.prompt}</div>
               <button
@@ -832,8 +834,35 @@ export function GenericLessonRuntimePanel({
               </button>
             </>
           )}
+          {previewActivity.kind !== "COPY_TO_AI" && previewActivity.prompt && (
+            <div className="guided-practice-fields">
+              <label>
+                <span>我的练习</span>
+                <small>{previewActivity.prompt}</small>
+                <textarea
+                  rows={5}
+                  maxLength={12000}
+                  value={previewActivityResponse}
+                  onChange={(event) => {
+                    setPreviewActivityResponse(event.target.value);
+                    setPreviewActivityCompleted(false);
+                  }}
+                />
+              </label>
+              <div className="interactive-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={!previewActivityResponse.trim()}
+                  onClick={() => setPreviewActivityCompleted(true)}
+                >
+                  {previewActivityCompleted ? "✓ 已完成这一步" : "完成这一步"}
+                </button>
+              </div>
+            </div>
+          )}
           <div className="guided-gain">
-            <strong>你应该得到什么</strong>
+            <strong>{previewActivityCompleted ? "完成后检查" : "你应该得到什么"}</strong>
             <p>{previewActivity.reflection}</p>
           </div>
         </div>

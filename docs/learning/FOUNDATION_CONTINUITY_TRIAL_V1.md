@@ -1,6 +1,6 @@
 # Foundation Continuity Trial v1
 
-Status: **TECHNICAL_PASS_LANGUAGE_REVISED_HUMAN_REVIEW_PENDING**
+Status: **TECHNICAL_PASS_SIX_STEP_INTEGRITY_REVIEW_PENDING**
 Task: **FOUNDATION-CONTINUITY-TRIAL-001**
 
 ## Trial scope
@@ -29,6 +29,16 @@ FOUNDATION-CONTINUITY-TRIAL-001-A keeps the same trial architecture but revises 
 - internal OPC/self-media Case Thread remains in metadata/grounding, but learner copy uses neutral real-content scenarios and does not repeatedly expose OPC / 自媒体.
 
 The acceptance now separately verifies hidden Case Thread continuity and learner-facing case neutralization.
+
+## Six-step content integrity correction
+
+Human Review then found that Step 3 mastery content was still inherited from old Drafts, and `beginner-context` Step 4 lacked a real learner action. `FOUNDATION-CONTINUITY-TRIAL-001-B` corrected this at the production-rule level:
+
+- all five Step 3 check sequences were rebuilt for the current Continuity Draft;
+- acceptance now rejects inherited old check sequences;
+- `beginner-context` Step 4 is an actionable MINI_TASK with learner input;
+- Six-step structure and Six-step content are now separate acceptance concerns;
+- formal Runtime remains blocked for non-gated CONCEPT Step 4 until participation is formally provisioned, not merely Preview-rendered.
 
 ## Trial design
 
@@ -156,6 +166,8 @@ Human Review should judge:
 5. Does F2-03 visibly continue the same Artifact?
 6. Does the same real-content task stay continuous without unnecessary OPC / self-media wording?
 7. Do professional AI terms appear naturally as 中文（English） and then return to Chinese-first wording?
+8. Are all three Step 3 mastery questions clearly about the current lesson version rather than old cases?
+9. In `beginner-context`, does Step 4 now feel like an actual short exercise rather than explanatory copy?
 
 ## Boundary
 

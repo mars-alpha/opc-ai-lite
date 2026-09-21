@@ -707,6 +707,12 @@ Status: COMPLETE_REVIEW_PENDING
 
 不改变 5 个 Trial 的节奏、连续性、Lesson ID/Type/Gate、Course Builder v0.2 或 Runtime 边界，只修学习者可见表达。固定新规则：中文优先；AI 专业词第一次有意义出现写“中文（English）”；内部 Artifact 英文名转为自然中文；OPC / 自媒体继续作为隐藏 Case Logic / metadata，但前台使用行业中性的真实内容任务，不反复显示 OPC / 自媒体。专项 acceptance 新增 LEARNER_LANGUAGE / CASE_NEUTRALIZATION 检查；全部回归、typecheck、build PASS。下一步继续 Human Review 同一 5 个 Preview。
 
+### FOUNDATION-CONTINUITY-TRIAL-001-B — Six-Step Content Integrity
+
+Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
+
+Human Review 发现 Step 3 仍继承旧 Draft mastery，以及 `beginner-context` Step 4 没有真正训练。根因确认：Continuity Trial 使用 spread 复用旧 Draft，只覆盖了部分字段；旧 `checkSequence` 静默保留。另一个长期缺口是 CONCEPT `practiceMode=NONE` 虽允许非 Gate PRACTICE Step，但旧 participation/UI 只保证“有字段”，不保证“有真实学习动作”。当前已重建 5 节的 Step 3 三题 Mastery；`beginner-context` Step 4 改为 MINI_TASK，Preview 支持本地输入完成；新增 SIX_STEP_CONTENT_INTEGRITY / CONCEPT_STEP4_ACTIONABLE 验收；课程治理固定“六步结构 PASS ≠ 六步内容 PASS”。正式 Runtime 的 CONCEPT 非 Gate participation 尚未 provision，因此 Runtime 继续暂停。下一步只需定向 Human Review：5 节 Step 3 + beginner-context Step 4。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

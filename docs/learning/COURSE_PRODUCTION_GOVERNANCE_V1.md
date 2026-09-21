@@ -137,6 +137,13 @@ Human Review 关注：
 - 是否愿意继续学习。
 
 技术 PASS 不能替代 Human Review PASS。
+Human Review 前还必须完成 **Six-step Content Integrity Review**：
+
+- 六步每一步都必须与当前 Formal Brief / Draft Version 一致；
+- CHECK 题组必须属于当前课程版本，不得沿用已被 supersede 的旧题；
+- Step 4 必须有真实学习动作；CONCEPT 可不设 Practice Gate，但不能出现“有 PRACTICE Step、无可操作内容”；
+- Review / Capability 必须收束当前版本，而不是旧稿残留；
+- 仅修改标题、正文或 Case Thread，而未同步 Check / Practice / Participation，视为未完成 Rework。
 
 Human Review FAIL：
 ```text
@@ -161,6 +168,11 @@ FAIL 不自动改变 Curriculum identity，也不允许通过修改 Catalog less
 - Runtime smoke / acceptance PASS。
 
 若某 Gate 尚未有可信 Runtime resolver，例如 PROJECT Deliverable，课程不得声称 RUNTIME_READY。
+对于 CONCEPT 的非 Gate Step 4 participation：
+- Preview 可以使用受控本地 participation 验证教学体验；
+- 正式 Runtime Provisioning 必须证明该 participation 已有正式数据来源与渲染路径；
+- 如果正式 Runtime 只支持 CHECK，而 Step 4 participation 尚未 provision，则该课不得标记 RUNTIME_READY；
+- 不允许用 Preview-only participation 冒充正式 Runtime 能力。
 
 ### 3.6 AVAILABLE
 

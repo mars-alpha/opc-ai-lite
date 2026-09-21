@@ -40,6 +40,25 @@ Status: **QUALITY_BASELINE_V1**
 - 学习者看到的是可迁移的真实任务，教学设计层保留业务连续性。
 
 固定原则：**内部工程语言 ≠ 学习者界面语言；Case Logic 可以稳定，前台表达必须自然、通用。**
+## 2.2 Six-step Content Integrity
+
+六步 Shell 只定义结构，不代表六步内容自动正确。每次 Draft 新版本、Continuity Rework 或 Case Thread 调整后，必须逐步重新确认：
+
+1. EXPLAIN：当前版本真正要建立的直觉；
+2. EXAMPLE：当前版本的案例与 Before / After；
+3. CHECK：必须使用当前版本知识与案例重新生成三题 Mastery，不允许静默继承旧 Draft 的题目；
+4. PRACTICE：必须存在与当前课目标一致的真实学习动作；
+5. REVIEW：只复盘当前版本真正教过的判断；
+6. CAPABILITY：必须对应当前版本实际获得的能力与 Next Reuse。
+
+特别规则：
+
+- APPLICATION / PRACTICE / PROJECT 的 Step 4 必须有可执行 Practice；
+- CONCEPT 可以不设置 PRACTICE Completion Gate，但如果六步 Shell 包含 Step 4，则必须提供真实可操作的轻量 Participation，例如分类、短答、MINI_TASK；不能只有标题、说明文字或空白区域；
+- 新 Draft 若通过 spread / inheritance 复用旧 Draft，checkSequence、Practice / Participation、Review、Capability 必须逐项重新确认，不能默认继承即正确；
+- Preview 发现 Step 内容与当前 Brief 不一致时，视为 Content Integrity FAIL，不得进入 Human Review PASS。
+
+固定原则：**Six-step structure PASS ≠ Six-step content PASS。**
 
 ## 3. Six-step quality bar
 

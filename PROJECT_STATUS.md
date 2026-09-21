@@ -63,8 +63,9 @@ CURRICULUM-CONTINUITY-001 Five-Track Capability Continuity Baseline COMPLETE_BAS
 FOUNDATION-CONTINUITY-REWORK-001 Stage 1 + Stage 2 Formal Brief / Artifact Thread Rework COMPLETE_BRIEF_READY_CONTINUITY_V1
 FOUNDATION-CONTINUITY-TRIAL-001 Course Builder v0.2 Continuity Trial TECHNICAL_PASS_HUMAN_REVIEW_PENDING
 FOUNDATION-CONTINUITY-TRIAL-001-A Learner-facing Language & Case Neutralization COMPLETE_REVIEW_PENDING
+FOUNDATION-CONTINUITY-TRIAL-001-B Six-Step Content Integrity TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 
-NEXT: HUMAN REVIEW — five revised Foundation Continuity Trial previews (Chinese-first / case-neutralized)
+NEXT: TARGETED HUMAN REVIEW — Step 3 on five Continuity Trial lessons + Step 4 on beginner-context
 ```
 
 ## 当前系统健康

@@ -171,6 +171,50 @@ export const continuityTrialUseCasesDraft = {
     ],
     related: ["下一课继续使用这份草稿。","后续会逐步把它做到可发布。"]
   },
+  checkSequence: [
+    {
+      id:"continuity_use_best",
+      questionType:"SINGLE_CHOICE",
+      masteryRole:"BEST_JUDGMENT",
+      question:"你想把一个最近看到的 AI 新变化做成一篇短内容。第一步最合适的做法是什么？",
+      options:[
+        {value:"A",label:"先让 AI 根据这个真实主题给出第一版草稿，再由自己判断和修改"},
+        {value:"B",label:"先把所有 AI 技术名词学完再开始"},
+        {value:"C",label:"直接让 AI 决定最终发布内容，不再检查"}
+      ],
+      correctValues:["A"],
+      explanation:"第一课的目标是先得到一个真实、可判断的第一版，而不是一次完成全部工作。",
+      correctFeedback:"正确。先有第一版，后面才有东西可以比较、补资料和修改。",
+      incorrectFeedback:"这一步只需要先把真实想法做成第一版，最终判断仍由你负责。"
+    },
+    {
+      id:"continuity_use_misconception",
+      questionType:"TRUE_FALSE",
+      masteryRole:"MISCONCEPTION",
+      question:"判断：AI 已经生成第一版后，这个任务就算完成了。",
+      options:[{value:"TRUE",label:"对"},{value:"FALSE",label:"错"}],
+      correctValues:["FALSE"],
+      explanation:"第一版只是后续比较、补资料、修改和核实的起点。",
+      correctFeedback:"正确。第一版是共同学习产物，不是最终成品。",
+      incorrectFeedback:"后面几节会继续使用同一份草稿，所以第一版只是起点。"
+    },
+    {
+      id:"continuity_use_boundary",
+      questionType:"MULTI_SELECT",
+      masteryRole:"BOUNDARY_CONDITIONS",
+      question:"下面哪些做法符合“先让 AI 帮一步，人继续负责判断”的原则？（多选）",
+      options:[
+        {value:"DRAFT",label:"先让 AI 写一版内容草稿"},
+        {value:"OUTLINE",label:"先让 AI 整理一个内容结构"},
+        {value:"IDEAS",label:"先让 AI 给几个可比较的方向"},
+        {value:"FINAL",label:"把最终事实判断和发布决定全部交给 AI"}
+      ],
+      correctValues:["DRAFT","OUTLINE","IDEAS"],
+      explanation:"AI 很适合先产出可判断的中间结果，但最终事实判断和使用决定仍需要人负责。",
+      correctFeedback:"正确。你已经抓住第一课最重要的使用边界。",
+      incorrectFeedback:"先选那些能让 AI 帮你产生中间结果、又方便你继续检查和修改的动作。"
+    }
+  ],
   practice: {
     ...beginnerAiUseCasesDraft.practice!,
     id: "continuity_f101_first_draft",
@@ -280,6 +324,50 @@ export const continuityTrialResultQualityDraft = {
     ],
     related:["上一课的第一版草稿是本课起点。","下一课直接检查改进后草稿里的事实风险。"]
   },
+  checkSequence:[
+    {
+      id:"continuity_quality_best",
+      questionType:"SINGLE_CHOICE",
+      masteryRole:"BEST_JUDGMENT",
+      question:"你想看“目标读者”会不会影响上一课的草稿。哪种做法最合适？",
+      options:[
+        {value:"A",label:"只补充目标读者，其他要求保持不变，再生成第二版"},
+        {value:"B",label:"同时改主题、长度、语气和受众，再比较"},
+        {value:"C",label:"换一个完全不同的任务"}
+      ],
+      correctValues:["A"],
+      explanation:"一次只改变一个关键变量，最容易看清它对结果的真实影响。",
+      correctFeedback:"正确。这样你才能知道结果变化主要来自哪一条信息。",
+      incorrectFeedback:"如果一次改很多东西，就很难判断到底是哪一个变化起作用。"
+    },
+    {
+      id:"continuity_quality_misconception",
+      questionType:"TRUE_FALSE",
+      masteryRole:"MISCONCEPTION",
+      question:"判断：只要第二版变长了，就说明新增的信息一定让结果变好了。",
+      options:[{value:"TRUE",label:"对"},{value:"FALSE",label:"错"}],
+      correctValues:["FALSE"],
+      explanation:"要看结果是否更贴近当前目标，而不是只看字数或表面变化。",
+      correctFeedback:"正确。变化不等于改善，关键是是否更符合任务。",
+      incorrectFeedback:"比较时要回到当前目标，例如是否更适合目标读者。"
+    },
+    {
+      id:"continuity_quality_boundary",
+      questionType:"MULTI_SELECT",
+      masteryRole:"BOUNDARY_CONDITIONS",
+      question:"做单变量比较时，下面哪些做法应该保持不变？（多选）",
+      options:[
+        {value:"TOPIC",label:"原来的内容主题"},
+        {value:"TASK",label:"原来的主要任务"},
+        {value:"TOOL",label:"正在使用的 AI 工具"},
+        {value:"VARIABLE",label:"这次刻意测试的那一个关键信息"}
+      ],
+      correctValues:["TOPIC","TASK","TOOL"],
+      explanation:"除了要测试的那一个变量，其他条件尽量保持不变。",
+      correctFeedback:"正确。这样对比才有意义。",
+      incorrectFeedback:"把要测试的变量单独改变，其他条件尽量保持一致。"
+    }
+  ],
   practice:{
     ...beginnerAiResultQualityDraft.practice!,
     id:"continuity_f102_compare",
@@ -388,6 +476,50 @@ export const continuityTrialPromptDraft = {
     ],
     related:["上一阶段已经验证输入变化会影响结果。","下一课给同一任务建立上下文资料包。"]
   },
+  checkSequence:[
+    {
+      id:"continuity_prompt_best",
+      questionType:"SINGLE_CHOICE",
+      masteryRole:"BEST_JUDGMENT",
+      question:"下面哪一份任务说明最容易让你自己和 AI 都知道要做什么？",
+      options:[
+        {value:"A",label:"写得更好一点"},
+        {value:"B",label:"写一篇介绍某个 AI 新变化的短内容，面向刚开始学 AI 的普通用户，150–250 字、易懂、不夸大"},
+        {value:"C",label:"你看着办，专业一点"}
+      ],
+      correctValues:["B"],
+      explanation:"清楚任务说明要让“做什么、必要背景、结果要求”都能被执行和检查。",
+      correctFeedback:"正确。这是一份可以直接执行、也方便验收的任务说明。",
+      incorrectFeedback:"不要只给模糊形容词，要让任务和结果要求都具体。"
+    },
+    {
+      id:"continuity_prompt_misconception",
+      questionType:"TRUE_FALSE",
+      masteryRole:"MISCONCEPTION",
+      question:"判断：提示词（Prompt）越长越好，只要把能想到的内容全部写进去就行。",
+      options:[{value:"TRUE",label:"对"},{value:"FALSE",label:"错"}],
+      correctValues:["FALSE"],
+      explanation:"任务说明只需要保留当前任务真正必要的信息。",
+      correctFeedback:"正确。清楚比冗长更重要。",
+      incorrectFeedback:"无关信息不会自动让任务更清楚，反而可能让重点变模糊。"
+    },
+    {
+      id:"continuity_prompt_boundary",
+      questionType:"MULTI_SELECT",
+      masteryRole:"BOUNDARY_CONDITIONS",
+      question:"一份清楚任务说明通常至少要回答哪些问题？（多选）",
+      options:[
+        {value:"TASK",label:"这次要做什么"},
+        {value:"BACKGROUND",label:"哪些必要背景已经确定"},
+        {value:"RESULT",label:"希望最后得到什么结果"},
+        {value:"HISTORY",label:"把所有历史聊天都完整贴进去"}
+      ],
+      correctValues:["TASK","BACKGROUND","RESULT"],
+      explanation:"当前任务、必要背景和结果要求是本课训练的三个核心检查点。",
+      correctFeedback:"正确。你已经能把零散要求收拢成任务说明。",
+      incorrectFeedback:"先抓“做什么、必要背景、结果要求”，不要把所有信息都塞进去。"
+    }
+  ],
   practice:{
     ...beginnerPromptDraft.practice!,
     id:"continuity_f201_task_brief",
@@ -451,11 +583,11 @@ export const continuityTrialContextDraft = {
       deferredTerms:stage2Deferred
     },
     participation:{
-      kind:"CLASSIFY",
+      kind:"MINI_TASK",
       title:"给同一篇内容组装上下文资料包",
-      instruction:"继续同一个主题，只挑当前写作真正需要的读者、主题资料和事实。",
-      prompt:null,
-      reflection:"重点是材料够用且相关，不是把所有资料都塞进去。"
+      instruction:"继续同一个主题，从已有信息里写出当前这篇内容真正需要的 3 类资料。",
+      prompt:"请写出：1）目标读者最关心的问题；2）当前主题需要引用的一条资料或来源；3）AI 不应该自行猜测的一条事实。",
+      reflection:"完成后检查：这三类资料是否都直接帮助当前任务，而不是无关背景。"
     }
   },
   lessonSpec:{
@@ -496,6 +628,50 @@ export const continuityTrialContextDraft = {
     ],
     related:["上一课的任务说明是本课入口。","下一课直接修改补充资料后的草稿。"]
   },
+  checkSequence:[
+    {
+      id:"continuity_context_best",
+      questionType:"SINGLE_CHOICE",
+      masteryRole:"BEST_JUDGMENT",
+      question:"任务说明已经写清楚，但 AI 还缺完成这篇内容的事实依据。下一步最合适是什么？",
+      options:[
+        {value:"A",label:"补上当前主题资料和可靠来源，再继续写"},
+        {value:"B",label:"把任务说明重复三遍"},
+        {value:"C",label:"完全不补资料，让 AI 自己猜"}
+      ],
+      correctValues:["A"],
+      explanation:"上下文（Context）的作用是给当前任务提供真正可以使用的信息。",
+      correctFeedback:"正确。任务说明负责说清做什么，上下文资料负责提供拿什么做。",
+      incorrectFeedback:"如果缺的是材料，就应该补当前任务真正需要的资料，而不是重复任务要求。"
+    },
+    {
+      id:"continuity_context_misconception",
+      questionType:"TRUE_FALSE",
+      masteryRole:"MISCONCEPTION",
+      question:"判断：上下文资料越多越好，把所有资料一次性塞进去最稳。",
+      options:[{value:"TRUE",label:"对"},{value:"FALSE",label:"错"}],
+      correctValues:["FALSE"],
+      explanation:"上下文要够用且相关，无关资料太多也会让重点变模糊。",
+      correctFeedback:"正确。上下文的目标是相关、够用。",
+      incorrectFeedback:"不是资料越多越好，而是当前任务真正会用到的资料要齐。"
+    },
+    {
+      id:"continuity_context_boundary",
+      questionType:"MULTI_SELECT",
+      masteryRole:"BOUNDARY_CONDITIONS",
+      question:"为当前这篇 AI 主题内容准备上下文资料时，哪些信息通常值得放进去？（多选）",
+      options:[
+        {value:"AUDIENCE",label:"目标读者是谁、关心什么"},
+        {value:"SOURCE",label:"当前主题的资料和可靠来源"},
+        {value:"FACT",label:"需要保留的事实、日期或数据"},
+        {value:"UNRELATED",label:"与当前主题无关的个人聊天记录"}
+      ],
+      correctValues:["AUDIENCE","SOURCE","FACT"],
+      explanation:"只保留当前任务真正需要的背景、资料和事实。",
+      correctFeedback:"正确。你已经能判断什么属于当前任务的上下文。",
+      incorrectFeedback:"判断标准只有一个：这条信息会不会直接帮助当前任务做得更准确。"
+    }
+  ],
   practice:null,
   hints:["先从任务说明反推需要哪些材料。","只保留当前任务真正会用到的内容。"],
   referenceAnswer:null,
@@ -584,6 +760,50 @@ export const continuityTrialIterationDraft = {
     ],
     related:["上一课已经配好上下文资料包。","下一课直接检查迭代后的草稿是否可以发布。"]
   },
+  checkSequence:[
+    {
+      id:"continuity_iteration_best",
+      questionType:"SINGLE_CHOICE",
+      masteryRole:"BEST_JUDGMENT",
+      question:"当前草稿开头太空泛，但中间解释已经很好。下一轮最合适的反馈是什么？",
+      options:[
+        {value:"A",label:"全部重写，换一种完全不同的风格"},
+        {value:"B",label:"保留中间解释；只把开头改成从普通用户的实际问题进入"},
+        {value:"C",label:"再好一点"}
+      ],
+      correctValues:["B"],
+      explanation:"迭代（Iteration）要保留有效部分，只修改最影响结果的偏差。",
+      correctFeedback:"正确。你是在继续加工同一份草稿，而不是重新抽一篇答案。",
+      incorrectFeedback:"先找已经有效的部分，再只改最重要的问题。"
+    },
+    {
+      id:"continuity_iteration_misconception",
+      questionType:"TRUE_FALSE",
+      masteryRole:"MISCONCEPTION",
+      question:"判断：每次不满意都重新生成一篇，通常比明确告诉 AI 哪一部分需要改更有效。",
+      options:[{value:"TRUE",label:"对"},{value:"FALSE",label:"错"}],
+      correctValues:["FALSE"],
+      explanation:"重新生成会丢掉已经有效的信息；具体反馈更容易让下一轮朝目标靠近。",
+      correctFeedback:"正确。迭代的重点是继承，而不是反复重来。",
+      incorrectFeedback:"先保留已经有效的内容，再指出具体偏差。"
+    },
+    {
+      id:"continuity_iteration_boundary",
+      questionType:"MULTI_SELECT",
+      masteryRole:"BOUNDARY_CONDITIONS",
+      question:"下面哪些属于有效的下一轮修改动作？（多选）",
+      options:[
+        {value:"KEEP",label:"说明哪些部分要保留"},
+        {value:"DEVIATION",label:"指出最重要的具体偏差"},
+        {value:"CHANGE",label:"给出明确的修改方向"},
+        {value:"VAGUE",label:"只说“再专业一点”"}
+      ],
+      correctValues:["KEEP","DEVIATION","CHANGE"],
+      explanation:"有效迭代要让 AI 知道保留什么、哪里偏了、下一轮具体怎么改。",
+      correctFeedback:"正确。你已经掌握一轮改稿的完整反馈结构。",
+      incorrectFeedback:"反馈必须能直接转成下一轮动作，而不是只表达不满意。"
+    }
+  ],
   practice:{
     ...beginnerIterationDraft.practice!,
     id:"continuity_f203_iteration",
