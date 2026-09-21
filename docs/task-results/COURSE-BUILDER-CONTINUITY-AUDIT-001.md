@@ -1,6 +1,6 @@
 # COURSE-BUILDER-CONTINUITY-AUDIT-001
 
-Status: **V03_CANDIDATE_JUSTIFIED_NOT_IMPLEMENTED**
+Status: **V02_TRIAL_TECHNICALLY_SUFFICIENT_V03_DEFERRED**
 
 ## Decision
 
@@ -56,6 +56,8 @@ v0.3 不：
 - 能证明缺口属于 Course Builder 原有教学设计职责，而不是 Curriculum / Runtime 问题。
 
 满足后再批准 `COURSE-BUILDER-SKILL-006 — Capability Continuity Alignment`。
+
+Update after FOUNDATION-CONTINUITY-TRIAL-001: five representative v0.2 Drafts passed Continuity / Beginner Quality / Contract / Shell / typecheck / build validation. Current evidence therefore does not justify implementing v0.3 now. Human Review remains required; v0.3 stays a candidate only if later real use shows recurring structural failures that Formal Brief + deterministic acceptance cannot reasonably control.
 
 ## Candidate Acceptance
 

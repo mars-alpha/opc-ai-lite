@@ -695,6 +695,12 @@ Status: COMPLETE_BRIEF_READY_CONTINUITY_V1
 
 新增 `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`。保留 F1-01～F2-04 全部 canonical lessonId / Primary Knowledge Home / Lesson Type / Gate，但把八节重构为一个 OPC / 自媒体贯穿 Artifact Thread：First Draft → Better Draft → Verification Flags → Source Plan → Task Brief → Context Pack → Iterated Draft → Verified Publishable Draft。明确每节 Inherited Capability / Artifact、Current Learner Job、New Capability、Artifact Action / Output、Next Reuse、Do Not Re-teach 与 Human Review Focus。F1-02 仅保留输入变化最小实验，Prompt 正式方法留 F2-01；F1-03 只负责发现风险，完整检查留 F2-04；F1-04 产品能力地图服务当前 Artifact；F2-02 转为建立 Context Pack。旧 Stage2 Brief 标记 superseded。下一步：`FOUNDATION-CONTINUITY-TRIAL-001`，先用 `course-builder@0.2.0` 重做 3–5 个代表样本，不立即升级 v0.3。
 
+### FOUNDATION-CONTINUITY-TRIAL-001 — Course Builder v0.2 Continuity Trial
+
+Status: TECHNICAL_PASS_HUMAN_REVIEW_PENDING
+
+使用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` 独立重做 F1-01 / F1-02 / F2-01 / F2-02 / F2-03 五个 Trial Draft，历史生产 Draft 不覆盖。五课保持同一 OPC / 自媒体 Case Thread，并通过 trial metadata 明确 inheritedArtifact / artifactOutput / nextReuse / doNotReteach。新增 5 个独立 Preview 与 `course-builder:accept:continuity-trial`。首次验收准确拦截 F1-02 主正文 Case Thread 表达变弱，修复内容后未放宽规则。最终 Continuity Trial、Course Builder Contract、Beginner Quality、Unified Shell、typecheck、build 全部 PASS，51 pages。结论：当前证据下 v0.2 技术上足够，v0.3 / COURSE-BUILDER-SKILL-006 暂不实现；下一步 Human Review 5 个 Trial Preview。F1-03/F1-04/F2-04 尚未 trial rework，Runtime 继续暂停。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

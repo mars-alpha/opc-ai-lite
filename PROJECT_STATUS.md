@@ -61,18 +61,19 @@ COURSE-PRODUCTION-003 Foundation Stage 2 Collaboration Batch TECHNICAL_ACCEPTANC
 DEV-RUNTIME-FIX-001 Windows Dev Startup COMPLETE_DEV_START_FIX
 CURRICULUM-CONTINUITY-001 Five-Track Capability Continuity Baseline COMPLETE_BASELINE_V1
 FOUNDATION-CONTINUITY-REWORK-001 Stage 1 + Stage 2 Formal Brief / Artifact Thread Rework COMPLETE_BRIEF_READY_CONTINUITY_V1
+FOUNDATION-CONTINUITY-TRIAL-001 Course Builder v0.2 Continuity Trial TECHNICAL_PASS_HUMAN_REVIEW_PENDING
 
-NEXT: FOUNDATION-CONTINUITY-TRIAL-001 — Course Builder v0.2 Continuity Trial on 3–5 representative lessons
+NEXT: HUMAN REVIEW — five Foundation Continuity Trial previews
 ```
 
 ## 当前系统健康
 
-当前业务代码验证基线：COURSE-PRODUCTION-003（typecheck/build PASS，46 pages）。
+当前业务代码验证基线：FOUNDATION-CONTINUITY-TRIAL-001（typecheck/build PASS，51 pages）。
 
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      46 pages generated
+Production build      51 pages generated
 Local npm run dev      DIRECT_NEXT_NODE_ENTRY
 Remote migrations     0000 → 0009 APPLIED; 0010–0011 GENERATED / NOT APPLIED
 Remote runtime smoke  PASS
