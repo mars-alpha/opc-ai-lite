@@ -767,6 +767,12 @@ Status: COMPLETE_HUMAN_REVIEW_PASS_BRIEF_LEVEL
 
 已完成 targeted revision：Prompt = Task Instruction、Context = Task Information；T1-03 退出 Source of Truth；T1-01～T1-05 的 Step 4 均写明具体 learner action 与 retained output；T1-05 增加最低 Task-fit Evaluation，再进行 Reliability Verification，Hallucination 作为 supporting explanation。T1-05 明确不教授 HITL / Permissions / Approval / Core Authority，也不进入 Track 04 Evaluation Engineering。五课顺序、canonical ID、Artifact Thread 不变。下一步：`COURSE-PRODUCTION-TRACK01-A-001 — T1-01～T1-05 Course Builder Production`。
 
+### COURSE-PRODUCTION-TRACK01-A-001 — T1-01～T1-05 Course Builder Production
+
+Status: T1-01_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+Batch A 按 pilot-first 开始生产。T1-01 `AI 能帮什么，不能帮什么` 已使用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` 重新生成，不直接继承旧 F1-01 Check / Practice / Review / Capability。Step 4 产出 `3-task classification + selected task goal + AI First Draft`，并交给 T1-02。专项 acceptance、Beginner Quality、Course Builder contract、typecheck、build 全部 PASS。Preview：`/course-builder/preview/track01-batch-a/t1-01`。验收中修复旧 Review 上限 3 与新 2–4 规则不一致的 validator drift；4 项允许、5 项拒绝。T1-01 Human Review PASS 前不扩产 T1-02～T1-05。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

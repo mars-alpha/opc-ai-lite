@@ -35,10 +35,17 @@ try {
 }
 assert(missingProfileRejected, "QUALITY_V02_PROFILE_REQUIRED");
 
+const fourReviewAccepted = createCourseBuilderReviewPacket(
+  { ...base, review: ["规则1", "规则2", "规则3", "规则4"] },
+  new Date("2026-09-21T00:00:00.000Z"),
+  "0.2.0"
+);
+assert(fourReviewAccepted.skill.version === "0.2.0", "QUALITY_FOUR_REVIEW_ITEMS_REJECTED");
+
 let reviewBudgetRejected = false;
 try {
   createCourseBuilderReviewPacket(
-    { ...base, review: ["规则1", "规则2", "规则3", "规则4"] },
+    { ...base, review: ["规则1", "规则2", "规则3", "规则4", "规则5"] },
     new Date("2026-09-21T00:00:00.000Z"),
     "0.2.0"
   );

@@ -23,6 +23,7 @@
     "course-builder:accept:beginner-quality": "tsx scripts/accept-course-builder-beginner-quality.ts",
     "course-builder:accept:foundation-stage2": "tsx scripts/accept-foundation-stage2.ts",
     "course-builder:accept:continuity-trial": "tsx scripts/accept-foundation-continuity-trial.ts",
+    "course-builder:accept:track01-a": "tsx scripts/accept-track01-batch-a.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx lib/server/db/seed.ts"

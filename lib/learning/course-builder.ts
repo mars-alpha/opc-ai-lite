@@ -669,7 +669,7 @@ export function validateBeginnerQualityDraft(draft: CourseBuilderBuildDraft) {
   if (draft.pedagogy.audience !== "BEGINNER") {
     throw new Error("BEGINNER_QUALITY_PROFILE_REQUIRES_BEGINNER_AUDIENCE");
   }
-  if (draft.review.length > 3) {
+  if (draft.review.length > 4) {
     throw new Error("BEGINNER_QUALITY_REVIEW_BUDGET_EXCEEDED");
   }
   if (draft.content.example.before === undefined || draft.content.example.after === undefined) {

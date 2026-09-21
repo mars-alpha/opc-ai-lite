@@ -430,6 +430,10 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `TRACK01-BATCH-A-BRIEF-REVIEW-001` 已完成 T1-01～T1-05 Formal Brief targeted Human Review revision，Brief-level Human Review PASS。固定 Prompt = AI 要做什么 / Task Instruction，Context = AI 完成任务需要知道什么 / Task Information；T1-03 不教授 Source of Truth。五课 Step 4 均已明确 learner action + retained output。T1-05 现在包含最低 Task-fit Evaluation + Reliability Verification：先对照 Clear Task Brief 判断任务是否完成，再按事实性、时效性、可验证性、错误后果决定核验强度；Hallucination 只作为原因解释。T1-05 不教授 HITL / Permissions / Approval / Core Authority（T1-20），也不教授 Evaluation Engineering（Track 04）。
 
+`COURSE-PRODUCTION-TRACK01-A-001` 已进入 pilot-first production。T1-01 `AI 能帮什么，不能帮什么` 已用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` 重新生产，canonical Draft lessonId=`t1-01-ai-task-fit`，Preview=`/course-builder/preview/track01-batch-a/t1-01`。六步内容、三题 Mastery、Step 4 `3-task classification + selected task goal + AI First Draft`、Artifact handoff `TASK_FIT_NOTE_WITH_AI_FIRST_DRAFT → T1-02_CLEAR_TASK_BRIEF` 均通过专项 acceptance；Course Builder contract、Beginner Quality、typecheck、build PASS。当前状态为 TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING；T1-02～T1-05 尚未扩产。
+
+本任务技术验收发现 `validateBeginnerQualityDraft()` 仍使用旧的 Review `>3` 限制，与已批准的 Step 5 `2–4` 规则漂移。已最小修正为 `>4` 拒绝，并更新 Beginner Quality acceptance：4 条 PASS、5 条 REJECT。未修改 Unified Lesson Shell、Runtime Schema 或正式学习状态逻辑。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。
