@@ -11,7 +11,11 @@ import {
   track01T103Draft,
   track01T103KnowledgeDepth,
   track01T103Meta,
-  track01T103ReferenceFill
+  track01T103ReferenceFill,
+  track01T104Draft,
+  track01T104KnowledgeDepth,
+  track01T104Meta,
+  track01T104ReferenceFill
 } from "../fixtures/course-builder/track01-batch-a";
 
 function assert(condition: unknown, code: string) {
@@ -211,6 +215,51 @@ for (const forbidden of ["Knowledge Base", "Source of Truth", "Memory", "RAG", "
 }
 assert(!t103.pedagogy.participation.instruction.includes("粘贴回来"), "TRACK01_T103_NO_PASTEBACK_META_COPY");
 assert(!t103.practice?.hints.some((hint) => hint.includes("粘贴回课程")), "TRACK01_T103_NO_PASTEBACK_META_HINT");
+
+const t104Packet = createCourseBuilderReviewPacket(
+  track01T104Draft,
+  new Date("2026-09-21T00:00:00.000Z"),
+  "0.2.0"
+);
+if (t104Packet.output.mode !== "BUILD") throw new Error("TRACK01_T104_BUILD_REQUIRED");
+const t104 = t104Packet.output;
+
+assert(track01T104Meta.canonicalId === "T1-04", "TRACK01_T104_CANONICAL_ID");
+assert(t104.lessonSpec.lessonId === "t1-04-purposeful-iteration", "TRACK01_T104_LESSON_ID");
+assert(t104.lessonSpec.prerequisites.join(",") === "T1-03", "TRACK01_T104_PREREQUISITE");
+assert(t104.lessonSpec.completionGates.join(",") === "CHECK,PRACTICE", "TRACK01_T104_GATES");
+assert(t104.pedagogy.qualityProfile?.allowedCoreTerms.join(",") === "Iteration", "TRACK01_T104_ITERATION_PRIMARY_HOME");
+assert(t104.checkSequence?.length === 3, "TRACK01_T104_THREE_QUESTION_MASTERY");
+assert(t104.practice?.instructions.map((item) => item.key).join(",") === "desired,requirements", "TRACK01_T104_STEP4_KEYS");
+assert(t104.practice?.instructions.map((item) => item.label).join(",") === "我希望改成什么样,这次的具体要求", "TRACK01_T104_STEP4_BEGINNER_LABELS");
+assert(t104.practice?.instructions.length === 2, "TRACK01_T104_STEP4_TWO_FIELDS");
+assert(t104.practice?.goal.includes("第 2 个要点"), "TRACK01_T104_STEP4_PROBLEM_PRESET");
+assert(t104.pedagogy.participation.kind === "COPY_TO_AI", "TRACK01_T104_COPY_TO_AI");
+assert(!t104.pedagogy.participation.instruction.includes("粘贴回来"), "TRACK01_T104_NO_PASTEBACK_META_COPY");
+assert(t104.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T104_HINTS_UI_OWNS_NUMBERING");
+assert(track01T104ReferenceFill.desired.includes("OPC AI 学习站"), "TRACK01_T104_REFERENCE_OPC_CASE");
+assert(track01T104ReferenceFill.desired.includes("自媒体"), "TRACK01_T104_REFERENCE_SELF_MEDIA_CASE");
+assert(track01T104ReferenceFill.desired.length >= 50, "TRACK01_T104_REFERENCE_DESIRED_COMPLETE");
+assert(track01T104ReferenceFill.requirements.length >= 50, "TRACK01_T104_REFERENCE_REQUIREMENTS_COMPLETE");
+assert((t104.referenceAnswer ?? "").includes("第 2 个要点"), "TRACK01_T104_REFERENCE_DIRECTLY_TESTABLE");
+assert(t104.review.length >= 2 && t104.review.length <= 4, "TRACK01_T104_REVIEW_2_TO_4");
+assert(t104.review.every((item) => item.includes("｜")), "TRACK01_T104_REVIEW_VERTICAL_CONTRAST");
+assert(t104.review.length === track01T104KnowledgeDepth.review.length, "TRACK01_T104_REVIEW_DEPTH_ALIGNED");
+assert(track01T104Meta.caseThread === "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT", "TRACK01_T104_CASE_THREAD");
+const t104VisibleText = [
+  t104.lessonSpec.title,
+  ...t104.lessonSpec.learningObjectives,
+  ...t104.lessonSpec.knowledgePoints,
+  ...t104.content.points,
+  ...t104.content.content,
+  ...t104.review,
+  ...t104.selfAssessment,
+  ...(t104.practice?.instructions.flatMap((item) => [item.label, item.prompt]) ?? [])
+].join(" ");
+for (const forbidden of ["Workflow", "Agent", "Evaluation Engineering", "Chain-of-Thought", "Prompt Engineering", "Self-correction", "Iteration Notes"]) {
+  assert(!t104VisibleText.includes(forbidden), "TRACK01_T104_DEFERRED_TERM:" + forbidden);
+}
+assert(!t104.practice?.instructions.some((item) => item.label.includes("哪里不对")), "TRACK01_T104_NO_DIAGNOSIS_FIELD");
 
 console.log("TRACK01_T101_COURSE_BUILDER_V02=PASS");
 console.log("TRACK01_T101_FORMAL_BRIEF_ALIGNMENT=PASS");

@@ -750,3 +750,247 @@ export const track01T103ReferenceFill = {
   task: "请为 OPC AI 学习站写一条面向 AI 初学者的自媒体短内容，主题是“上下文不是越多越好”。要求：输出 1 个标题、3 个正文要点，每个要点 1～2 句，最后给一句可以马上执行的建议；表达清楚、不夸张，不补充我没有提供的事实。",
   mustKnow: "受众：刚开始使用 AI 的普通用户。核心信息：先明确当前任务；只提供会直接影响结果的必要信息；无关、重复或过时的资料先不放；信息已经足够完成任务时，就停止继续添加。"
 } as const;
+
+export const track01T104Meta = {
+  canonicalId: "T1-04",
+  draftVersion: "1.0.0-track01-a",
+  skillId: "course-builder",
+  skillVersion: "0.2.0",
+  qualityProfile: "BEGINNER_QUALITY_V1",
+  formalBrief: "TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md",
+  grounding: "REVIEWED_KNOWLEDGE",
+  caseThread: "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT",
+  inheritedArtifact: "MINIMUM_INFORMATION_PACK",
+  artifactOutput: "PURPOSEFUL_REVISION_REQUEST",
+  nextReuse: "T1-05_RELIABILITY_CHECK"
+} as const;
+
+export const track01T104Intro = {
+  situation: "你已经让 AI 写出第一版 OPC 自媒体内容。标题和大部分结构都能用，但第 2 个要点太抽象，普通用户看完还是不知道该怎么做。这个时候，最容易做错的就是只说一句“写得不好，重来一次”。",
+  approaches: [
+    { label: "让 AI 全部重写", text: "你只说“重新写好一点”，AI 仍然要猜哪里不好、什么叫更好，原本已经可用的部分也可能一起变掉。" },
+    { label: "只改明确的问题", text: "直接告诉 AI 这次只改第 2 个要点，并说明希望改成什么样、有哪些具体要求，修改方向会清楚很多。" }
+  ],
+  comparison: [],
+  takeaway: "第一版不理想时，不是先全部重来，而是把一个已经明确的问题改具体。",
+  bottomDetails: [
+    { title: "先只改一个明显问题", text: "初学时不需要一次分析所有问题。先从课程已经指出的一个明显问题开始，更容易理解修改有没有效果。" },
+    { title: "把“更好”换成可检查要求", text: "“具体一点”“控制在 2 句话以内”“用一个日常场景说明”都比“写好一点”更容易执行和检查。" }
+  ],
+  comparisonPlacement: "BOTTOM"
+} as const;
+
+export const track01T104Draft = {
+  mode: "BUILD",
+  grounding: {
+    status: "REVIEWED",
+    sourceKind: "APPROVED_KNOWLEDGE",
+    sourceLabels: [
+      "Track 01 Batch A Formal Brief · T1-04",
+      "Lesson Output Contract v1"
+    ],
+    researchSummary:
+      "本课只教 Beginner 最低迭代能力：在问题已经明确的情况下，把修改要求说具体，并让 AI 只修改有问题的部分。复杂结果诊断、自动迭代、Workflow、Agent self-correction、Evaluation Engineering 与高级 Prompt Engineering 均后置。"
+  },
+  pedagogy: {
+    audience: "BEGINNER",
+    languagePolicy: "TERM_READABILITY",
+    aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
+    qualityProfile: {
+      id: "BEGINNER_QUALITY_V1",
+      mainLearnerQuestion: "AI 第一版已经出来了，但有一部分不好用，我下一步该怎么改？",
+      mainConcept: "问题已经明确时，只改有问题的部分，并把修改目标和具体要求说清楚。",
+      allowedCoreTerms: ["Iteration"],
+      deferredTerms: [
+        "Workflow",
+        "Agent",
+        "Evaluation Engineering",
+        "Chain-of-Thought",
+        "Prompt Engineering",
+        "Self-correction"
+      ]
+    },
+    participation: {
+      kind: "COPY_TO_AI",
+      title: "只改这一个问题，直接验证一次",
+      instruction: "练习场景已经告诉你：这次只改第 2 个要点。把修改目标和具体要求写清楚后，直接复制到你常用的 AI 软件里，看它能不能只改这一处。",
+      prompt: "请只修改我指定的部分，其他已经可用的内容保持不变。",
+      reflection: "如果 AI 能按你的具体要求只修改目标部分，你就完成了一次最小的定向迭代。"
+    },
+    sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
+  },
+  lessonSpec: {
+    version: "1.0.0-track01-a",
+    courseSlug: "foundation-ai",
+    lessonId: "t1-04-purposeful-iteration",
+    title: "迭代（Iteration）：把第一版结果改到可用",
+    lessonType: "APPLICATION",
+    learningObjectives: [
+      "能区分模糊重写和有目的的定向修改。",
+      "能在问题已经明确时，说清希望修改成什么样。",
+      "能给出具体、可检查的修改要求，让 AI 只改有问题的部分。"
+    ],
+    knowledgePoints: [
+      "第一版不理想，不代表整份内容都要重来。",
+      "“再写好一点”仍然让 AI 猜；具体修改目标更容易执行。",
+      "一次先改一个明确问题，更容易判断这次修改是否真的有效。"
+    ],
+    prerequisites: ["T1-03"],
+    requiresExample: true,
+    requiresCheck: true,
+    practiceMode: "GUIDED",
+    realAiOperation: "NONE",
+    realAiEvidence: "NONE",
+    referenceAnswerEnabled: true,
+    reviewEnabled: true,
+    selfAssessmentEnabled: true,
+    courseFeedbackEnabled: true,
+    completionGates: ["CHECK", "PRACTICE"],
+    steps: [
+      { id: "explain", kind: "EXPLAIN", title: "第一版不好用，一定要全部重来吗", objective: "让学习者先看懂模糊重写为什么不稳定。" },
+      { id: "example", kind: "EXAMPLE", title: "同一个问题，为什么定向修改更容易改对", objective: "用 OPC 自媒体初稿对比模糊重写与具体定向修改。" },
+      { id: "check", kind: "CHECK", title: "哪一种修改要求更容易让 AI 改对", objective: "检查学习者能否识别具体、可检查的定向修改要求。" },
+      { id: "practice", kind: "PRACTICE", title: "这次只改第 2 个要点", objective: "在问题已经给定的情况下，把一次修改要求说具体。" },
+      { id: "review", kind: "REVIEW", title: "修改第一版时，记住这 2 个判断", objective: "留下“只改明确问题”和“要求要可检查”两个可复用判断。" },
+      { id: "capability", kind: "CAPABILITY", title: "你已经会完成一次有目的的修改", objective: "确认学习者能在问题明确时完成一次定向修改。" }
+    ],
+    capabilityGain: [
+      "能在 AI 第一版出现一个明确问题时，写出具体修改要求，让 AI 只改这一处。"
+    ],
+    nextLessonValue:
+      "下一课会继续判断：即使结果已经更好看、更好用，哪些事实、日期、数字和重要信息仍然必须核验。",
+    accessPresentation
+  },
+  content: {
+    summary: "你会学会在第一版结果已经有基础时，只改一个明确问题，而不是让 AI 反复全部重写。",
+    plainExplanation:
+      "AI 第一版经常不会一次就完全可用。初学时不需要马上学复杂的诊断方法。先从一个已经明确的问题开始：告诉 AI 这次只改哪里、希望改成什么样、具体要满足什么条件。这样比一句“重新写好一点”更稳定。",
+    whyItMatters:
+      "如果每次不满意都让 AI 全部重写，你很难知道到底哪条要求起了作用，原本已经满意的部分也可能被改坏。定向修改让变化更小，也更容易检查。",
+    points: [
+      "先只处理一个已经明确的问题，不一次改所有东西。",
+      "把“更好一点”改成具体结果，例如“改成普通用户能马上理解的日常场景”。",
+      "给出可检查要求，例如“控制在 2 句话以内”“只改第 2 个要点”。"
+    ],
+    content: [
+      "这节课不要求你独立诊断复杂问题，练习中的问题会直接告诉你。",
+      "定向修改的重点是把修改要求说具体，而不是学习更多复杂提示词技巧。",
+      "一次修改后先看这一处有没有改善，再决定是否继续改其他地方。"
+    ],
+    example: {
+      title: "第 2 个要点太抽象，要重写整篇吗",
+      situation:
+        "OPC AI 学习站准备发布一条“AI 新手最值得先学会的 3 个使用习惯”自媒体内容。第一版标题、第 1 个和第 3 个要点都能用，但第 2 个要点只写了“合理使用上下文，提高回答质量”，普通用户看完不知道具体怎么做。",
+      before:
+        "模糊修改：这版不够好，重新写得具体一点。AI 不知道到底是哪一部分有问题，也可能把原本可用的标题和其他要点一起改掉。",
+      after:
+        "定向修改：只修改第 2 个要点，把它改成普通用户能马上理解的日常工作场景；用一个具体例子说明，控制在 2 句话以内；标题和第 1、3 个要点保持不变。",
+      result:
+        "AI 的修改范围和标准都更清楚。你可以直接检查第 2 个要点有没有变具体，而不用重新判断整篇内容。"
+    },
+    mistakes: [
+      "误区：不满意就让 AI 全部重写｜正确理解：先改一个已经明确的问题，更容易判断修改有没有效果。",
+      "误区：说“更专业、更具体”就已经很清楚｜正确理解：最好给出能检查的结果标准，例如具体场景、长度或结构。",
+      "误区：每一轮都应该同时改很多问题｜正确理解：初学时一次先改一个明显问题，变化更容易观察。"
+    ],
+    related: [
+      "这一课只练一次定向修改，不进入自动迭代或复杂评测。",
+      "结果变得更可用，不代表其中的事实已经自动变得可靠。"
+    ]
+  },
+  check: null,
+  checkSequence: [
+    {
+      id: "t104_best_judgment",
+      questionType: "SINGLE_CHOICE",
+      masteryRole: "BEST_JUDGMENT",
+      question: "课程已经告诉你：第 2 个要点太抽象，其他部分基本可用。下面哪一句最适合下一步修改？",
+      options: [
+        { value: "A", label: "这一版不太好，重新写一篇更专业的。" },
+        { value: "B", label: "只修改第 2 个要点，把它改成普通用户能马上理解的具体场景，控制在 2 句话以内；其他部分保持不变。" },
+        { value: "C", label: "再生成几次，我从里面挑一个感觉好的。" }
+      ],
+      correctValues: ["B"],
+      explanation: "B 明确了修改位置、目标和可检查要求，也保护了已经可用的部分。",
+      correctFeedback: "正确。问题已经明确时，下一步就是把这一处的修改要求说具体。",
+      incorrectFeedback: "题目已经告诉你第 2 个要点有问题。现在要做的不是重新猜问题，而是让 AI 只改这一处，并说明什么叫改好。"
+    },
+    {
+      id: "t104_misconception",
+      questionType: "TRUE_FALSE",
+      masteryRole: "MISCONCEPTION",
+      question: "判断：只要第一版不满意，多让 AI 全部重写几次，结果通常就会自然变得更符合要求。",
+      options: [{ value: "TRUE", label: "对" }, { value: "FALSE", label: "错" }],
+      correctValues: ["FALSE"],
+      explanation: "如果没有说明具体问题和修改标准，重复生成仍然可能沿着错误方向变化。",
+      correctFeedback: "正确。修改次数不是关键，关键是这一轮到底要改什么。",
+      incorrectFeedback: "如果每次都只说“再写一次”，AI 仍然不知道你真正不满意的是哪一部分。"
+    },
+    {
+      id: "t104_boundary",
+      questionType: "MULTI_SELECT",
+      masteryRole: "BOUNDARY_CONDITIONS",
+      question: "已知第 2 个要点太抽象。下面哪些信息能让这次修改更明确？（多选）",
+      options: [
+        { value: "TARGET", label: "只修改第 2 个要点" },
+        { value: "OUTCOME", label: "改成普通用户能马上理解的日常场景" },
+        { value: "STANDARD", label: "用一个具体例子说明，并控制在 2 句话以内" },
+        { value: "VAGUE", label: "整体再高级一点、有感觉一点" }
+      ],
+      correctValues: ["TARGET", "OUTCOME", "STANDARD"],
+      explanation: "修改位置、希望结果和可检查标准都能减少 AI 猜测；模糊形容词仍然很难执行。",
+      correctFeedback: "正确。你已经能识别一条可执行的定向修改要求需要什么。",
+      incorrectFeedback: "再看哪些选项能让你修改后直接判断“有没有做到”，哪些仍然只是模糊感觉。"
+    }
+  ],
+  practice: {
+    id: "t104_targeted_revision",
+    title: "这次只改第 2 个要点",
+    goal: "练习场景已经明确：第 2 个要点太抽象。你只需要把这一次修改要求说具体。",
+    instructions: [
+      { key: "desired", label: "我希望改成什么样", prompt: "直接写你希望第 2 个要点变成什么样，不需要再判断问题在哪里。" },
+      { key: "requirements", label: "这次的具体要求", prompt: "写 1～3 个可以直接检查的要求，例如使用什么场景、控制多长、哪些内容保持不变。" }
+    ],
+    hints: [
+      "先从“普通用户看完能不能马上理解”来写修改目标。",
+      "具体要求尽量能直接检查，例如“用一个日常工作场景”“控制在 2 句话以内”。",
+      "这次只改第 2 个要点，不需要重新设计整篇内容。"
+    ],
+    rubric: [
+      { key: "desired", label: "修改目标具体", maxScore: 50, minScore: 30, example: "请只修改第 2 个要点，把它改成普通用户能马上理解的具体日常场景。" },
+      { key: "requirements", label: "修改要求可检查", maxScore: 50, minScore: 30, example: "用一个日常工作例子说明，控制在 2 句话以内；标题和第 1、3 个要点保持不变。" }
+    ],
+    passScore: 60
+  },
+  hints: [
+    "如果不知道怎么写，先把“更好一点”换成一个能看见结果的要求。",
+    "修改范围越清楚，你越容易检查这一轮到底有没有改善。"
+  ],
+  referenceAnswer:
+    "请只修改 OPC AI 学习站这条自媒体内容的第 2 个要点，把它改成 AI 初学者能马上理解的具体日常工作场景。\n用一个普通用户会遇到的真实使用情境来说明，控制在 2 句话以内；标题和第 1、3 个要点保持不变，不夸大 AI 能力，也不要补充未经确认的事实。",
+  review: [
+    "根据已经明确的问题，定向修改有问题的部分｜替你判断所有内容哪里有问题、什么结果才算满意。",
+    "按具体、可检查的要求完成修改｜把已经可用的部分也一起重写，让每一轮变化越来越大。"
+  ],
+  selfAssessment: [
+    "我能区分“重新写好一点”和“只改一个明确问题”的差别。",
+    "问题已经明确时，我能说清希望它改成什么样。",
+    "我能写出一条可直接复制验证的定向修改要求。"
+  ]
+} as const;
+
+export const track01T104KnowledgeDepth = {
+  example: [
+    { title: "为什么不先全部重写", text: "因为原本已经可用的部分也会一起变化，你会更难判断这次修改到底解决了什么问题。" }
+  ],
+  review: [
+    { title: "为什么一次先改一个明确问题", text: "变化越集中，你越容易比较修改前后，知道这条要求有没有真正起作用。" },
+    { title: "为什么修改要求要能检查", text: "“更好一点”没有清楚终点；具体场景、长度、结构或保留范围能让你直接判断 AI 有没有做到。" }
+  ]
+} as const;
+
+export const track01T104ReferenceFill = {
+  desired: "请只修改 OPC AI 学习站这条自媒体内容的第 2 个要点，把它改成 AI 初学者能马上理解的具体日常工作场景。",
+  requirements: "用一个普通用户会遇到的真实使用情境来说明，控制在 2 句话以内；标题和第 1、3 个要点保持不变，不夸大 AI 能力，也不要补充未经确认的事实。"
+} as const;

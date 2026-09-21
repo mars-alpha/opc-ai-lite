@@ -432,7 +432,7 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `COURSE-PRODUCTION-TRACK01-A-002` 已关闭 T1-01 Human Review：T1-01 `AI 能帮什么，不能帮什么` = **HUMAN_REVIEW_PASS**，但尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。T1-02 `Prompt：把任务说清楚` 已进入 pilot，canonical Draft lessonId=`t1-02-clear-prompt`，Preview=`/course-builder/preview/track01-batch-a/t1-02`。T1-02 继续使用 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` + `LESSON_OUTPUT_CONTRACT_V1`，核心只教任务目标 / 使用对象 / 关键要求与限制 / 输出形式四项；Prompt = Task Instruction，正式 Context 方法后置到 T1-03。Step 4 形成 `CLEAR_TASK_BRIEF`，外部 AI 回复不回填、不评分、不作为 Artifact。T1-02 当前 TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING；T1-03～T1-05 尚未扩产。
 
-`COURSE-PRODUCTION-TRACK01-A-003` 已关闭 T1-02 Human Review：T1-02 = **HUMAN_REVIEW_PASS**，但尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。T1-03 `上下文（Context）：给 AI 足够但不过量的信息` 已进入 pilot，canonical Draft lessonId=`t1-03-minimum-context`，Preview=`/course-builder/preview/track01-batch-a/t1-03`。T1-03 只教完成当前任务所需信息的取舍：必须知道 / 有帮助但非必须 / 暂时不要放 / 最小信息包；不教授 Knowledge Base / Source of Truth / Memory / RAG / Context Engineering，也不要求外部 AI 回复回填。Step 4 自包含；Step 5 固定 `AI 适合做什么` / `AI 不应该替你做什么` 上下对比。T1-03 当前 TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING；T1-04～T1-05 尚未扩产。
+`COURSE-PRODUCTION-TRACK01-A-003` 已关闭：T1-02、T1-03 均为 **HUMAN_REVIEW_PASS**，但尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。T1-03 canonical Draft lessonId=`t1-03-minimum-context`，Preview=`/course-builder/preview/track01-batch-a/t1-03`。
 
 T1-03 Human Review 第一轮继续精简：Step 4 不再要求完整填写“三类信息清单 + 最小信息包”，改为 3 个最小动作——`这次必须给 AI 的信息` / `这次可以先不放的信息` / `我的最小信息包`，降低 Beginner 填写负担；Step 5 不再预设 3 张卡，继续遵守全局 `2–4 张、数量由本课真正需要总结的判断决定`，本课当前收束为 2 张：`只选必要信息`、`信息够用就停`。T1-03 仍为 HUMAN_REVIEW_PENDING。
 
@@ -445,6 +445,8 @@ Step 4 Reference Answer 规则同步提升为全局默认：凡课程提供 COPY
 T1-01 / T1-02 已同步到同一 Reference Answer 标准：T1-01 Step 4 由 MINI_TASK 调整为 COPY_TO_AI，但仍只练“找一个 AI 先帮的小步骤”；一键填充后形成 `OPC AI 学习站 + 自媒体短内容 + 只列标题方向` 的完整可验证样例。T1-02 四个参考字段改为完整句式，一键填充后可直接拼成 `OPC AI 学习站 + AI 新手使用习惯` 的完整提示词验证任务。
 
 T1-03 已于最新 Human Review 明确验收通过：`上下文（Context）：给 AI 足够但不过量的信息` = **HUMAN_REVIEW_PASS**。T1-01～T1-03 当前均已通过 Human Review，但都尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。T1-04 尚未生产。
+
+`COURSE-PRODUCTION-TRACK01-A-004` 已生产 T1-04 `迭代（Iteration）：把第一版结果改到可用` Pilot，canonical lessonId=`t1-04-purposeful-iteration`，Preview=`/course-builder/preview/track01-batch-a/t1-04`。本课只教一次 Purposeful Revision：问题由课程直接给定，Step 4 只填写 `我希望改成什么样` / `这次的具体要求`，COPY_TO_AI 使用完整 OPC / 自媒体参考样例。复杂结果诊断、自动迭代、Workflow、Agent self-correction、Evaluation Engineering、Chain-of-Thought 与复杂 Prompt Engineering 均后置。当前状态：**TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING**；T1-05 尚未生产。
 
 `COURSE-BUILDER-SKILL-005-A` 已将近期 Human Review 验证出的课程输出方式固化为 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`，不新增 Skill，继续由 `course-builder@0.2.0` 承担教学生成。Contract 固定 Step 1–6 输出职责、Step 4 Hint 编号归 UI / Artifact 必须自然产生、Step 5 使用 2–4 张卡且每张卡固定上下对比：上层 `AI 适合做什么` = 核心判断，下层 `AI 不应该替你做什么` = 边界理解；补充解释负责“为什么”，Pitfalls 负责纠错；Step 6 必须可执行和自证。Track 01 Batch A 继续遵守 `OPC / 自媒体 AI 内容任务` Case Thread，Stable Method Layer 行业中立。Code Validation 负责可确定性规则；案例自然度、Artifact 是否被强行制造、Review 是否重复等由 Human Review 负责。
 

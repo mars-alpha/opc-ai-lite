@@ -181,44 +181,47 @@ REVIEWED_KNOWLEDGE.
 
 ---
 
-## T1-04 — Iteration：把第一版结果改到可用
+## T1-04 — 迭代（Iteration）：把第一版结果改到可用
 
 Type: **APPLICATION**  
 Planned Gate: **CHECK + PRACTICE**  
-Primary Knowledge Home: **Iteration / clarification**  
+Primary Knowledge Home: **Purposeful Revision / Iteration**
 Prerequisite: **T1-03**
 
 ### Learner Question
 第一版不满意时，应该怎么继续，而不是反复“重来一次”？
 
 ### Inherited Capability / Artifact
-Clear Task Brief + Minimum Context Pack + Context-enriched Draft。
+已经能把任务说清楚、提供必要信息，并得到一版 AI 结果；本课不要求学员理解任何内部 Artifact 名称。
 
 ### Current Learner Job
-定位结果偏差，选择正确的下一步：指出偏差、补信息、给标准 / 示例，或让 AI 先澄清。
+在课程已经指出“这次具体改哪一部分”的前提下，把修改要求说具体，让 AI 只修改这一处，而不是模糊地要求“再写一版”。
 
 ### New Capability
-能根据结果问题选择下一轮改进动作，而不是无目标重复生成。
+能对一个已经明确的问题提出一次具体、可检查的修改要求，并完成一次定向修改。
 
 ### Artifact Action / Output
-对当前 Draft 做至少两轮有目的的修改。
+完成一次最小定向修改。
 
-Output: **Iteration Notes + Iterated Draft**
+Output: **可直接复制验证的修改要求**
 
 ### Six-step intent
-1. EXPLAIN：第一版常常只是起点；无目标重生成不会稳定变好。
-2. EXAMPLE：同一个差结果，对比“再写一次”与“指出偏差 + 补标准”的效果。
-3. CHECK：根据不同偏差选择“补信息 / 给示例 / 改限制 / 让 AI 提问”。
-4. PRACTICE：对当前 Draft 完成两轮 Iteration；每轮都按“发现的偏差 → 选择的修改动作 → 新结果是否改善”记录。保留 **Iteration Note 1 + Iteration Note 2 + final Iterated Draft**。
-5. REVIEW：先找偏差；只补真正缺的；给可检查标准；必要时先澄清。
-6. CAPABILITY：能把一个不满意的 AI 初稿逐步改到可用。
+1. EXPLAIN：第一版不满意时，不要只说“再写一次”；先看课程指出的一个明显问题，再把这次修改说具体。
+2. EXAMPLE：同一个 OPC / 自媒体初稿，对比“重新写好一点”与“只改第 2 个要点 + 给明确标准”的差别。
+3. CHECK：只检查学员能否识别“模糊重写”与“具体定向修改”的区别；不要求初学者独立诊断复杂问题。
+4. PRACTICE：练习场景直接告诉学员“本轮只改第 2 个要点”。学员只填写两项：① **我希望改成什么样**；② **这次的具体要求**。一键填充后必须形成一份完整 OPC / 自媒体可复制验证内容。
+5. REVIEW：卡片数量按本课真正需要留下的判断决定，范围 2–4 张，不预设数量；固定上下对比 **AI 适合做什么 / AI 不应该替你做什么**。
+6. CAPABILITY：能在问题已经明确时，把修改要求说具体，并让 AI 只改有问题的部分。
 
 ### Next Reuse
-T1-05 不再继续润色，而是对 Iterated Draft 做事实、日期、风险和证据核验。
+下一课会从“结果看起来更可用”继续进入可靠性判断：哪些事实、日期、数字或重要信息仍必须核验；本课不为下一课强制制造额外字段。
 
 ### Anti-repeat / Deferred
-- 不讲 Workflow loop；
+- 不讲 Workflow loop / 自动迭代；
 - 不讲 Agent self-correction；
+- 不讲 Evaluation Engineering；
+- 不讲 Chain-of-Thought 或复杂 Prompt Engineering 技巧；
+- 不要求初学者独立完成复杂结果诊断；
 - 不重新教授 Prompt / Context；
 - 不把“改语气”当成完整 Iteration 能力。
 
