@@ -380,6 +380,8 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `LEARNING-CATALOG-001` 已将正式 Foundation Catalog 接入 `/learning-path`。该页面通过 `lib/learning/foundation-catalog.ts` 的 typed planning bridge 渲染 7 Stage / 28 Lesson，不再使用 `lib/courses.ts` 作为正式目录来源。F1-01～F1-04 显示“准备中 / 即将开放”，其余 24 节显示“规划中 / 即将开放”；所有 COMING_SOON Lesson 均为非链接展示，当前没有 Foundation Lesson 可进入正式 Runtime。页面旧“六阶段 / 当前开放 3 阶段 / fallback StageProgress”已移除并对齐五大长期课程主线。
 
+`LEARNING-CATALOG-001-A` 已将五大长期学习板块移动到 Foundation 目录上方作为一级课程导航；当前板块为 AI 基础认知，其余板块保持后续开放。Foundation 主区在桌面端采用左侧圆环进度 + 右侧 7 Stage / 28 Lesson 目录，移动端改为上下堆叠。进度只统计 availability=AVAILABLE 且已绑定正式 runtimeCourseSlug/runtimeLessonId 的课时，并读取 ProgressProvider 完成状态；PLANNED / BRIEF_READY / COMING_SOON 不进入分母。当前没有 AVAILABLE Foundation Lesson，因此显示 0%，不会用旧课程数据制造假进度。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。

@@ -611,6 +611,12 @@ Status: COMPLETE_UI_V1
 
 `/learning-path` 已接入正式 Foundation Catalog。新增 `lib/learning/foundation-catalog.ts` typed planning-data bridge 与 `components/FoundationCatalog.tsx`，展示完整 7 Stage / 28 Lesson；F1-01～F1-04 为“准备中 / 即将开放”，其余 24 节为“规划中 / 即将开放”。当前没有 AVAILABLE，所有 COMING_SOON 均不可进入空 Runtime。旧页面的六阶段、3 个开放阶段和 `lib/courses.ts` 派生 StageProgress 已从正式学习路径页移除，并对齐五大长期课程主线。typecheck/build PASS。下一步先 Human Review `/learning-path`，通过后进入 Foundation Batch A 正式课程生产。
 
+### LEARNING-CATALOG-001-A — Navigation & Progress Refinement
+
+Status: COMPLETE_UI_REFINEMENT_V1
+
+Human Review 后将五大长期学习板块移到课程目录上方作为一级课程导航；当前 AI 基础认知高亮，其余板块标记后续开放。Foundation 区域桌面端采用左侧圆环进度 + 右侧 7 Stage / 28 Lesson 目录，移动端上下堆叠。新增 `LearningBlockProgress`，进度仅统计 AVAILABLE 且绑定正式 Runtime 标识的课程，再读取 ProgressProvider 完成状态；规划中/准备中/即将开放课程不进入分母。当前没有 AVAILABLE Foundation Lesson，因此显示 0%，不会使用旧课程 fallback 制造假完成率。typecheck/build PASS。下一步继续 Human Review `/learning-path`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

@@ -47,8 +47,9 @@ CURRICULUM-002 Foundation Knowledge Map & Lesson Briefs COMPLETE_DEFINED_V1
 CURRICULUM-003 Foundation Batch A Brief Finalization COMPLETE_BRIEF_READY_V1
 CURRICULUM-004 Foundation Catalog Metadata Completion COMPLETE_CATALOG_READY_V1
 LEARNING-CATALOG-001 Formal Curriculum Catalog UI COMPLETE_UI_V1
+LEARNING-CATALOG-001-A Navigation & Progress Refinement COMPLETE_UI_REFINEMENT_V1
 
-NEXT: HUMAN REVIEW — /learning-path formal catalog, then Foundation Batch A real course production
+NEXT: HUMAN REVIEW — /learning-path navigation + progress refinement, then Foundation Batch A real course production
 ```
 
 ## 当前系统健康

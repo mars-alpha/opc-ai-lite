@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FoundationCatalog } from "../../components/FoundationCatalog";
+import { LearningBlockProgress } from "../../components/LearningBlockProgress";
 import { HeroVisual } from "../../components/HeroVisual";
 import { PageHero } from "../../components/PageHero";
 import { Reveal } from "../../components/Reveal";
@@ -41,6 +42,28 @@ export default function LearningPathPage() {
 
       <section className="section compact" id="foundation-catalog">
         <div className="container">
+          <Reveal className="section-head">
+            <div>
+              <div className="eyebrow">Course Navigation</div>
+              <h2 className="section-title">课程导航</h2>
+              <p className="section-subtitle">五大长期学习板块按能力递进排列。当前先完成 AI 基础认知，其他板块会随着正式课程建设逐步开放。</p>
+            </div>
+          </Reveal>
+
+          <nav className="learning-block-nav" aria-label="五大长期学习板块">
+            {stages.map(([index, en, title, detail], i) => (
+              <div className={"learning-block-nav-item " + (i === 0 ? "is-active" : "is-coming")} key={index}>
+                <div className="learning-block-nav-index">{index}</div>
+                <div className="learning-block-nav-copy">
+                  <small>{en}</small>
+                  <strong>{title}</strong>
+                  <span>{detail}</span>
+                </div>
+                <em>{i === 0 ? "当前" : "后续开放"}</em>
+              </div>
+            ))}
+          </nav>
+
           <Reveal className="section-head foundation-catalog-heading">
             <div>
               <div className="eyebrow">AI Foundation</div>
@@ -52,28 +75,10 @@ export default function LearningPathPage() {
               <strong>28</strong><span>基础课程</span>
             </div>
           </Reveal>
-          <FoundationCatalog />
-        </div>
-      </section>
 
-      <section className="section compact">
-        <div className="container">
-          <Reveal className="section-head">
-            <div>
-              <div className="eyebrow">Full Learning Path</div>
-              <h2 className="section-title">从基础认知走向真实落地</h2>
-              <p className="section-subtitle">基础课负责建立完整 AI 世界模型；后续逐步进入工作应用、推广运营、Workflow 与 FDE。</p>
-            </div>
-          </Reveal>
-          <div className="formal-path-strip">
-            {stages.map(([index, en, title, detail], i) => (
-              <Reveal className="formal-path-item" key={index} delay={i * 45}>
-                <div className="path-index">{index}</div>
-                <span className="path-en">{en}</span>
-                <h3>{title}</h3>
-                <p>{detail}</p>
-              </Reveal>
-            ))}
+          <div className="foundation-learning-layout">
+            <LearningBlockProgress />
+            <FoundationCatalog />
           </div>
         </div>
       </section>

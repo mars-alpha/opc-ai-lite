@@ -2,7 +2,12 @@ export type FoundationCatalogStatus = "PLANNED" | "BRIEF_READY" | "IN_PRODUCTION
 export type FoundationAvailability = "LOCKED" | "COMING_SOON" | "AVAILABLE";
 export type FoundationLessonType = "CONCEPT" | "APPLICATION" | "PRACTICE" | "PROJECT";
 
-export type FoundationCatalogLesson = {
+export type FoundationRuntimeMapping = {
+  runtimeCourseSlug?: string;
+  runtimeLessonId?: string;
+};
+
+export type FoundationCatalogLesson = FoundationRuntimeMapping & {
   lessonId: string;
   title: string;
   subtitle: string;
