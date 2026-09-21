@@ -629,6 +629,12 @@ Status: COMPLETE_REFRAMED_V1
 
 Human Review 判定 COURSE-PRODUCTION-001 四节虽然技术 PASS，但对零基础用户理论过重、逻辑混乱，因此统一降级为 `PEDAGOGY_REJECTED / RETIRE_AS_FAILED_DRAFT_REFERENCE`，不再继续正式化。Foundation 开场改为“先使用世界观、后技术世界观”：Stage 1 先认识 AI 怎么用；Stage 2 学会和 AI 基本协作；Stage 3 再理解 Model / Training-Inference / Token / Context Window。新前 8 节依次解决 AI 能做什么、结果为什么变化、为什么会错、AI 软件能力地图、Prompt、Task Context、Iteration、基础结果检查。固定约束：示例先于定义、一节一个主问题、每节最多 1–2 个新核心术语。下一步：`COURSE-PRODUCTION-002 — Beginner Batch A Rebuild`。
 
+### COURSE-PRODUCTION-002 — Beginner Batch A Rebuild
+
+Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+已重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`，不复用旧失败 Draft lessonId。前两节为 APPLICATION（CHECK + PRACTICE），后两节为 CONCEPT（CHECK；Step 4 非 Gate）。新增 `BeginnerFoundationDraftPreview` 共享 Preview 和 Beginner Batch 专项 acceptance，固定检查新手 ID、BEGINNER audience、统一六步、Three-Question Mastery、Review 数量以及开场禁止重术语。四节 Catalog 状态为 IN_PRODUCTION + COMING_SOON，未发布。Beginner acceptance、Course Builder、Unified Lesson Shell、typecheck、build 全部 PASS。下一步：Human Review 四节新 Preview。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

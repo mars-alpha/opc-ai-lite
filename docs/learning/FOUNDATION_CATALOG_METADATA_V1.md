@@ -9,7 +9,7 @@ Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
 
 固定规则：
 
-- 新 F1-01～F1-04：`PLANNED + COMING_SOON`（等待 Beginner Batch A 重建）
+- 新 F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`（Beginner Batch A Draft 已进入 Human Review）
 - 其余 Foundation：`PLANNED + COMING_SOON`
 - 旧 COURSE-PRODUCTION-001 四个 Draft：`PEDAGOGY_REJECTED`，不是当前 Catalog 候选
 - 当前没有任何 Foundation Lesson 标记为 `AVAILABLE`
@@ -52,10 +52,10 @@ Total: **7 stages / 28 lessons**
 
 | order | lessonId | title | subtitle | learnerOutcome | type | min | status | availability | prerequisites | badge |
 | ---: | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
-| 1 | beginner-ai-use-cases | AI 到底能帮我做什么 | 从真实工作任务开始，看见 AI 能帮你写、整理、总结、分析和找思路。 | 能从自己的日常工作中找出 3 类适合 AI 协助的任务。 | APPLICATION | 12 | PLANNED | COMING_SOON | 无 | 新手第一课 |
-| 2 | beginner-ai-result-quality | 为什么同一个 AI，有时好用、有时不好用 | AI 不是读心术，你给出的目标和信息会直接影响结果。 | 能发现一个模糊任务缺了什么信息，并主动补充。 | APPLICATION | 12 | PLANNED | COMING_SOON | F1-01 | 新手必修 |
-| 3 | beginner-ai-can-be-wrong | AI 为什么会说错，而且还说得很像真的 | 说得流畅不代表事实正确，先学会什么时候不能直接相信。 | 能识别事实、数字、最新信息等需要核实的结果。 | CONCEPT | 12 | PLANNED | COMING_SOON | F1-01 | 新手必修 |
-| 4 | beginner-ai-product-map | AI 软件里的模型、搜索、文件和记忆是什么关系 | 先看懂你正在使用的是一个完整 AI 软件，不需要先学系统架构。 | 能说出模型是核心能力之一，搜索、文件、记忆等属于产品额外能力。 | CONCEPT | 12 | PLANNED | COMING_SOON | F1-01,F1-03 | 新手必修 |
+| 1 | beginner-ai-use-cases | AI 到底能帮我做什么 | 从真实工作任务开始，看见 AI 能帮你写、整理、总结、分析和找思路。 | 能从自己的日常工作中找出 3 类适合 AI 协助的任务。 | APPLICATION | 12 | IN_PRODUCTION | COMING_SOON | 无 | 新手第一课 |
+| 2 | beginner-ai-result-quality | 为什么同一个 AI，有时好用、有时不好用 | AI 不是读心术，你给出的目标和信息会直接影响结果。 | 能发现一个模糊任务缺了什么信息，并主动补充。 | APPLICATION | 12 | IN_PRODUCTION | COMING_SOON | F1-01 | 新手必修 |
+| 3 | beginner-ai-can-be-wrong | AI 为什么会说错，而且还说得很像真的 | 说得流畅不代表事实正确，先学会什么时候不能直接相信。 | 能识别事实、数字、最新信息等需要核实的结果。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | F1-01 | 新手必修 |
+| 4 | beginner-ai-product-map | AI 软件里的模型、搜索、文件和记忆是什么关系 | 先看懂你正在使用的是一个完整 AI 软件，不需要先学系统架构。 | 能说出模型是核心能力之一，搜索、文件、记忆等属于产品额外能力。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | F1-01,F1-03 | 新手必修 |
 
 ---
 

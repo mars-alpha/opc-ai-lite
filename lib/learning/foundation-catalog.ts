@@ -30,13 +30,14 @@ export type FoundationCatalogStage = {
 };
 
 const planned = { curriculumStatus: "PLANNED" as const, availability: "COMING_SOON" as const };
+const inProduction = { curriculumStatus: "IN_PRODUCTION" as const, availability: "COMING_SOON" as const };
 
 export const foundationCatalog: FoundationCatalogStage[] = [
   { stageId:"foundation-1", title:"先认识 AI 怎么用", promise:"先知道 AI 能帮什么、为什么会出错，以及自己正在使用的是什么。", order:1, lessons:[
-    { lessonId:"beginner-ai-use-cases", title:"AI 到底能帮我做什么", subtitle:"从真实工作任务开始，看见 AI 能帮你写、整理、总结、分析和找思路。", learnerOutcome:"能从自己的日常工作中找出 3 类适合 AI 协助的任务。", lessonType:"APPLICATION", estimatedMinutes:12, prerequisites:[], badge:"新手第一课", order:1, ...planned },
-    { lessonId:"beginner-ai-result-quality", title:"为什么同一个 AI，有时好用、有时不好用", subtitle:"AI 不是读心术，你给出的目标和信息会直接影响结果。", learnerOutcome:"能发现一个模糊任务缺了什么信息，并主动补充。", lessonType:"APPLICATION", estimatedMinutes:12, prerequisites:["F1-01"], badge:"新手必修", order:2, ...planned },
-    { lessonId:"beginner-ai-can-be-wrong", title:"AI 为什么会说错，而且还说得很像真的", subtitle:"说得流畅不代表事实正确，先学会什么时候不能直接相信。", learnerOutcome:"能识别事实、数字、最新信息等需要核实的结果。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01"], badge:"新手必修", order:3, ...planned },
-    { lessonId:"beginner-ai-product-map", title:"AI 软件里的模型、搜索、文件和记忆是什么关系", subtitle:"先看懂你正在使用的是一个完整 AI 软件，不需要先学系统架构。", learnerOutcome:"能说出模型是核心能力之一，搜索、文件、记忆等属于产品额外能力。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01","F1-03"], badge:"新手必修", order:4, ...planned }
+    { lessonId:"beginner-ai-use-cases", title:"AI 到底能帮我做什么", subtitle:"从真实工作任务开始，看见 AI 能帮你写、整理、总结、分析和找思路。", learnerOutcome:"能从自己的日常工作中找出 3 类适合 AI 协助的任务。", lessonType:"APPLICATION", estimatedMinutes:12, prerequisites:[], badge:"新手第一课", order:1, ...inProduction },
+    { lessonId:"beginner-ai-result-quality", title:"为什么同一个 AI，有时好用、有时不好用", subtitle:"AI 不是读心术，你给出的目标和信息会直接影响结果。", learnerOutcome:"能发现一个模糊任务缺了什么信息，并主动补充。", lessonType:"APPLICATION", estimatedMinutes:12, prerequisites:["F1-01"], badge:"新手必修", order:2, ...inProduction },
+    { lessonId:"beginner-ai-can-be-wrong", title:"AI 为什么会说错，而且还说得很像真的", subtitle:"说得流畅不代表事实正确，先学会什么时候不能直接相信。", learnerOutcome:"能识别事实、数字、最新信息等需要核实的结果。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01"], badge:"新手必修", order:3, ...inProduction },
+    { lessonId:"beginner-ai-product-map", title:"AI 软件里的模型、搜索、文件和记忆是什么关系", subtitle:"先看懂你正在使用的是一个完整 AI 软件，不需要先学系统架构。", learnerOutcome:"能说出模型是核心能力之一，搜索、文件、记忆等属于产品额外能力。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01","F1-03"], badge:"新手必修", order:4, ...inProduction }
   ]},
   { stageId:"foundation-2", title:"学会和 AI 基本协作", promise:"学会把任务说清楚、把信息给够、逐轮改进并知道何时必须检查。", order:2, lessons:[
     { lessonId:"beginner-prompt", title:"Prompt：怎样把想做的事情说清楚", subtitle:"不学“神奇提示词”，先把目标、必要背景和结果要求说清楚。", learnerOutcome:"能把模糊要求改成 AI 更容易执行的任务说明。", lessonType:"APPLICATION", estimatedMinutes:16, prerequisites:["F1-01","F1-02"], badge:"应用", order:1, ...planned },

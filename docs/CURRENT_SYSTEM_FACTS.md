@@ -386,6 +386,8 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `CURRICULUM-005` 已根据 Human Review 重构 Foundation 新手开场。COURSE-PRODUCTION-001 四个旧 Draft 虽技术 PASS，但教学状态改为 `PEDAGOGY_REJECTED / RETIRE_AS_FAILED_DRAFT_REFERENCE`，不得继续正式化或 AVAILABLE。Foundation 前三阶段现固定为：Stage 1“先认识 AI 怎么用” → Stage 2“学会和 AI 基本协作” → Stage 3“再理解 AI 背后的基本机制”。新前 8 节先解决 AI 能做什么、结果为什么变化、为什么会错、AI 软件能力地图、Prompt、Task Context、Iteration、基础结果检查；Model / Training-Inference / Token / Context Window 后移 Stage 3。新手课固定“示例先于定义、一节一个主问题、每节最多 1–2 个新核心术语”。
 
+`COURSE-PRODUCTION-002` 已按 Beginner-first 规则重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`。前两节为 APPLICATION，正式 Gate 为 CHECK + PRACTICE；后两节为 CONCEPT，正式 Gate 为 CHECK，Step 4 仅做非 Gate 轻量参与。四节均通过 Beginner Batch 专项验收、Course Builder Contract、Unified Lesson Shell、typecheck 与 build。Catalog 状态现为 IN_PRODUCTION + COMING_SOON；Human Review 通过前不得 AVAILABLE。旧 COURSE-PRODUCTION-001 四个失败 Draft 继续保留为历史参考，不再作为当前生产候选。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。
