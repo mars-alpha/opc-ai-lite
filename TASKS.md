@@ -677,6 +677,12 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 F2-01～F2-04 已按 current Brief 使用单一 `course-builder@0.2.0` 生产：`beginner-prompt`（APPLICATION）、`beginner-context`（CONCEPT）、`beginner-iteration`（APPLICATION）、`beginner-result-check`（APPLICATION）。全部使用 `BEGINNER_QUALITY_V1`、Three-Question Mastery 与 Unified Lesson Shell；APPLICATION 使用 GUIDED Practice + Reference Answer，Prompt / Iteration 使用 COPY_TO_AI。Catalog 四节从 PLANNED 切为 IN_PRODUCTION，availability 仍 COMING_SOON，无 Runtime mapping。专项 Stage2 acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS，build 46 pages。新增 Stage2 Formal Brief / Provenance / 四个 Preview。下一步：Human Review 四节 Preview；不自动 Runtime / AVAILABLE。
 
+### DEV-RUNTIME-FIX-001 — Windows Dev Startup
+
+Status: COMPLETE_DEV_START_FIX
+
+诊断 `npm run dev` 时确认项目代码、首页与 Stage 2 四个 Preview 在直接 Next dev 启动下均正常返回 HTTP 200；异常集中在 Windows 的 npm → `next.cmd` shim 启动层。将 `package.json` 的 dev script 从 `next dev` 改为 `node node_modules/next/dist/bin/next dev`，保持用户操作仍为 `npm run dev`，不改变业务代码、课程 Runtime 或 Catalog。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

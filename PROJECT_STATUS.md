@@ -58,6 +58,7 @@ SKILL-GOV-001 Skill Responsibility & Orchestration Baseline COMPLETE_GOVERNANCE_
 COURSE-GOV-001 Course Production Governance Baseline COMPLETE_GOVERNANCE_BASELINE_V1
 FACT-DRIFT-AUDIT-001 Current Fact Drift Audit COMPLETE_DOCS_ALIGNED
 COURSE-PRODUCTION-003 Foundation Stage 2 Collaboration Batch TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+DEV-RUNTIME-FIX-001 Windows Dev Startup COMPLETE_DEV_START_FIX
 
 NEXT: HUMAN REVIEW — Foundation Stage 2 F2-01～F2-04 previews
 ```
@@ -70,6 +71,7 @@ NEXT: HUMAN REVIEW — Foundation Stage 2 F2-01～F2-04 previews
 npm run typecheck     PASS
 npm run build         PASS
 Production build      46 pages generated
+Local npm run dev      DIRECT_NEXT_NODE_ENTRY
 Remote migrations     0000 → 0009 APPLIED; 0010–0011 GENERATED / NOT APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS

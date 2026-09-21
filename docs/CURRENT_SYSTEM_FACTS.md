@@ -404,6 +404,8 @@ COURSE-PRODUCTION-002-A 已恢复 Beginner Batch A 之前丢失的教学体验�
 
 `COURSE-PRODUCTION-003` 已完成 Foundation Stage 2 F2-01～F2-04 技术生产：`beginner-prompt` / `beginner-context` / `beginner-iteration` / `beginner-result-check`。本批 Skill Decision=EXISTING_SKILL，单独使用 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1`，无 v0.1 复合调用。四课均复用 Unified Lesson Shell 与共享 Beginner Preview；F2-01/F2-03 使用 COPY_TO_AI，APPLICATION 课程均有 GUIDED Practice + Reference Fill，F2-02 为 CONCEPT + CHECK only。Stage 2 acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS；build 生成 46 pages。Catalog F2-01～F2-04 已切为 `IN_PRODUCTION + COMING_SOON`，无 Runtime mapping、无 Progress/Completion 正式写入、无 AVAILABLE；当前等待 Human Review。
 
+`DEV-RUNTIME-FIX-001` 已修正 Windows 本地开发启动链：`npm run dev` 不再通过 `next.cmd` shim 启动，而直接调用 `node node_modules/next/dist/bin/next dev`。诊断确认项目本身与 Stage 2 四个 Preview 在 Next dev 下均可返回 HTTP 200；问题位于 npm → Windows `.cmd` 包装启动层，而非课程 Runtime / Preview 代码。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。
