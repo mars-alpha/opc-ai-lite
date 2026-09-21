@@ -1,5 +1,10 @@
 import { BeginnerFoundationDraftPreview } from "../../../../components/BeginnerFoundationDraftPreview";
-import { beginnerAiResultQualityDraft, beginnerAiResultQualityIntro } from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
+import {
+  beginnerAiResultQualityDraft,
+  beginnerAiResultQualityIntro,
+  beginnerAiResultQualityKnowledgeDepth,
+  beginnerAiResultQualityReferenceFill
+} from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
 
 export const dynamic = "force-static";
 
@@ -8,6 +13,8 @@ export default function Page() {
     <BeginnerFoundationDraftPreview
       buildDraft={beginnerAiResultQualityDraft}
       introPreview={beginnerAiResultQualityIntro}
+      knowledgeDepth={beginnerAiResultQualityKnowledgeDepth}
+      referenceFill={beginnerAiResultQualityReferenceFill}
       duration="约 12 分钟"
       reviewItems={[
         "是否不用先学 Prompt / Context 定义，也能理解“AI 不知道你没说的东西”？",

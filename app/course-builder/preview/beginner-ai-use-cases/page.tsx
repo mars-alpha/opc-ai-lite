@@ -1,5 +1,10 @@
 import { BeginnerFoundationDraftPreview } from "../../../../components/BeginnerFoundationDraftPreview";
-import { beginnerAiUseCasesDraft, beginnerAiUseCasesIntro } from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
+import {
+  beginnerAiUseCasesDraft,
+  beginnerAiUseCasesIntro,
+  beginnerAiUseCasesKnowledgeDepth,
+  beginnerAiUseCasesReferenceFill
+} from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
 
 export const dynamic = "force-static";
 
@@ -8,6 +13,8 @@ export default function Page() {
     <BeginnerFoundationDraftPreview
       buildDraft={beginnerAiUseCasesDraft}
       introPreview={beginnerAiUseCasesIntro}
+      knowledgeDepth={beginnerAiUseCasesKnowledgeDepth}
+      referenceFill={beginnerAiUseCasesReferenceFill}
       duration="约 12 分钟"
       reviewItems={[
         "完全不懂 AI 的人，第一屏能不能马上知道这课和自己有什么关系？",

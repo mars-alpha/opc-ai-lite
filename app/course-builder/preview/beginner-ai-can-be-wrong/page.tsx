@@ -1,5 +1,9 @@
 import { BeginnerFoundationDraftPreview } from "../../../../components/BeginnerFoundationDraftPreview";
-import { beginnerAiCanBeWrongDraft, beginnerAiCanBeWrongIntro } from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
+import {
+  beginnerAiCanBeWrongDraft,
+  beginnerAiCanBeWrongIntro,
+  beginnerAiCanBeWrongKnowledgeDepth
+} from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
 
 export const dynamic = "force-static";
 
@@ -8,6 +12,7 @@ export default function Page() {
     <BeginnerFoundationDraftPreview
       buildDraft={beginnerAiCanBeWrongDraft}
       introPreview={beginnerAiCanBeWrongIntro}
+      knowledgeDepth={beginnerAiCanBeWrongKnowledgeDepth}
       duration="约 12 分钟"
       reviewItems={[
         "是否只讲清“为什么要检查”，而没有掉进模型生成原理？",

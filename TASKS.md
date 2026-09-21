@@ -635,6 +635,12 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 已重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`，不复用旧失败 Draft lessonId。前两节为 APPLICATION（CHECK + PRACTICE），后两节为 CONCEPT（CHECK；Step 4 非 Gate）。新增 `BeginnerFoundationDraftPreview` 共享 Preview 和 Beginner Batch 专项 acceptance，固定检查新手 ID、BEGINNER audience、统一六步、Three-Question Mastery、Review 数量以及开场禁止重术语。四节 Catalog 状态为 IN_PRODUCTION + COMING_SOON，未发布。Beginner acceptance、Course Builder、Unified Lesson Shell、typecheck、build 全部 PASS。下一步：Human Review 四节新 Preview。
 
+### COURSE-PRODUCTION-002-A — Beginner Batch A Experience Restoration
+
+Status: COMPLETE_EXPERIENCE_RESTORED_V1
+
+在不改变 CURRICULUM-005 Beginner-first 内容方向的前提下，恢复此前已验证的课程体验增强层：四节均补回 Step 1 bottomDetails、Step 2 / Step 5 previewKnowledgeDepth、previewReviewCardFill；F1-01 / F1-02 增加参考答案一键填充，F1-02 恢复 COPY_TO_AI 让用户把补清楚后的任务复制到真实 AI 软件比较结果。BeginnerFoundationDraftPreview 只复用 Generic Lesson Runtime 既有数据接口，不改 Unified Lesson Shell、不按 lesson slug 分支。Beginner Experience acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS。下一步继续 Human Review 四节 Preview。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

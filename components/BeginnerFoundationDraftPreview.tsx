@@ -10,11 +10,17 @@ type RuntimeProps = ComponentProps<typeof GenericLessonRuntimePanel>;
 export function BeginnerFoundationDraftPreview({
   buildDraft,
   introPreview,
+  referenceFill = null,
+  knowledgeDepth = null,
+  reviewCardFill = true,
   duration,
   reviewItems
 }: {
   buildDraft: Parameters<typeof createCourseBuilderReviewPacket>[0];
   introPreview: NonNullable<RuntimeProps["previewIntroComparison"]>;
+  referenceFill?: RuntimeProps["previewReferenceFill"];
+  knowledgeDepth?: RuntimeProps["previewKnowledgeDepth"];
+  reviewCardFill?: boolean;
   duration: string;
   reviewItems: string[];
 }) {
@@ -99,6 +105,9 @@ export function BeginnerFoundationDraftPreview({
             previewCheckSequence={draft.checkSequence}
             previewPractice={draft.practice}
             previewReferenceAnswer={draft.referenceAnswer}
+            previewReferenceFill={referenceFill}
+            previewKnowledgeDepth={knowledgeDepth}
+            previewReviewCardFill={reviewCardFill}
             previewActivity={draft.pedagogy.participation}
             previewIntroComparison={introPreview}
           />

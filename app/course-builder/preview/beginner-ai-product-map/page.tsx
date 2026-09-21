@@ -1,5 +1,9 @@
 import { BeginnerFoundationDraftPreview } from "../../../../components/BeginnerFoundationDraftPreview";
-import { beginnerAiProductMapDraft, beginnerAiProductMapIntro } from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
+import {
+  beginnerAiProductMapDraft,
+  beginnerAiProductMapIntro,
+  beginnerAiProductMapKnowledgeDepth
+} from "../../../../fixtures/course-builder/beginner-foundation-batch-a";
 
 export const dynamic = "force-static";
 
@@ -8,6 +12,7 @@ export default function Page() {
     <BeginnerFoundationDraftPreview
       buildDraft={beginnerAiProductMapDraft}
       introPreview={beginnerAiProductMapIntro}
+      knowledgeDepth={beginnerAiProductMapKnowledgeDepth}
       duration="约 12 分钟"
       reviewItems={[
         "Model 是否只作为一个必要新词出现，而不是一整套系统架构？",

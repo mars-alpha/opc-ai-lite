@@ -22,6 +22,16 @@ export const beginnerAiUseCasesIntro = {
   ],
   comparison: [],
   takeaway: "第一步不是记住 AI 的定义，而是学会看见：哪些工作可以先让 AI 帮一把。",
+  bottomDetails: [
+    {
+      title: "先从“第一版”开始",
+      text: "第一次用 AI，不需要一上来就做复杂项目。让它先起草、整理或列思路，你会更容易判断它到底有没有帮到你。"
+    },
+    {
+      title: "优先选你自己熟悉的事情",
+      text: "你越熟悉任务，就越容易发现 AI 哪里做得对、哪里需要改。新手第一步不是追求神奇，而是建立判断感。"
+    }
+  ],
   comparisonPlacement: "BOTTOM"
 } as const;
 
@@ -168,13 +178,23 @@ export const beginnerAiResultQualityIntro = {
   ],
   comparison: [],
   takeaway:"AI 不是读心术。你没有说出来的关键情况，它只能自己猜。",
+  bottomDetails:[
+    {
+      title:"不是写得越长越好",
+      text:"真正有用的是那些会改变结果的信息。无关背景加得再多，也不会让任务更清楚。"
+    },
+    {
+      title:"先补缺失信息，再怀疑工具",
+      text:"结果太泛时，先看看 AI 是否还在猜“给谁看、为什么做、最后要什么”。很多问题在这里就能找到原因。"
+    }
+  ],
   comparisonPlacement:"BOTTOM"
 } as const;
 
 export const beginnerAiResultQualityDraft = {
   mode:"BUILD",
   grounding:{status:"REVIEWED",sourceKind:"APPROVED_KNOWLEDGE",sourceLabels:["OPC Beginner Foundation：输入信息与结果质量"],researchSummary:"本课只建立输入信息会影响结果的直觉，不提前教授正式 Prompt 框架或 Context Window。"},
-  pedagogy:{...pedagogyBase,participation:{kind:"MINI_TASK",title:"给一个模糊要求补上缺失信息",instruction:"看到一个模糊任务后，只补两三条真正会改变结果的信息。",prompt:null,reflection:"不是写得越长越好，而是减少 AI 必须自己猜的地方。"}},
+  pedagogy:{...pedagogyBase,participation:{kind:"COPY_TO_AI",title:"把补清楚后的任务放进自己的 AI 软件",instruction:"完成下面两部分后，把你补清楚的要求复制到正在使用的 AI 软件里，再和原来的模糊要求比较一次。",prompt:null,reflection:"重点看第二次结果是不是更贴近真实情况、更少套话，而不是看文字有没有变得更华丽。"}},
   lessonSpec:{
     version:"1.0.0",courseSlug:"foundation-ai",lessonId:"beginner-ai-result-quality",title:"为什么同一个 AI，有时好用、有时不好用",lessonType:"APPLICATION",
     learningObjectives:["理解 AI 不知道你没有提供的关键信息。","能发现一个模糊任务缺了哪些重要信息。","能用少量补充让结果更贴近真实需求。"],
@@ -229,6 +249,16 @@ export const beginnerAiCanBeWrongIntro = {
   ],
   comparison:[],
   takeaway:"流畅 ≠ 正确。越像事实的内容，越要知道自己该不该核实。",
+  bottomDetails:[
+    {
+      title:"创意可以先参考",
+      text:"标题、改写、点子这类低风险内容，可以先拿来比较和修改，不需要每一句都当事实核验。"
+    },
+    {
+      title:"事实越具体，越要看来源",
+      text:"一旦出现数字、日期、政策、机构名称或“最新”这类内容，就要把注意力从语气转向来源。"
+    }
+  ],
   comparisonPlacement:"BOTTOM"
 } as const;
 
@@ -287,6 +317,16 @@ export const beginnerAiProductMapIntro = {
     {term:"产品能力",meaning:"搜索、读文件、保存偏好等，是完整 AI 软件额外提供给你的能力。"}
   ],
   takeaway:"你正在使用的是一个完整 AI 软件。Model 很重要，但不是屏幕上所有功能的总称。",
+  bottomDetails:[
+    {
+      title:"先记住“核心 + 功能”",
+      text:"现在只需要这张简单地图：Model 负责核心理解和生成；完整软件还会加搜索、文件、记忆等能力。"
+    },
+    {
+      title:"功能变多，不等于概念变成一个",
+      text:"软件以后再增加新按钮时，先问“这是 Model 本身，还是产品额外能力”，就不容易越学越乱。"
+    }
+  ],
   comparisonPlacement:"BOTTOM"
 } as const;
 
@@ -332,4 +372,106 @@ export const beginnerAiProductMapDraft = {
   referenceAnswer:null,
   review:["Model 是核心能力之一。","完整 AI 软件会组合搜索、文件、记忆等其他能力。"],
   selfAssessment:["我不会再把 AI 软件里的所有功能都当成 Model。","我已经有一张足够简单的 AI 产品地图。"]
+} as const;
+
+export const beginnerAiUseCasesReferenceFill = {
+  task: "整理今天的客户会议记录。",
+  help: "先提取待办事项、负责人和截止时间，我再逐条核对。"
+} as const;
+
+export const beginnerAiResultQualityReferenceFill = {
+  situation: "发给本周六参加活动的客户，活动开始时间从 14:00 改到 15:00。",
+  result: "用礼貌简洁的方式说明时间变更，并请客户回复是否仍能参加。"
+} as const;
+
+export const beginnerAiUseCasesKnowledgeDepth = {
+  example: [
+    {
+      title: "什么任务最适合第一次试",
+      text: "有现成材料、结果容易检查、出错代价不高的任务最适合新手，例如整理会议记录、改写邮件、列活动思路。"
+    },
+    {
+      title: "什么事情先不要直接交出去",
+      text: "涉及金额、承诺、重要事实和最终决定时，AI 可以帮你整理信息，但最后确认仍然由你负责。"
+    }
+  ],
+  review: [
+    {
+      title: "先找一个小入口",
+      text: "不要问“我的工作能不能全自动”，先问“哪一步可以让 AI 帮我省 10 分钟”。"
+    },
+    {
+      title: "先从容易检查的任务开始",
+      text: "你熟悉任务，就更容易判断 AI 有没有真正帮忙，也更容易建立正确使用习惯。"
+    }
+  ]
+} as const;
+
+export const beginnerAiResultQualityKnowledgeDepth = {
+  example: [
+    {
+      title: "真正有用的是“会改变结果”的信息",
+      text: "对象、当前情况、目标、语气和结果形式常常会改变答案；与任务无关的背景再多，也只是增加噪音。"
+    },
+    {
+      title: "结果太泛时先别急着重写全部",
+      text: "先看 AI 还在猜什么。通常补一两条缺失信息，比重新写一大段更有效。"
+    }
+  ],
+  review: [
+    {
+      title: "先检查缺失信息",
+      text: "结果不贴合时，先检查目标、对象/背景和结果要求有没有说清。"
+    },
+    {
+      title: "补得刚刚好",
+      text: "不是越详细越专业，而是让 AI 少猜一点、让你更容易判断它有没有完成任务。"
+    }
+  ]
+} as const;
+
+export const beginnerAiCanBeWrongKnowledgeDepth = {
+  example: [
+    {
+      title: "“最新”两个字要特别小心",
+      text: "只要答案依赖今天、今年、最新政策或当前数据，就应该确认来源和日期，而不是只看 AI 是否说得流畅。"
+    },
+    {
+      title: "低风险和高风险要分开",
+      text: "想几个标题错了可以重来；金额、规则、合同、重要事实错了，后果完全不同。检查力度应该跟风险一起提高。"
+    }
+  ],
+  review: [
+    {
+      title: "先问：这是灵感还是事实",
+      text: "灵感可以先用来比较；事实要有来源，数字要能追溯，最新信息要看日期。"
+    },
+    {
+      title: "再问：错了会怎样",
+      text: "错误代价越高，越不能只依赖 AI 一次回答。"
+    }
+  ]
+} as const;
+
+export const beginnerAiProductMapKnowledgeDepth = {
+  example: [
+    {
+      title: "为什么搜索功能可以后来才出现",
+      text: "因为完整 AI 软件可以不断增加产品能力。你看到的新功能，不需要自动理解成 Model 本身发生了同一种变化。"
+    },
+    {
+      title: "现在不需要知道它们怎么连接",
+      text: "新手阶段只要知道不同能力各有位置。等后面学 Memory、Search、RAG 时再逐个拆开。"
+    }
+  ],
+  review: [
+    {
+      title: "第一层：Model",
+      text: "先把它理解成负责核心理解和生成的能力。"
+    },
+    {
+      title: "第二层：产品能力",
+      text: "搜索、文件、记忆等由完整 AI 软件组合进来，帮助你完成不同任务。"
+    }
+  ]
 } as const;

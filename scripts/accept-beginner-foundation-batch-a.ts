@@ -1,9 +1,19 @@
 import { validateCourseBuilderOutput } from "../lib/learning/course-builder";
 import {
   beginnerAiUseCasesDraft,
+  beginnerAiUseCasesIntro,
+  beginnerAiUseCasesKnowledgeDepth,
+  beginnerAiUseCasesReferenceFill,
   beginnerAiResultQualityDraft,
+  beginnerAiResultQualityIntro,
+  beginnerAiResultQualityKnowledgeDepth,
+  beginnerAiResultQualityReferenceFill,
   beginnerAiCanBeWrongDraft,
-  beginnerAiProductMapDraft
+  beginnerAiCanBeWrongIntro,
+  beginnerAiCanBeWrongKnowledgeDepth,
+  beginnerAiProductMapDraft,
+  beginnerAiProductMapIntro,
+  beginnerAiProductMapKnowledgeDepth
 } from "../fixtures/course-builder/beginner-foundation-batch-a";
 
 function assert(condition: unknown, code: string) {
@@ -83,7 +93,33 @@ for (const parsedInput of [beginnerAiCanBeWrongDraft, beginnerAiProductMapDraft]
   assert(parsed.practice === null, "BEGINNER_CONCEPT_NO_REQUIRED_PRACTICE");
 }
 
+const introEnhancements = [
+  beginnerAiUseCasesIntro,
+  beginnerAiResultQualityIntro,
+  beginnerAiCanBeWrongIntro,
+  beginnerAiProductMapIntro
+];
+for (const intro of introEnhancements) {
+  assert((intro.bottomDetails?.length ?? 0) >= 2, "BEGINNER_EXPERIENCE_BOTTOM_DETAILS");
+}
+
+const depthEnhancements = [
+  beginnerAiUseCasesKnowledgeDepth,
+  beginnerAiResultQualityKnowledgeDepth,
+  beginnerAiCanBeWrongKnowledgeDepth,
+  beginnerAiProductMapKnowledgeDepth
+];
+for (const depth of depthEnhancements) {
+  assert(depth.example.length >= 2, "BEGINNER_EXPERIENCE_EXAMPLE_DEPTH");
+  assert(depth.review.length >= 2, "BEGINNER_EXPERIENCE_REVIEW_DEPTH");
+}
+
+assert(Object.keys(beginnerAiUseCasesReferenceFill).length === 2, "BEGINNER_USE_CASE_REFERENCE_FILL");
+assert(Object.keys(beginnerAiResultQualityReferenceFill).length === 2, "BEGINNER_RESULT_QUALITY_REFERENCE_FILL");
+assert(beginnerAiResultQualityDraft.pedagogy.participation.kind === "COPY_TO_AI", "BEGINNER_RESULT_QUALITY_COPY_TO_AI");
+
 console.log("BEGINNER_BATCH_A_DRAFTS=PASS");
 console.log("BEGINNER_BATCH_A_BEGINNER_CONSTRAINTS=PASS");
 console.log("BEGINNER_BATCH_A_SIX_STEP=PASS");
 console.log("BEGINNER_BATCH_A_MASTERY=PASS");
+console.log("BEGINNER_BATCH_A_EXPERIENCE_RESTORATION=PASS");
