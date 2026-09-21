@@ -130,7 +130,7 @@ REVIEWED_KNOWLEDGE.
 
 ---
 
-## T1-03 — Context：给 AI 足够但不过量的信息
+## T1-03 — 上下文（Context）：给 AI 足够但不过量的信息
 
 Type: **APPLICATION**  
 Planned Gate: **CHECK + PRACTICE**  
@@ -141,34 +141,34 @@ Prerequisite: **T1-02**
 任务已经说清楚了，为什么 AI 还是会缺业务背景、用错资料，或者被太多无关信息干扰？
 
 ### Inherited Capability / Artifact
-Clear Task Brief + Prompt-improved Draft。
+已经说清楚的任务说明。T1-03 不依赖外部 AI 回复。
 
 ### Current Learner Job
-判断 AI 当前真正缺什么资料，并建立 Minimum Context Pack。
+判断完成当前任务真正需要哪些信息，并整理成一份最小信息包。
 
 ### New Capability
 能把信息分为：
-- Must Know；
-- Nice to Know；
-- Do Not Load。
+- 必须知道；
+- 有帮助但非必须；
+- 暂时不要放。
 
-同时建立“Context 有限，更多不等于更好”的最低直觉。
+同时建立“上下文（Context）有限，更多不等于更好”的最低直觉。
 
 ### Artifact Action / Output
 从当前事实、已有业务资料、参考内容、必要背景中选出本次任务真正需要的信息；目标、对象、任务要求、输出形式继续属于 T1-02，不在本课重新定义。
 
-Output: **Minimum Context Pack + Context-enriched Draft**
+Output: **三类信息清单 + 最小信息包**
 
 ### Six-step intent
 1. EXPLAIN：你知道的背景，AI 不会自动知道；资料过多也会稀释重点。
-2. EXAMPLE：同一 Task Brief 分别使用缺失 Context、过量 Context、Minimum Context 比较。
-3. CHECK：判断哪些信息必须提供、哪些可省略、哪些不该加载。
-4. PRACTICE：列出手头可提供的信息，并分入三个框：①Must Know ②Nice to Know ③Do Not Load；只把 Must Know 组合成 Minimum Context Pack，交给 AI 再生成一次。保留 **3-bucket information list + Minimum Context Pack + Context-enriched Draft**。
-5. REVIEW：当前任务真正缺什么；哪些信息只是“有帮助”但不是必须；哪些信息会制造噪音；长资料需要取舍。
-6. CAPABILITY：能为一次 AI 任务准备足够但不过量的上下文。
+2. EXAMPLE：同一个内容任务分别比较“信息不够”“信息太多”“刚好够用”三种情况。
+3. CHECK：判断哪些信息必须提供、哪些有帮助但非必须、哪些暂时不要放。
+4. PRACTICE：把自己手头与任务有关的信息分入三个框：必须知道 / 有帮助但非必须 / 暂时不要放；再只从“必须知道”里整理出一份最小信息包。课程不要求回填外部 AI 回复。保留 **三类信息清单 + 最小信息包**。
+5. REVIEW：每张卡固定上下对比：上层 **AI 适合做什么**＝帮助你选出真正需要的信息；下层 **AI 不应该替你做什么**＝替你决定哪些背景一定正确、哪些资料值得信任。卡片数量按知识密度 2–4 张。
+6. CAPABILITY：能为一次 AI 任务准备足够但不过量的上下文（Context）。
 
 ### Next Reuse
-T1-04 直接在 Context-enriched Draft 上定位偏差并迭代，不重新准备一个新任务。
+下一课可以继续使用当前任务与最小信息包来学习如何修改第一版结果；本课不为下一课强制制造额外字段或外部回复。
 
 ### Anti-repeat / Deferred
 - Context Window 只建立“容量有限”直觉，不讲 token 数字；

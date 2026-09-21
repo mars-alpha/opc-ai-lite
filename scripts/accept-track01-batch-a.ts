@@ -7,7 +7,11 @@ import {
   track01T102Draft,
   track01T102KnowledgeDepth,
   track01T102Meta,
-  track01T102ReferenceFill
+  track01T102ReferenceFill,
+  track01T103Draft,
+  track01T103KnowledgeDepth,
+  track01T103Meta,
+  track01T103ReferenceFill
 } from "../fixtures/course-builder/track01-batch-a";
 
 function assert(condition: unknown, code: string) {
@@ -144,6 +148,47 @@ assert(!t102VisibleText.includes("System Prompt"), "TRACK01_T102_NO_SYSTEM_PROMP
 assert(!t102VisibleText.includes("Prompt Engineering"), "TRACK01_T102_NO_PROMPT_ENGINEERING_TEACHING");
 assert(!t102VisibleText.includes("Minimum Context Pack"), "TRACK01_T102_NO_CONTEXT_METHOD_TEACHING");
 assert(!t102VisibleText.includes("Clear Task Brief"), "TRACK01_T102_NO_UNNECESSARY_ENGLISH_LEARNER_COPY");
+
+const t103Packet = createCourseBuilderReviewPacket(
+  track01T103Draft,
+  new Date("2026-09-21T00:00:00.000Z"),
+  "0.2.0"
+);
+if (t103Packet.output.mode !== "BUILD") throw new Error("TRACK01_T103_BUILD_REQUIRED");
+const t103 = t103Packet.output;
+
+assert(track01T103Meta.canonicalId === "T1-03", "TRACK01_T103_CANONICAL_ID");
+assert(t103.lessonSpec.lessonId === "t1-03-minimum-context", "TRACK01_T103_LESSON_ID");
+assert(t103.lessonSpec.prerequisites.join(",") === "T1-02", "TRACK01_T103_PREREQUISITE");
+assert(t103.lessonSpec.completionGates.join(",") === "CHECK,PRACTICE", "TRACK01_T103_GATES");
+assert(t103.pedagogy.qualityProfile?.allowedCoreTerms.join(",") === "Context", "TRACK01_T103_CONTEXT_PRIMARY_HOME");
+assert(t103.checkSequence?.length === 3, "TRACK01_T103_THREE_QUESTION_MASTERY");
+assert(t103.practice?.instructions.map((item) => item.key).join(",") === "mustKnow,niceToKnow,doNotLoad,minimumPack", "TRACK01_T103_STEP4_KEYS");
+assert(t103.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T103_HINTS_UI_OWNS_NUMBERING");
+assert(!t103.practice?.goal.match(/T1-\d+/), "TRACK01_T103_STEP4_NO_INTERNAL_LESSON_CODE");
+assert(t103.review.length >= 2 && t103.review.length <= 4, "TRACK01_T103_REVIEW_COUNT");
+assert(t103.review.every((item) => item.includes("｜")), "TRACK01_T103_REVIEW_VERTICAL_CONTRAST");
+assert(track01T103KnowledgeDepth.review.length === 3, "TRACK01_T103_REVIEW_DEPTH_COUNT");
+assert(track01T103Meta.caseThread === "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT", "TRACK01_T103_CASE_THREAD");
+assert(track01T103Meta.artifactOutput === "MINIMUM_INFORMATION_PACK", "TRACK01_T103_ARTIFACT");
+for (const value of Object.values(track01T103ReferenceFill)) {
+  for (const forbidden of ["T1-01", "T1-02", "T1-03", "T1-04", "下一课", "参考答案"]) {
+    assert(!value.includes(forbidden), "TRACK01_T103_REFERENCE_FILL_PURE_VALUE:" + forbidden);
+  }
+}
+const t103VisibleText = [
+  t103.lessonSpec.title,
+  ...t103.lessonSpec.learningObjectives,
+  ...t103.lessonSpec.knowledgePoints,
+  ...t103.content.points,
+  ...t103.content.content,
+  ...t103.review,
+  ...t103.selfAssessment,
+  ...(t103.practice?.instructions.flatMap((item) => [item.label, item.prompt]) ?? [])
+].join(" ");
+for (const forbidden of ["Knowledge Base", "Source of Truth", "Memory", "RAG", "Context Engineering", "Minimum Context Pack", "Clear Task Brief"]) {
+  assert(!t103VisibleText.includes(forbidden), "TRACK01_T103_DEFERRED_OR_ENGLISH_LEAK:" + forbidden);
+}
 
 console.log("TRACK01_T101_COURSE_BUILDER_V02=PASS");
 console.log("TRACK01_T101_FORMAL_BRIEF_ALIGNMENT=PASS");

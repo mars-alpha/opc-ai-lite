@@ -504,3 +504,258 @@ export const track01T102ReferenceFill = {
   requirements: "重点讲 3 个日常使用场景；不夸大工具能力。",
   format: "标题 + 3 个要点 + 一句总结。"
 } as const;
+
+export const track01T103Meta = {
+  canonicalId: "T1-03",
+  draftVersion: "1.0.0-track01-a",
+  skillId: "course-builder",
+  skillVersion: "0.2.0",
+  qualityProfile: "BEGINNER_QUALITY_V1",
+  formalBrief: "TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md",
+  grounding: "REVIEWED_KNOWLEDGE",
+  caseThread: "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT",
+  inheritedArtifact: "CLEAR_TASK_BRIEF",
+  artifactOutput: "MINIMUM_INFORMATION_PACK",
+  nextReuse: "T1-04_ITERATION"
+} as const;
+
+export const track01T103Intro = {
+  situation: "你已经把任务说清楚：要做一条面向普通用户的 AI 工具内容。但 AI 仍然不知道你手里有哪些真实资料、哪些功能是你亲自试过的、哪些信息只是顺手收集来的。",
+  approaches: [
+    { label: "什么都不给", text: "AI 只能凭已有知识猜，很容易漏掉你的真实情况。" },
+    { label: "把所有资料都塞进去", text: "重点反而可能被大量无关信息淹没，结果看起来更长，却不一定更准确。" }
+  ],
+  comparison: [],
+  takeaway: "上下文（Context）的重点不是越多越好，而是给 AI 完成当前任务真正需要的信息。",
+  bottomDetails: [
+    { title: "先判断“完成任务缺什么”", text: "不是把手头所有资料都交给 AI，而是先从当前任务出发判断哪些信息真的会影响结果。" },
+    { title: "够用就停", text: "只要已经足以完成当前任务，就先停下来。多余信息会增加噪音，也让你更难检查结果。" }
+  ],
+  comparisonPlacement: "BOTTOM"
+} as const;
+
+export const track01T103Draft = {
+  mode: "BUILD",
+  grounding: {
+    status: "REVIEWED",
+    sourceKind: "APPROVED_KNOWLEDGE",
+    sourceLabels: [
+      "Track 01 Batch A Formal Brief · T1-03",
+      "Lesson Output Contract v1"
+    ],
+    researchSummary:
+      "本课只教上下文（Context）的最低信息选择能力：从当前任务出发，把信息分成必须知道、有帮助但非必须、暂时不要放，并整理最小信息包。Knowledge Base、Source of Truth、Memory、RAG、Context Engineering 均后置。"
+  },
+  pedagogy: {
+    audience: "BEGINNER",
+    languagePolicy: "TERM_READABILITY",
+    aiToolNeutral: true,
+    conceptMasteryBeforePractice: true,
+    qualityProfile: {
+      id: "BEGINNER_QUALITY_V1",
+      mainLearnerQuestion: "任务已经说清楚了，AI 还需要知道哪些信息？",
+      mainConcept: "只给完成当前任务真正需要的信息，既不能缺关键背景，也不要把所有资料一次塞进去。",
+      allowedCoreTerms: ["Context"],
+      deferredTerms: [
+        "Knowledge Base",
+        "Source of Truth",
+        "Memory",
+        "RAG",
+        "Context Engineering",
+        "Vector",
+        "Embedding",
+        "Agent"
+      ]
+    },
+    participation: {
+      kind: "MINI_TASK",
+      title: "从手头资料里选出真正需要的内容",
+      instruction: "选一个你准备做的真实 AI 内容任务，把手头相关信息分成三类，再整理出一份最小信息包。课程不要求把 AI 回复粘贴回来。",
+      prompt: "请先只根据当前任务，帮我检查哪些信息是必须知道、哪些只是有帮助、哪些可以暂时不放。",
+      reflection: "重点不是资料越多越好，而是你能说明为什么这条信息是当前任务必须知道的。"
+    },
+    sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
+  },
+  lessonSpec: {
+    version: "1.0.0-track01-a",
+    courseSlug: "foundation-ai",
+    lessonId: "t1-03-minimum-context",
+    title: "上下文（Context）：给 AI 足够但不过量的信息",
+    lessonType: "APPLICATION",
+    learningObjectives: [
+      "能判断当前任务真正需要哪些信息。",
+      "能把信息分成必须知道、有帮助但非必须、暂时不要放三类。",
+      "能整理一份足够但不过量的最小信息包。"
+    ],
+    knowledgePoints: [
+      "上下文（Context）是 AI 为了完成当前任务需要知道的信息。",
+      "信息过少会让 AI 缺关键背景，信息过多也会制造噪音。",
+      "选择信息时要从当前任务出发，而不是从“我手里有什么资料”出发。"
+    ],
+    prerequisites: ["T1-02"],
+    requiresExample: true,
+    requiresCheck: true,
+    practiceMode: "GUIDED",
+    realAiOperation: "NONE",
+    realAiEvidence: "NONE",
+    referenceAnswerEnabled: true,
+    reviewEnabled: true,
+    selfAssessmentEnabled: true,
+    courseFeedbackEnabled: true,
+    completionGates: ["CHECK", "PRACTICE"],
+    steps: [
+      { id: "explain", kind: "EXPLAIN", title: "任务说清楚了，AI 为什么还是可能答不好", objective: "让学习者理解 AI 仍然缺少完成任务所需的信息。" },
+      { id: "example", kind: "EXAMPLE", title: "同一条内容，信息太少、太多和刚好够用有什么区别", objective: "通过一个内容任务看见信息选择会直接影响结果。" },
+      { id: "check", kind: "CHECK", title: "这些信息真的需要放进去吗", objective: "检查学习者能否区分必须、可选和暂时不要放的信息。" },
+      { id: "practice", kind: "PRACTICE", title: "整理你自己的最小信息包", objective: "把真实任务相关信息分成三类，并整理最低够用的信息。" },
+      { id: "review", kind: "REVIEW", title: "准备信息时，记住这 3 个判断", objective: "留下选择、取舍和停止继续添加信息的判断。" },
+      { id: "capability", kind: "CAPABILITY", title: "你已经会为 AI 准备刚好够用的信息", objective: "确认学习者能独立判断信息是否必要，并整理最小信息包。" }
+    ],
+    capabilityGain: [
+      "能为一个真实 AI 任务准备足够但不过量的信息。"
+    ],
+    nextLessonValue:
+      "下一课会在任务和信息都准备好的基础上，学习第一版结果不理想时应该怎么改。",
+    accessPresentation
+  },
+  content: {
+    summary: "你会从一堆手头资料里，选出当前任务真正需要的信息，而不是全部塞给 AI。",
+    plainExplanation:
+      "提示词把“AI 要做什么”说清楚后，AI 还需要完成任务所需的信息。上下文（Context）就是这些信息。但它不是资料仓库：缺关键背景会让 AI 猜，塞得太多也会让重点变模糊。",
+    whyItMatters:
+      "很多人发现 AI 结果不准时，会继续加更多资料。真正有效的做法是先判断：当前任务到底缺什么信息。只有真正影响结果的信息，才值得优先放进去。",
+    points: [
+      "必须知道：没有这条信息，AI 很可能理解错任务或给出明显不合适的结果。",
+      "有帮助但非必须：有它可能更好，但没有它仍然能完成当前任务。",
+      "暂时不要放：和当前任务关系弱、重复、过时，或只会增加噪音的信息。"
+    ],
+    content: [
+      "先看当前任务，再看手头资料，不要反过来。",
+      "信息不是越多越安全；越多越需要你判断哪些是真正重要的。",
+      "最小信息包只保留完成当前任务必须知道的内容。"
+    ],
+    example: {
+      title: "做一条 AI 工具体验内容，哪些资料真的需要",
+      situation:
+        "你准备写一条“这个 AI 工具适合普通用户做什么”的短内容，手里有自己的试用记录、官方功能介绍、几篇半年前的行业文章，还有大量和这次主题无关的产品更新截图。",
+      before:
+        "如果什么都不给，AI 不知道你实际试过什么；如果把所有资料都塞进去，半年前文章和无关截图又会干扰重点。",
+      after:
+        "你只保留自己的真实试用记录、当前要介绍的 3 个功能和必要的最新功能说明；其余资料暂时不放。",
+      result:
+        "信息没有变多，而是变得更贴合当前任务。AI 更容易围绕真实体验和当前重点组织内容。"
+    },
+    mistakes: [
+      "误区：资料越多，AI 越不容易出错｜正确理解：无关、重复或过时资料也会制造噪音。",
+      "误区：只要以后可能有用就都先放进去｜正确理解：这一课只判断当前任务是否需要。",
+      "误区：AI 会自动知道哪些资料可信｜正确理解：本课只做信息取舍，不把可信度判断交给 AI。"
+    ],
+    related: [
+      "任务说明负责告诉 AI 要做什么；这一课只补完成任务需要知道的信息。",
+      "下一课会继续使用已经明确的任务和信息，学习如何修改第一版结果。"
+    ]
+  },
+  check: null,
+  checkSequence: [
+    {
+      id: "t103_best_judgment",
+      questionType: "SINGLE_CHOICE",
+      masteryRole: "BEST_JUDGMENT",
+      question: "你要让 AI 根据自己的真实体验写一条工具介绍。下面哪类信息最应该先提供？",
+      options: [
+        { value: "A", label: "你这次实际试过的功能和结果" },
+        { value: "B", label: "所有收藏过的 AI 行业文章" },
+        { value: "C", label: "和这次主题无关的产品更新截图" }
+      ],
+      correctValues: ["A"],
+      explanation: "真实试用信息直接影响当前任务，属于优先需要的信息。",
+      correctFeedback: "正确。先从当前任务真正缺什么出发，而不是从资料数量出发。",
+      incorrectFeedback: "再想一想：没有哪条信息，AI 最容易把你的真实体验写错？"
+    },
+    {
+      id: "t103_misconception",
+      questionType: "TRUE_FALSE",
+      masteryRole: "MISCONCEPTION",
+      question: "判断：只要资料是真实的，就应该全部提供给 AI。",
+      options: [{ value: "TRUE", label: "对" }, { value: "FALSE", label: "错" }],
+      correctValues: ["FALSE"],
+      explanation: "真实不等于当前任务需要。无关或重复的信息仍然会增加噪音。",
+      correctFeedback: "正确。是否提供，要看它是否真的影响当前任务。",
+      incorrectFeedback: "即使资料真实，也要问：它和这次任务有什么直接关系？"
+    },
+    {
+      id: "t103_boundary",
+      questionType: "MULTI_SELECT",
+      masteryRole: "BOUNDARY_CONDITIONS",
+      question: "你要写一条“某 AI 工具适合普通用户做什么”的短内容。下面哪些信息更适合放进最小信息包？（多选）",
+      options: [
+        { value: "TEST", label: "你亲自试用后确认可用的 3 个功能" },
+        { value: "AUDIENCE", label: "目标读者是第一次接触这个工具的普通用户" },
+        { value: "OLD_NEWS", label: "半年前收藏但和当前功能变化较大的旧文章" },
+        { value: "RANDOM", label: "与本次主题无关的其他 AI 产品截图" }
+      ],
+      correctValues: ["TEST", "AUDIENCE"],
+      explanation: "真实试用信息和目标读者会直接影响当前内容；旧文章和无关截图不属于最低必需信息。",
+      correctFeedback: "正确。最小信息包只留下会直接影响当前任务的内容。",
+      incorrectFeedback: "只保留缺了就会明显影响当前任务的信息。"
+    }
+  ],
+  practice: {
+    id: "t103_minimum_information_pack",
+    title: "整理你自己的最小信息包",
+    goal: "为一个你准备做的真实 AI 内容任务，选出真正需要的信息。",
+    instructions: [
+      { key: "mustKnow", label: "必须知道", prompt: "写出没有这些信息，AI 很容易把任务做错的内容。" },
+      { key: "niceToKnow", label: "有帮助但非必须", prompt: "写出有它会更好，但没有它仍然可以完成任务的信息。" },
+      { key: "doNotLoad", label: "暂时不要放", prompt: "写出和当前任务关系弱、重复、过时或容易制造噪音的信息。" },
+      { key: "minimumPack", label: "最小信息包", prompt: "只从“必须知道”里整理出这次真正要提供给 AI 的信息。" }
+    ],
+    hints: [
+      "先问“缺了这条，AI 会不会明显做错”，再决定是不是必须知道。",
+      "不要因为资料已经收集好了，就默认它应该放进去。",
+      "暂时不要放不代表永远没用，只是当前任务先不用。",
+      "最小信息包宁可短而相关，不要为了显得完整继续加内容。"
+    ],
+    rubric: [
+      { key: "mustKnow", label: "必须信息与任务直接相关", maxScore: 25, minScore: 15, example: "我亲自试过并确认可用的 3 个功能；目标读者是普通用户。" },
+      { key: "niceToKnow", label: "可选信息与必须信息区分清楚", maxScore: 25, minScore: 15, example: "一个可补充的使用场景，但不影响核心介绍。" },
+      { key: "doNotLoad", label: "能识别噪音信息", maxScore: 25, minScore: 15, example: "半年前旧文章；和这次主题无关的产品截图。" },
+      { key: "minimumPack", label: "最小信息包足够且不过量", maxScore: 25, minScore: 15, example: "目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。" }
+    ],
+    passScore: 60
+  },
+  hints: [
+    "如果没有现成资料，就从你已经知道的真实信息开始，不需要为了练习额外搜一堆内容。",
+    "这一课只练信息取舍，不要求判断哪一个来源最权威。"
+  ],
+  referenceAnswer:
+    "必须知道：目标读者是普通用户；我亲自试过并确认可用的 3 个功能。\n有帮助但非必须：一个额外的使用场景。\n暂时不要放：半年前旧文章；与主题无关的产品更新截图。\n最小信息包：目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。",
+  review: [
+    "先选真正影响任务的信息｜把手头所有资料都当成当前任务必须输入的内容。",
+    "只保留最低够用的信息｜为了显得完整不断往上下文里增加资料。",
+    "把信息取舍留给人判断｜替你决定哪些资料一定可信、哪些事实已经确认。"
+  ],
+  selfAssessment: [
+    "我能判断一条信息是不是当前任务必须知道的。",
+    "我能区分有帮助的信息和会制造噪音的信息。",
+    "我能整理一份足够但不过量的最小信息包。"
+  ]
+} as const;
+
+export const track01T103KnowledgeDepth = {
+  example: [
+    { title: "为什么“更多资料”不等于“更好上下文”", text: "AI 需要的是和当前任务直接相关的信息。资料越多，你越需要先做取舍，否则重点会被稀释。" }
+  ],
+  review: [
+    { title: "为什么先看任务再看资料", text: "只有先知道要完成什么，才能判断哪条信息会真正影响结果。" },
+    { title: "为什么要设“最低够用”", text: "只保留必需信息，可以减少噪音，也让你更容易检查 AI 是否正确使用了这些信息。" },
+    { title: "为什么可信度不能交给 AI 猜", text: "信息是否可靠是另一层判断。本课只学选择当前任务需要什么，不把事实确认责任一起交出去。" }
+  ]
+} as const;
+
+export const track01T103ReferenceFill = {
+  mustKnow: "目标读者是普通用户；我亲自试过并确认可用的 3 个功能。",
+  niceToKnow: "一个可补充的使用场景。",
+  doNotLoad: "半年前旧文章；与这次主题无关的产品更新截图。",
+  minimumPack: "目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。"
+} as const;
