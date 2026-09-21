@@ -424,7 +424,7 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `COURSE-GOV-SIX-STEP-001` 已把当前六步教学方式从 Foundation Trial 经验升级为所有新正式课程的强制生产规则。五大板块、所有 Lesson Type、后续进阶图文/代码/实验/项目课均必须使用 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY。每一个正式 Primary Knowledge Point 在进入 Course Builder 前必须先通过 Six-step Knowledge Point Gate；如果无法自然完成六步，不允许为了填 Shell 强行生成，而必须回到 Curriculum / Formal Brief 判断合并、拆分或降为 Supporting Knowledge。Lesson Type 只改变 Step 4 深度与 Completion Gate，不改变六步。后续课程同时受两条强制轴控制：Six-step 保证单课真正教会，Continuity 保证前后课程真正承接。
 
-`CURRICULUM-SIX-STEP-AUDIT-001` 已形成五大板块 Capability-first 第一版审计方案。Canonical baseline 为 `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。Track 01 正式审计输入必须回到产品负责人确认的 28 个 AI 基础认知候选课程；额外 4 个历史测试/冗余课程资产不进入候选。当前 17 个 Track 01 core lessons 仅视为第一版能力收敛方案，核心方法有效，但最终数量需基于正确的 28 个候选逐项复核后再锁定。RAG、MCP、Skill、Agent、Multimodal 继续要求有清晰 Primary Knowledge Home。
+`CURRICULUM-SIX-STEP-AUDIT-001-R1` 已按产品负责人确认的 28 个正式 AI 基础认知候选逐项完成 Six-step re-audit。明确排除 `task-brief`、`memory-rag`、`writing-files`、`task-decomposition` 四个历史 Runtime/UX 测试资产。Track 01 canonical audit 为 `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`，最终目录为 20 节：KEEP 20、MERGE 6、SUPPORTING_KNOWLEDGE 1、DEFER 1、REMOVE 0。旧 17 节方案被 supersede，原因是过度合并了 Knowledge Base / Source of Truth、Structured Output / Schema、Coding / Browser / Computer Use 三项可独立形成六步能力闭环的知识。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 

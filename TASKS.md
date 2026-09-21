@@ -749,6 +749,12 @@ Status: COMPLETE_AUDITED_V1
 
 完成五大板块 Capability Map → Knowledge Map → Six-step Audit 第一版。产品负责人确认 Track 01 正式审计输入仍为最初 28 个 AI 基础认知候选课程，仓库额外 4 个历史测试/冗余课程资产不进入 Curriculum。当前 17 个 Track 01 core lessons 保留为第一版能力收敛方案，不锁死最终数量；下一步必须基于正确的 28 个候选重新逐项确认 KEEP / MERGE / SUPPORTING_KNOWLEDGE / DEFER。RAG / MCP / Skill / Agent / Multimodal 继续保留清晰 Primary Knowledge Home。Canonical baseline：`docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。
 
+### CURRICULUM-SIX-STEP-AUDIT-001-R1 — Track 01 28-Candidate Six-step Re-audit
+
+Status: COMPLETE_AUDITED_V1_20_LESSONS
+
+按产品负责人确认的 28 个正式 AI 基础认知候选重新逐项执行六步审计，并明确排除 `task-brief`、`memory-rag`、`writing-files`、`task-decomposition` 四个历史 Runtime/UX 测试资产。最终得到 20 节 Track 01 canonical directory：KEEP 20、MERGE 6、SUPPORTING_KNOWLEDGE 1、DEFER 1、REMOVE 0。旧 17 节方案 superseded；Knowledge Base / Source of Truth、Structured Output / Schema、Coding / Browser / Computer Use 恢复为独立课程。详见 `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`。下一步：`CURRICULUM-AUDIT-REALIGN-001-R1 — Track 01 20-Lesson Canonical Realignment`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

@@ -108,13 +108,14 @@ CURRICULUM-005 已废弃早期“先讲模型机制”的 9 课开场。当前 F
 
 当前 curriculum-level Source of Truth：
 
-- `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`：定义审计后的五大板块核心课程粒度、Primary Knowledge Home 与 KEEP / MERGE / SUPPORTING / DEFER 结论；
+- `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`：Track 01 当前 canonical audit，基于 28 个正式候选得出 20 节最终基础课程；
+- `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`：Track 02–05 继续使用；Track 01 的旧 17 节方案已被 R1 re-audit supersede；
 - `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`：定义五条主线的跨课能力与 Artifact continuity；
 - `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`：保留产品级 28 个 Foundation pre-audit candidates；仓库额外测试/冗余课程资产不属于正式 Curriculum，用于历史映射但不进入课程审计；
 - `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`：保留旧 F1/F2 Trial 的 continuity evidence，等待 Track 01 canonical ID realignment；
 - `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`：只描述当前 Catalog 既有 metadata，不反向决定审计后的课程目录。
 
-Track 01 当前 T1-01～T1-17 为第一版能力收敛方案，尚未锁定最终课数。下一步需基于正确的 28 个产品候选逐项复核后，再 canonicalize 新 Lesson identity；旧 F1/F2/F3…编号继续只作为 pre-audit identity / historical mapping。
+Track 01 已完成基于正确 28 个正式候选的逐项 Six-step re-audit，最终 canonical directory = T1-01～T1-20。旧 T1-01～T1-17 v1 方案被 supersede；旧 F1/F2/F3…编号继续只作为 pre-audit identity / historical mapping。
 
 ---
 

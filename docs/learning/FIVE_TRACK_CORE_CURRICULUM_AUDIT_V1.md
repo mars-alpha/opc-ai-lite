@@ -1,8 +1,10 @@
 # Five-Track Core Curriculum & Knowledge Point Audit v1
 
-Status: **COMPLETE_AUDITED_V1**  
+Status: **TRACK01_SUPERSEDED_BY_28_CANDIDATE_REAUDIT**
 Task: **CURRICULUM-SIX-STEP-AUDIT-001 — Five-Track Core Curriculum & Knowledge Point Audit**  
 Scope: **Track 01–05 Core Curriculum**
+
+Track 01 superseding source: `TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`. The earlier T1-01～T1-17 proposal is retained only as v1 audit evidence; Track 01 canonical result is now 20 lessons after re-auditing the product-owner-confirmed 28 formal candidates. Track 02–05 sections in this file remain current planning baselines.
 
 ## 1. Audit decision
 
@@ -213,20 +215,14 @@ Audit decision: Track 05 原 7 个 Module 均 **KEEP**。它们不是术语拆�
 ## 9. Production consequences
 
 1. `FOUNDATION_KNOWLEDGE_MAP_V1.md` 保留为 pre-audit candidate map，不再是正式 Course Directory。
-2. 本文件成为五大板块课程粒度的 **canonical audit baseline**。
+2. 本文件继续作为 Track 02–05 的课程粒度 audit baseline；Track 01 以 `TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md` 为 canonical。
 3. 旧 F1/F2 Continuity Trial 继续作为 Six-step UX / pedagogy evidence，不自动代表审计后正式 Lesson identity。
 4. 审计完成后仍禁止直接批量生成全部课程；下一步先对 Track 01 做 canonical ID / Formal Brief realignment。
 5. 正式 Course Builder 只能消费已通过本审计且有 Formal Brief 的知识点。
 6. 每次 Production Batch 仍建议 3–5 节，并继续要求 Continuity + Six-step 双 Gate。
 
-## 10. Next task
+## 10. Track 01 superseding next task
 
-**CURRICULUM-AUDIT-REALIGN-001 — Track 01 Canonical IDs & Formal Brief Realignment**
+**CURRICULUM-AUDIT-REALIGN-001-R1 — Track 01 20-Lesson Canonical Realignment**
 
-目标：
-- 将旧 F1/F2/F3…候选 identity 映射到 T1-01～T1-17；
-- 先完成 T1-01～T1-05 的 Formal Brief；
-- 明确哪些现有 Continuity Trial 内容可迁移、哪些只保留为参考；
-- 不修改 Unified Lesson Shell；
-- 不批量生成 T1-06+ 正式内容；
-- 完成后再启动第一批审计后正式课程生产。
+Track 01 的 17-lesson next-task plan 已被 28-candidate re-audit supersede。后续以 T1-01～T1-20 重新对齐 Catalog / Formal Brief / Continuity mapping；不修改 Unified Lesson Shell，也不直接批量生产课程。
