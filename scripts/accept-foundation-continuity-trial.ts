@@ -92,6 +92,9 @@ for (const [index, input] of drafts.entries()) {
   assert(draft.checkSequence?.length === 3, "CONTINUITY_TRIAL_CURRENT_MASTERY_COUNT:" + expectedIds[index]);
   assert(draft.checkSequence?.every((item) => item.id.startsWith("continuity_")) === true, "CONTINUITY_TRIAL_OLD_CHECK_INHERITANCE:" + expectedIds[index]);
   assert(draft.lessonSpec.steps.map((step) => step.kind).join(">") === "EXPLAIN>EXAMPLE>CHECK>PRACTICE>REVIEW>CAPABILITY", "CONTINUITY_TRIAL_SIX_STEP_ORDER:" + expectedIds[index]);
+  assert(draft.review.length >= 2 && draft.review.length <= 3, "CONTINUITY_TRIAL_REVIEW_FRAMEWORK_BUDGET:" + expectedIds[index]);
+  assert(draft.review.every((item) => item.includes("｜")), "CONTINUITY_TRIAL_REVIEW_NEEDS_EXPLANATION:" + expectedIds[index]);
+  assert(draft.selfAssessment.length >= 2, "CONTINUITY_TRIAL_CAPABILITY_SELF_CHECK_REQUIRED:" + expectedIds[index]);
 
   const text = visibleText(input);
   assert(!text.includes("OPC"), "CONTINUITY_TRIAL_OPC_VISIBLE_LEAK:" + expectedIds[index]);
@@ -133,6 +136,8 @@ assert(continuityTrialContextDraft.lessonSpec.nextLessonValue.includes("补充�
 assert(continuityTrialContextDraft.pedagogy.participation.kind === "MINI_TASK", "CONTINUITY_TRIAL_F202_STEP4_ACTIONABLE_KIND");
 assert(Boolean(continuityTrialContextDraft.pedagogy.participation.prompt?.trim()), "CONTINUITY_TRIAL_F202_STEP4_PROMPT");
 assert(continuityTrialContextDraft.practice === null, "CONTINUITY_TRIAL_F202_NO_PRACTICE_GATE");
+assert(Boolean(continuityTrialContextDraft.referenceAnswer?.trim()), "CONTINUITY_TRIAL_F202_REFERENCE_ANSWER");
+assert(continuityTrialContextDraft.hints.length >= 1, "CONTINUITY_TRIAL_F202_HINT_REQUIRED");
 
 const f203Text = visibleText(continuityTrialIterationDraft);
 assert(f203Text.includes("补充资料后的草稿"), "CONTINUITY_TRIAL_F203_INHERIT_CN");
@@ -166,4 +171,7 @@ console.log("FOUNDATION_CONTINUITY_TRIAL_ARTIFACT_CHAIN=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_ANTI_REPEAT=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_SIX_STEP_CONTENT_INTEGRITY=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CONCEPT_STEP4_ACTIONABLE=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_REVIEW_FRAMEWORK=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_CAPABILITY_EVIDENCE=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_GUIDED_SUPPORT=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CATALOG_BOUNDARY=PASS");

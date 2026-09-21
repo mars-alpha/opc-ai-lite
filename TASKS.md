@@ -713,6 +713,12 @@ Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 
 Human Review 发现 Step 3 仍继承旧 Draft mastery，以及 `beginner-context` Step 4 没有真正训练。根因确认：Continuity Trial 使用 spread 复用旧 Draft，只覆盖了部分字段；旧 `checkSequence` 静默保留。另一个长期缺口是 CONCEPT `practiceMode=NONE` 虽允许非 Gate PRACTICE Step，但旧 participation/UI 只保证“有字段”，不保证“有真实学习动作”。当前已重建 5 节的 Step 3 三题 Mastery；`beginner-context` Step 4 改为 MINI_TASK，Preview 支持本地输入完成；新增 SIX_STEP_CONTENT_INTEGRITY / CONCEPT_STEP4_ACTIONABLE 验收；课程治理固定“六步结构 PASS ≠ 六步内容 PASS”。正式 Runtime 的 CONCEPT 非 Gate participation 尚未 provision，因此 Runtime 继续暂停。下一步只需定向 Human Review：5 节 Step 3 + beginner-context Step 4。
 
+### FOUNDATION-CONTINUITY-TRIAL-001-C — Six-Step Pedagogy Refinement
+
+Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
+
+继续复盘六步教学职责，不改 Lesson ID/Type/Gate、Course Builder v0.2 或 Catalog/Runtime 状态。Step 5 改为以 `review` 表达真正可复用的复盘框架，2–3 项按课程需要，每项必须包含“结论｜解释”；误区只做辅助。Step 6 组合 capabilityGain / selfAssessment / nextLessonValue，补齐“会做什么、怎么知道会了、马上用在哪里、为什么继续”。`beginner-context` 非 Gate Step 4 新增完整辅助链：Hint、Reference Answer、一键填充、复制自己的练习、复制参考答案。新增 REVIEW_FRAMEWORK / CAPABILITY_EVIDENCE / GUIDED_SUPPORT 验收，全部回归、typecheck、build PASS（51 pages）。当前证据仍支持继续使用 Course Builder v0.2，不升级 Skill Schema。下一步定向 Human Review：5 节 Step 5/6 + beginner-context Step 4。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

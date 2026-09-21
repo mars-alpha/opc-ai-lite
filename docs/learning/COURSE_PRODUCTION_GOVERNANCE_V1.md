@@ -144,6 +144,9 @@ Human Review 前还必须完成 **Six-step Content Integrity Review**：
 - Step 4 必须有真实学习动作；CONCEPT 可不设 Practice Gate，但不能出现“有 PRACTICE Step、无可操作内容”；
 - Review / Capability 必须收束当前版本，而不是旧稿残留；
 - 仅修改标题、正文或 Case Thread，而未同步 Check / Practice / Participation，视为未完成 Rework。
+- Step 5 必须把真正可复用的知识 / 判断放在 Review 主体，mistakes 只做辅助纠偏；不允许用固定卡片数量代替教学判断；
+- Step 6 必须同时能回答“会做什么 / 怎么知道自己会了 / 马上能用在哪里 / 下一步为什么继续”；
+- Guided Step 4 若要求学习者输入或产出内容，Human Review 必须检查 Hint / Reference / Fill / Copy 等辅助是否足够，避免出现“能输入但不会做”的伪实操。
 
 Human Review FAIL：
 ```text

@@ -112,6 +112,8 @@ export function BeginnerFoundationDraftPreview({
             previewReferenceFill={referenceFill}
             previewKnowledgeDepth={knowledgeDepth}
             previewReviewCardFill={reviewCardFill}
+            previewReviewItems={draft.review}
+            previewSelfAssessment={draft.selfAssessment}
             previewActivity={draft.pedagogy.participation}
             previewIntroComparison={introPreview}
           />
