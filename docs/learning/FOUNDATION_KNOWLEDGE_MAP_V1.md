@@ -10,6 +10,8 @@ Scope: **Track 01 / AI 基础认知**
 
 目标不是一次性写完所有课程，而是先把以下内容锁清楚：
 
+本文件当前角色是 **candidate knowledge map / audit input**，不是不可变更的最终 Course Directory。
+
 - 每个核心概念的 Primary Knowledge Home；
 - 每节课真正负责教什么；
 - 哪些概念只做辅助说明；
@@ -20,8 +22,8 @@ Scope: **Track 01 / AI 基础认知**
 - 与相邻课程的去重边界；
 - 现有测试资产如何迁移。
 
-**完整基础课共 28 个 Lesson Brief。**  
-28 只是当前 v1 的知识地图数量，不等于必须一次上线 28 节。正式内容继续按 3–5 节一个 Production Batch 分批生产。
+**当前 v1 候选知识地图共 28 个 Lesson Brief。**
+28 不是最终固定课程数量，也不等于必须一次上线 28 节。`CURRICULUM-SIX-STEP-AUDIT-001` 将使用六步知识点检验重新审计每个候选项，可得出 KEEP / MERGE / SPLIT / SUPPORTING_KNOWLEDGE / DEFER / REMOVE。正式课程目录以审计后的能力链与知识粒度为准；内容继续按 3–5 节一个 Production Batch 分批生产。
 
 F1-01～F2-04 的 Lesson identity / Primary Knowledge Home / Type / Gate 继续以本 Knowledge Map 为知识边界；但其当前教学承接、Case Thread、Artifact Thread、Inherited/New Capability 与 Do-Not-Reteach 由 `FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md` 定义。二者冲突时：Knowledge Map 决定“知识归属”，Continuity Brief 决定“怎样承上启下地教”。
 

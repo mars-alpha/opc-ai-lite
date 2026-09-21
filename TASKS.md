@@ -737,6 +737,12 @@ Status: COMPLETE_GOVERNANCE_BASELINE
 
 正式锁定：后续所有新课程，不限 Foundation / AI 工作应用 / 推广运营 / Workflow / FDE，不限 CONCEPT / APPLICATION / PRACTICE / PROJECT，统一使用 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY。每一个正式 Primary Knowledge Point 在进入 Course Builder 前必须先通过六步知识点检验；无法自然完成六步时禁止硬凑内容，必须回到 Curriculum / Formal Brief 判断合并、拆分或降为 Supporting Knowledge。Lesson Type 只改变 Step 4 深度和 Completion Gate。六步负责“单课是否真正教会”，Continuity 负责“课程前后是否真正承接”，以后两者都是强制 Gate。
 
+### CURRICULUM-SIX-STEP-PLANNING-001 — Core Curriculum Audit Direction
+
+Status: COMPLETE_DIRECTION_LOCKED
+
+将六步从单课生产 Gate 进一步提升为课程目录审计工具。后续不再按“专业名词 = 一节课”扩目录，而是先定义五大板块 Capability Map，再建立 Knowledge Map，并逐个使用六步检验候选知识点是否值得独立成课。审计结论限定为 KEEP / MERGE / SPLIT / SUPPORTING_KNOWLEDGE / DEFER / REMOVE。`FOUNDATION_KNOWLEDGE_MAP_V1.md` 当前 28 个 Lesson Brief 改为 candidate knowledge map / audit input，不视为最终固定课程数量。下一主任务：`CURRICULUM-SIX-STEP-AUDIT-001 — Five-Track Core Curriculum & Knowledge Point Audit`；审计完成前暂停继续批量生产 Stage 3+，F1-03/F1-04/F2-04 暂不推进完整生产。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

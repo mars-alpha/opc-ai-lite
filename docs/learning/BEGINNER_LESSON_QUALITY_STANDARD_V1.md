@@ -89,6 +89,38 @@ Status: **QUALITY_BASELINE_V1**
 - 是否还缺真实应用 / 判断边界，尚未达到正式生产条件。
 
 固定原则：**每个正式知识点都必须通过六步教学检验；不能通过六步检验的知识点，不直接进入正式课程生产。**
+## 2.4 Curriculum Audit Use of Six-step
+
+六步同时是课程目录审计工具，而不只是单课生产规则。
+
+对每个候选 Primary Knowledge Point，必须先判断：
+
+- 它是否解决一个独立、真实的学习者问题；
+- 是否拥有清晰且不可被相邻课替代的核心规律；
+- 是否可以通过判断题检验真正理解；
+- 是否能产生一个最小真实动作 / 产物；
+- 是否能留下 2–4 个可长期复用的判断；
+- 是否形成一个能被后续课程继续调用的新能力。
+
+审计结论只允许：
+
+- KEEP：保留为独立核心 Lesson；
+- MERGE：并入相邻知识点；
+- SPLIT：知识过大，拆成多个 Primary Knowledge Home；
+- SUPPORTING_KNOWLEDGE：必须知道，但不独立成课；
+- DEFER：移到后续进阶 / 选修；
+- REMOVE：对主能力链价值不足。
+
+固定：**知识名词存在 ≠ 值得独立成课。课程目录由能力价值和六步可教学性共同决定。**
+
+目录设计顺序固定为：
+
+Capability Map
+→ Knowledge Map
+→ Six-step Knowledge Point Audit
+→ Course Directory
+→ Formal Brief
+→ Course Builder
 
 Lesson Type 只改变 Step 4 的深度与 Completion Gate，不改变六步结构：
 

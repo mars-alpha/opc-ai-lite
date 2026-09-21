@@ -117,6 +117,8 @@ Anti-repeat Boundary
 
 六步解决“这一课有没有真正教会”，Continuity 解决“这一课是不是接在正确的位置”。两者缺一不可。
 
+课程目录设计还必须先经过 Capability-first Audit：先定义五大板块最终能力，再确定支撑能力的 Knowledge，最后使用 Six-step 判断哪些知识值得独立成课。固定顺序为：Capability Map → Knowledge Map → Six-step Audit → Course Directory。不能因为存在 Token / RAG / API / MCP / Agent 等专业名词，就默认一词一课。
+
 ## 5. Longitudinal artifact model
 
 课程不要求所有课共享一个永久文件，但必须有连续的 Artifact Thread。
