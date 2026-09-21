@@ -24,6 +24,13 @@ Curriculum 决定学什么和顺序；Formal Brief 决定知识边界；Course B
 
 ## 2. Six-step output contract
 
+### Learner-facing language rule
+
+所有学员可见文案默认中文优先：
+- 非必要英文名称不得直接展示给学员；例如 `Clear Task Brief` 应写成“清晰任务说明”。
+- AI 常用行业术语允许保留英文，但首次出现采用 **中文（English）**，例如“提示词（Prompt）”；后续正文优先使用中文简称。
+- 内部 lessonId、Artifact ID、Schema 名、状态名、课程编排编号等不得出现在学员可见文案中。
+
 ### Step 1 — EXPLAIN
 
 目标：让学习者先看懂“这和我有什么关系”。
@@ -52,9 +59,9 @@ Curriculum 决定学什么和顺序；Formal Brief 决定知识边界；Course B
 
 目标：把前三步已经理解的知识转成一个最小真实动作。
 
-必须：只练前三步已经教会的内容；沿用现有 Unified Lesson Shell / Practice fields；字段必须是学习者此刻自然会产生的真实内容；Hint 只写内容本身，编号由 UI 统一生成；多条 Hint 在一个提示框内按 1、2、3… 展示；Reference Fill 只包含字段直接值。
+必须：只练前三步已经教会的内容；沿用现有 Unified Lesson Shell / Practice fields；字段必须是学习者此刻自然会产生的真实内容；Practice Goal / Instruction 必须自包含，学员单独打开本课也知道现在要做什么；Hint 只写内容本身，编号由 UI 统一生成；多条 Hint 在一个提示框内按 1、2、3… 展示；Reference Fill 只包含字段直接值。
 
-禁止：在 Step 4 首次教学新概念；为了下一课 Artifact 强行增加字段；Hint 文案手写编号；因单节课需要而扩展 Runtime / UI，除非产品负责人明确批准。
+禁止：在 Step 4 首次教学新概念；为了下一课 Artifact 强行增加字段；在学员可见 Practice 文案中出现 `T1-01`、`T1-03` 等内部课程编号或依赖“上一课内部产物”才能理解当前任务；Hint 文案手写编号；因单节课需要而扩展 Runtime / UI，除非产品负责人明确批准。
 
 ### Step 5 — REVIEW
 

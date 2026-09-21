@@ -112,6 +112,7 @@ assert(t102.practice?.instructions.map((item) => item.key).join(",") === "goal,a
 assert(t102.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T102_HINTS_UI_OWNS_NUMBERING");
 assert(!t102.practice?.goal.includes("T1-01"), "TRACK01_T102_STEP4_NO_INTERNAL_LESSON_ID");
 assert(!t102.practice?.goal.includes("上一课"), "TRACK01_T102_STEP4_SELF_CONTAINED_GOAL");
+assert(!t102.practice?.goal.match(/T1-\d+/), "TRACK01_T102_STEP4_NO_INTERNAL_LESSON_CODE");
 assert(t102.review.length === 4, "TRACK01_T102_REVIEW_COUNT");
 assert(t102.review.every((item) => item.includes("｜")), "TRACK01_T102_REVIEW_VERTICAL_CONTRAST");
 assert(t102.review[0]?.startsWith("把任务目标说清楚｜"), "TRACK01_T102_REVIEW_GOAL_CONTRAST");
@@ -142,6 +143,7 @@ const t102VisibleText = [
 assert(!t102VisibleText.includes("System Prompt"), "TRACK01_T102_NO_SYSTEM_PROMPT_TEACHING");
 assert(!t102VisibleText.includes("Prompt Engineering"), "TRACK01_T102_NO_PROMPT_ENGINEERING_TEACHING");
 assert(!t102VisibleText.includes("Minimum Context Pack"), "TRACK01_T102_NO_CONTEXT_METHOD_TEACHING");
+assert(!t102VisibleText.includes("Clear Task Brief"), "TRACK01_T102_NO_UNNECESSARY_ENGLISH_LEARNER_COPY");
 
 console.log("TRACK01_T101_COURSE_BUILDER_V02=PASS");
 console.log("TRACK01_T101_FORMAL_BRIEF_ALIGNMENT=PASS");
