@@ -28,6 +28,7 @@ export type CourseModule = { id:string; title:string; description:string; lesson
 export type Course = { slug:string; title:string; stage:string; stageLabel:string; level:string; duration:string; summary:string; outcome:string; modules:CourseModule[] };
 
 export const courses: Course[] = [
+  track01Phase1Course,
   {
     slug:"ai-literacy", title:"AI 入门：从 0 到 1 认识生成式 AI", stage:"AI Literacy", stageLabel:"Stage 1 · 看懂 AI", level:"入门", duration:"1.5 小时",
     summary:"建立生成式 AI 的基础世界模型，理解模型、上下文、Token、Memory、RAG、API 与 Agent 的基本关系。",
@@ -240,8 +241,7 @@ export const courses: Course[] = [
         }
       ]}
     ]
-  },
-  track01Phase1Course
+  }
 ];
 
 export function getCourse(slug:string){ return courses.find((course)=>course.slug===slug); }

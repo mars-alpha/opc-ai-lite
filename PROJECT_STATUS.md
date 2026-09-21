@@ -80,9 +80,9 @@ COURSE-PRODUCTION-TRACK01-A-002 T1-01 Closure & T1-02 Prompt Pilot COMPLETE_T1-0
 COURSE-PRODUCTION-TRACK01-A-003 T1-02 Closure & T1-03 Context Pilot COMPLETE_T1-03_HUMAN_REVIEW_PASS
 COURSE-PRODUCTION-TRACK01-A-004 T1-04 Purposeful Iteration Pilot COMPLETE_T1-04_HUMAN_REVIEW_PASS
 COURSE-PRODUCTION-TRACK01-A-005 T1-04 Closure & T1-05 Reliability Pilot COMPLETE_T1-05_HUMAN_REVIEW_PASS
-TRACK01-PHASE1-RUNTIME-001 T1-01～T1-05 Runtime Provisioning & Acceptance PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
+TRACK01-PHASE1-RUNTIME-001 T1-01～T1-05 Runtime Provisioning & Acceptance FRONTEND_ALIGNED_PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
 
-NEXT: resolve target DB migration 0010/0011 authorization, then rerun `learning:runtime:track01-phase1 -- --apply --confirm=TRACK01-PHASE1-RUNTIME-001` and real HTTP acceptance. T1-01～T1-05 are Human Review PASS but not Runtime Ready / AVAILABLE.
+NEXT: frontend / learning-path 已对齐 `foundation-ai`；正式持久化 Runtime 仍需目标 DB migration 0010/0011 授权，之后 rerun provisioning + real HTTP acceptance。T1-01～T1-05 当前可体验但尚未 Runtime Ready / AVAILABLE。
 ```
 
 ## 当前系统健康

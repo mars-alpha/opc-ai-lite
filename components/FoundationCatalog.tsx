@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { curriculumStatusLabel, foundationCatalog, lessonTypeLabel } from "../lib/learning/foundation-catalog";
 
 export function FoundationCatalog() {
@@ -15,8 +16,8 @@ export function FoundationCatalog() {
             <div className="foundation-stage-count">{stage.lessons.length} 节</div>
           </div>
           <div className="foundation-lesson-list">
-            {stage.lessons.map((lesson) => (
-              <article className="foundation-lesson-row is-coming-soon" key={lesson.lessonId}>
+            {stage.lessons.map((lesson) => {
+              const row = <>
                 <div className="foundation-lesson-number">{String(lesson.order).padStart(2, "0")}</div>
                 <div className="foundation-lesson-main">
                   <div className="foundation-lesson-title-row">
@@ -25,11 +26,16 @@ export function FoundationCatalog() {
                   </div>
                   <p>{lesson.subtitle}</p>
                 </div>
-                <div className={"foundation-status " + (lesson.curriculumStatus === "PLANNED" ? "is-planned" : "is-ready")}>
-                  <strong>{curriculumStatusLabel[lesson.curriculumStatus]}</strong><span>即将开放</span>
+                <div className={"foundation-status " + (lesson.availability === "COMING_SOON" ? "is-planned" : "is-ready")}>
+                  <strong>{curriculumStatusLabel[lesson.curriculumStatus]}</strong><span>{lesson.availability === "AVAILABLE" ? "开始学习" : lesson.availability === "RUNTIME_PREVIEW" ? "可体验" : "即将开放"}</span>
                 </div>
-              </article>
-            ))}
+              </>;
+              return (lesson.availability === "AVAILABLE" || lesson.availability === "RUNTIME_PREVIEW") && lesson.runtimeCourseSlug && lesson.runtimeLessonId ? (
+                <Link className="foundation-lesson-row" key={lesson.lessonId} href={"/courses/" + lesson.runtimeCourseSlug + "/lessons/" + lesson.runtimeLessonId}>{row}</Link>
+              ) : (
+                <article className="foundation-lesson-row is-coming-soon" key={lesson.lessonId}>{row}</article>
+              );
+            })}
           </div>
         </section>
       ))}

@@ -807,9 +807,9 @@ T1-05 已通过 Human Review。T1-01～T1-05 当前全部 HUMAN_REVIEW_PASS，�
 
 ### TRACK01-PHASE1-RUNTIME-001 — T1-01～T1-05 Runtime Provisioning & Acceptance
 
-Status: IMPLEMENTATION_READY / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
+Status: FRONTEND_ALIGNED / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
 
-已建立 `foundation-ai` canonical Runtime course、5 节 LessonSpec 注册、Approved Presentation Bridge、15 道 CHECK + 5 个 Practice 的幂等 provisioning 工具，以及真实 HTTP Runtime Acceptance 工具。现有 Runtime / Track01 typecheck 与回归检查 PASS。目标数据库当前没有 `foundation-ai` 数据；provisioning 写前 schema gate 明确阻塞于 migration 0010/0011（`correct_answers` / `incorrect_explanation`）。首次事务写入失败后已确认完整回滚，数据库仍为 0 节 `foundation-ai` Lesson。根据任务边界未执行远程 migration；因此尚未 Runtime Ready / AVAILABLE。
+已建立 `foundation-ai` canonical Runtime course、5 节 LessonSpec 注册、Approved Presentation Bridge、15 道 CHECK + 5 个 Practice 的幂等 provisioning 工具，以及真实 HTTP Runtime Acceptance 工具。根据实际前端体验反馈，学习路径已同步 canonical 20 课（6 阶段），T1-01～T1-05 正式 URL 可进入完整六步互动体验，首页 / Header“继续学习”不再回 legacy `ai-literacy`。目标数据库仍无 `foundation-ai` 数据；schema gate 阻塞于 migration 0010/0011。当前本地互动回退不保存正式完成状态，因此尚未 Runtime Ready / AVAILABLE。
 
 第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
 

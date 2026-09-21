@@ -117,6 +117,8 @@ export const track01Phase1Specs = approvedLessons.map((item) => item.draft.lesso
 
 export type Track01Phase1RuntimePresentation = {
   activity: ApprovedDraft["pedagogy"]["participation"];
+  checkSequence: NonNullable<ApprovedDraft["checkSequence"]>;
+  practice: NonNullable<ApprovedDraft["practice"]>;
   introComparison: (typeof approvedLessons)[number]["intro"];
   referenceAnswer: string | null;
   referenceFill: Record<string, string>;
@@ -134,6 +136,8 @@ const presentationByLesson = new Map<string, Track01Phase1RuntimePresentation>(
     item.draft.lessonSpec.lessonId,
     {
       activity: item.draft.pedagogy.participation,
+      checkSequence: item.draft.checkSequence ?? [],
+      practice: item.draft.practice!,
       introComparison: item.intro,
       referenceAnswer: item.draft.referenceAnswer,
       referenceFill: item.referenceFill,

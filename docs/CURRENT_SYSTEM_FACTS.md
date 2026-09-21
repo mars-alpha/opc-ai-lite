@@ -450,7 +450,9 @@ T1-01～T1-05 当前均已通过 Human Review，但 Runtime Provisioning / Runti
 
 `COURSE-PRODUCTION-TRACK01-A-005` 已完成 Human Review：T1-05 `结果可靠性：什么时候必须核验` = **HUMAN_REVIEW_PASS**，canonical lessonId=`t1-05-reliability-verification`。
 
-`TRACK01-PHASE1-RUNTIME-001` 已完成代码侧 Runtime bridge：新增独立 canonical Runtime course `foundation-ai`，直接复用 T1-01～T1-05 Human Review PASS Draft 派生正式 Course / LessonSpec / Check / Practice / Approved Presentation；旧 `ai-literacy` 不替换。正式 Generic Runtime 可复用已批准 Step 1 场景、Step 4 COPY_TO_AI + Reference Fill、Step 5 Review、Step 6 Self Assessment，同时继续使用真实 DB/API Gate 与 Progress。新增 values-only COPY_TO_AI 可测试 helper、幂等 provisioning 与真实 HTTP acceptance 工具。
+`TRACK01-PHASE1-RUNTIME-001` 已完成代码侧 Runtime bridge：新增 canonical Runtime course `foundation-ai`，直接复用 T1-01～T1-05 Human Review PASS Draft 派生 Course / LessonSpec / Check / Practice / Approved Presentation。旧 `ai-literacy` 数据仍保留兼容，但已退出首页 / Header 主学习 CTA。学习路径已从旧 28 课草案切换到 Track 01 canonical 20 课（6 个阶段）；T1-01～T1-05 可从正式课程 URL 进入，T1-06～T1-20 仅展示规划状态。
+
+当前 DB schema blocker 期间，正式 `foundation-ai` Lesson 页面使用受控本地互动回退显示已验收的六步体验（3 题 Check、Step 4、Reference Fill、values-only COPY_TO_AI、Review、Self Assessment），但明确不保存正式进度，Completion 继续锁定。DB provisioning 完成后再切回正式 DB/API Runtime。
 
 当前目标数据库 `foundation-ai` Lesson 数仍为 0。provisioning 写前 schema gate 返回 `TRACK01_PHASE1_DB_SCHEMA_REQUIRES_0010_0011`；所需字段为 0010 `lesson_checks.correct_answers` 与 0011 `lesson_checks.incorrect_explanation`。第一次事务 provisioning 在首条 Check 写入失败并完整回滚，复查仍为 0 Lesson。按任务边界未执行远程 migration。因此当前状态为 **IMPLEMENTATION_READY / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011**，尚未 Runtime Acceptance PASS / Runtime Ready / AVAILABLE。
 

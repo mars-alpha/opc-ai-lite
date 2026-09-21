@@ -20,18 +20,18 @@ export default function LearningPathPage() {
       <PageHero
         eyebrow="Learning Path"
         title={<>从看懂 AI，到把 AI 用进真实业务</>}
-        description="OPC 的学习主线分成五大板块。第一阶段 AI 基础认知已经完成 7 个学习阶段、28 节课程的正式目录规划，后续内容会按批次逐步开放。"
+        description="OPC 的学习主线分成五大板块。AI 基础认知已经按 6 个学习阶段、20 节核心课程重新对齐；当前 Phase 1 的前 5 节已经开放体验，后续按批次推进。"
         actions={<Link className="btn btn-primary" href="#foundation-catalog">查看基础课程目录</Link>}
         metrics={[
           { value: "5", label: "五大长期学习板块" },
-          { value: "7", label: "基础认知学习阶段" },
-          { value: "28", label: "基础课程目录" }
+          { value: "6", label: "基础认知学习阶段" },
+          { value: "20", label: "基础核心课程" }
         ]}
         visual={
           <HeroVisual
             cards={[
-              { title: "FOUNDATION", value: "7 个阶段", detail: "先建立完整 AI 世界模型" },
-              { title: "CATALOG", value: "28 节", detail: "目录完整 · 内容分批生产" },
+              { title: "FOUNDATION", value: "6 个阶段", detail: "先协作，再理解机制与系统" },
+              { title: "CATALOG", value: "20 节", detail: "核心目录完整 · 内容分批开放" },
               { title: "PATH", value: "5 大板块", detail: "工作 → 业务 → Workflow → FDE" }
             ]}
             eyebrow="OPC Learning"
@@ -68,11 +68,11 @@ export default function LearningPathPage() {
             <div>
               <div className="eyebrow">AI Foundation</div>
               <h2 className="section-title">AI 基础认知</h2>
-              <p className="section-subtitle">先把 AI 讲明白，再进入工作和业务应用。课程目录已经完整规划；内容会按批次制作，未开放课程不会进入空页面。</p>
+              <p className="section-subtitle">先把最常用的 AI 协作方法练会，再逐步理解模型、知识、工具与现代 AI 能力。已开放课程可以直接进入学习，未开放课程不会进入空页面。</p>
             </div>
             <div className="foundation-catalog-summary">
-              <strong>7</strong><span>学习阶段</span>
-              <strong>28</strong><span>基础课程</span>
+              <strong>6</strong><span>学习阶段</span>
+              <strong>20</strong><span>核心课程</span>
             </div>
           </Reveal>
 

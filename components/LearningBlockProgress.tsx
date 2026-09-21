@@ -10,6 +10,9 @@ export function LearningBlockProgress() {
   const available = lessons.filter(
     (lesson) => lesson.availability === "AVAILABLE" && lesson.runtimeCourseSlug && lesson.runtimeLessonId
   );
+  const previewable = lessons.filter(
+    (lesson) => lesson.availability === "RUNTIME_PREVIEW" && lesson.runtimeCourseSlug && lesson.runtimeLessonId
+  );
   const done = ready
     ? available.filter((lesson) =>
         isCompleted(lesson.runtimeCourseSlug!, lesson.runtimeLessonId!)
@@ -33,7 +36,7 @@ export function LearningBlockProgress() {
       <div className="learning-block-progress-copy">
         <span className="learning-progress-kicker">当前学习板块</span>
         <h3>AI 基础认知</h3>
-        <p>7 个学习阶段 · 28 节基础课程</p>
+        <p>{foundationCatalog.length} 个学习阶段 · {lessons.length} 节基础课程</p>
       </div>
 
       <div className="learning-progress-stats">
@@ -45,7 +48,9 @@ export function LearningBlockProgress() {
       <p className="learning-progress-note">
         {available.length
           ? "进度只统计已经正式开放并可完成的课程。"
-          : "课程正在按批次开放；未开放课程不会计入完成进度。"}
+          : previewable.length
+            ? "前 " + previewable.length + " 节课程已可体验；正式 Runtime 完成后才计入持久化进度。"
+            : "课程正在按批次开放；未开放课程不会计入完成进度。"}
       </p>
     </aside>
   );

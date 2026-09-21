@@ -1,6 +1,6 @@
 # TRACK01-PHASE1-RUNTIME-001 — T1-01～T1-05 Runtime Provisioning & Acceptance
 
-Status: **IMPLEMENTATION_READY / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011**
+Status: **FRONTEND_ALIGNED / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011**
 
 ## Goal
 
@@ -47,17 +47,26 @@ T1-01～T1-05 均为 **HUMAN_REVIEW_PASS**。
 - Step 5 Review cards + knowledge depth + pitfalls
 - Step 6 Self Assessment
 
-`previewMode=false` 时仍使用正式 DB/API Check、Practice、Progress 和 Completion，不会把 Preview 本地状态当成正式完成状态。
+正式 DB Runtime provisioning 完成后继续使用真实 DB/API Check、Practice、Progress 和 Completion。当前 schema blocker 期间，正式 `/courses/foundation-ai/...` 页面使用受控本地互动回退复用同一套已验收 Check / Practice / Reference Fill / COPY_TO_AI / Review；页面明确提示该互动暂不保存正式进度，Completion 继续锁定，不会把本地状态伪造成 Runtime PASS。
 
 新增 `buildPracticeCopyText()`，COPY_TO_AI 默认 values-only，可确定性测试字段标题不会进入剪贴板。
 
 ## Backward compatibility
 
-- 不替换旧 `ai-literacy`
-- `foundation-ai` 作为新的 canonical Track01 Runtime course 独立注册
-- 旧课程数组顺序不改变
+- 旧 `ai-literacy` 数据和直达兼容入口仍保留，不删除历史进度
+- `foundation-ai` 成为当前主学习入口，并在课程列表中前置
+- 首页 / Header 的“继续学习”不再选择 legacy `ai-literacy`
 - `foundation-ai` 不继承 legacy course-array prerequisite，避免被旧课程错误锁定
 - 旧 Runtime registry 项保持不变
+
+## Learning Path / frontend alignment
+
+- 学习路径从旧 28 课草案切换到已批准的 Track 01 canonical 20 课；
+- 当前目录为 6 个学习阶段；
+- T1-01～T1-05 从学习路径可直接进入 `/courses/foundation-ai/lessons/...`；
+- T1-06～T1-20 只显示规划状态，不进入空页面；
+- Phase 1 在正式 DB Runtime 尚未 provisioning 前显示“可体验”，不计入正式持久化完成进度；
+- 正式课程页在 schema blocker 期间仍保留已验收的六步课程交互。
 
 ## Provisioning tooling
 
@@ -167,5 +176,5 @@ Pending due database blocker:
 - No Course Builder redesign
 - No remote migration
 - No deploy
-- No legacy `ai-literacy` replacement
-- No full Track01 Catalog UI migration
+- No deletion of legacy `ai-literacy` data or historical progress
+- No T1-06+ lesson production

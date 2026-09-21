@@ -10,6 +10,7 @@ import { LessonFeedbackPrompt } from "../../../../../components/LessonFeedbackPr
 import { LockedAccessCta } from "../../../../../components/LockedAccessCta";
 import { courses,getAllLessons,getCourse,getLesson } from "../../../../../lib/courses";
 import { getLessonSpec } from "../../../../../lib/learning/lesson-spec-registry";
+import { buildLessonRuntimePlan } from "../../../../../lib/learning/lesson-runtime";
 import { getTrack01Phase1RuntimePresentation } from "../../../../../lib/learning/track01-phase1-runtime";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
@@ -48,11 +49,15 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
           lesson.id
         ).catch(() => null)
       : null;
-  const genericRuntimePlan =
-    runtimeReadModel?.registered
-      ? runtimeReadModel.plan
-      : null;
   const approvedPresentation = getTrack01Phase1RuntimePresentation(course.slug, lesson.id);
+  const genericRuntimePlan = runtimeReadModel?.registered
+    ? runtimeReadModel.plan
+    : registeredSpec && approvedPresentation
+      ? buildLessonRuntimePlan(registeredSpec)
+      : null;
+  const localInteractiveFallback = Boolean(
+    genericRuntimePlan && approvedPresentation && !runtimeReadModel?.registered
+  );
 
   if (genericRuntimePlan) {
   return <section className="lesson-page">
@@ -85,6 +90,21 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
             plan={genericRuntimePlan}
             lesson={lesson}
             approvedPresentation={approvedPresentation}
+            previewMode={localInteractiveFallback}
+            previewModeNote={localInteractiveFallback ? "RUNTIME_FALLBACK" : "HUMAN_REVIEW"}
+            previewCheckSequence={localInteractiveFallback ? approvedPresentation?.checkSequence ?? null : null}
+            previewActivity={localInteractiveFallback ? approvedPresentation?.activity ?? null : null}
+            previewPractice={localInteractiveFallback ? approvedPresentation?.practice ?? null : null}
+            previewReferenceAnswer={localInteractiveFallback ? approvedPresentation?.referenceAnswer ?? null : null}
+            previewReferenceFill={localInteractiveFallback ? approvedPresentation?.referenceFill ?? null : null}
+            previewKnowledgeDepth={localInteractiveFallback ? approvedPresentation?.knowledgeDepth ?? null : null}
+            previewReviewCardFill={localInteractiveFallback ? approvedPresentation?.reviewCardFill ?? false : false}
+            previewReviewItems={localInteractiveFallback ? approvedPresentation?.reviewItems ?? null : null}
+            previewReviewLabels={localInteractiveFallback ? approvedPresentation?.reviewLabels ?? null : null}
+            previewPracticeHintsGrouped={localInteractiveFallback ? approvedPresentation?.practiceHintsGrouped ?? false : false}
+            previewPracticeCopyValuesOnly={localInteractiveFallback ? approvedPresentation?.practiceCopyValuesOnly ?? true : true}
+            previewSelfAssessment={localInteractiveFallback ? approvedPresentation?.selfAssessment ?? null : null}
+            previewIntroComparison={localInteractiveFallback ? approvedPresentation?.introComparison ?? null : null}
           />
 
           <div className="lesson-complete-wrap">

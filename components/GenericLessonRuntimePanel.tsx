@@ -184,6 +184,7 @@ export function GenericLessonRuntimePanel({
   lesson,
   approvedPresentation = null,
   previewMode = false,
+  previewModeNote = "HUMAN_REVIEW",
   previewCheck = null,
   previewCheckSequence = null,
   previewActivity = null,
@@ -205,6 +206,7 @@ export function GenericLessonRuntimePanel({
   lesson: Lesson;
   approvedPresentation?: ApprovedPresentation | null;
   previewMode?: boolean;
+  previewModeNote?: "HUMAN_REVIEW" | "RUNTIME_FALLBACK";
   previewCheck?: PreviewCheck | null;
   previewCheckSequence?: ReadonlyArray<PreviewCheck> | null;
   previewActivity?: PreviewActivity | null;
@@ -644,8 +646,8 @@ export function GenericLessonRuntimePanel({
       <div className="guided-progress-track" aria-label="学习进度">
         {previewMode && (
           <div className="guided-preview-mode-note">
-            <strong>Human Review 预览</strong>
-            <span>本页只用于体验课程草稿，不保存进度、不产生完成状态、不会发布。</span>
+            <strong>{previewModeNote === "RUNTIME_FALLBACK" ? "课程互动体验" : "Human Review 预览"}</strong>
+            <span>{previewModeNote === "RUNTIME_FALLBACK" ? "课程内容与互动已对齐正式版本；当前数据库 Runtime 尚未完成 provisioning，因此本次互动暂不保存正式进度或完成状态。" : "本页只用于体验课程草稿，不保存进度、不产生完成状态、不会发布。"}</span>
           </div>
         )}
         {plan.steps.map((item, index) => (

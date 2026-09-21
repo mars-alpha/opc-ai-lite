@@ -8,7 +8,7 @@ import { PageHero } from "../components/PageHero";
 import { Reveal } from "../components/Reveal";
 import { courses } from "../lib/courses";
 
-const continueCatalog = courses.map((course) => ({
+const continueCatalog = courses.filter((course) => course.slug !== "ai-literacy").map((course) => ({
   slug: course.slug,
   title: course.title,
   stageLabel: course.stageLabel,
