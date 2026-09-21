@@ -220,7 +220,7 @@ export const beginnerAiResultQualityDraft = {
     content:["不是信息越多越好，只补会改变结果的内容。","如果 AI 第一次做偏了，先看是不是有重要信息没告诉它。","正式的 Prompt 和 Context 会在后面单独学，这一课只练最基础的直觉。"],
     example:{title:"咖啡店活动文案",situation:"你想发一条周末活动文案。",before:"帮我写一个咖啡店宣传文案。",after:"给附近 20–35 岁上班族看的周末活动文案，主推手冲体验，语气轻松，80 字以内，最后加一句到店邀请。",result:"第二种要求没有复杂技巧，只是让 AI 不再猜受众、活动重点、语气和长度。"},
     mistakes:["误区：结果不好一定是 AI 太差｜正确理解：先检查任务有没有缺重要信息。","误区：补得越长越好｜正确理解：只补真正会改变结果的信息。","误区：一开始就要学复杂模板｜正确理解：先能发现缺什么就够了。"],
-    related:["下一阶段会正式学习 Prompt。","后续会学 Context：AI 这次真正看到了什么。"]
+    related:["下一阶段会学习怎样把任务说清楚。","后续会学习怎样把必要资料给到 AI。"]
   },
   check:null,
   checkSequence:[
@@ -291,7 +291,7 @@ export const beginnerAiCanBeWrongDraft = {
     content:["创意标题、改写语气这类任务通常可以直接拿来参考。","最新政策、市场数据、合同条款、医疗或财务等高风险信息需要更认真核实。","核实可以从正式来源、原始文件、最新网页或负责该事项的人开始。"],
     example:{title:"“2026 年最新数据”看起来很完整",situation:"你让 AI 给一份行业报告补一个最新市场规模数字。",before:"看到数字和增长率写得很完整，直接放进报告。",after:"先检查数据来源、发布日期和适用范围；找不到可靠来源就不当成事实使用。",result:"你不是拒绝 AI，而是把 AI 用在起草和整理上，把事实确认留给可靠来源。"},
     mistakes:["误区：说得肯定就是有把握｜正确理解：语气不能代替证据。","误区：AI 偶尔会错，所以完全不能用｜正确理解：按任务风险决定检查强度。","误区：只有大事才需要核实｜正确理解：事实、数字、日期都值得先问来源。"],
-    related:["后续会学习 Search 和 RAG。","后续会学习更正式的 Evaluation。"]
+    related:["后续会学习 AI 怎样查资料。","后续会学习怎样更系统地检查 AI 结果。"]
   },
   check:null,
   checkSequence:[
@@ -302,7 +302,7 @@ export const beginnerAiCanBeWrongDraft = {
   practice:null,
   hints:["看到数字、日期、政策、来源时先提高警惕。","先问：如果它错了，后果大不大？"],
   referenceAnswer:null,
-  review:["事实要核实。","数字要找来源。","最新信息要看日期。","重要决定不要只靠 AI。"],
+  review:["事实和数字先找来源。","最新信息先看日期。","错误代价高的结果一定要再确认。"],
   selfAssessment:["我不会因为 AI 说得很肯定就直接相信。","我能判断哪些结果需要优先核实。"]
 } as const;
 
@@ -356,15 +356,15 @@ export const beginnerAiProductMapDraft = {
     plainExplanation:"你打开一个 AI 软件，看到的并不只是一个 Model（模型）。可以先把 Model 理解成负责理解你的输入、组织和生成内容的核心；完整软件还可以加上网页搜索、文件读取、历史记录或记忆等功能。",
     whyItMatters:"后面你会学很多新词。如果现在先有一张简单地图，就不会把“模型变强了”“软件多了一个功能”“AI 记住了资料”混成同一件事。",
     points:["核心 Model：理解和生成。","搜索：帮助软件找外部信息。","文件：让当前任务能使用你提供的资料。","记忆：让产品在合适情况下保留一些信息。"],
-    content:["这一课只需要知道它们是不同能力，不需要知道内部怎样连接。","同一个 AI 软件可以不断增加新功能，但这不代表每个新按钮都等于 Model 本身。","后面学习 Memory、Search、RAG、Tool 时，会再逐个拆开。"],
+    content:["这一课只需要知道它们是不同能力，不需要知道内部怎样连接。","同一个 AI 软件可以不断增加新功能，但这不代表每个新按钮都等于 Model 本身。","后面会再逐个拆开搜索、文件、记忆，以及 AI 怎样连接更多外部能力。"],
     example:{title:"为什么一个 AI 软件能突然多出“搜索网页”功能",situation:"昨天你只能聊天，今天软件更新后多了网页搜索。",before:"理解成 Model 本身突然把整个互联网都装进去了。",after:"先简单理解成：完整软件多组合了一种可以找外部信息的能力，再把找到的内容用于回答。",result:"你不需要懂实现，也已经知道“Model”和“软件新增功能”不是同一个概念。"},
     mistakes:["误区：AI 软件名字就是 Model 名字｜正确理解：产品和 Model 不是同一层。","误区：能搜网页就是 Model 自己天然知道最新网页｜正确理解：搜索可以是产品额外能力。","误区：现在就要学懂所有内部连接｜正确理解：新手先建立地图，细节以后逐个学。"],
-    related:["Stage 3 会正式学习 Model。","Stage 4 会学习 Memory、Search 和 RAG。"]
+    related:["后面会更正式地学习 Model（模型）。","再往后会逐步拆开搜索、文件和记忆这些能力。"]
   },
   check:null,
   checkSequence:[
-    {id:"check_map_best",questionType:"SINGLE_CHOICE",masteryRole:"BEST_JUDGMENT",question:"一个 AI 软件新增“读取 PDF”功能。下面哪个理解最适合现在这个阶段？",options:[{value:"A",label:"完整 AI 软件新增了一种使用文件的能力"},{value:"B",label:"这证明 Model 和 PDF 功能本来就是同一个概念"},{value:"C",label:"必须先学会 API 才能理解这个功能"}],correctValues:["A"],explanation:"新手先把完整产品和其中不同能力分开即可。",correctFeedback:"正确。先建立“一个软件组合多种能力”的地图就够了。",incorrectFeedback:"这节课不要求解释内部实现。先判断它是完整软件里的哪类能力，而不是把所有东西都叫 Model。"},
-    {id:"check_map_misconception",questionType:"TRUE_FALSE",masteryRole:"MISCONCEPTION",question:"判断：AI 软件里出现的聊天、搜索、文件和记忆，都可以直接当成 Model 的同义词。",options:[{value:"TRUE",label:"对"},{value:"FALSE",label:"错"}],correctValues:["FALSE"],explanation:"Model 是核心能力之一，完整软件还会组合其他产品能力。",correctFeedback:"正确。以后看到新功能时，你会先问它属于哪一层。",incorrectFeedback:"把所有功能都叫 Model，会让后面的 Memory、Search、Tool 等概念越来越混乱。"},
+    {id:"check_map_best",questionType:"SINGLE_CHOICE",masteryRole:"BEST_JUDGMENT",question:"一个 AI 软件新增“读取 PDF”功能。下面哪个理解最适合现在这个阶段？",options:[{value:"A",label:"完整 AI 软件新增了一种使用文件的能力"},{value:"B",label:"这证明 Model 和 PDF 功能本来就是同一个概念"},{value:"C",label:"必须先学懂内部技术实现，才知道这个功能是什么"}],correctValues:["A"],explanation:"新手先把完整产品和其中不同能力分开即可。",correctFeedback:"正确。先建立“一个软件组合多种能力”的地图就够了。",incorrectFeedback:"这节课不要求解释内部实现。先判断它是完整软件里的哪类能力，而不是把所有东西都叫 Model。"},
+    {id:"check_map_misconception",questionType:"TRUE_FALSE",masteryRole:"MISCONCEPTION",question:"判断：AI 软件里出现的聊天、搜索、文件和记忆，都可以直接当成 Model 的同义词。",options:[{value:"TRUE",label:"对"},{value:"FALSE",label:"错"}],correctValues:["FALSE"],explanation:"Model 是核心能力之一，完整软件还会组合其他产品能力。",correctFeedback:"正确。以后看到新功能时，你会先问它属于哪一层。",incorrectFeedback:"把所有功能都叫 Model，会让后面学习搜索、文件和记忆时越来越混乱。"},
     {id:"check_map_boundary",questionType:"MULTI_SELECT",masteryRole:"BOUNDARY_CONDITIONS",question:"下面哪些可以先理解为完整 AI 软件额外提供的产品能力？（多选）",options:[{value:"SEARCH",label:"搜索网页"},{value:"FILE",label:"读取你上传的文件"},{value:"MEMORY",label:"保存部分长期偏好"},{value:"GENERATE",label:"根据当前输入组织并生成一段文字"}],correctValues:["SEARCH","FILE","MEMORY"],explanation:"搜索、文件、记忆属于产品层能力；理解和生成是 Model 的核心能力直觉。",correctFeedback:"正确。两层简单地图已经建立起来了。",incorrectFeedback:"先只用最简单的两层：Model 负责核心理解/生成；软件还会组合搜索、文件、记忆等能力。"}
   ],
   practice:null,
@@ -461,7 +461,7 @@ export const beginnerAiProductMapKnowledgeDepth = {
     },
     {
       title: "现在不需要知道它们怎么连接",
-      text: "新手阶段只要知道不同能力各有位置。等后面学 Memory、Search、RAG 时再逐个拆开。"
+      text: "新手阶段只要知道不同能力各有位置。后面会再逐个拆开搜索、文件和记忆是怎样工作的。"
     }
   ],
   review: [

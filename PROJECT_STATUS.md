@@ -52,8 +52,9 @@ COURSE-PRODUCTION-001 Foundation Batch A Real Lessons TECHNICAL_ACCEPTANCE_PASS_
 CURRICULUM-005 Beginner Foundation Reframe COMPLETE_REFRAMED_V1
 COURSE-PRODUCTION-002 Beginner Batch A Rebuild TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 COURSE-PRODUCTION-002-A Beginner Batch A Experience Restoration COMPLETE_EXPERIENCE_RESTORED_V1
+COURSE-UX-QUALITY-001 Beginner Lesson Quality Pass COMPLETE_QUALITY_BASELINE_V1
 
-NEXT: HUMAN REVIEW — Beginner Batch A restored experience
+NEXT: HUMAN REVIEW — Beginner Batch A quality baseline; then decide Stage 2 production
 ```
 
 ## 当前系统健康

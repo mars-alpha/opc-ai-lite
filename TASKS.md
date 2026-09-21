@@ -641,6 +641,12 @@ Status: COMPLETE_EXPERIENCE_RESTORED_V1
 
 在不改变 CURRICULUM-005 Beginner-first 内容方向的前提下，恢复此前已验证的课程体验增强层：四节均补回 Step 1 bottomDetails、Step 2 / Step 5 previewKnowledgeDepth、previewReviewCardFill；F1-01 / F1-02 增加参考答案一键填充，F1-02 恢复 COPY_TO_AI 让用户把补清楚后的任务复制到真实 AI 软件比较结果。BeginnerFoundationDraftPreview 只复用 Generic Lesson Runtime 既有数据接口，不改 Unified Lesson Shell、不按 lesson slug 分支。Beginner Experience acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS。下一步继续 Human Review 四节 Preview。
 
+### COURSE-UX-QUALITY-001 — Beginner Lesson Quality Pass
+
+Status: COMPLETE_QUALITY_BASELINE_V1
+
+以 Beginner Batch A 四节课作为后续零基础课程质量样板。新增 `BEGINNER_LESSON_QUALITY_STANDARD_V1.md`，固定 Cognitive Load Budget：1 个主问题、1 个主概念/判断、最多 1–2 个新术语、1 个主要案例、bottomDetails <= 2、example depth <= 2、主 Review <= 3、review depth <= 2。专项 acceptance 同步升级，除结构预算外还扫描整课用户可见内容，防止 Training / Inference / Token / Embedding / Vector Search / Deterministic Logic / API / Tool / MCP / Agent Runtime / RAG / Evaluation 等后置术语提前泄漏。F1-03 Review 从 4 条收敛为 3 条；F1-04 Check/正文/后续说明中的 API/RAG/Tool 改为自然语言。Beginner Quality、Course Builder、Unified Shell、typecheck、build 全部 PASS。Lesson ID / Type / Gate / Catalog 状态不变。下一步：Human Review 质量样板，通过后再进入 Stage 2 生产。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

@@ -46,6 +46,21 @@ const forbiddenOpeningTerms = [
   "Agent Runtime"
 ];
 
+const forbiddenVisibleTerms = [
+  "Training",
+  "Inference",
+  "Token",
+  "Embedding",
+  "Vector Search",
+  "Deterministic Logic",
+  "API",
+  "Tool",
+  "MCP",
+  "Agent Runtime",
+  "RAG",
+  "Evaluation"
+];
+
 drafts.forEach((draft, index) => {
   const parsed = validateCourseBuilderOutput(draft);
   if (parsed.mode !== "BUILD") throw new Error("BEGINNER_BATCH_A_BUILD_REQUIRED");
@@ -64,7 +79,7 @@ drafts.forEach((draft, index) => {
       "SINGLE_CHOICE>TRUE_FALSE>MULTI_SELECT",
     "BEGINNER_BATCH_A_CHECK_ORDER"
   );
-  assert(parsed.review.length >= 2 && parsed.review.length <= 4, "BEGINNER_BATCH_A_REVIEW_SIZE");
+  assert(parsed.review.length >= 2 && parsed.review.length <= 3, "BEGINNER_BATCH_A_REVIEW_SIZE");
 
   const openingText = [
     parsed.content.summary,
@@ -74,6 +89,34 @@ drafts.forEach((draft, index) => {
   ].join(" ");
   for (const term of forbiddenOpeningTerms) {
     assert(!openingText.includes(term), "BEGINNER_BATCH_A_FORBIDDEN_OPENING_TERM:" + term);
+  }
+
+  const visibleText = [
+    parsed.content.summary,
+    parsed.content.plainExplanation,
+    parsed.content.whyItMatters,
+    ...parsed.content.points,
+    ...parsed.content.content,
+    parsed.content.example.title,
+    parsed.content.example.situation,
+    parsed.content.example.before,
+    parsed.content.example.after,
+    parsed.content.example.result,
+    ...parsed.content.mistakes,
+    ...parsed.content.related,
+    ...parsed.lessonSpec.steps.flatMap((step) => [step.title, step.objective]),
+    ...parsed.checkSequence!.flatMap((check) => [
+      check.question,
+      check.explanation,
+      check.correctFeedback,
+      check.incorrectFeedback,
+      ...check.options.map((option) => option.label)
+    ]),
+    ...parsed.review,
+    ...parsed.selfAssessment
+  ].join(" ");
+  for (const term of forbiddenVisibleTerms) {
+    assert(!visibleText.includes(term), "BEGINNER_QUALITY_VISIBLE_TERM_LEAK:" + term);
   }
 });
 
@@ -100,7 +143,8 @@ const introEnhancements = [
   beginnerAiProductMapIntro
 ];
 for (const intro of introEnhancements) {
-  assert((intro.bottomDetails?.length ?? 0) >= 2, "BEGINNER_EXPERIENCE_BOTTOM_DETAILS");
+  assert((intro.bottomDetails?.length ?? 0) >= 1, "BEGINNER_EXPERIENCE_BOTTOM_DETAILS_REQUIRED");
+  assert((intro.bottomDetails?.length ?? 0) <= 2, "BEGINNER_QUALITY_BOTTOM_DETAILS_BUDGET");
 }
 
 const depthEnhancements = [
@@ -110,8 +154,10 @@ const depthEnhancements = [
   beginnerAiProductMapKnowledgeDepth
 ];
 for (const depth of depthEnhancements) {
-  assert(depth.example.length >= 2, "BEGINNER_EXPERIENCE_EXAMPLE_DEPTH");
-  assert(depth.review.length >= 2, "BEGINNER_EXPERIENCE_REVIEW_DEPTH");
+  assert(depth.example.length >= 1, "BEGINNER_EXPERIENCE_EXAMPLE_DEPTH");
+  assert(depth.example.length <= 2, "BEGINNER_QUALITY_EXAMPLE_DEPTH_BUDGET");
+  assert(depth.review.length >= 1, "BEGINNER_EXPERIENCE_REVIEW_DEPTH");
+  assert(depth.review.length <= 2, "BEGINNER_QUALITY_REVIEW_DEPTH_BUDGET");
 }
 
 assert(Object.keys(beginnerAiUseCasesReferenceFill).length === 2, "BEGINNER_USE_CASE_REFERENCE_FILL");
@@ -123,3 +169,4 @@ console.log("BEGINNER_BATCH_A_BEGINNER_CONSTRAINTS=PASS");
 console.log("BEGINNER_BATCH_A_SIX_STEP=PASS");
 console.log("BEGINNER_BATCH_A_MASTERY=PASS");
 console.log("BEGINNER_BATCH_A_EXPERIENCE_RESTORATION=PASS");
+console.log("BEGINNER_BATCH_A_QUALITY_BUDGET=PASS");
