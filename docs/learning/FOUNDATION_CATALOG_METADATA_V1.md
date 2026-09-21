@@ -9,8 +9,8 @@ Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
 
 固定规则：
 
-- 新 F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`（单课质量曾 Human Review PASS；最新跨课 Continuity Review 要求重做 Stage 1/2 Brief，暂停 Runtime）
-- F2-01～F2-04：`IN_PRODUCTION + COMING_SOON`（技术验收通过；最新跨课 Continuity Review 要求与 Stage 1 一起重做 Brief，暂停 Human Review / Runtime）
+- 新 F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`（Continuity Formal Brief 已重做完成；旧 Draft 保留，当前等待 v0.2 Continuity Trial，Runtime 继续暂停）
+- F2-01～F2-04：`IN_PRODUCTION + COMING_SOON`（Continuity Formal Brief 已重做完成；COURSE-PRODUCTION-003 Draft 为旧 Brief 证据，当前等待 v0.2 Continuity Trial，Human Review / Runtime 继续暂停）
 - F3-01～F7-06 共 20 节：`PLANNED + COMING_SOON`
 - 旧 COURSE-PRODUCTION-001 四个 Draft：`PEDAGOGY_REJECTED`，不是当前 Catalog 候选
 - 当前没有任何 Foundation Lesson 标记为 `AVAILABLE`

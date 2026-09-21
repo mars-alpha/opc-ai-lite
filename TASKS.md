@@ -689,6 +689,12 @@ Status: COMPLETE_BASELINE_V1
 
 新增 `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`，锁定五大板块为一条连续能力链。方法层必须行业通用，OPC / 自媒体 / 内容运营→推广→获客→业务转化为默认贯穿 Case Thread。后续 Formal Brief 必须明确 Inherited Capability / Inherited Artifact / Current Learner Job / New Capability / Artifact Output / Next Reuse / Do Not Re-teach / Case Thread。Stage 1 / Stage 2 当前技术成果保留，但因知识重复、案例断裂与 Artifact 不连续进入 CONTINUITY_REWORK_REQUIRED，暂停 Runtime。Course Builder v0.2 Gap Review 结论：v0.2 暂不升级；v0.3 Capability Continuity Alignment 有候选价值，但必须先用新的 Stage 1/2 Brief 验证真实缺口。下一步：`FOUNDATION-CONTINUITY-REWORK-001`。
 
+### FOUNDATION-CONTINUITY-REWORK-001 — Stage 1 + Stage 2 Formal Brief / Artifact Thread Rework
+
+Status: COMPLETE_BRIEF_READY_CONTINUITY_V1
+
+新增 `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`。保留 F1-01～F2-04 全部 canonical lessonId / Primary Knowledge Home / Lesson Type / Gate，但把八节重构为一个 OPC / 自媒体贯穿 Artifact Thread：First Draft → Better Draft → Verification Flags → Source Plan → Task Brief → Context Pack → Iterated Draft → Verified Publishable Draft。明确每节 Inherited Capability / Artifact、Current Learner Job、New Capability、Artifact Action / Output、Next Reuse、Do Not Re-teach 与 Human Review Focus。F1-02 仅保留输入变化最小实验，Prompt 正式方法留 F2-01；F1-03 只负责发现风险，完整检查留 F2-04；F1-04 产品能力地图服务当前 Artifact；F2-02 转为建立 Context Pack。旧 Stage2 Brief 标记 superseded。下一步：`FOUNDATION-CONTINUITY-TRIAL-001`，先用 `course-builder@0.2.0` 重做 3–5 个代表样本，不立即升级 v0.3。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

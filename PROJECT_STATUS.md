@@ -60,8 +60,9 @@ FACT-DRIFT-AUDIT-001 Current Fact Drift Audit COMPLETE_DOCS_ALIGNED
 COURSE-PRODUCTION-003 Foundation Stage 2 Collaboration Batch TECHNICAL_ACCEPTANCE_PASS_CONTINUITY_REWORK_REQUIRED
 DEV-RUNTIME-FIX-001 Windows Dev Startup COMPLETE_DEV_START_FIX
 CURRICULUM-CONTINUITY-001 Five-Track Capability Continuity Baseline COMPLETE_BASELINE_V1
+FOUNDATION-CONTINUITY-REWORK-001 Stage 1 + Stage 2 Formal Brief / Artifact Thread Rework COMPLETE_BRIEF_READY_CONTINUITY_V1
 
-NEXT: FOUNDATION-CONTINUITY-REWORK-001 — Stage 1 + Stage 2 Formal Brief / Artifact Thread rework
+NEXT: FOUNDATION-CONTINUITY-TRIAL-001 — Course Builder v0.2 Continuity Trial on 3–5 representative lessons
 ```
 
 ## 当前系统健康

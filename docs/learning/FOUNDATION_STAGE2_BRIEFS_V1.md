@@ -1,9 +1,11 @@
 # Foundation Stage 2 Formal Briefs v1
 
-Status: **BRIEF_READY_V1**
+Status: **SUPERSEDED_BY_CONTINUITY_BRIEF_V1**
 Batch: **FOUNDATION-STAGE2-BATCH-A**
 Selected Skill: **course-builder@0.2.0**
 Quality: **BEGINNER_LESSON_QUALITY_STANDARD_V1 / BEGINNER_QUALITY_V1**
+
+This file records the pre-continuity Stage 2 production brief used by COURSE-PRODUCTION-003. New Stage 1 / Stage 2 production must use `FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`; do not use this file as current Course Builder input.
 
 ## Batch intent
 

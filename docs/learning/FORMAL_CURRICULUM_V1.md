@@ -110,6 +110,7 @@ CURRICULUM-005 已废弃早期“先讲模型机制”的 9 课开场。当前 F
 
 - `docs/learning/BEGINNER_FOUNDATION_REFRAME_V1.md`：定义 Beginner-first 前三阶段顺序；
 - `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`：定义 7 Stage / 28 Lesson、Primary Knowledge Home、前置依赖和去重边界；
+- `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`：定义 F1-01～F2-04 的跨课 Case Thread、Artifact Thread、Inherited/New Capability、Next Reuse 与 Do-Not-Reteach；
 - `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`：定义当前 Catalog lessonId / status / availability。
 
 当前前三阶段固定为：

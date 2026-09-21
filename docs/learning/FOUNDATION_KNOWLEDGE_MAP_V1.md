@@ -23,11 +23,13 @@ Scope: **Track 01 / AI 基础认知**
 **完整基础课共 28 个 Lesson Brief。**  
 28 只是当前 v1 的知识地图数量，不等于必须一次上线 28 节。正式内容继续按 3–5 节一个 Production Batch 分批生产。
 
+F1-01～F2-04 的 Lesson identity / Primary Knowledge Home / Type / Gate 继续以本 Knowledge Map 为知识边界；但其当前教学承接、Case Thread、Artifact Thread、Inherited/New Capability 与 Do-Not-Reteach 由 `FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md` 定义。二者冲突时：Knowledge Map 决定“知识归属”，Continuity Brief 决定“怎样承上启下地教”。
+
 ---
 
 # 2. Foundation Stage 1 — 先认识 AI 怎么用
 
-目标：完全零基础的学习者先知道 AI 能帮什么、为什么结果会变化、为什么会犯错，以及自己正在使用的是一个完整 AI 软件。
+目标：完全零基础的学习者先用 AI 完成一个真实任务并留下第一版 Artifact，同时在使用过程中建立“AI 能帮什么、结果会变化、结果可能有错、不同产品能力解决不同信息问题”的最低必要世界观。
 
 | ID | Lesson | Type | Gate | Primary Knowledge Home | Prerequisite | Grounding | Learner outcome | Anti-overlap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -45,7 +47,7 @@ Stage 1 原则：
 
 # 3. Foundation Stage 2 — 学会和 AI 基本协作
 
-目标：在已有使用直觉上，学会把任务说清楚、把必要信息给够、逐轮改进，并知道什么时候必须检查。
+目标：继续 Stage 1 的同一 Artifact，把“AI 给了一个结果”逐步做到“我能控制并交付这个结果”：Prompt → Context Pack → Iteration → Result Check。Stage 2 不重新教授 Stage 1 已建立的输入影响直觉与 AI 会出错直觉。
 
 | ID | Lesson | Type | Gate | Primary Knowledge Home | Prerequisite | Grounding | Learner outcome | Anti-overlap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
