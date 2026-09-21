@@ -20,6 +20,35 @@ Lesson Runtime Snapshot
 
 刷新、离开课程、访问其他页面、重新进入课程后，均由正式业务状态恢复，而不是由 React 临时状态或历史 fallback 猜测。
 
+## Frontend UI freeze
+
+001-B 只重写 Lesson Runtime 内核，不重新设计、删除或回滚当前已经确认的前端界面。
+
+冻结范围：
+
+- 首页
+- 学习路径
+- AI 日报
+- 进阶练习
+- 课程页六步视觉与课程侧栏
+- Header / Footer
+- 已确认的卡片、导航、按钮位置与响应式样式
+
+实现时每个受影响文件必须按以下方式处理：
+
+```text
+UI KEEP
+→ 已确认 JSX / CSS / 组件位置默认保留
+
+Logic REWRITE
+→ 重写 Runtime read/write、Gate、resume、completion、rating 等逻辑
+
+State DELETE
+→ 删除重复 local state、临时 context、fallback 与同步 effect
+```
+
+禁止通过整文件 restore / checkout 覆盖已确认 UI。若任何 Runtime 需求确实要求改变界面，必须先停止实施并由产品确认。
+
 ## Confirmed product behavior
 
 - 用户重新进入课程时恢复到最后停留 Step。
@@ -107,9 +136,9 @@ PASSED 后“重新练习”进入新的本地编辑状态；未正式提交前�
 
 | File | Direction |
 | --- | --- |
-| GenericLessonRuntimePanel.tsx | REWRITE / SHRINK |
+| GenericLessonRuntimePanel.tsx | UI KEEP / LOGIC REWRITE / STATE DELETE |
 | LessonRuntimeUiContext.tsx | DELETE |
-| LessonFeedbackPrompt.tsx | REWRITE / SIMPLIFY |
+| LessonFeedbackPrompt.tsx | UI KEEP / LOGIC REWRITE / SIMPLIFY |
 | LessonCompleteButton.tsx | legacy 保留；foundation-ai 新 Runtime 不依赖 |
 | ProgressProvider.tsx | KEEP；仅站点级完成进度 cache |
 | progress-adapter.ts | KEEP；正式 foundation Runtime 不以 local fallback 为事实源 |
@@ -118,7 +147,7 @@ PASSED 后“重新练习”进入新的本地编辑状态；未正式提交前�
 | lesson-page/service.ts | 简化 foundation Runtime context |
 | foundation-catalog.ts | T1-01～T1-05 metadata 去重 |
 | track01-phase1-runtime.ts | KEEP，从 Human Review PASS Draft 派生 |
-| lesson page.tsx | foundation Runtime 与 legacy renderer 明确分流 |
+| lesson page.tsx | UI KEEP；仅做 foundation Runtime 与 legacy renderer 逻辑分流 |
 
 最多新增：
 
@@ -238,6 +267,7 @@ manual browser acceptance
 - Phase1 metadata 去重。
 - 无新增通用 Framework。
 - T1-01～T1-05 full Runtime + manual acceptance PASS。
+- 首页 / 学习路径 / AI 日报 / 进阶练习 / 课程页 / Header / Footer 已确认 UI 无回归。
 
 ## Out of scope
 
