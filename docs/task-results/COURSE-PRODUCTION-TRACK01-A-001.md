@@ -51,3 +51,16 @@ During acceptance, a deterministic validator drift was found and corrected: `BEG
 - `npm run build` — PASS
 
 T1-01 保持 **HUMAN_REVIEW_PENDING**；T1-02～T1-05 仍未扩产。
+
+## Human Review refinement 2 — Step 4 system boundary
+
+第二轮反馈确认，课程系统并不会消费或处理外部 AI 的回复，因此 Step 4 不应要求学习者把 AI 输出再粘贴回课程。已重新划清边界：
+
+- Step 4 课程内只保留两个学习者自己的输入：`我的 3 个真实任务` + `我选中的任务`；
+- 第二栏用一句话写清“希望 AI 先帮我完成什么”，供 T1-02 继续加工；
+- 外部 AI 操作只作为可选体验，不回填、不评分、不成为课程 Artifact；
+- 原 `AI 给出的第一版 / draft` 字段彻底移除；
+- Reference Answer / 一键填充只包含上述两个字段的直接示例值，不混入解释、教学理由、下一课 handoff 或内部术语；
+- Artifact 改为 `TASK_FIT_NOTE_WITH_SELECTED_TASK_GOAL`，T1-02 不再依赖 AI First Draft。
+
+新增 acceptance：`TRACK01_T101_STEP4_NO_EXTERNAL_AI_REPLY_FIELD`、`TRACK01_T101_REFERENCE_FILL_PURE_VALUES`。状态继续保持 **HUMAN_REVIEW_PENDING**。

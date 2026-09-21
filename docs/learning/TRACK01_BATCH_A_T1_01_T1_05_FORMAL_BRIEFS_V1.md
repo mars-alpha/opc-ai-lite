@@ -54,20 +54,20 @@ Prerequisite: **None**
 - 不应直接交给 AI 决定。
 
 ### Artifact Action / Output
-选一个真实任务 → 写一句目标 → 让 AI 先做一个最小版本。
+选一个真实任务 → 写一句目标。外部 AI 操作可以作为体验，但课程不要求回填 AI 回复。
 
-Output: **AI First Draft + Task Fit Note**
+Output: **Task Fit Note + Selected Task Goal**
 
 ### Six-step intent
 1. EXPLAIN：第一课先完成一个极简单任务——把关于一个 AI 新变化的几句零散想法整理成 3 个清楚重点；先获得“AI 确实帮我完成了一件事”的直观体验，再扩展判断。
 2. EXAMPLE：从刚完成的内容整理任务逐步扩展：整理 / 草拟可以交给 AI；事实信息需要谨慎核验；最终发布决定不能直接交给 AI。
 3. CHECK：给 3 个真实小场景，判断“可协助 / 需核验 / 不应直接决定”。
-4. PRACTICE：写下自己的 3 个真实任务，逐个标记“AI 可协助 / 需谨慎核验 / 人负责最终决定”；从中选 1 个，写一句任务目标并让 AI 生成最小 First Draft。保留 **3-task classification + selected task goal + AI First Draft**。
+4. PRACTICE：写下自己的 3 个真实任务，逐个标记“AI 可协助 / 需谨慎核验 / 人负责最终决定”；从中选 1 个，并用一句话写清希望 AI 先协助完成什么。课程只保留 **3-task classification + selected task goal**，不要求把外部 AI 回复粘贴回系统。
 5. REVIEW：任务是否清楚；AI 是否真的能帮；错误成本是否可接受；最终判断权在哪里。
 6. CAPABILITY：能选择一个适合 AI 的真实任务并安全开始。
 
 ### Next Reuse
-T1-02 直接使用当前任务和 First Draft，把模糊需求改成 Clear Task Brief。
+T1-02 直接使用当前选中的任务和一句话目标，把模糊需求改成 Clear Task Brief。
 
 ### Anti-repeat / Deferred
 - 不正式教 Prompt 结构；
