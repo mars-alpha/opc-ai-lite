@@ -57,6 +57,11 @@ assert(track01T101KnowledgeDepth.review.length === 3, "TRACK01_T101_REVIEW_DEPTH
 assert(track01T101KnowledgeDepth.review.every((item) => item.title.startsWith("为什么")), "TRACK01_T101_REVIEW_DEPTH_EXPLAINS_WHY");
 assert(draft.selfAssessment.length >= 2, "TRACK01_T101_SELF_ASSESSMENT");
 assert(Boolean(draft.referenceAnswer?.trim()), "TRACK01_T101_REFERENCE_ANSWER");
+assert(draft.pedagogy.participation.kind === "COPY_TO_AI", "TRACK01_T101_STEP4_COPY_TO_AI");
+assert(track01T101ReferenceFill.task.includes("OPC AI 学习站"), "TRACK01_T101_REFERENCE_OPC_CASE");
+assert(track01T101ReferenceFill.task.includes("自媒体"), "TRACK01_T101_REFERENCE_SELF_MEDIA_CASE");
+assert(track01T101ReferenceFill.task.length >= 45, "TRACK01_T101_REFERENCE_TASK_COMPLETE");
+assert(track01T101ReferenceFill.help.length >= 45, "TRACK01_T101_REFERENCE_HELP_COMPLETE");
 assert(draft.hints.length >= 2, "TRACK01_T101_HINTS");
 assert(track01T101Meta.artifactOutput === "TASK_FIT_NOTE", "TRACK01_T101_ARTIFACT_OUTPUT");
 assert(track01T101Meta.nextReuse === "T1-02_CLEAR_TASK_BRIEF", "TRACK01_T101_NEXT_REUSE");
@@ -129,6 +134,11 @@ assert(track01T102Meta.artifactOutput === "CLEAR_TASK_BRIEF", "TRACK01_T102_ARTI
 assert(track01T102Draft.content.example.situation.includes("AI 工具"), "TRACK01_T102_OPC_CONTENT_EXAMPLE");
 assert(!track01T102Draft.referenceAnswer?.includes("下一课"), "TRACK01_T102_REFERENCE_INTERNAL_ORCHESTRATION_LEAK");
 assert(!track01T102Draft.referenceAnswer?.includes("AI 回复"), "TRACK01_T102_REFERENCE_AI_REPLY_LEAK");
+assert(track01T102ReferenceFill.goal.includes("OPC AI 学习站"), "TRACK01_T102_REFERENCE_OPC_CASE");
+assert(track01T102ReferenceFill.goal.includes("自媒体"), "TRACK01_T102_REFERENCE_SELF_MEDIA_CASE");
+assert(track01T102ReferenceFill.goal.length >= 40, "TRACK01_T102_REFERENCE_GOAL_COMPLETE");
+assert(track01T102ReferenceFill.requirements.length >= 60, "TRACK01_T102_REFERENCE_REQUIREMENTS_COMPLETE");
+assert(track01T102ReferenceFill.format.includes("标题"), "TRACK01_T102_REFERENCE_FORMAT_COMPLETE");
 for (const value of Object.values(track01T102ReferenceFill)) {
   for (const forbidden of ["下一课", "继续使用", "参考答案", "说明：", "为什么"]) {
     assert(!value.includes(forbidden), "TRACK01_T102_REFERENCE_FILL_PURE_VALUE:" + forbidden);
