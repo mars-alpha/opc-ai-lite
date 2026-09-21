@@ -584,7 +584,7 @@ export const track01T103Draft = {
     lessonType: "APPLICATION",
     learningObjectives: [
       "能判断当前任务真正需要哪些信息。",
-      "能把信息分成必须知道、有帮助但非必须、暂时不要放三类。",
+      "能判断哪些信息这次可以先不放。",
       "能整理一份足够但不过量的最小信息包。"
     ],
     knowledgePoints: [
@@ -607,8 +607,8 @@ export const track01T103Draft = {
       { id: "explain", kind: "EXPLAIN", title: "任务说清楚了，AI 为什么还是可能答不好", objective: "让学习者理解 AI 仍然缺少完成任务所需的信息。" },
       { id: "example", kind: "EXAMPLE", title: "同一条内容，信息太少、太多和刚好够用有什么区别", objective: "通过一个内容任务看见信息选择会直接影响结果。" },
       { id: "check", kind: "CHECK", title: "这些信息真的需要放进去吗", objective: "检查学习者能否区分必须、可选和暂时不要放的信息。" },
-      { id: "practice", kind: "PRACTICE", title: "整理你自己的最小信息包", objective: "把真实任务相关信息分成三类，并整理最低够用的信息。" },
-      { id: "review", kind: "REVIEW", title: "准备信息时，记住这 3 个判断", objective: "留下选择、取舍和停止继续添加信息的判断。" },
+      { id: "practice", kind: "PRACTICE", title: "整理你自己的最小信息包", objective: "选出当前任务必须给 AI 的信息，并去掉这次可以先不放的内容。" },
+      { id: "review", kind: "REVIEW", title: "准备信息时，记住这 2 个判断", objective: "留下“只选必要信息”和“够用就停”两个可复用判断。" },
       { id: "capability", kind: "CAPABILITY", title: "你已经会为 AI 准备刚好够用的信息", objective: "确认学习者能独立判断信息是否必要，并整理最小信息包。" }
     ],
     capabilityGain: [
@@ -705,22 +705,19 @@ export const track01T103Draft = {
     title: "整理你自己的最小信息包",
     goal: "为一个你准备做的真实 AI 内容任务，选出真正需要的信息。",
     instructions: [
-      { key: "mustKnow", label: "必须知道", prompt: "写出没有这些信息，AI 很容易把任务做错的内容。" },
-      { key: "niceToKnow", label: "有帮助但非必须", prompt: "写出有它会更好，但没有它仍然可以完成任务的信息。" },
-      { key: "doNotLoad", label: "暂时不要放", prompt: "写出和当前任务关系弱、重复、过时或容易制造噪音的信息。" },
-      { key: "minimumPack", label: "最小信息包", prompt: "只从“必须知道”里整理出这次真正要提供给 AI 的信息。" }
+      { key: "mustKnow", label: "这次必须给 AI 的信息", prompt: "写出 1～3 条：如果缺少这些信息，AI 很容易把当前任务做错。" },
+      { key: "leaveOut", label: "这次可以先不放的信息", prompt: "写出 1～3 条和当前任务关系较弱、重复、过时，或只是锦上添花的信息。" },
+      { key: "minimumPack", label: "我的最小信息包", prompt: "把第一项整理成一小段真正准备提供给 AI 的信息即可。" }
     ],
     hints: [
-      "先问“缺了这条，AI 会不会明显做错”，再决定是不是必须知道。",
-      "不要因为资料已经收集好了，就默认它应该放进去。",
-      "暂时不要放不代表永远没用，只是当前任务先不用。",
-      "最小信息包宁可短而相关，不要为了显得完整继续加内容。"
+      "先从 1～3 条最关键的信息开始，不需要把手头资料全部列出来。",
+      "“可以先不放”不代表永远没用，只表示这次任务暂时不需要。",
+      "最小信息包直接整理第一项即可，不需要重新写一遍所有资料。"
     ],
     rubric: [
-      { key: "mustKnow", label: "必须信息与任务直接相关", maxScore: 25, minScore: 15, example: "我亲自试过并确认可用的 3 个功能；目标读者是普通用户。" },
-      { key: "niceToKnow", label: "可选信息与必须信息区分清楚", maxScore: 25, minScore: 15, example: "一个可补充的使用场景，但不影响核心介绍。" },
-      { key: "doNotLoad", label: "能识别噪音信息", maxScore: 25, minScore: 15, example: "半年前旧文章；和这次主题无关的产品截图。" },
-      { key: "minimumPack", label: "最小信息包足够且不过量", maxScore: 25, minScore: 15, example: "目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。" }
+      { key: "mustKnow", label: "必要信息与任务直接相关", maxScore: 35, minScore: 20, example: "目标读者是普通用户；我亲自试过并确认可用的 3 个功能。" },
+      { key: "leaveOut", label: "能去掉这次不必要的信息", maxScore: 30, minScore: 15, example: "半年前旧文章；和这次主题无关的产品截图。" },
+      { key: "minimumPack", label: "最小信息包足够且不过量", maxScore: 35, minScore: 20, example: "目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。" }
     ],
     passScore: 60
   },
@@ -729,15 +726,14 @@ export const track01T103Draft = {
     "这一课只练信息取舍，不要求判断哪一个来源最权威。"
   ],
   referenceAnswer:
-    "必须知道：目标读者是普通用户；我亲自试过并确认可用的 3 个功能。\n有帮助但非必须：一个额外的使用场景。\n暂时不要放：半年前旧文章；与主题无关的产品更新截图。\n最小信息包：目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。",
+    "这次必须给 AI 的信息：目标读者是普通用户；我亲自试过并确认可用的 3 个功能。\n这次可以先不放的信息：半年前旧文章；与主题无关的产品更新截图；一个不影响核心介绍的补充场景。\n我的最小信息包：目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。",
   review: [
-    "先选真正影响任务的信息｜把手头所有资料都当成当前任务必须输入的内容。",
-    "只保留最低够用的信息｜为了显得完整不断往上下文里增加资料。",
-    "把信息取舍留给人判断｜替你决定哪些资料一定可信、哪些事实已经确认。"
+    "围绕当前任务使用你选出的必要信息｜替你决定手头所有资料都必须放进任务。",
+    "在信息已经够用时继续完成任务｜替你判断哪些资料一定可信、哪些事实已经确认。"
   ],
   selfAssessment: [
     "我能判断一条信息是不是当前任务必须知道的。",
-    "我能区分有帮助的信息和会制造噪音的信息。",
+    "我能把这次不需要的信息先拿掉。",
     "我能整理一份足够但不过量的最小信息包。"
   ]
 } as const;
@@ -748,14 +744,12 @@ export const track01T103KnowledgeDepth = {
   ],
   review: [
     { title: "为什么先看任务再看资料", text: "只有先知道要完成什么，才能判断哪条信息会真正影响结果。" },
-    { title: "为什么要设“最低够用”", text: "只保留必需信息，可以减少噪音，也让你更容易检查 AI 是否正确使用了这些信息。" },
-    { title: "为什么可信度不能交给 AI 猜", text: "信息是否可靠是另一层判断。本课只学选择当前任务需要什么，不把事实确认责任一起交出去。" }
+    { title: "为什么够用就应该停", text: "继续加入无关、重复或只是锦上添花的信息，会增加噪音，也让结果更难检查。资料是否可信则是另一层判断，不交给 AI 自动决定。" }
   ]
 } as const;
 
 export const track01T103ReferenceFill = {
   mustKnow: "目标读者是普通用户；我亲自试过并确认可用的 3 个功能。",
-  niceToKnow: "一个可补充的使用场景。",
-  doNotLoad: "半年前旧文章；与这次主题无关的产品更新截图。",
+  leaveOut: "半年前旧文章；与这次主题无关的产品更新截图；一个不影响核心介绍的补充场景。",
   minimumPack: "目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。"
 } as const;

@@ -163,12 +163,13 @@ assert(t103.lessonSpec.prerequisites.join(",") === "T1-02", "TRACK01_T103_PREREQ
 assert(t103.lessonSpec.completionGates.join(",") === "CHECK,PRACTICE", "TRACK01_T103_GATES");
 assert(t103.pedagogy.qualityProfile?.allowedCoreTerms.join(",") === "Context", "TRACK01_T103_CONTEXT_PRIMARY_HOME");
 assert(t103.checkSequence?.length === 3, "TRACK01_T103_THREE_QUESTION_MASTERY");
-assert(t103.practice?.instructions.map((item) => item.key).join(",") === "mustKnow,niceToKnow,doNotLoad,minimumPack", "TRACK01_T103_STEP4_KEYS");
+assert(t103.practice?.instructions.map((item) => item.key).join(",") === "mustKnow,leaveOut,minimumPack", "TRACK01_T103_STEP4_KEYS");
 assert(t103.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T103_HINTS_UI_OWNS_NUMBERING");
 assert(!t103.practice?.goal.match(/T1-\d+/), "TRACK01_T103_STEP4_NO_INTERNAL_LESSON_CODE");
 assert(t103.review.length >= 2 && t103.review.length <= 4, "TRACK01_T103_REVIEW_COUNT");
 assert(t103.review.every((item) => item.includes("｜")), "TRACK01_T103_REVIEW_VERTICAL_CONTRAST");
-assert(track01T103KnowledgeDepth.review.length === 3, "TRACK01_T103_REVIEW_DEPTH_COUNT");
+assert(track01T103KnowledgeDepth.review.length >= 2 && track01T103KnowledgeDepth.review.length <= 4, "TRACK01_T103_REVIEW_DEPTH_2_TO_4");
+assert(t103.review.length === track01T103KnowledgeDepth.review.length, "TRACK01_T103_REVIEW_DEPTH_ALIGNED");
 assert(track01T103Meta.caseThread === "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT", "TRACK01_T103_CASE_THREAD");
 assert(track01T103Meta.artifactOutput === "MINIMUM_INFORMATION_PACK", "TRACK01_T103_ARTIFACT");
 for (const value of Object.values(track01T103ReferenceFill)) {

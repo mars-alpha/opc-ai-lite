@@ -434,6 +434,8 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `COURSE-PRODUCTION-TRACK01-A-003` 已关闭 T1-02 Human Review：T1-02 = **HUMAN_REVIEW_PASS**，但尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。T1-03 `上下文（Context）：给 AI 足够但不过量的信息` 已进入 pilot，canonical Draft lessonId=`t1-03-minimum-context`，Preview=`/course-builder/preview/track01-batch-a/t1-03`。T1-03 只教完成当前任务所需信息的取舍：必须知道 / 有帮助但非必须 / 暂时不要放 / 最小信息包；不教授 Knowledge Base / Source of Truth / Memory / RAG / Context Engineering，也不要求外部 AI 回复回填。Step 4 自包含；Step 5 固定 `AI 适合做什么` / `AI 不应该替你做什么` 上下对比。T1-03 当前 TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING；T1-04～T1-05 尚未扩产。
 
+T1-03 Human Review 第一轮继续精简：Step 4 不再要求完整填写“三类信息清单 + 最小信息包”，改为 3 个最小动作——`这次必须给 AI 的信息` / `这次可以先不放的信息` / `我的最小信息包`，降低 Beginner 填写负担；Step 5 不再预设 3 张卡，继续遵守全局 `2–4 张、数量由本课真正需要总结的判断决定`，本课当前收束为 2 张：`只选必要信息`、`信息够用就停`。T1-03 仍为 HUMAN_REVIEW_PENDING。
+
 `COURSE-BUILDER-SKILL-005-A` 已将近期 Human Review 验证出的课程输出方式固化为 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`，不新增 Skill，继续由 `course-builder@0.2.0` 承担教学生成。Contract 固定 Step 1–6 输出职责、Step 4 Hint 编号归 UI / Artifact 必须自然产生、Step 5 使用 2–4 张卡且每张卡固定上下对比：上层 `AI 适合做什么` = 核心判断，下层 `AI 不应该替你做什么` = 边界理解；补充解释负责“为什么”，Pitfalls 负责纠错；Step 6 必须可执行和自证。Track 01 Batch A 继续遵守 `OPC / 自媒体 AI 内容任务` Case Thread，Stable Method Layer 行业中立。Code Validation 负责可确定性规则；案例自然度、Artifact 是否被强行制造、Review 是否重复等由 Human Review 负责。
 
 T1-01 早期 Human Review 的“AI 新变化整理”入口已被后续版本 supersede；最终通过版本以 `COURSE-PRODUCTION-TRACK01-A-002` 与 `LESSON_OUTPUT_CONTRACT_V1` 为准：OPC / 自媒体内容主线、自然 Step 4、UI-owned Hint numbering、Step 5 上下边界对比和分层解释。
