@@ -647,6 +647,12 @@ Status: COMPLETE_QUALITY_BASELINE_V1
 
 以 Beginner Batch A 四节课作为后续零基础课程质量样板。新增 `BEGINNER_LESSON_QUALITY_STANDARD_V1.md`，固定 Cognitive Load Budget：1 个主问题、1 个主概念/判断、最多 1–2 个新术语、1 个主要案例、bottomDetails <= 2、example depth <= 2、主 Review <= 3、review depth <= 2。专项 acceptance 同步升级，除结构预算外还扫描整课用户可见内容，防止 Training / Inference / Token / Embedding / Vector Search / Deterministic Logic / API / Tool / MCP / Agent Runtime / RAG / Evaluation 等后置术语提前泄漏。F1-03 Review 从 4 条收敛为 3 条；F1-04 Check/正文/后续说明中的 API/RAG/Tool 改为自然语言。Beginner Quality、Course Builder、Unified Shell、typecheck、build 全部 PASS。Lesson ID / Type / Gate / Catalog 状态不变。下一步：Human Review 质量样板，通过后再进入 Stage 2 生产。
 
+### COURSE-BUILDER-SKILL-005 — Beginner Quality Alignment
+
+Status: COMPLETE_V02_QUALITY_ALIGNED
+
+新增 `skills/course-builder/v0.2.ts`，保留 v0.1 历史兼容。v0.2 将 Beginner Quality Standard 写入生成 Prompt，并通过 `BEGINNER_QUALITY_V1` profile 下沉到 Code Validation：mainLearnerQuestion、mainConcept、allowedCoreTerms、deferredTerms。v0.2 Beginner BUILD 缺 profile 会拒绝；allowedCoreTerms 最多 2 个、主 Review 最多 3 条、Example 必须 Before/After、Capability 必须表达可执行能力，deferredTerms 不得在用户可见内容中提前泄漏。当前课 Primary Knowledge Home 的术语可通过 allowedCoreTerms 显式放行，因此 Stage 3 可合法教授 Token / Training，不受 Stage 1 禁词误杀。新增 `course-builder:accept:beginner-quality`，已验证 profile required / review budget / deferred term / allowed term / v0.1 compatibility 全部 PASS；typecheck/build PASS。下一步：Stage 2 新课程默认走 Course Builder Skill v0.2。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

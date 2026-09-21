@@ -7,6 +7,14 @@ import {
 export type CourseBuilderMode = "BUILD" | "IMPROVE";
 export type CourseBuilderReviewStatus = "PENDING_REVIEW";
 
+export type CourseBuilderQualityProfile = {
+  id: "BEGINNER_QUALITY_V1";
+  mainLearnerQuestion: string;
+  mainConcept: string;
+  allowedCoreTerms: string[];
+  deferredTerms: string[];
+};
+
 export type CourseBuilderGrounding = {
   status: "REVIEWED";
   sourceKind: "APPROVED_KNOWLEDGE" | "RESEARCH_PACKET";
@@ -71,6 +79,7 @@ export type CourseBuilderPedagogy = {
   languagePolicy: "TERM_READABILITY";
   aiToolNeutral: true;
   conceptMasteryBeforePractice: true;
+  qualityProfile?: CourseBuilderQualityProfile;
   participation: CourseBuilderParticipation;
   sixStepResponsibilities: CourseBuilderSixStepResponsibilities;
 };
@@ -190,7 +199,7 @@ export type CourseBuilderOutput =
   | CourseBuilderImproveProposal;
 
 export type CourseBuilderReviewPacket = {
-  skill: { id: "course-builder"; version: "0.1.0" };
+  skill: { id: "course-builder"; version: "0.1.0" | "0.2.0" };
   mode: CourseBuilderMode;
   status: CourseBuilderReviewStatus;
   validatedAt: string;
@@ -314,6 +323,26 @@ function parsePedagogy(input: unknown): CourseBuilderPedagogy {
     input.participation.prompt === null
       ? null
       : requiredText(input.participation.prompt, "INVALID_PARTICIPATION_PROMPT", 6000);
+  let qualityProfile: CourseBuilderQualityProfile | undefined;
+  if (input.qualityProfile !== undefined) {
+    if (!isRecord(input.qualityProfile)) throw new Error("INVALID_QUALITY_PROFILE");
+    if (input.qualityProfile.id !== "BEGINNER_QUALITY_V1") {
+      throw new Error("INVALID_QUALITY_PROFILE_ID");
+    }
+    qualityProfile = {
+      id: "BEGINNER_QUALITY_V1",
+      mainLearnerQuestion: requiredText(input.qualityProfile.mainLearnerQuestion, "INVALID_QUALITY_MAIN_QUESTION", 500),
+      mainConcept: requiredText(input.qualityProfile.mainConcept, "INVALID_QUALITY_MAIN_CONCEPT", 500),
+      allowedCoreTerms: textArray(input.qualityProfile.allowedCoreTerms ?? [], "INVALID_QUALITY_ALLOWED_TERMS", true),
+      deferredTerms: textArray(input.qualityProfile.deferredTerms ?? [], "INVALID_QUALITY_DEFERRED_TERMS", true)
+    };
+    if (input.audience !== "BEGINNER") {
+      throw new Error("BEGINNER_QUALITY_PROFILE_REQUIRES_BEGINNER_AUDIENCE");
+    }
+    if (qualityProfile.allowedCoreTerms.length > 2) {
+      throw new Error("BEGINNER_QUALITY_CORE_TERM_BUDGET_EXCEEDED");
+    }
+  }
   return {
     audience: enumValue(
       input.audience,
@@ -323,6 +352,7 @@ function parsePedagogy(input: unknown): CourseBuilderPedagogy {
     languagePolicy: "TERM_READABILITY",
     aiToolNeutral: true,
     conceptMasteryBeforePractice: true,
+    qualityProfile,
     participation: {
       kind: enumValue(
         input.participation.kind,
@@ -606,6 +636,57 @@ function parsePractice(input: unknown): CourseBuilderPractice {
   };
 }
 
+function collectBeginnerVisibleText(draft: CourseBuilderBuildDraft) {
+  return [
+    draft.content.summary,
+    draft.content.plainExplanation,
+    draft.content.whyItMatters,
+    ...draft.content.points,
+    ...draft.content.content,
+    draft.content.example.title,
+    draft.content.example.situation,
+    draft.content.example.before ?? "",
+    draft.content.example.after ?? "",
+    draft.content.example.result,
+    ...draft.content.mistakes,
+    ...draft.content.related,
+    ...draft.lessonSpec.steps.flatMap((step) => [step.title, step.objective]),
+    ...(draft.checkSequence ?? []).flatMap((check) => [
+      check.question,
+      check.explanation,
+      check.correctFeedback,
+      check.incorrectFeedback,
+      ...check.options.map((option) => option.label)
+    ]),
+    ...draft.review,
+    ...draft.selfAssessment
+  ].join(" ");
+}
+
+export function validateBeginnerQualityDraft(draft: CourseBuilderBuildDraft) {
+  const profile = draft.pedagogy.qualityProfile;
+  if (!profile) return;
+  if (draft.pedagogy.audience !== "BEGINNER") {
+    throw new Error("BEGINNER_QUALITY_PROFILE_REQUIRES_BEGINNER_AUDIENCE");
+  }
+  if (draft.review.length > 3) {
+    throw new Error("BEGINNER_QUALITY_REVIEW_BUDGET_EXCEEDED");
+  }
+  if (draft.content.example.before === undefined || draft.content.example.after === undefined) {
+    throw new Error("BEGINNER_QUALITY_BEFORE_AFTER_REQUIRED");
+  }
+  if (draft.lessonSpec.capabilityGain.some((item) => item.includes("理解了"))) {
+    throw new Error("BEGINNER_QUALITY_CAPABILITY_MUST_BE_ACTIONABLE");
+  }
+  const visibleText = collectBeginnerVisibleText(draft);
+  for (const term of profile.deferredTerms) {
+    if (profile.allowedCoreTerms.includes(term)) continue;
+    if (visibleText.includes(term)) {
+      throw new Error("BEGINNER_QUALITY_DEFERRED_TERM_LEAK:" + term);
+    }
+  }
+}
+
 export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput {
   if (!isRecord(input)) throw new Error("INVALID_COURSE_BUILDER_OUTPUT");
   rejectAuthorityFields(input);
@@ -636,7 +717,7 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
       throw new Error("CONCEPT_PARTICIPATION_REQUIRED");
     }
 
-    return {
+    const draft: CourseBuilderBuildDraft = {
       mode,
       grounding,
       pedagogy,
@@ -657,6 +738,8 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
         true
       )
     };
+    validateBeginnerQualityDraft(draft);
+    return draft;
   }
 
   if (!Array.isArray(input.affectedSteps)) throw new Error("INVALID_IMPROVE_AFFECTED_STEPS");
@@ -678,9 +761,18 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
 
 export function createCourseBuilderReviewPacket(
   input: unknown,
-  now = new Date()
+  now = new Date(),
+  skillVersion: "0.1.0" | "0.2.0" = "0.1.0"
 ): CourseBuilderReviewPacket {
   const output = validateCourseBuilderOutput(input);
+  if (
+    skillVersion === "0.2.0" &&
+    output.mode === "BUILD" &&
+    output.pedagogy.audience === "BEGINNER" &&
+    !output.pedagogy.qualityProfile
+  ) {
+    throw new Error("COURSE_BUILDER_V02_BEGINNER_QUALITY_PROFILE_REQUIRED");
+  }
   const warnings =
     output.mode === "BUILD"
       ? validateLessonSpec(output.lessonSpec)
@@ -689,7 +781,7 @@ export function createCourseBuilderReviewPacket(
       : [];
 
   return {
-    skill: { id: "course-builder", version: "0.1.0" },
+    skill: { id: "course-builder", version: skillVersion },
     mode: output.mode,
     status: "PENDING_REVIEW",
     validatedAt: now.toISOString(),
