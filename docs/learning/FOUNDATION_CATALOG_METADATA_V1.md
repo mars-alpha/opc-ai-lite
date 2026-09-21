@@ -9,7 +9,7 @@ Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
 
 固定规则：
 
-- 新 F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`（Beginner Batch A Draft 已进入 Human Review）
+- 新 F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`（Beginner Batch A 已 Human Review PASS；尚未 Runtime Ready / Published）
 - 其余 Foundation：`PLANNED + COMING_SOON`
 - 旧 COURSE-PRODUCTION-001 四个 Draft：`PEDAGOGY_REJECTED`，不是当前 Catalog 候选
 - 当前没有任何 Foundation Lesson 标记为 `AVAILABLE`

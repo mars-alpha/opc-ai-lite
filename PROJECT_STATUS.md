@@ -48,26 +48,27 @@ CURRICULUM-003 Foundation Batch A Brief Finalization COMPLETE_BRIEF_READY_V1
 CURRICULUM-004 Foundation Catalog Metadata Completion COMPLETE_CATALOG_READY_V1
 LEARNING-CATALOG-001 Formal Curriculum Catalog UI COMPLETE_UI_V1
 LEARNING-CATALOG-001-A Navigation & Progress Refinement COMPLETE_UI_REFINEMENT_V1
-COURSE-PRODUCTION-001 Foundation Batch A Real Lessons TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+COURSE-PRODUCTION-001 Foundation Batch A Real Lessons PEDAGOGY_REJECTED_RETIRED_REFERENCE
 CURRICULUM-005 Beginner Foundation Reframe COMPLETE_REFRAMED_V1
-COURSE-PRODUCTION-002 Beginner Batch A Rebuild TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+COURSE-PRODUCTION-002 Beginner Batch A Rebuild HUMAN_REVIEW_PASS_RUNTIME_PENDING
 COURSE-PRODUCTION-002-A Beginner Batch A Experience Restoration COMPLETE_EXPERIENCE_RESTORED_V1
-COURSE-UX-QUALITY-001 Beginner Lesson Quality Pass COMPLETE_QUALITY_BASELINE_V1
+COURSE-UX-QUALITY-001 Beginner Lesson Quality Pass COMPLETE_QUALITY_BASELINE_V1_HUMAN_REVIEW_PASS
 COURSE-BUILDER-SKILL-005 Beginner Quality Alignment COMPLETE_V02_QUALITY_ALIGNED
 SKILL-GOV-001 Skill Responsibility & Orchestration Baseline COMPLETE_GOVERNANCE_BASELINE_V1
 COURSE-GOV-001 Course Production Governance Baseline COMPLETE_GOVERNANCE_BASELINE_V1
+FACT-DRIFT-AUDIT-001 Current Fact Drift Audit COMPLETE_DOCS_ALIGNED
 
 NEXT: Foundation Stage 2 production (F2-01～F2-04) using course-builder@0.2.0
 ```
 
 ## 当前系统健康
 
-业务代码验证基线：`main@b235da6`。
+最近一次业务代码完整验证基线：`main@38b256f`（后续提交为 docs/governance-only）。
 
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      34 static pages generated
+Production build      42 pages generated
 Remote migrations     0000 → 0009 APPLIED; 0010–0011 GENERATED / NOT APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS

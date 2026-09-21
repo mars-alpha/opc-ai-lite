@@ -150,18 +150,19 @@ Existing asset:
 
 | Core concept | Primary home | Supporting lessons | Explicitly not owned by |
 | --- | --- | --- | --- |
-| AI / ML / Generative AI | F1-01 | F1-04 | 后续业务课 |
-| LLM / Model | F1-02 | F1-03,F2 | API/Agent 课 |
-| Training / Inference | F1-03 | F2 | Technical Track |
-| Generation vs Retrieval | F1-04 | F4-03 | RAG 工程课 |
-| Token | F2-01 | F2-02 | Prompt |
-| Context Window | F2-02 | F3-02 | Context Engineering |
-| Hallucination | F2-03 | F2-04,F7-05 | RAG |
-| Reliability judgment | F2-04 | F7-05 | Track 04 Evaluation |
-| Prompt | F3-01 | F3-03,F3-04 | Skill |
-| Task Context | F3-02 | F3-03 | Context Engineering |
-| Example / Iteration | F3-03/F3-04 | 工作应用 | Prompt 主定义之外不重复 |
-| Conversation History | F4-01 | F3-02 | Knowledge Base |
+| Everyday AI use cases | F1-01 | Track 02 work applications | Technical mechanism lessons |
+| Input quality → result quality intuition | F1-02 | F2-01,F2-02,F2-03 | Prompt Engineering deep dive |
+| Hallucination / verification intuition | F1-03 | F2-04,F7-05 | RAG definition |
+| AI product capability map | F1-04 | F3-01,F4,F5 | Internal architecture implementation |
+| Prompt | F2-01 | F2-03,Track 02 work applications | Skill |
+| Task Context | F2-02 | F2-03,F3-04,Track 04 Context Engineering | Token mechanics |
+| Iteration / clarification | F2-03 | Track 02 work applications | Workflow / Agent self-correction |
+| Basic reliability judgment | F2-04 | F7-05,Track 04 Evaluation | Formal Evaluation engineering |
+| LLM / Model vs Product | F3-01 | F1-04,F3-02,F3-03 | API / Agent |
+| Training / Inference | F3-02 | F3-03 | Technical implementation |
+| Token / probability generation | F3-03 | F3-04 | Prompt |
+| Context Window | F3-04 | F2-02,Track 04 Context Engineering | Task Context definition |
+| Conversation History | F4-01 | F2-02 | Knowledge Base |
 | Memory | F4-01 | F4-02 | RAG |
 | Knowledge Base | F4-02 | Track 02 knowledge work | Memory |
 | Source of Truth | F4-02 | Track 04/FDE | Context Engineering |
@@ -169,7 +170,7 @@ Existing asset:
 | Embedding / Vector Search | F4-04 | Technical RAG | 基础 RAG 之外 |
 | API | F5-01 | Track 04 Integration | Agent |
 | Structured Output / Schema | F5-02 | Track 04 Integration | Prompt formatting |
-| Function Calling / Tool | F5-03 | Agent | MCP |
+| Function Calling / Tool | F5-03 | F6-04,Track 04 | MCP |
 | MCP | F5-04 | Track 04 Integration | API |
 | Skill | F6-01 | Track 02 practice | Prompt / Agent |
 | Workflow | F6-02 | F6-05,Track 04 | Agent |
@@ -180,7 +181,7 @@ Existing asset:
 | Multimodal | F7-01 | F7-02 | Media tool tutorials |
 | Coding / Browser / Computer Use | F7-03 | Optional Technical Track | Agent definition |
 | Privacy / Security / Permissions | F7-04 | F7-06,Track 04 | HITL |
-| Evaluation | F7-05 | Track 04/FDE | Reliability judgment |
+| Evaluation | F7-05 | Track 04/FDE | F2-04 basic reliability judgment |
 | High-impact boundary | F7-06 | F6-06,F7-04 | 企业权限实现 |
 
 ---
@@ -224,13 +225,13 @@ Existing asset:
 
 | Existing asset | Decision | Target |
 | --- | --- | --- |
-| `what-is-genai` | REWRITE | F1-01/F1-02 范围拆分 |
-| `prompt-foundations` | REUSE + FORMALIZE | F3-01 |
-| `task-brief` | MERGE | F3-01；不再独立正式课程 |
-| `context-token` | SPLIT + REWRITE | Token→F2-01；Context Window→F2-02；Task Context→F3-02 |
+| `what-is-genai` | HISTORICAL / REWRITE IDEAS ONLY | 可提取少量直觉到 F1-01 / F1-04；不得直接正式化 |
+| `prompt-foundations` | REUSE AS UX / CONTENT REFERENCE | F2-01；必须按 Beginner Quality v1 重新生产 |
+| `task-brief` | MERGE | F2-01；不再独立正式课程 |
+| `context-token` | SPLIT + REWRITE | Task Context→F2-02；Token→F3-03；Context Window→F3-04 |
 | `memory-rag` | SPLIT + REWRITE | Memory→F4-01；RAG→F4-03 |
 | `api-agent` | RETIRE AS SINGLE FORMAL LESSON | API→F5-01；Tool→F5-03；Agent→F6-04 |
-| `skill-foundations` | REUSE + FORMALIZE | F6-01 |
+| `skill-foundations` | REUSE AS CANDIDATE REFERENCE | F6-01 |
 | `writing-files` | KEEP OUTSIDE FOUNDATION | Track 02 |
 | `meeting-action-list` | KEEP OUTSIDE FOUNDATION | Track 02 PRACTICE |
 | `task-decomposition` | KEEP OUTSIDE FOUNDATION | Track 04 |
@@ -239,31 +240,35 @@ Existing asset:
 | `evaluation` | FOUNDATION CONCEPT ONLY / DEEPER LATER | F7-05 + Track 04 |
 | `ai-workflow-project` | KEEP OUTSIDE FOUNDATION | Track 04 PROJECT |
 
-Acceptance fixture 仍然不是 Published Course Source of Truth。
+COURSE-PRODUCTION-001 的旧四个技术型 Foundation Draft 统一为 `PEDAGOGY_REJECTED / RETIRED AS FAILED DRAFT REFERENCE`。Acceptance fixture / historical preview 仍然不是 Published Course Source of Truth。
 
 ---
 
 # 12. Production readiness
 
-## Batch A — AI 世界模型
+## Batch A — 先认识 AI 怎么用
 - F1-01
 - F1-02
 - F1-03
 - F1-04
 
-## Batch B — 模型工作与可靠性
+当前状态：Human Review PASS / Runtime Pending / Catalog = IN_PRODUCTION + COMING_SOON。
+
+## Batch B — 学会和 AI 基本协作
 - F2-01
 - F2-02
 - F2-03
 - F2-04
 
-## Batch C — 与 AI 沟通
+当前下一 Production Batch。默认使用 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1`，生产内容与 Runtime publication 分开。
+
+## Batch C — 再理解 AI 背后的基本机制
 - F3-01
 - F3-02
 - F3-03
 - F3-04
 
-其中 F3-01 已有最成熟 Human Review 样板，可优先正式化，但不改变 curriculum 顺序。
+只有 Batch B 形成稳定 Human Review 经验后再进入生产；技术机制不前移回 Beginner opening。
 
 ## Batch D — Memory / Knowledge / RAG
 - F4-01
@@ -314,12 +319,15 @@ Acceptance fixture 仍然不是 Published Course Source of Truth。
 
 ---
 
-# 14. Next task
+# 14. Current next task
 
-**CURRICULUM-003 — Foundation Batch A Brief Finalization**
+**Foundation Stage 2 Production — F2-01～F2-04**
 
-目标：
-- 把 F1-01～F1-04 从 Planning Brief 升级为 Course Builder 可直接消费的正式 Brief；
-- 为每节确定 learning objectives、knowledge points、典型误区、Scenario、Grounding source list；
-- 不直接生成完整课程正文；
-- 完成后再启动第一批 Course Builder Draft。
+当前进入下一生产批次前已具备：
+- Beginner Foundation Reframe；
+- Beginner Lesson Quality Standard v1；
+- Course Builder Skill v0.2；
+- Skill Governance v1；
+- Course Production Governance v1。
+
+Stage 2 内容生产继续保持 Preview → Human Review，与 Runtime Provisioning / AVAILABLE 分开。

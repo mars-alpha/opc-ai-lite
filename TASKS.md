@@ -619,7 +619,7 @@ Human Review 后将五大长期学习板块移到课程目录上方作为一级�
 
 ### COURSE-PRODUCTION-001 — Foundation Batch A Real Lessons
 
-Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: PEDAGOGY_REJECTED_RETIRED_REFERENCE
 
 F1-01～F1-04 四节真实 CONCEPT Draft 已落盘并接入统一 Course Builder Preview。四节全部保持 EXPLAIN→EXAMPLE→CHECK→PRACTICE→REVIEW→CAPABILITY、conceptMasteryBeforePractice=true、Completion Gate=CHECK、practiceMode=NONE、Three-Question Mastery；Step 4 仅做轻量参与，不增加 Gate。新增共享 `FoundationConceptDraftPreview`，不按 lesson slug 改 Generic Runtime。Catalog 状态更新为 IN_PRODUCTION + COMING_SOON，未发布。学习路径页 Human Review 文案已将“课程导航”改为“学习地图”。Foundation Batch A acceptance、Course Builder contract、Concept Mastery、Three-Question Mastery、typecheck、build 全部 PASS。下一步：Human Review 四个 Preview，通过后逐节修订并进入正式化。
 
@@ -631,21 +631,21 @@ Human Review 判定 COURSE-PRODUCTION-001 四节虽然技术 PASS，但对零基
 
 ### COURSE-PRODUCTION-002 — Beginner Batch A Rebuild
 
-Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: HUMAN_REVIEW_PASS_RUNTIME_PENDING
 
-已重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`，不复用旧失败 Draft lessonId。前两节为 APPLICATION（CHECK + PRACTICE），后两节为 CONCEPT（CHECK；Step 4 非 Gate）。新增 `BeginnerFoundationDraftPreview` 共享 Preview 和 Beginner Batch 专项 acceptance，固定检查新手 ID、BEGINNER audience、统一六步、Three-Question Mastery、Review 数量以及开场禁止重术语。四节 Catalog 状态为 IN_PRODUCTION + COMING_SOON，未发布。Beginner acceptance、Course Builder、Unified Lesson Shell、typecheck、build 全部 PASS。下一步：Human Review 四节新 Preview。
+已重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`，不复用旧失败 Draft lessonId。前两节为 APPLICATION（CHECK + PRACTICE），后两节为 CONCEPT（CHECK；Step 4 非 Gate）。新增 `BeginnerFoundationDraftPreview` 共享 Preview 和 Beginner Batch 专项 acceptance，固定检查新手 ID、BEGINNER audience、统一六步、Three-Question Mastery、Review 数量以及开场禁止重术语。四节 Catalog 状态为 IN_PRODUCTION + COMING_SOON，未发布。Beginner acceptance、Course Builder、Unified Lesson Shell、typecheck、build 全部 PASS。当前 Human Review 已通过；下一步不直接 AVAILABLE，而是按 COURSE-GOV-001 进入后续 Runtime Provisioning / Acceptance。
 
 ### COURSE-PRODUCTION-002-A — Beginner Batch A Experience Restoration
 
 Status: COMPLETE_EXPERIENCE_RESTORED_V1
 
-在不改变 CURRICULUM-005 Beginner-first 内容方向的前提下，恢复此前已验证的课程体验增强层：四节均补回 Step 1 bottomDetails、Step 2 / Step 5 previewKnowledgeDepth、previewReviewCardFill；F1-01 / F1-02 增加参考答案一键填充，F1-02 恢复 COPY_TO_AI 让用户把补清楚后的任务复制到真实 AI 软件比较结果。BeginnerFoundationDraftPreview 只复用 Generic Lesson Runtime 既有数据接口，不改 Unified Lesson Shell、不按 lesson slug 分支。Beginner Experience acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS。下一步继续 Human Review 四节 Preview。
+在不改变 CURRICULUM-005 Beginner-first 内容方向的前提下，恢复此前已验证的课程体验增强层：四节均补回 Step 1 bottomDetails、Step 2 / Step 5 previewKnowledgeDepth、previewReviewCardFill；F1-01 / F1-02 增加参考答案一键填充，F1-02 恢复 COPY_TO_AI 让用户把补清楚后的任务复制到真实 AI 软件比较结果。BeginnerFoundationDraftPreview 只复用 Generic Lesson Runtime 既有数据接口，不改 Unified Lesson Shell、不按 lesson slug 分支。Beginner Experience acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS。后续 COURSE-UX-QUALITY-001 已完成最终质量打磨并获得 Human Review PASS。
 
 ### COURSE-UX-QUALITY-001 — Beginner Lesson Quality Pass
 
 Status: COMPLETE_QUALITY_BASELINE_V1
 
-以 Beginner Batch A 四节课作为后续零基础课程质量样板。新增 `BEGINNER_LESSON_QUALITY_STANDARD_V1.md`，固定 Cognitive Load Budget：1 个主问题、1 个主概念/判断、最多 1–2 个新术语、1 个主要案例、bottomDetails <= 2、example depth <= 2、主 Review <= 3、review depth <= 2。专项 acceptance 同步升级，除结构预算外还扫描整课用户可见内容，防止 Training / Inference / Token / Embedding / Vector Search / Deterministic Logic / API / Tool / MCP / Agent Runtime / RAG / Evaluation 等后置术语提前泄漏。F1-03 Review 从 4 条收敛为 3 条；F1-04 Check/正文/后续说明中的 API/RAG/Tool 改为自然语言。Beginner Quality、Course Builder、Unified Shell、typecheck、build 全部 PASS。Lesson ID / Type / Gate / Catalog 状态不变。下一步：Human Review 质量样板，通过后再进入 Stage 2 生产。
+以 Beginner Batch A 四节课作为后续零基础课程质量样板。新增 `BEGINNER_LESSON_QUALITY_STANDARD_V1.md`，固定 Cognitive Load Budget：1 个主问题、1 个主概念/判断、最多 1–2 个新术语、1 个主要案例、bottomDetails <= 2、example depth <= 2、主 Review <= 3、review depth <= 2。专项 acceptance 同步升级，除结构预算外还扫描整课用户可见内容，防止 Training / Inference / Token / Embedding / Vector Search / Deterministic Logic / API / Tool / MCP / Agent Runtime / RAG / Evaluation 等后置术语提前泄漏。F1-03 Review 从 4 条收敛为 3 条；F1-04 Check/正文/后续说明中的 API/RAG/Tool 改为自然语言。Beginner Quality、Course Builder、Unified Shell、typecheck、build 全部 PASS。Lesson ID / Type / Gate / Catalog 状态不变。当前质量样板已获 Human Review PASS；Stage 1 仍保持 IN_PRODUCTION + COMING_SOON，Runtime Provisioning / 发布是独立后续阶段。下一步进入 Stage 2 内容生产。
 
 ### COURSE-BUILDER-SKILL-005 — Beginner Quality Alignment
 
@@ -664,6 +664,12 @@ Status: COMPLETE_GOVERNANCE_BASELINE_V1
 Status: COMPLETE_GOVERNANCE_BASELINE_V1
 
 新增 `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md` 与 `COURSE_PRODUCTION_PROVENANCE_TEMPLATE.md`，并把 Course Production Gate 接入 `AGENTS.md`。正式课程固定走 Curriculum/Knowledge Map → Formal Brief → Course Builder → Code Validation → Draft Preview → Human Review → Runtime Provisioning → Runtime Acceptance → AVAILABLE。现有 `curriculumStatus` / `availability` enum 不扩展；Human Review PASS 与 Runtime Ready 只作为治理 Gate。每个 generation attempt 只能选择一个明确 Skill Version；当前新 Beginner 默认 `course-builder@0.2.0`，v0.1 仅保留历史追溯。Human Review FAIL 回到 IN_PRODUCTION，新 Draft version 继续沿用 canonical lesson identity；Preview 不写正式 Progress/Completion；Skill 问题单独升级 Skill，架构问题另开工程任务。继续沿用 Foundation 3–5 节 Production Batch 规则，Stage 2 四节可作为一个完整 Batch。下一步：Foundation Stage 2 F2-01～F2-04 课程生产。
+
+### FACT-DRIFT-AUDIT-001 — Current Fact Drift Audit
+
+Status: COMPLETE_DOCS_ALIGNED
+
+完成 current/canonical 文档漂移审计并修正：Stage 1 Beginner Batch 已明确 HUMAN_REVIEW_PASS / RUNTIME_PENDING；旧 COURSE-PRODUCTION-001 标记为 PEDAGOGY_REJECTED_RETIRED_REFERENCE；最新业务代码验证基线更新为 `main@38b256f` / 42 pages；`FOUNDATION_KNOWLEDGE_MAP_V1.md` 的 Primary Knowledge Home、asset mapping、Batch sequencing 已对齐 CURRICULUM-005；`FORMAL_CURRICULUM_V1.md` 移除 pre-reframe 旧九课作为当前定义，并对齐新的 Preview→Human Review→Runtime→AVAILABLE 生产链。历史 task-results 保留当时事实，不改写。
 
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
