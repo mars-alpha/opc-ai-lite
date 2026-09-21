@@ -110,6 +110,8 @@ assert(
 );
 assert(t102.practice?.instructions.map((item) => item.key).join(",") === "goal,audience,requirements,format", "TRACK01_T102_STEP4_KEYS");
 assert(t102.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T102_HINTS_UI_OWNS_NUMBERING");
+assert(!t102.practice?.goal.includes("T1-01"), "TRACK01_T102_STEP4_NO_INTERNAL_LESSON_ID");
+assert(!t102.practice?.goal.includes("上一课"), "TRACK01_T102_STEP4_SELF_CONTAINED_GOAL");
 assert(t102.review.length === 4, "TRACK01_T102_REVIEW_COUNT");
 assert(t102.review.every((item) => item.includes("｜")), "TRACK01_T102_REVIEW_VERTICAL_CONTRAST");
 assert(t102.review[0]?.startsWith("把任务目标说清楚｜"), "TRACK01_T102_REVIEW_GOAL_CONTRAST");
