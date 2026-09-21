@@ -787,9 +787,9 @@ T1-01 已正式关闭 Human Review，但未进入 Runtime Ready / AVAILABLE。T1
 
 ### COURSE-PRODUCTION-TRACK01-A-003 — T1-02 Human Review Closure & T1-03 Context Pilot
 
-Status: T1-02_HUMAN_REVIEW_PASS / T1-03_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: T1-02_HUMAN_REVIEW_PASS / T1-03_HUMAN_REVIEW_PASS
 
-T1-02 已关闭 Human Review，但仍未 Runtime Ready / AVAILABLE。T1-03 已按 `course-builder@0.2.0` + `LESSON_OUTPUT_CONTRACT_V1` 生产 Pilot：学员可见名称为 `上下文（Context）`，核心只教必须知道 / 有帮助但非必须 / 暂时不要放 / 最小信息包；Step 4 自包含，不暴露内部课程编号，不要求回填外部 AI 回复；Step 5 固定上下对比。Preview：`/course-builder/preview/track01-batch-a/t1-03`。T1-04～T1-05 继续不扩产，等待 T1-03 Human Review。
+T1-02、T1-03 均已关闭 Human Review，但仍未 Runtime Ready / AVAILABLE。T1-03 最终版本按 `course-builder@0.2.0` + `LESSON_OUTPUT_CONTRACT_V1` 通过验收：学员可见名称为 `上下文（Context）`；Step 4 使用可直接复制验证的 `任务 + 必要信息`；Reference Answer 为完整 OPC / 自媒体案例；Step 5 按课程知识密度收束为 2 张上下对比卡。T1-04～T1-05 尚未扩产，下一步先讨论 T1-04 Iteration Pilot 范围。
 
 第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
 

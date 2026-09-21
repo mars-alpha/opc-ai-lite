@@ -77,9 +77,9 @@ TRACK01-BATCH-A-BRIEF-REVIEW-001 T1-01～T1-05 Human Review Revision COMPLETE_HU
 COURSE-PRODUCTION-TRACK01-A-001 Track 01 Batch A T1-01 Pilot COMPLETE_HUMAN_REVIEW_PASS
 COURSE-BUILDER-SKILL-005-A Lesson Output Contract v1 COMPLETE_BASELINE_V1
 COURSE-PRODUCTION-TRACK01-A-002 T1-01 Closure & T1-02 Prompt Pilot COMPLETE_T1-02_HUMAN_REVIEW_PASS
-COURSE-PRODUCTION-TRACK01-A-003 T1-02 Closure & T1-03 Context Pilot T1-03_TECHNICAL_PASS_HUMAN_REVIEW_PENDING
+COURSE-PRODUCTION-TRACK01-A-003 T1-02 Closure & T1-03 Context Pilot COMPLETE_T1-03_HUMAN_REVIEW_PASS
 
-NEXT: HUMAN REVIEW — `/course-builder/preview/track01-batch-a/t1-03` before expanding T1-04～T1-05
+NEXT: discuss T1-04 Iteration pilot scope before production; T1-01～T1-03 remain not AVAILABLE until separate Runtime Provisioning / Runtime Acceptance.
 ```
 
 ## 当前系统健康
