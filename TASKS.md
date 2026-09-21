@@ -671,6 +671,12 @@ Status: COMPLETE_DOCS_ALIGNED
 
 完成 current/canonical 文档漂移审计并修正：Stage 1 Beginner Batch 已明确 HUMAN_REVIEW_PASS / RUNTIME_PENDING；旧 COURSE-PRODUCTION-001 标记为 PEDAGOGY_REJECTED_RETIRED_REFERENCE；最新业务代码验证基线更新为 `main@38b256f` / 42 pages；`FOUNDATION_KNOWLEDGE_MAP_V1.md` 的 Primary Knowledge Home、asset mapping、Batch sequencing 已对齐 CURRICULUM-005；`FORMAL_CURRICULUM_V1.md` 移除 pre-reframe 旧九课作为当前定义，并对齐新的 Preview→Human Review→Runtime→AVAILABLE 生产链。历史 task-results 保留当时事实，不改写。
 
+### COURSE-PRODUCTION-003 — Foundation Stage 2 Collaboration Batch
+
+Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+F2-01～F2-04 已按 current Brief 使用单一 `course-builder@0.2.0` 生产：`beginner-prompt`（APPLICATION）、`beginner-context`（CONCEPT）、`beginner-iteration`（APPLICATION）、`beginner-result-check`（APPLICATION）。全部使用 `BEGINNER_QUALITY_V1`、Three-Question Mastery 与 Unified Lesson Shell；APPLICATION 使用 GUIDED Practice + Reference Answer，Prompt / Iteration 使用 COPY_TO_AI。Catalog 四节从 PLANNED 切为 IN_PRODUCTION，availability 仍 COMING_SOON，无 Runtime mapping。专项 Stage2 acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS，build 46 pages。新增 Stage2 Formal Brief / Provenance / 四个 Preview。下一步：Human Review 四节 Preview；不自动 Runtime / AVAILABLE。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

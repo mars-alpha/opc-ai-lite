@@ -57,18 +57,19 @@ COURSE-BUILDER-SKILL-005 Beginner Quality Alignment COMPLETE_V02_QUALITY_ALIGNED
 SKILL-GOV-001 Skill Responsibility & Orchestration Baseline COMPLETE_GOVERNANCE_BASELINE_V1
 COURSE-GOV-001 Course Production Governance Baseline COMPLETE_GOVERNANCE_BASELINE_V1
 FACT-DRIFT-AUDIT-001 Current Fact Drift Audit COMPLETE_DOCS_ALIGNED
+COURSE-PRODUCTION-003 Foundation Stage 2 Collaboration Batch TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
-NEXT: Foundation Stage 2 production (F2-01～F2-04) using course-builder@0.2.0
+NEXT: HUMAN REVIEW — Foundation Stage 2 F2-01～F2-04 previews
 ```
 
 ## 当前系统健康
 
-最近一次业务代码完整验证基线：`main@38b256f`（后续提交为 docs/governance-only）。
+当前业务代码验证基线：COURSE-PRODUCTION-003（typecheck/build PASS，46 pages）。
 
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      42 pages generated
+Production build      46 pages generated
 Remote migrations     0000 → 0009 APPLIED; 0010–0011 GENERATED / NOT APPLIED
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS

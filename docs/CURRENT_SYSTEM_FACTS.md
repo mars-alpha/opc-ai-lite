@@ -374,9 +374,9 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `CURRICULUM-002` 已新增 `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`，将 AI 基础认知 7 个阶段展开为 28 个 Lesson Brief，并为每节固定 Primary Knowledge Home、前置依赖、Lesson Type、规划级 Completion Gate、Grounding freshness、Anti-overlap 与现有资产迁移决策。基础课不包含 SDK 编程、MCP Server、Agent Runtime、Vector DB tuning 等工程实现；这些继续属于 Advanced Technical Track。Production Batch 只用于分批开发，不改变 28 节 Foundation Map 的完整范围。
 
-`CURRICULUM-003` 已新增 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md`，将 F1-01～F1-04 提升为 Course Builder-ready Formal Brief，状态为 BRIEF_READY。每节已固定 canonical lessonId、最终标题、Catalog subtitle/outcome、预计时长、学习目标、知识点、误区、Scenario、六步教学意图、Three-Question Mastery focus、Grounding Requirement 与 Anti-overlap。目录规划同时新增 Catalog Display Contract，并明确 `curriculumStatus` 与 `availability` 分离：BRIEF_READY 不等于 AVAILABLE；未发布课程可展示但不得进入空 Lesson Runtime。
+`CURRICULUM-003` 的 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md` 属于 pre-reframe 旧 F1-01～F1-04 Brief，当前状态为 `RETIRED_FAILED_REFERENCE`，仅保留历史证据，不再作为当前 Course Builder 输入。当前 Stage 1 以 Beginner Reframe / current fixtures 为准；Stage 2 正式 Brief 为 `docs/learning/FOUNDATION_STAGE2_BRIEFS_V1.md`。
 
-`CURRICULUM-004` 已新增 `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`，为 AI 基础认知完整 7 Stage / 28 Lesson 补齐统一 Catalog Metadata。F1-01～F1-04 为 BRIEF_READY + COMING_SOON，其余 24 节为 PLANNED + COMING_SOON；当前没有 Foundation Lesson 标记 AVAILABLE。Catalog 可完整展示学习路径，但所有未发布课程必须保持不可进入空 Lesson Runtime。
+`docs/learning/FOUNDATION_CATALOG_METADATA_V1.md` 当前仍定义完整 7 Stage / 28 Lesson。F1-01～F1-04 为 `IN_PRODUCTION + COMING_SOON` 且 Human Review PASS / Runtime Pending；F2-01～F2-04 已进入 `IN_PRODUCTION + COMING_SOON` 并等待 Human Review；F3-01～F7-06 共 20 节保持 `PLANNED + COMING_SOON`。当前没有 Foundation Lesson 标记 AVAILABLE。
 
 `LEARNING-CATALOG-001` 已将正式 Foundation Catalog 接入 `/learning-path`。该页面通过 `lib/learning/foundation-catalog.ts` 的 typed planning bridge 渲染 7 Stage / 28 Lesson，不再使用 `lib/courses.ts` 作为正式目录来源。F1-01～F1-04 显示“准备中 / 即将开放”，其余 24 节显示“规划中 / 即将开放”；所有 COMING_SOON Lesson 均为非链接展示，当前没有 Foundation Lesson 可进入正式 Runtime。页面旧“六阶段 / 当前开放 3 阶段 / fallback StageProgress”已移除并对齐五大长期课程主线。
 
@@ -401,6 +401,8 @@ COURSE-PRODUCTION-002-A 已恢复 Beginner Batch A 之前丢失的教学体验�
 `COURSE-GOV-001` 已新增 `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md` 与 `COURSE_PRODUCTION_PROVENANCE_TEMPLATE.md`，锁定课程正式生产链：Curriculum / Knowledge Map → Formal Brief → Course Builder → Code Validation → Draft Preview → Human Review → Runtime Provisioning → Runtime Acceptance → AVAILABLE。现有 Catalog enum 不扩展：`curriculumStatus=PLANNED/BRIEF_READY/IN_PRODUCTION/AVAILABLE` 与 `availability=COMING_SOON/LOCKED/AVAILABLE` 继续独立；`HUMAN_REVIEW_PASS` 与 `RUNTIME_READY` 只是治理 Gate。每次 generation attempt 必须记录单一 Skill ID / Version，禁止 `course-builder v0.1 + v0.2` 复合使用；当前新 Beginner 课程默认 `course-builder@0.2.0`。Human Review FAIL 保持 canonical lesson identity，回到 IN_PRODUCTION 形成新 Draft version；Preview 不写正式 Progress/Completion；Human Review PASS 不等于 Runtime Ready，Runtime Ready 也不自动发布。
 
 `FACT-DRIFT-AUDIT-001` 已对齐 CURRICULUM-005 后残留的文档漂移：Foundation Knowledge Map 的 Primary Knowledge Home / asset mapping / batch sequencing 已改为 Beginner-first 当前编号；Formal Curriculum 的旧九课 Stage 1 细节不再作为当前定义；Stage 1 Beginner Batch 当前明确为 Human Review PASS / Runtime Pending。历史 task-results 保留当时状态，不作为当前事实源。
+
+`COURSE-PRODUCTION-003` 已完成 Foundation Stage 2 F2-01～F2-04 技术生产：`beginner-prompt` / `beginner-context` / `beginner-iteration` / `beginner-result-check`。本批 Skill Decision=EXISTING_SKILL，单独使用 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1`，无 v0.1 复合调用。四课均复用 Unified Lesson Shell 与共享 Beginner Preview；F2-01/F2-03 使用 COPY_TO_AI，APPLICATION 课程均有 GUIDED Practice + Reference Fill，F2-02 为 CONCEPT + CHECK only。Stage 2 acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS；build 生成 46 pages。Catalog F2-01～F2-04 已切为 `IN_PRODUCTION + COMING_SOON`，无 Runtime mapping、无 Progress/Completion 正式写入、无 AVAILABLE；当前等待 Human Review。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 

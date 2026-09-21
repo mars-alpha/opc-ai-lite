@@ -21,6 +21,7 @@
     "learning:check-types:accept": "tsx scripts/accept-formal-check-types-runtime.ts",
     "course-builder:accept:three-question-mastery": "tsx scripts/accept-three-question-mastery.ts",
     "course-builder:accept:beginner-quality": "tsx scripts/accept-course-builder-beginner-quality.ts",
+    "course-builder:accept:foundation-stage2": "tsx scripts/accept-foundation-stage2.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx lib/server/db/seed.ts"

@@ -10,7 +10,8 @@ Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
 固定规则：
 
 - 新 F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`（Beginner Batch A 已 Human Review PASS；尚未 Runtime Ready / Published）
-- 其余 Foundation：`PLANNED + COMING_SOON`
+- F2-01～F2-04：`IN_PRODUCTION + COMING_SOON`（Stage 2 Draft 技术验收通过，等待 Human Review）
+- F3-01～F7-06 共 20 节：`PLANNED + COMING_SOON`
 - 旧 COURSE-PRODUCTION-001 四个 Draft：`PEDAGOGY_REJECTED`，不是当前 Catalog 候选
 - 当前没有任何 Foundation Lesson 标记为 `AVAILABLE`
 - `PLANNED / BRIEF_READY / IN_PRODUCTION` 可以显示在目录，但不得进入空 Lesson 页面
@@ -63,10 +64,10 @@ Total: **7 stages / 28 lessons**
 
 | order | lessonId | title | subtitle | learnerOutcome | type | min | status | availability | prerequisites | badge |
 | ---: | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
-| 1 | beginner-prompt | Prompt：怎样把想做的事情说清楚 | 不学“神奇提示词”，先把目标、必要背景和结果要求说清楚。 | 能把模糊要求改成 AI 更容易执行的任务说明。 | APPLICATION | 16 | PLANNED | COMING_SOON | F1-01,F1-02 | 应用 |
-| 2 | beginner-context | Context：AI 只知道你这次给它看到的东西 | 你知道的背景，AI 不一定知道；需要时要把资料和背景给它。 | 能判断 AI 还缺哪些当前任务信息。 | CONCEPT | 14 | PLANNED | COMING_SOON | F2-01 | 新手必修 |
-| 3 | beginner-iteration | 第一次结果不对，怎样继续让 AI 改好 | 不满意时不要只重来，学会指出偏差、补信息、给示例和让 AI 提问。 | 能把一次不满意的结果逐步改到可用。 | APPLICATION | 16 | PLANNED | COMING_SOON | F2-01,F2-02 | 应用 |
-| 4 | beginner-result-check | AI 的结果什么时候能直接用，什么时候一定要检查 | 学会按事实、风险和可验证性决定检查力度。 | 能判断哪些结果可以直接参考，哪些必须核实后再用。 | APPLICATION | 16 | PLANNED | COMING_SOON | F1-03,F2-03 | 应用 |
+| 1 | beginner-prompt | Prompt：怎样把想做的事情说清楚 | 不学“神奇提示词”，先把目标、必要背景和结果要求说清楚。 | 能把模糊要求改成 AI 更容易执行的任务说明。 | APPLICATION | 16 | IN_PRODUCTION | COMING_SOON | F1-01,F1-02 | 应用 |
+| 2 | beginner-context | Context：AI 只知道你这次给它看到的东西 | 你知道的背景，AI 不一定知道；需要时要把资料和背景给它。 | 能判断 AI 还缺哪些当前任务信息。 | CONCEPT | 14 | IN_PRODUCTION | COMING_SOON | F2-01 | 新手必修 |
+| 3 | beginner-iteration | 第一次结果不对，怎样继续让 AI 改好 | 不满意时不要只重来，学会指出偏差、补信息、给示例和让 AI 提问。 | 能把一次不满意的结果逐步改到可用。 | APPLICATION | 16 | IN_PRODUCTION | COMING_SOON | F2-01,F2-02 | 应用 |
+| 4 | beginner-result-check | AI 的结果什么时候能直接用，什么时候一定要检查 | 学会按事实、风险和可验证性决定检查力度。 | 能判断哪些结果可以直接参考，哪些必须核实后再用。 | APPLICATION | 16 | IN_PRODUCTION | COMING_SOON | F1-03,F2-03 | 应用 |
 
 ---
 

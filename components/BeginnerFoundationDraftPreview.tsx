@@ -13,6 +13,8 @@ export function BeginnerFoundationDraftPreview({
   referenceFill = null,
   knowledgeDepth = null,
   reviewCardFill = true,
+  skillVersion = "0.1.0",
+  batchLabel = "Beginner Batch A",
   duration,
   reviewItems
 }: {
@@ -21,10 +23,12 @@ export function BeginnerFoundationDraftPreview({
   referenceFill?: RuntimeProps["previewReferenceFill"];
   knowledgeDepth?: RuntimeProps["previewKnowledgeDepth"];
   reviewCardFill?: boolean;
+  skillVersion?: "0.1.0" | "0.2.0";
+  batchLabel?: string;
   duration: string;
   reviewItems: string[];
 }) {
-  const packet = createCourseBuilderReviewPacket(buildDraft);
+  const packet = createCourseBuilderReviewPacket(buildDraft, new Date(), skillVersion);
   if (packet.output.mode !== "BUILD") throw new Error("COURSE_BUILDER_PREVIEW_BUILD_REQUIRED");
 
   const draft = packet.output;
@@ -55,7 +59,7 @@ export function BeginnerFoundationDraftPreview({
             <img src="/opc-logo.png" alt="OPC AI" />
             <span>OPC AI</span>
           </Link>
-          <div className="kicker">Beginner Batch A · {draft.lessonSpec.lessonType} Review</div>
+          <div className="kicker">{batchLabel} · {draft.lessonSpec.lessonType} Review</div>
           <h2>零基础课程草稿预览</h2>
           <div className="draft-preview-status">
             <span>状态</span>
