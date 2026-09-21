@@ -1,6 +1,6 @@
 # Track 01 Batch A — T1-01～T1-05 Formal Briefs v1
 
-Status: **BRIEF_READY_V1 / HUMAN_REVIEW_REQUIRED**  
+Status: **BRIEF_READY_V1 / HUMAN_REVIEW_PASS_BRIEF_LEVEL**
 Task: **CURRICULUM-AUDIT-REALIGN-001-R1**  
 Canonical IDs: **T1-01～T1-05**  
 Course Builder target: **course-builder@0.2.0 + BEGINNER_QUALITY_V1**
@@ -19,6 +19,15 @@ T1-01 选择任务并生成 First Draft
 ```
 
 Stable Method Layer 必须行业中立。OPC / 自媒体只作为默认案例层，可替换房地产、电商、教育、企业服务等。
+
+### Prompt vs Context fixed boundary
+
+从本版本开始固定：
+
+- **Prompt = AI 要做什么 / Task Instruction**：目标、对象、任务要求、输出形式；
+- **Context = AI 为了完成任务需要知道什么 / Task Information**：当前事实、已有资料、业务背景、参考内容。
+
+同一个信息有时可以写进一句 Prompt，但教学判断按“它是在定义任务，还是在提供任务所需信息”区分。T1-02 负责定义任务；T1-03 负责信息取舍。T1-03 不教授 Knowledge Base / Source of Truth 的正式判断。
 
 ---
 
@@ -53,7 +62,7 @@ Output: **AI First Draft + Task Fit Note**
 1. EXPLAIN：不知道 AI 适合做什么，会出现“什么都让 AI 做”或“完全不知道从哪开始”。
 2. EXAMPLE：同一个内容任务中，草拟结构可以交给 AI；事实承诺、最终发布决定不能直接交给 AI。
 3. CHECK：给 3 个真实小场景，判断“可协助 / 需核验 / 不应直接决定”。
-4. PRACTICE：给自己的 3 个任务分类，并选 1 个生成 First Draft。
+4. PRACTICE：写下自己的 3 个真实任务，逐个标记“AI 可协助 / 需谨慎核验 / 人负责最终决定”；从中选 1 个，写一句任务目标并让 AI 生成最小 First Draft。保留 **3-task classification + selected task goal + AI First Draft**。
 5. REVIEW：任务是否清楚；AI 是否真的能帮；错误成本是否可接受；最终判断权在哪里。
 6. CAPABILITY：能选择一个适合 AI 的真实任务并安全开始。
 
@@ -102,12 +111,12 @@ Before / After 对比原始要求，形成 **Clear Task Brief**，再生成 Prom
 1. EXPLAIN：AI 不会自动知道目标、对象和交付标准。
 2. EXAMPLE：只改变目标 / 对象 / 要求 / 输出四类关键信息，看结果怎样变化。
 3. CHECK：判断哪些任务说明“信息很多但仍不清楚”，哪些真正可执行。
-4. PRACTICE：重写自己的任务说明并提交给 AI。
+4. PRACTICE：把自己的原始要求拆成四项填写：①任务目标 ②使用对象 ③关键要求 / 限制 ④输出形式；合成为 Clear Task Brief，再提交给 AI 生成新版本。保留 **Before prompt + 4-field Clear Task Brief + Prompt-improved Draft**。
 5. REVIEW：目标清楚；对象清楚；必要要求明确；输出可检查。
 6. CAPABILITY：能把模糊需求变成 AI 可以执行的任务说明。
 
 ### Next Reuse
-T1-03 不重写任务目标，而是在 Clear Task Brief 上补足真正需要的资料和背景。
+T1-03 不再修改“AI 要做什么”，而是在 Clear Task Brief 已固定的前提下补足“AI 为了完成这件事需要知道什么”。
 
 ### Anti-repeat / Deferred
 - 不教“万能 Prompt 模板”；
@@ -145,7 +154,7 @@ Clear Task Brief + Prompt-improved Draft。
 同时建立“Context 有限，更多不等于更好”的最低直觉。
 
 ### Artifact Action / Output
-从品牌 / 受众 / 已知事实 / 参考资料 / 限制中选出当前任务真正需要的内容。
+从当前事实、已有业务资料、参考内容、必要背景中选出本次任务真正需要的信息；目标、对象、任务要求、输出形式继续属于 T1-02，不在本课重新定义。
 
 Output: **Minimum Context Pack + Context-enriched Draft**
 
@@ -153,8 +162,8 @@ Output: **Minimum Context Pack + Context-enriched Draft**
 1. EXPLAIN：你知道的背景，AI 不会自动知道；资料过多也会稀释重点。
 2. EXAMPLE：同一 Task Brief 分别使用缺失 Context、过量 Context、Minimum Context 比较。
 3. CHECK：判断哪些信息必须提供、哪些可省略、哪些不该加载。
-4. PRACTICE：为自己的任务整理一个最小 Context Pack。
-5. REVIEW：当前任务需要什么；什么是权威资料；什么只是噪音；长资料要取舍。
+4. PRACTICE：列出手头可提供的信息，并分入三个框：①Must Know ②Nice to Know ③Do Not Load；只把 Must Know 组合成 Minimum Context Pack，交给 AI 再生成一次。保留 **3-bucket information list + Minimum Context Pack + Context-enriched Draft**。
+5. REVIEW：当前任务真正缺什么；哪些信息只是“有帮助”但不是必须；哪些信息会制造噪音；长资料需要取舍。
 6. CAPABILITY：能为一次 AI 任务准备足够但不过量的上下文。
 
 ### Next Reuse
@@ -163,7 +172,7 @@ T1-04 直接在 Context-enriched Draft 上定位偏差并迭代，不重新准�
 ### Anti-repeat / Deferred
 - Context Window 只建立“容量有限”直觉，不讲 token 数字；
 - 不教 Context Engineering；
-- 不教 Memory / Knowledge Base / RAG；
+- 不教 Memory / Knowledge Base / Source of Truth / RAG；
 - 不把 Prompt wording 与 Context 来源混为一谈。
 
 ### Grounding
@@ -199,7 +208,7 @@ Output: **Iteration Notes + Iterated Draft**
 1. EXPLAIN：第一版常常只是起点；无目标重生成不会稳定变好。
 2. EXAMPLE：同一个差结果，对比“再写一次”与“指出偏差 + 补标准”的效果。
 3. CHECK：根据不同偏差选择“补信息 / 给示例 / 改限制 / 让 AI 提问”。
-4. PRACTICE：完成两轮 Iteration，并记录每轮改了什么、为什么改。
+4. PRACTICE：对当前 Draft 完成两轮 Iteration；每轮都按“发现的偏差 → 选择的修改动作 → 新结果是否改善”记录。保留 **Iteration Note 1 + Iteration Note 2 + final Iterated Draft**。
 5. REVIEW：先找偏差；只补真正缺的；给可检查标准；必要时先澄清。
 6. CAPABILITY：能把一个不满意的 AI 初稿逐步改到可用。
 
@@ -231,29 +240,32 @@ AI 写得很像真的，我怎样判断哪些可以直接参考、哪些一定�
 Iterated Draft。
 
 ### Current Learner Job
-对准备发布 / 交付的结果做最小 Verification：识别事实、时效、风险与证据需求。
+对准备发布 / 交付的结果做两层最小检查：先确认它有没有完成原始 Clear Task Brief，再识别其中哪些内容因事实性、时效性、可验证性或错误后果需要进一步核验。
 
 ### New Capability
-能按四个维度决定核验强度：
+能先做最低 Task-fit Evaluation，再按四个维度决定核验强度：
+- 是否完成原始任务要求；
 - 事实性；
 - 时效性；
-- 错误成本 / 风险；
-- 是否有可验证来源。
+- 是否可验证；
+- 错误后果大小。
+
+这里的 Evaluation 只回答“结果有没有完成任务、能不能继续使用”，不进入评分体系或 Evaluation Engineering。
 
 Hallucination 在本课作为“为什么必须检查”的解释知识，不独立成课。
 
 ### Artifact Action / Output
-标出需要核验的陈述，写清最小检查动作与结果。
+先对照 Clear Task Brief 标记“已满足 / 未满足”的关键要求；再标出需要核验的陈述，并写清最小检查动作与结果。
 
 Output: **Verification Record + Verified Publishable Draft**
 
 ### Six-step intent
-1. EXPLAIN：表达流畅、语气确定，不代表事实正确。
-2. EXAMPLE：创意措辞、公开事实、最新数据、高风险承诺分别需要不同检查强度。
-3. CHECK：判断哪些内容可作为灵感、哪些必须找来源、哪些必须人工确认。
-4. PRACTICE：为当前 Draft 标出 verification flags，并完成至少一个真实核验动作。
-5. REVIEW：事实；来源；日期；风险。
-6. CAPABILITY：能判断 AI 结果何时可用、何时必须验证，并留下 Verification Record。
+1. EXPLAIN：结果“看起来不错”有两个不同问题：它可能没完成任务，也可能完成了任务但事实不可靠；表达流畅、语气确定不代表正确。
+2. EXAMPLE：先对照 Clear Task Brief 判断一个 Draft 是否完成任务，再比较创意措辞、公开事实、最新数据、错误后果较大的信息需要怎样不同程度地核验。
+3. CHECK：判断一个结果是“任务没完成”“任务完成但需要核验”还是“可以继续使用”，并识别需要来源或最新信息检查的内容。
+4. PRACTICE：①对照自己的 Clear Task Brief 勾选关键要求是否满足；②为当前 Draft 标出 verification flags；③至少完成 1 个真实核验动作。保留 **Task-fit checklist + Verification Flags + one completed verification + Verification Record**。
+5. REVIEW：任务对不对；事实要不要查；信息新不新；错了会怎样。
+6. CAPABILITY：能先判断结果是否完成任务，再决定哪些内容必须验证，并留下可追溯 Verification Record。
 
 ### Next Reuse
 Track 02 直接继承：
@@ -268,8 +280,9 @@ Track 02 直接继承：
 ### Anti-repeat / Deferred
 - 不展开正式 Evaluation framework / baseline / regression；
 - 不讲 RAG 工程；
-- 不讲权限与高风险自动执行边界（T1-20）；
+- 不讲谁有审批权、AI 可以获得什么权限、哪些动作必须 HITL / Core Authority；这些属于 T1-20；
 - 不承诺“核验后一定正确”，只建立可追溯判断。
+- “错误后果大小”只用于决定核验强度，不在本课延伸到审批流程、权限控制或自动执行边界。
 
 ### Grounding
 REVIEWED_KNOWLEDGE + high-freshness examples where current facts are used.
@@ -279,10 +292,12 @@ REVIEWED_KNOWLEDGE + high-freshness examples where current facts are used.
 ## 2. Batch acceptance before Course Builder
 
 进入 Course Builder 前必须由产品负责人确认：
-1. T1-01～T1-05 的课程边界与顺序；
-2. 五课是否真实形成同一 Artifact Thread；
-3. 每课 Step 4 是否足够具体且不重复；
-4. T1-05 是否已经吸收 Hallucination / basic Evaluation，但没有越界到 Track 04；
-5. 旧 Trial 只作为 reference，不把旧 Check / Practice / Review 静默继承进新 Draft。
+本轮 Human Review revision 已确认：
+1. T1-01～T1-05 顺序保持不变，边界 PASS；
+2. Prompt vs Context 固定为 Task Instruction vs Task Information；
+3. 五课 Step 4 均明确具体动作与保留结果；
+4. T1-05 吸收 Hallucination 作为原因解释，并吸收最低 Task-fit Evaluation；
+5. T1-05 不进入 T1-20 的 HITL / Permissions / Approval，也不进入 Track 04 Evaluation Engineering；
+6. 旧 Trial 只作为 reference，不把旧 Check / Practice / Review 静默继承进新 Draft。
 
-通过后，Production Batch 固定为 T1-01～T1-05；一次 generation attempt 使用单一 `course-builder@0.2.0`。
+Formal Brief 层 Human Review = **PASS**。Production Batch 固定为 T1-01～T1-05；一次 generation attempt 使用单一 `course-builder@0.2.0`。

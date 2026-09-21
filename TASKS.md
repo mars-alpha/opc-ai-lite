@@ -761,6 +761,12 @@ Status: COMPLETE_REALIGNED_V1
 
 T1-01～T1-20 已成为 Track 01 新课程生产唯一 canonical identity；旧 F IDs 仅作 historical alias。新增 canonical realignment、20-lesson Catalog metadata v2、T1-01～T1-05 Formal Briefs；旧 F Catalog 与 Continuity Brief 降级为 legacy / historical evidence。五课新 Artifact Thread 为 First Draft → Clear Task Brief → Minimum Context Pack → Iterated Draft → Verification Record / Verified Publishable Draft。现有 Trial 只迁移教学方法与交互经验，不直接继承旧 Check/Practice/Review/Capability。当前不改 UI/runtime/schema；下一步先 Human Review T1-01～T1-05 Brief，再决定 `COURSE-PRODUCTION-TRACK01-A-001`。
 
+### TRACK01-BATCH-A-BRIEF-REVIEW-001 — T1-01～T1-05 Human Review Revision
+
+Status: COMPLETE_HUMAN_REVIEW_PASS_BRIEF_LEVEL
+
+已完成 targeted revision：Prompt = Task Instruction、Context = Task Information；T1-03 退出 Source of Truth；T1-01～T1-05 的 Step 4 均写明具体 learner action 与 retained output；T1-05 增加最低 Task-fit Evaluation，再进行 Reliability Verification，Hallucination 作为 supporting explanation。T1-05 明确不教授 HITL / Permissions / Approval / Core Authority，也不进入 Track 04 Evaluation Engineering。五课顺序、canonical ID、Artifact Thread 不变。下一步：`COURSE-PRODUCTION-TRACK01-A-001 — T1-01～T1-05 Course Builder Production`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
