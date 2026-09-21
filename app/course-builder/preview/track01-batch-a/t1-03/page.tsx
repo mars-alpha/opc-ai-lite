@@ -17,7 +17,6 @@ export default function Page() {
       referenceFill={track01T103ReferenceFill}
       reviewLabels={{ primary: "AI 适合做什么", secondary: "AI 不应该替你做什么" }}
       practiceHintsGrouped
-      practiceCopyValuesOnly
       skillVersion="0.2.0"
       batchLabel="Track 01 · Batch A · T1-03"
       duration="约 18 分钟"

@@ -42,7 +42,7 @@ Core method:
 3. 从必要信息中整理最小信息包
 
 Step 4 is self-contained and reduced to two learner fields: `我要 AI 完成的任务` + `这次提供给 AI 的必要信息`. The existing copy affordance combines them into learner-visible content that can be pasted directly into the learner's own AI for immediate verification. AI reply pasteback is not required.
-T1-03 Preview uses value-only copy for this action: the form labels remain visible in the course, but clipboard content contains only the learner-entered task and necessary information. T1-01 / T1-02 keep their existing copy behavior.
+This behavior is now the shared default for all Step 4 COPY_TO_AI actions: form labels remain visible for guidance, while clipboard content contains learner-entered values only. Labeled copy is an explicit exception, not the default.
 
 Step 5 card count is **not fixed**. It follows the global 2–4 rule based on the lesson's concrete reusable judgments. T1-03 currently uses **2 cards**: 必要信息、够用就停. The fixed vertical contrast remains:
 - upper: `AI 适合做什么` = core judgment;

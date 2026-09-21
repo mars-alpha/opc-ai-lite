@@ -179,7 +179,7 @@ export function GenericLessonRuntimePanel({
   previewReviewItems = null,
   previewReviewLabels = null,
   previewPracticeHintsGrouped = false,
-  previewPracticeCopyValuesOnly = false,
+  previewPracticeCopyValuesOnly = true,
   previewSelfAssessment = null,
   previewIntroComparison = null
 }: {

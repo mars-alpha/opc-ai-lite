@@ -15,7 +15,7 @@ export function BeginnerFoundationDraftPreview({
   reviewCardFill = true,
   reviewLabels = null,
   practiceHintsGrouped = false,
-  practiceCopyValuesOnly = false,
+  practiceCopyValuesOnly = true,
   skillVersion = "0.1.0",
   batchLabel = "Beginner Batch A",
   duration,

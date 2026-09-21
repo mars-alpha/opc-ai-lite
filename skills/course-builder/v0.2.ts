@@ -20,6 +20,7 @@ export const COURSE_BUILDER_SKILL_V0_2 = {
     "PRACTICE 的 Hint 只写提示内容本身，不得手写 1｜、2｜、1.、2.、1、 等序号；编号由课程 UI 统一生成，避免重复编号。",
     "PRACTICE 字段必须来自当前学习动作的自然产物，不得为了下一课 Artifact handoff 反向制造额外字段；Reference Fill 只写字段直接值，不得混入教学解释或课程编排文字。",
     "PRACTICE Goal / Instruction 必须自包含，不得出现 T1-01、T1-03 等内部课程编号，也不得要求学员理解上一课内部 handoff 才知道当前要做什么。",
+    "所有 PRACTICE 的 COPY_TO_AI 默认只复制学习者实际填写的字段值；字段标题只负责界面引导，不得把字段名、课程标题、内部编号、Artifact / Schema 名等脚手架一起复制给 AI。若确需带标签复制，必须作为明确例外单独批准。",
     "REVIEW 使用 2–4 张卡，数量按知识密度决定；每张卡固定上下对比：上层“AI 适合做什么”=核心判断，下层“AI 不应该替你做什么”=边界理解。补充描述负责解释为什么，Pitfalls 负责纠错，三层不得机械重复。CAPABILITY 必须表达学习者现在能做什么、如何自证、能用在哪里，并说明下一课价值。",
     "当 pedagogy.audience=BEGINNER 时，必须提供 pedagogy.qualityProfile，id=BEGINNER_QUALITY_V1。",
     "BEGINNER qualityProfile 必须明确 mainLearnerQuestion、mainConcept、allowedCoreTerms、deferredTerms。",
