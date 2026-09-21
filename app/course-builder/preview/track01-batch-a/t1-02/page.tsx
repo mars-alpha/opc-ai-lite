@@ -15,6 +15,7 @@ export default function Page() {
       introPreview={track01T102Intro}
       knowledgeDepth={track01T102KnowledgeDepth}
       referenceFill={track01T102ReferenceFill}
+      reviewLabels={{ primary: "AI 适合做什么", secondary: "AI 不应该替你做什么" }}
       practiceHintsGrouped
       skillVersion="0.2.0"
       batchLabel="Track 01 · Batch A · T1-02"

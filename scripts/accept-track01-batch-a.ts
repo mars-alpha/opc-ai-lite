@@ -111,6 +111,11 @@ assert(
 assert(t102.practice?.instructions.map((item) => item.key).join(",") === "goal,audience,requirements,format", "TRACK01_T102_STEP4_KEYS");
 assert(t102.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T102_HINTS_UI_OWNS_NUMBERING");
 assert(t102.review.length === 4, "TRACK01_T102_REVIEW_COUNT");
+assert(t102.review.every((item) => item.includes("｜")), "TRACK01_T102_REVIEW_VERTICAL_CONTRAST");
+assert(t102.review[0]?.startsWith("把任务目标说清楚｜"), "TRACK01_T102_REVIEW_GOAL_CONTRAST");
+assert(t102.review[1]?.startsWith("把使用对象说清楚｜"), "TRACK01_T102_REVIEW_AUDIENCE_CONTRAST");
+assert(t102.review[2]?.startsWith("把关键要求说清楚｜"), "TRACK01_T102_REVIEW_REQUIREMENTS_CONTRAST");
+assert(t102.review[3]?.startsWith("把输出形式说清楚｜"), "TRACK01_T102_REVIEW_FORMAT_CONTRAST");
 assert(track01T102KnowledgeDepth.review.length === 4, "TRACK01_T102_REVIEW_DEPTH_COUNT");
 assert(track01T102Meta.caseThread === "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT", "TRACK01_T102_CASE_THREAD");
 assert(track01T102Meta.artifactOutput === "CLEAR_TASK_BRIEF", "TRACK01_T102_ARTIFACT");

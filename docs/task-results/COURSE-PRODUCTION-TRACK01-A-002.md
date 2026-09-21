@@ -44,7 +44,7 @@ Core method:
 Step 4 keeps only these four natural learner fields and forms `CLEAR_TASK_BRIEF`.
 Copying the brief to an external AI is optional experience; AI replies are not pasted back and are not course artifacts.
 
-Step 5 uses four review cards because the knowledge naturally has four judgments. It does not reuse T1-01's boundary-card template mechanically.
+Step 5 uses four review cards because the knowledge naturally has four judgments. Every card follows the fixed vertical contrast UI: upper `AI 适合做什么` = core judgment; lower `AI 不应该替你做什么` = boundary understanding.
 
 ## Validation
 
@@ -60,5 +60,5 @@ Step 5 uses four review cards because the knowledge naturally has four judgments
 2. Step 2 是否只通过四项变化讲透核心方法。
 3. Step 3 是否检查真实任务判断，而不是 Prompt 术语。
 4. Step 4 四字段是否自然、容易填写，没有提前混入下一课资料方法。
-5. Step 5 四卡是否互补，不和解释 / pitfalls 重复。
+5. Step 5 四卡是否都按 `AI 适合做什么` / `AI 不应该替你做什么` 上下对比，并且不和解释 / pitfalls 重复。
 6. Step 6 是否证明学习者真的能独立写出 Clear Task Brief。
