@@ -372,7 +372,7 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `CURRICULUM-001` 已将正式课程主线锁定为：AI 基础认知 → AI 工作应用 → AI 推广运营与业务增长 → AI Workflow 与自动化 → FDE / AI 解决方案落地。AI 基础认知内部按 7 个学习阶段组织：认识 AI、模型工作方式、AI 沟通、记忆与知识、外部能力连接、复用与执行方式、现代 AI 能力与边界。完整目录与内容生产批次明确分离；3–5 节只代表单次 Production Batch，不代表基础知识范围。每个核心概念只设一个 Primary Knowledge Home，后续课程只应用或深化，禁止从定义开始重复教学。当前 `lib/courses.ts` 与 Course Builder acceptance fixtures 仍不是正式 Curriculum Source of Truth。
 
-`CURRICULUM-002` 曾将 `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md` 记录为 28 个 Lesson Brief，但当前审计已确认其实际表格枚举为 32 个候选（4+4+4+4+4+6+6）；“28”属于历史规划统计错误。该旧 Map 仍保留 Primary Knowledge Home、前置依赖、Lesson Type、规划级 Completion Gate、Grounding freshness、Anti-overlap 与资产迁移记录，但已被 `CURRICULUM-SIX-STEP-AUDIT-001` 降级为 pre-audit candidate map，不再决定正式目录。工程实现类内容继续属于 Advanced Technical Track。
+`CURRICULUM-002` 的产品级课程基线仍是 28 个 AI 基础认知 Lesson candidates。仓库中后来额外保留的 4 个测试/冗余课程资产不属于正式 Curriculum，不得因为代码或文档中仍可见就纳入课程数量。该旧 Map 继续保留 Primary Knowledge Home、前置依赖、Lesson Type、Planning Gate、Grounding freshness、Anti-overlap 与资产迁移记录，并作为 pre-audit candidate map 使用。工程实现类内容继续属于 Advanced Technical Track。
 
 `CURRICULUM-003` 的 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md` 属于 pre-reframe 旧 F1-01～F1-04 Brief，当前状态为 `RETIRED_FAILED_REFERENCE`，仅保留历史证据，不再作为当前 Course Builder 输入。当前 Stage 1 以 Beginner Reframe / current fixtures 为准；Stage 2 正式 Brief 为 `docs/learning/FOUNDATION_STAGE2_BRIEFS_V1.md`。
 
@@ -424,7 +424,7 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `COURSE-GOV-SIX-STEP-001` 已把当前六步教学方式从 Foundation Trial 经验升级为所有新正式课程的强制生产规则。五大板块、所有 Lesson Type、后续进阶图文/代码/实验/项目课均必须使用 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY。每一个正式 Primary Knowledge Point 在进入 Course Builder 前必须先通过 Six-step Knowledge Point Gate；如果无法自然完成六步，不允许为了填 Shell 强行生成，而必须回到 Curriculum / Formal Brief 判断合并、拆分或降为 Supporting Knowledge。Lesson Type 只改变 Step 4 深度与 Completion Gate，不改变六步。后续课程同时受两条强制轴控制：Six-step 保证单课真正教会，Continuity 保证前后课程真正承接。
 
-`CURRICULUM-SIX-STEP-AUDIT-001` 已完成五大板块 Capability-first 课程审计。Canonical baseline 为 `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。审计同时发现旧 Foundation Map 的数量事实漂移：正文长期写 28 个，但实际 F1-01～F7-06 表格枚举为 32 个（4+4+4+4+4+6+6）。本次以实际 32 个候选为输入并收敛为 17 个 Track 01 core lessons；RAG、MCP、Skill、Agent、Multimodal 保留清晰 Primary Knowledge Home，Embedding / Vector Search 等工程细节下沉 Technical Track。Track 02/03/04/05 分别形成 8 / 7 / 7 / 7 个核心能力单元。旧 `FOUNDATION_KNOWLEDGE_MAP_V1.md` 与现有 5 个 Continuity Trial 继续作为历史映射 / 六步教学证据，但旧 F1/F2 identity 不再自动决定新正式 Course Directory。下一任务为 `CURRICULUM-AUDIT-REALIGN-001 — Track 01 Canonical IDs & Formal Brief Realignment`；在 realignment 前仍不继续批量生产。
+`CURRICULUM-SIX-STEP-AUDIT-001` 已形成五大板块 Capability-first 第一版审计方案。Canonical baseline 为 `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。Track 01 正式审计输入必须回到产品负责人确认的 28 个 AI 基础认知候选课程；额外 4 个历史测试/冗余课程资产不进入候选。当前 17 个 Track 01 core lessons 仅视为第一版能力收敛方案，核心方法有效，但最终数量需基于正确的 28 个候选逐项复核后再锁定。RAG、MCP、Skill、Agent、Multimodal 继续要求有清晰 Primary Knowledge Home。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 

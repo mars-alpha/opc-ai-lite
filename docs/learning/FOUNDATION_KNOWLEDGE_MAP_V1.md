@@ -22,7 +22,7 @@ Scope: **Track 01 / AI 基础认知**
 - 与相邻课程的去重边界；
 - 现有测试资产如何迁移。
 
-**本文件正文曾标记 28 个 pre-audit candidate Lesson Brief，但实际表格枚举为 32 个（4+4+4+4+4+6+6）。该 28 数量为历史规划统计错误。**
+**Track 01 产品级 pre-audit baseline 固定为 28 个 AI 基础认知 candidate Lesson Brief。仓库中额外保留的 4 个测试/冗余课程资产不属于正式 Curriculum 候选，不得纳入课程数量或审计输入。**
 `CURRICULUM-SIX-STEP-AUDIT-001` 已完成六步知识点审计，正式课程粒度与 KEEP / MERGE / SUPPORTING_KNOWLEDGE / DEFER 结论以 `FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md` 为准。Track 01 已收敛为 17 个 core lessons；本文件不再决定新的正式 Course Directory。
 
 F1-01～F2-04 的历史 Continuity Brief 与 Trial 继续作为教学承接和六步体验证据，但它们的旧 Lesson identity 不自动成为审计后的 canonical production identity。

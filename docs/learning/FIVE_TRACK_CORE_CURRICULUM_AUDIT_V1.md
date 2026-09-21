@@ -21,7 +21,7 @@ Capability Map
 
 每个候选知识点只允许：KEEP / MERGE / SPLIT / SUPPORTING_KNOWLEDGE / DEFER / REMOVE。
 
-Fact-drift correction: `FOUNDATION_KNOWLEDGE_MAP_V1.md` historically states “28 Lesson Brief”, but the actual candidate tables enumerate 32 IDs: F1–F5 each 4, F6–F7 each 6. This audit treats the enumerated 32 candidates as authoritative input and records the old 28 count as a superseded planning-count error.
+Product-owner correction: Track 01 的正式审计输入仍是最初确认的 **28 个 AI 基础认知课程候选**。仓库中额外出现的 4 个课程/测试资产属于历史测试冗余，不得因为文件或编号仍存在就反向扩大 Curriculum。后续审计必须以 28 个产品候选为基线，测试资产只作为历史证据或实现参考。
 
 独立 Lesson 必须同时拥有：
 1. 一个真实学习者问题；
@@ -124,7 +124,7 @@ Fact-drift correction: `FOUNDATION_KNOWLEDGE_MAP_V1.md` historically states “2
 | F7-05 | MERGE | T1-05 / Track 04 Evaluation |
 | F7-06 | MERGE | T1-17 |
 
-Result: the legacy map text claimed 28 candidates, but its actual F1-01～F7-06 tables enumerate **32 candidates (4+4+4+4+4+6+6)**. This audit uses the enumerated source items and reduces those 32 candidates to **17 Track-01 core lessons**. Existing Continuity Trial pages remain valid pedagogy evidence, but their old lesson IDs are not automatically canonical production identities after this audit.
+Result: Track 01 的产品级审计输入固定为 **28 个 AI 基础认知候选课程**。本轮形成的 **17 个 Track-01 core lessons** 应视为第一版能力收敛方案，而不是因为文件数量计算得到的固定答案。17 的价值在于验证“术语不能自动等于一节课”；最终数量仍需基于 28 个正式候选重新逐项确认 KEEP / MERGE / SUPPORTING_KNOWLEDGE / DEFER。Existing Continuity Trial pages remain valid pedagogy evidence, but their old lesson IDs are not automatically canonical production identities after this audit.
 
 ## 4. Track 02 — AI 工作应用
 

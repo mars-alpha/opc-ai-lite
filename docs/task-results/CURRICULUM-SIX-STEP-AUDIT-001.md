@@ -10,7 +10,8 @@ Canonical audit baseline:
 - `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`
 
 核心结论：
-- 纠正旧 Foundation 数量漂移：正文称 28 个，实际表格枚举 32 个；本次以实际 32 个 candidates 审计为 17 个 core lessons；
+- 产品级 Track 01 审计输入固定为原始 28 个 AI 基础认知 candidates；额外 4 个历史测试/冗余课程资产不纳入 Curriculum；
+- 当前 17 个 core lessons 是第一版能力收敛方案，不锁死最终数量；需基于正确 28 候选重新复核后再 canonicalize；
 - F1-02 → Prompt、F1-03 → 结果检查、F3-02 → 模型课、F3-04 → supporting、F4-04 → Technical RAG、F5-02 → API/结构化数据、F6-05 → Agent 边界、F7-05 → 基础结果检查/Track 04 Evaluation；
 - RAG、MCP、Skill、Agent、Multimodal 仍保留独立清晰的 Primary Knowledge Home；
 - Track 02 审计为 8 个核心工作能力；

@@ -747,7 +747,7 @@ Status: COMPLETE_DIRECTION_LOCKED
 
 Status: COMPLETE_AUDITED_V1
 
-完成五大板块 Capability Map → Knowledge Map → Six-step Audit → Core Directory。审计纠正旧 Foundation 数量漂移：旧文档正文称 28 个，但实际候选表枚举 32 个（4+4+4+4+4+6+6）；本次以实际 32 个候选为输入并收敛为 17 个 Track 01 core lessons。RAG / MCP / Skill / Agent / Multimodal 保留独立清晰的 Primary Knowledge Home，Embedding / Vector Search 等工程细节下沉 Technical Track。Track 02 / 03 / 04 / 05 分别形成 8 / 7 / 7 / 7 个核心能力单元；渠道按钮类内容统一下沉 Channel Practice。Canonical baseline：`docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。旧 F1/F2 Trial 继续作为六步教学证据，但不自动保留旧 identity。下一步：`CURRICULUM-AUDIT-REALIGN-001 — Track 01 Canonical IDs & Formal Brief Realignment`。
+完成五大板块 Capability Map → Knowledge Map → Six-step Audit 第一版。产品负责人确认 Track 01 正式审计输入仍为最初 28 个 AI 基础认知候选课程，仓库额外 4 个历史测试/冗余课程资产不进入 Curriculum。当前 17 个 Track 01 core lessons 保留为第一版能力收敛方案，不锁死最终数量；下一步必须基于正确的 28 个候选重新逐项确认 KEEP / MERGE / SUPPORTING_KNOWLEDGE / DEFER。RAG / MCP / Skill / Agent / Multimodal 继续保留清晰 Primary Knowledge Home。Canonical baseline：`docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。
 
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
