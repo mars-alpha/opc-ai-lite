@@ -238,6 +238,54 @@ Why Existing Skill Cannot Be Reused
 
 完整规范见 `docs/SKILL_GOVERNANCE.md`。
 
+### 7.3 Course Production Governance Gate
+
+正式课程生产任务开始实现前必须明确：
+
+```text
+Canonical Lesson IDs
+Formal Brief Source
+Production Batch
+Skill Decision
+Selected Skill ID / Version
+Quality Standard / Profile
+Grounding Source
+Target Preview
+Human Review Required
+Runtime Scope
+Out of Scope
+Acceptance
+```
+
+课程生产固定链路：
+
+```text
+Curriculum / Knowledge Map
+→ Formal Lesson Brief
+→ Course Builder
+→ Code Validation
+→ Draft Preview
+→ Human Review
+→ Runtime Provisioning
+→ Runtime Acceptance
+→ AVAILABLE
+```
+
+固定边界：
+
+- `curriculumStatus` 与 `availability` 保持独立；
+- Preview 不写正式 Progress / Completion；
+- Human Review PASS 不等于 Runtime Ready；
+- Runtime Ready 不等于自动发布；
+- 只有 Human Review PASS + Runtime Acceptance PASS 后，才允许进入正式发布动作；
+- 一次 generation attempt 只能使用一个明确 Skill Version，不允许 v0.1 + v0.2 复合使用；
+- 当前新 Beginner 课程默认使用 `course-builder@0.2.0`，v0.1 只保留历史 provenance / legacy compatibility；
+- Human Review FAIL 回到 IN_PRODUCTION 重做，canonical lesson identity 不变；
+- Skill 本身的问题单独升级 Skill Version，不在课程任务中静默改 Prompt；
+- Runtime / Shell / Schema 不支持时另开工程任务，不允许 Course Skill 自行扩架构。
+
+完整规范见 `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md`。
+
 ## 8. 任务完成后的固定收口
 
 固定流程：

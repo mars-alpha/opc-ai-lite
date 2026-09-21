@@ -55,8 +55,9 @@ COURSE-PRODUCTION-002-A Beginner Batch A Experience Restoration COMPLETE_EXPERIE
 COURSE-UX-QUALITY-001 Beginner Lesson Quality Pass COMPLETE_QUALITY_BASELINE_V1
 COURSE-BUILDER-SKILL-005 Beginner Quality Alignment COMPLETE_V02_QUALITY_ALIGNED
 SKILL-GOV-001 Skill Responsibility & Orchestration Baseline COMPLETE_GOVERNANCE_BASELINE_V1
+COURSE-GOV-001 Course Production Governance Baseline COMPLETE_GOVERNANCE_BASELINE_V1
 
-NEXT: COURSE-GOV-001 — Course Production Governance Baseline; then Foundation Stage 2 production
+NEXT: Foundation Stage 2 production (F2-01～F2-04) using course-builder@0.2.0
 ```
 
 ## 当前系统健康

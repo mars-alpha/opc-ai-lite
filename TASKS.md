@@ -659,6 +659,12 @@ Status: COMPLETE_GOVERNANCE_BASELINE_V1
 
 新增 `docs/SKILL_GOVERNANCE.md` 与 `skills/REGISTRY.md`，并把 Skill Decision Gate 写入 `AGENTS.md`。后续开发任务实现前必须先判断 `CODE_ONLY / EXISTING_SKILL / NEW_SKILL_NEEDED`；需要新 Skill 时必须先讨论 Mini Skill Proposal，再实现最小 v0.1。固定一个 Skill 只做一个可独立验收职责、只产出一个主要结果；Skill 为 Architecture-neutral Content / Intelligence Layer，不得修改 DB / Schema / API / Runtime / Workflow / Permission / Publish / Progress / Completion；Skill 默认不互调，联动由 Workflow 编排。Registry 只登记真实落盘的 course-builder v0.1.0 / v0.2.0。自动化可逐步提高，但后台审核与 Core Authority 不变。下一步：COURSE-GOV-001，再进入 Foundation Stage 2。
 
+### COURSE-GOV-001 — Course Production Governance Baseline
+
+Status: COMPLETE_GOVERNANCE_BASELINE_V1
+
+新增 `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md` 与 `COURSE_PRODUCTION_PROVENANCE_TEMPLATE.md`，并把 Course Production Gate 接入 `AGENTS.md`。正式课程固定走 Curriculum/Knowledge Map → Formal Brief → Course Builder → Code Validation → Draft Preview → Human Review → Runtime Provisioning → Runtime Acceptance → AVAILABLE。现有 `curriculumStatus` / `availability` enum 不扩展；Human Review PASS 与 Runtime Ready 只作为治理 Gate。每个 generation attempt 只能选择一个明确 Skill Version；当前新 Beginner 默认 `course-builder@0.2.0`，v0.1 仅保留历史追溯。Human Review FAIL 回到 IN_PRODUCTION，新 Draft version 继续沿用 canonical lesson identity；Preview 不写正式 Progress/Completion；Skill 问题单独升级 Skill，架构问题另开工程任务。继续沿用 Foundation 3–5 节 Production Batch 规则，Stage 2 四节可作为一个完整 Batch。下一步：Foundation Stage 2 F2-01～F2-04 课程生产。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
