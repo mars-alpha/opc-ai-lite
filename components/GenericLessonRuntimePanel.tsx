@@ -939,11 +939,16 @@ export function GenericLessonRuntimePanel({
             ))}
           </div>
           {practice.hints.length > 0 && (
-            <div className="interactive-hints">
+            <div className="interactive-hints guided-numbered-hints">
               <strong>提示</strong>
-              {practice.hints.map((hint) => (
-                <p key={hint}>{hint}</p>
-              ))}
+              <div className="guided-numbered-list">
+                {practice.hints.map((hint, index) => (
+                  <div key={hint} className="guided-numbered-item">
+                    <span>{index + 1}</span>
+                    <p>{hint}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           <div className="interactive-actions">
@@ -1149,11 +1154,11 @@ export function GenericLessonRuntimePanel({
             <div className="guided-pitfall-section">
               <strong>容易踩的坑</strong>
               <div className="guided-pitfall-list">
-                {lesson.mistakes.map((item) => {
+                {lesson.mistakes.map((item, index) => {
                   const [misconception, correction] = item.split("｜");
                   return (
                     <div key={item} className="guided-pitfall-card">
-                      <span>注意</span>
+                      <span>{index + 1}</span>
                       <div>
                         <strong>{misconception.replace(/^误区：/, "")}</strong>
                         {correction && <p>{correction.replace(/^正确理解：/, "")}</p>}

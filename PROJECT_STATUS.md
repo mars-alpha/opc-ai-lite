@@ -66,8 +66,9 @@ FOUNDATION-CONTINUITY-TRIAL-001-A Learner-facing Language & Case Neutralization 
 FOUNDATION-CONTINUITY-TRIAL-001-B Six-Step Content Integrity TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 FOUNDATION-CONTINUITY-TRIAL-001-C Six-Step Pedagogy Refinement TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 FOUNDATION-CONTINUITY-TRIAL-001-D Step Focus & Review Clarity TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
+FOUNDATION-CONTINUITY-TRIAL-001-E Numbered Guidance Readability TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 
-NEXT: TARGETED HUMAN REVIEW — Step 5 review framework / pitfall cards + Step 6 capability on five Trial lessons, plus beginner-context Step 4 support flow
+NEXT: TARGETED HUMAN REVIEW — numbered Step 4 hints + numbered Step 5 pitfall cards, then Step 5/6 overall acceptance
 ```
 
 ## 当前系统健康

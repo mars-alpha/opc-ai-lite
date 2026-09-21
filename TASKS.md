@@ -725,6 +725,12 @@ Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 
 Step 5 Review budget 从 2–3 调整为 2–4 张卡，按课程知识密度决定，不固定 3 张；每张必须包含清晰结论与解释。`容易踩的坑` 改为独立白色卡片逐条排列，不再压缩成一行。新增 Every-step Clarity Gate：Step 1–6 必须分别讲清“为什么学 / 核心规律 / 会不会判断 / 能不能做 / 以后记住什么 / 现在真正会什么”，任何一步只有结构无清晰教学重点即 FAIL。专项 acceptance 新增 STEP_FOCUS，完整回归、typecheck、build PASS（51 pages）。下一步定向 Human Review Step 5/6 与 beginner-context Step 4。
 
+### FOUNDATION-CONTINUITY-TRIAL-001-E — Numbered Guidance Readability
+
+Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
+
+Step 4 多条提示改为独立整框编号 `1 / 2 / 3…`；Step 5 “容易踩的坑”白色卡片改为 `1 / 2 / 3…`，去掉重复“注意”标签。Beginner Quality 固定：当并列指导信息有顺序或分项阅读价值时，优先编号整框呈现，不压成连续段落、不重复相同标签。Continuity Trial、Course Builder、Beginner Quality、Unified Shell、typecheck、build、diff-check 全部 PASS（51 pages）。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING
