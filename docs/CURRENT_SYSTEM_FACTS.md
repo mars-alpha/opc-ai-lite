@@ -440,6 +440,8 @@ T1-03 Human Review 第二轮进一步对齐 T1-01 / T1-02 的可验证体验：S
 
 Step 4 COPY_TO_AI 已提升为全局默认规则：所有当前及后续课程的表单字段标题只用于界面引导；点击复制时默认只复制学习者实际填写的字段值，不复制字段名、课程标题、内部课程编号、Artifact / Schema 名或其他课程脚手架。若未来确有需要带标签复制，必须作为显式例外单独批准。
 
+Step 4 Reference Answer 规则同步提升为全局默认：凡课程提供 COPY_TO_AI + 参考答案 / 一键填充，参考答案必须是一份完整、可直接复制到 AI 验证的成品样例，而不是零散字段碎片；默认优先围绕 OPC / 自媒体真实任务构造，Stable Method Layer 继续行业中立；不得包含内部课程编号、Artifact / Schema 名或教学编排说明。T1-03 已改为 `OPC AI 学习站 + 自媒体短内容` 的完整可验证样例。
+
 `COURSE-BUILDER-SKILL-005-A` 已将近期 Human Review 验证出的课程输出方式固化为 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`，不新增 Skill，继续由 `course-builder@0.2.0` 承担教学生成。Contract 固定 Step 1–6 输出职责、Step 4 Hint 编号归 UI / Artifact 必须自然产生、Step 5 使用 2–4 张卡且每张卡固定上下对比：上层 `AI 适合做什么` = 核心判断，下层 `AI 不应该替你做什么` = 边界理解；补充解释负责“为什么”，Pitfalls 负责纠错；Step 6 必须可执行和自证。Track 01 Batch A 继续遵守 `OPC / 自媒体 AI 内容任务` Case Thread，Stable Method Layer 行业中立。Code Validation 负责可确定性规则；案例自然度、Artifact 是否被强行制造、Review 是否重复等由 Human Review 负责。
 
 T1-01 早期 Human Review 的“AI 新变化整理”入口已被后续版本 supersede；最终通过版本以 `COURSE-PRODUCTION-TRACK01-A-002` 与 `LESSON_OUTPUT_CONTRACT_V1` 为准：OPC / 自媒体内容主线、自然 Step 4、UI-owned Hint numbering、Step 5 上下边界对比和分层解释。

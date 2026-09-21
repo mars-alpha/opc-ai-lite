@@ -168,6 +168,11 @@ assert(t103.pedagogy.participation.kind === "COPY_TO_AI", "TRACK01_T103_STEP4_CO
 assert(t103.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T103_HINTS_UI_OWNS_NUMBERING");
 assert(!t103.practice?.goal.match(/T1-\d+/), "TRACK01_T103_STEP4_NO_INTERNAL_LESSON_CODE");
 assert(t103.practice?.instructions.length === 2, "TRACK01_T103_STEP4_TWO_FIELD_COPY_PAYLOAD");
+assert(track01T103ReferenceFill.task.includes("OPC AI 学习站"), "TRACK01_T103_REFERENCE_OPC_SELF_MEDIA_CASE");
+assert(track01T103ReferenceFill.task.includes("自媒体"), "TRACK01_T103_REFERENCE_SELF_MEDIA_TASK");
+assert(track01T103ReferenceFill.task.length >= 50, "TRACK01_T103_REFERENCE_TASK_COMPLETE");
+assert(track01T103ReferenceFill.mustKnow.length >= 50, "TRACK01_T103_REFERENCE_CONTEXT_COMPLETE");
+assert((t103.referenceAnswer ?? "").includes("OPC AI 学习站"), "TRACK01_T103_REFERENCE_ANSWER_DIRECTLY_TESTABLE");
 assert(t103.review.length >= 2 && t103.review.length <= 4, "TRACK01_T103_REVIEW_COUNT");
 assert(t103.review.every((item) => item.includes("｜")), "TRACK01_T103_REVIEW_VERTICAL_CONTRAST");
 assert(track01T103KnowledgeDepth.review.length >= 2 && track01T103KnowledgeDepth.review.length <= 4, "TRACK01_T103_REVIEW_DEPTH_2_TO_4");
