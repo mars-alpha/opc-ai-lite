@@ -106,6 +106,16 @@ Anti-repeat Boundary
 6. 同一个 Production Batch 优先使用贯穿案例，而不是每节重新开无关场景。
 7. 下一节必须能明确说出会继续使用上一节的什么。
 8. “下一课价值”不能只是预告知识点，应说明下一步会拿当前能力/产物做什么。
+## 4.1 Six-step continuity applies across all five tracks
+
+五大板块的每一个新 Primary Knowledge Point 都必须用统一六步检验，并同时遵守 Continuity Contract。
+
+因此后续课程设计同时满足两条轴：
+
+- 横向：单个知识点内部必须通过 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY；
+- 纵向：当前 Lesson 的 Inherited Capability / Artifact 必须承接前课，Capability / Artifact Output 必须能继续被后课复用。
+
+六步解决“这一课有没有真正教会”，Continuity 解决“这一课是不是接在正确的位置”。两者缺一不可。
 
 ## 5. Longitudinal artifact model
 

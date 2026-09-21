@@ -731,6 +731,12 @@ Status: TECHNICAL_PASS_TARGETED_HUMAN_REVIEW_PENDING
 
 Step 4 多条提示改为独立整框编号 `1 / 2 / 3…`；Step 5 “容易踩的坑”白色卡片改为 `1 / 2 / 3…`，去掉重复“注意”标签。Beginner Quality 固定：当并列指导信息有顺序或分项阅读价值时，优先编号整框呈现，不压成连续段落、不重复相同标签。Continuity Trial、Course Builder、Beginner Quality、Unified Shell、typecheck、build、diff-check 全部 PASS（51 pages）。
 
+### COURSE-GOV-SIX-STEP-001 — Mandatory Six-step Rule for All New Courses
+
+Status: COMPLETE_GOVERNANCE_BASELINE
+
+正式锁定：后续所有新课程，不限 Foundation / AI 工作应用 / 推广运营 / Workflow / FDE，不限 CONCEPT / APPLICATION / PRACTICE / PROJECT，统一使用 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY。每一个正式 Primary Knowledge Point 在进入 Course Builder 前必须先通过六步知识点检验；无法自然完成六步时禁止硬凑内容，必须回到 Curriculum / Formal Brief 判断合并、拆分或降为 Supporting Knowledge。Lesson Type 只改变 Step 4 深度和 Completion Gate。六步负责“单课是否真正教会”，Continuity 负责“课程前后是否真正承接”，以后两者都是强制 Gate。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

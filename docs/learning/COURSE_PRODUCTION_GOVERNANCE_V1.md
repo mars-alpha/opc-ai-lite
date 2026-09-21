@@ -121,6 +121,40 @@ Exit to publication requires同时满足：
 - Human Review PASS = AVAILABLE；
 - local Practice / Check PASS 写成正式 Completion；
 - Draft Preview 写正式 Progress / Completion。
+## 3.7 Mandatory Six-step Gate for all new lessons
+
+从本规则生效后，所有新正式 Lesson 在进入 Course Builder / Draft Production 前，必须完成 Six-step Knowledge Point Gate。
+
+Formal Brief 必须能够为当前 Primary Knowledge Point 明确：
+
+EXPLAIN → 为什么值得学
+EXAMPLE → 核心规律怎样被讲透
+CHECK → 怎样证明真正理解
+PRACTICE → 学习者怎样亲手做
+REVIEW → 哪 2–4 个判断值得长期保留
+CAPABILITY → 最终真正会什么、怎样自证
+
+任何新 Lesson 不得因为属于 CONCEPT、进阶课或专业课而跳过六步。Lesson Type 只影响 Step 4 深度和 Completion Gate。
+
+若知识点无法自然完成六步：
+- 不允许 Course Builder 为了填满 Shell 强行生成；
+- 返回 Curriculum / Formal Brief 重做知识粒度；
+- 判断应合并、拆分或降为 Supporting Knowledge。
+
+新课程生产的 Gate 顺序固定为：
+
+Knowledge Point Six-step Gate
+→ Formal Brief
+→ Course Builder
+→ Six-step Content Integrity
+→ Code Validation
+→ Preview
+→ Human Review
+→ Runtime Provisioning
+→ Runtime Acceptance
+→ AVAILABLE
+
+固定：**六步不是 UI 模板，而是知识是否值得成为一节正式课程的教学检验。**
 
 ### 3.4 HUMAN_REVIEW_PASS — governance gate
 

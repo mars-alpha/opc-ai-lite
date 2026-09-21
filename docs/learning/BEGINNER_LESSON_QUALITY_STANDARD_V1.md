@@ -22,7 +22,7 @@ Status: **QUALITY_BASELINE_V1**
 - 1 个主要案例；
 - Step 1 bottomDetails 最多 2 条；
 - Step 2 knowledgeDepth.example 最多 2 条；
-- Step 5 主 Review 最多 3 条；
+- Step 5 主 Review 2–4 条，按课程真实需要决定；
 - Step 5 knowledgeDepth.review 最多 2 条；
 - 不在第一屏或 Check 里提前出现后续课程才需要的专业术语。
 
@@ -59,6 +59,45 @@ Status: **QUALITY_BASELINE_V1**
 - Preview 发现 Step 内容与当前 Brief 不一致时，视为 Content Integrity FAIL，不得进入 Human Review PASS。
 
 固定原则：**Six-step structure PASS ≠ Six-step content PASS。**
+## 2.3 Mandatory Six-step Knowledge Point Rule
+
+从本规则生效后，**所有新正式课程**，无论属于 Foundation / 工作应用 / 推广运营 / Workflow / FDE，均统一使用六步教学结构：
+
+1. EXPLAIN — 建立直觉
+2. EXAMPLE — 讲透方法
+3. CHECK — 检查理解
+4. PRACTICE — 动手实操
+5. REVIEW — 复盘框架
+6. CAPABILITY — 能力获得
+
+这不是 Beginner 专属样式，而是 OPC 新课程的统一 Instructional Contract。
+
+每一个正式 Primary Knowledge Point / Primary Knowledge Home 在进入 Course Builder 前，都必须回答：
+
+- Step 1：为什么值得学、与真实任务有什么关系；
+- Step 2：核心规律 / 方法是什么，并用例子讲透；
+- Step 3：如何验证学习者真的会判断；
+- Step 4：学习者能完成什么最小动作 / 产物；
+- Step 5：以后应保留哪 2–4 个可复用判断；
+- Step 6：最终获得什么可执行能力，如何自我验收，以及下一步如何继续。
+
+如果一个知识点无法合理形成这六步，不允许为了凑结构硬写内容。必须先回到 Curriculum / Formal Brief 重新判断：
+
+- 是否知识点过小，应并入相邻 Lesson；
+- 是否知识点过大，应拆分 Primary Knowledge Home；
+- 是否只是辅助知识，不应成为独立正式 Lesson；
+- 是否还缺真实应用 / 判断边界，尚未达到正式生产条件。
+
+固定原则：**每个正式知识点都必须通过六步教学检验；不能通过六步检验的知识点，不直接进入正式课程生产。**
+
+Lesson Type 只改变 Step 4 的深度与 Completion Gate，不改变六步结构：
+
+- CONCEPT：Step 4 为轻量可操作 Participation，可不作为 Completion Gate；
+- APPLICATION：Step 4 为真实小任务 / Practice；
+- PRACTICE：Step 4 为更完整的技能训练；
+- PROJECT：Step 4 为阶段性项目产物 / Deliverable。
+
+进阶课程可使用图文、流程图、代码、截图、实验等更丰富媒体，但仍必须通过同一六步检验。
 
 ## 3. Six-step quality bar
 

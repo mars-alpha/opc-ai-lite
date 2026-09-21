@@ -422,6 +422,8 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `FOUNDATION-CONTINUITY-TRIAL-001-E` 已统一多条指导信息的编号可读性：Step 4 多条 Hint 改为完整白色编号块 `1 / 2 / 3…`；Step 5 “容易踩的坑”白色卡片同样按 `1 / 2 / 3…` 排列，并移除每项重复“注意”标签。Beginner Lesson Quality Standard 已固定：并列指导信息在顺序有助理解时优先使用编号整框，不压缩成连续段落、不重复相同标签。所有回归、typecheck、build PASS，仍为 51 pages。
 
+`COURSE-GOV-SIX-STEP-001` 已把当前六步教学方式从 Foundation Trial 经验升级为所有新正式课程的强制生产规则。五大板块、所有 Lesson Type、后续进阶图文/代码/实验/项目课均必须使用 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY。每一个正式 Primary Knowledge Point 在进入 Course Builder 前必须先通过 Six-step Knowledge Point Gate；如果无法自然完成六步，不允许为了填 Shell 强行生成，而必须回到 Curriculum / Formal Brief 判断合并、拆分或降为 Supporting Knowledge。Lesson Type 只改变 Step 4 深度与 Completion Gate，不改变六步。后续课程同时受两条强制轴控制：Six-step 保证单课真正教会，Continuity 保证前后课程真正承接。
+
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
 `CourseBuilderCheck` 当前支持 `SINGLE_CHOICE | TRUE_FALSE | MULTI_SELECT`。旧 Draft 未提供 `questionType` 时默认 SINGLE_CHOICE，旧 `correctValue` 会归一为 `correctValues`。MULTI_SELECT 使用答案集合完全一致的确定性判分。旧 `check` 单题仍兼容；新课程默认使用 `checkSequence` 三题理解闭环。Sequence 固定顺序为 SINGLE_CHOICE / BEST_JUDGMENT → TRUE_FALSE / MISCONCEPTION → MULTI_SELECT / BOUNDARY_CONDITIONS，每题必须显式提供不同的 `correctFeedback` / `incorrectFeedback`，三题问题不得完全相同。`courseBuilderCheckSequenceToRuntimeSeeds()` 可将三题按 order=0/1/2、required=true 转成正式 Runtime seeds。
