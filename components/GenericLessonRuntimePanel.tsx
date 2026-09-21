@@ -949,7 +949,7 @@ export function GenericLessonRuntimePanel({
                 {practice.hints.map((hint, index) => (
                   <div key={hint} className="guided-numbered-item">
                     <span>{index + 1}</span>
-                    <p>{hint}</p>
+                    <p>{hint.replace(/^\s*\d+\s*(?:[｜|、.．]|\))\s*/, "")}</p>
                   </div>
                 ))}
               </div>

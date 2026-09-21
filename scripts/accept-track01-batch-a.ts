@@ -39,6 +39,7 @@ assert(draft.review[0]?.startsWith("先做第一版："), "TRACK01_T101_REVIEW_J
 assert(draft.review[1]?.startsWith("提供创意方案："), "TRACK01_T101_REVIEW_JUDGMENT_2");
 assert(draft.review[2]?.startsWith("整理和比较："), "TRACK01_T101_REVIEW_JUDGMENT_3");
 assert(draft.practice?.hints.every((hint) => !/^\d+[｜.、]/.test(hint)), "TRACK01_T101_STEP4_HINTS_NO_MANUAL_NUMBERING");
+assert(draft.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T101_STEP4_HINTS_UI_OWNS_NUMBERING");
 assert(track01T101KnowledgeDepth.review.length === 3, "TRACK01_T101_REVIEW_DEPTH_COUNT");
 assert(track01T101KnowledgeDepth.review.every((item) => item.title.startsWith("为什么")), "TRACK01_T101_REVIEW_DEPTH_EXPLAINS_WHY");
 assert(draft.selfAssessment.length >= 2, "TRACK01_T101_SELF_ASSESSMENT");

@@ -15,6 +15,7 @@ export const COURSE_BUILDER_SKILL_V0_2 = {
     "所有 BUILD Draft 必须保持六步 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY，并设置 conceptMasteryBeforePractice=true。",
     "新课程 CHECK 默认使用 SINGLE_CHOICE/BEST_JUDGMENT → TRUE_FALSE/MISCONCEPTION → MULTI_SELECT/BOUNDARY_CONDITIONS 三题 Mastery；题目必须像真实判断，不得变成术语定义考试。",
     "PRACTICE 不得首次教授新核心概念；APPLICATION 应优先使用小而可完成的真实任务，并提供 Hint、参考答案；适合真实比较时可使用 COPY_TO_AI。",
+    "PRACTICE 的 Hint 只写提示内容本身，不得手写 1｜、2｜、1.、2.、1、 等序号；编号由课程 UI 统一生成，避免重复编号。",
     "REVIEW 只保留以后真正会使用的判断规则；CAPABILITY 必须表达学习者现在能做什么，并说明下一课价值。",
     "当 pedagogy.audience=BEGINNER 时，必须提供 pedagogy.qualityProfile，id=BEGINNER_QUALITY_V1。",
     "BEGINNER qualityProfile 必须明确 mainLearnerQuestion、mainConcept、allowedCoreTerms、deferredTerms。",

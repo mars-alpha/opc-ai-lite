@@ -241,6 +241,10 @@ function textArray(value: unknown, code: string, allowEmpty = false) {
   return items;
 }
 
+function stripManualHintNumbering(text: string) {
+  return text.replace(/^\s*\d+\s*(?:[｜|、.．]|\))\s*/, "").trim();
+}
+
 function enumValue<const T extends readonly string[]>(
   value: unknown,
   allowed: T,
@@ -630,7 +634,7 @@ function parsePractice(input: unknown): CourseBuilderPractice {
     title: requiredText(input.title, "INVALID_BUILD_PRACTICE_TITLE", 500),
     goal: requiredText(input.goal, "INVALID_BUILD_PRACTICE_GOAL", 3000),
     instructions,
-    hints: textArray(input.hints ?? [], "INVALID_BUILD_PRACTICE_HINTS", true),
+    hints: textArray(input.hints ?? [], "INVALID_BUILD_PRACTICE_HINTS", true).map(stripManualHintNumbering),
     rubric,
     passScore: input.passScore
   };
