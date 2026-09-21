@@ -269,10 +269,10 @@ export const track01T102Intro = {
     { label: "把任务说清楚", text: "先告诉 AI 要完成什么、给谁看、有哪些关键要求、希望输出成什么样，它才更容易给出可用的第一版。" }
   ],
   comparison: [],
-  takeaway: "Prompt 不是越长越好，而是要把这次任务真正需要执行的要求说清楚。",
+  takeaway: "提示词（Prompt）不是越长越好，而是要把这次任务真正需要执行的要求说清楚。",
   bottomDetails: [
     { title: "先说任务，不先堆资料", text: "这一课只解决“AI 要做什么”。背景资料、参考内容和业务事实留到下一课再学，不要和任务说明混在一起。" },
-    { title: "四项够用就停", text: "目标、对象、关键要求、输出形式已经能让多数日常任务明显更清楚。第一阶段不需要背复杂 Prompt 模板。" }
+    { title: "四项够用就停", text: "目标、对象、关键要求、输出形式已经能让多数日常任务明显更清楚。第一阶段不需要背复杂的提示词模板。" }
   ],
   comparisonPlacement: "BOTTOM"
 } as const;
@@ -312,7 +312,7 @@ export const track01T102Draft = {
     participation: {
       kind: "COPY_TO_AI",
       title: "把同一个任务说得更清楚",
-      instruction: "完成四个字段后，你可以把整理好的 Clear Task Brief 复制到常用 AI，和原来的“帮我写一下”比较一次。课程不要求把 AI 回复粘贴回来。",
+      instruction: "完成四个字段后，你可以把整理好的清晰任务说明复制到常用 AI，和原来的“帮我写一下”比较一次。课程不要求把 AI 回复粘贴回来。",
       prompt: "请根据我提供的任务说明完成内容。不要补充我没有要求的事实。",
       reflection: "重点不是记模板，而是感受：任务说得越清楚，AI 越少需要猜。"
     },
@@ -322,15 +322,15 @@ export const track01T102Draft = {
     version: "1.0.0-track01-a",
     courseSlug: "foundation-ai",
     lessonId: "t1-02-clear-prompt",
-    title: "Prompt：把任务说清楚",
+    title: "提示词（Prompt）：把任务说清楚",
     lessonType: "APPLICATION",
     learningObjectives: [
       "能区分模糊要求和可执行的任务说明。",
       "能用任务目标、使用对象、关键要求与限制、输出形式四项把任务说清楚。",
-      "能完成一份自己的 Clear Task Brief。"
+      "能完成一份自己的清晰任务说明。"
     ],
     knowledgePoints: [
-      "Prompt 在本课只表示这次要 AI 做什么，不等于把所有背景资料都塞进去。",
+      "提示词（Prompt）在本课只表示这次要 AI 做什么，不等于把所有背景资料都塞进去。",
       "清楚的任务说明至少要让 AI 知道目标、对象、关键要求和输出形式。",
       "任务说明的价值不是写得长，而是减少 AI 对任务意图的猜测。"
     ],
@@ -349,12 +349,12 @@ export const track01T102Draft = {
       { id: "explain", kind: "EXPLAIN", title: "“帮我写一下”到底少了什么", objective: "让学习者看见模糊要求会迫使 AI 猜任务。" },
       { id: "example", kind: "EXAMPLE", title: "同一个内容任务，为什么第二种说法更好用", objective: "只补齐目标、对象、要求和输出形式，观察任务说明如何从模糊变得可执行。" },
       { id: "check", kind: "CHECK", title: "这句话真的把任务说清楚了吗", objective: "检查学习者能否识别真正可执行的任务说明。" },
-      { id: "practice", kind: "PRACTICE", title: "把你自己的任务写成 Clear Task Brief", objective: "把真实内容任务拆成四个已经学会的字段。" },
+      { id: "practice", kind: "PRACTICE", title: "把你自己的任务写成清晰任务说明", objective: "把真实内容任务拆成四个已经学会的字段。" },
       { id: "review", kind: "REVIEW", title: "以后写 Prompt，先检查这 4 件事", objective: "留下目标、对象、要求、输出四个可复用判断。" },
-      { id: "capability", kind: "CAPABILITY", title: "你已经能把模糊需求变成可执行任务", objective: "确认学习者能独立写出一份 Clear Task Brief，并知道下一课只补任务所需信息。" }
+      { id: "capability", kind: "CAPABILITY", title: "你已经能把模糊需求变成可执行任务", objective: "确认学习者能独立写出一份清晰任务说明，并知道下一课只补任务所需信息。" }
     ],
     capabilityGain: [
-      "能把一个模糊内容需求整理成目标、对象、要求、输出都清楚的 Clear Task Brief。"
+      "能把一个模糊内容需求整理成目标、对象、要求、输出都清楚的清晰任务说明。"
     ],
     nextLessonValue:
       "下一课不再改“AI 要做什么”，而是学习判断：为了完成这个任务，AI 还需要知道哪些信息。",
@@ -363,7 +363,7 @@ export const track01T102Draft = {
   content: {
     summary: "你会把“帮我写一下”这种模糊要求，变成 AI 真正可以执行和检查的任务说明。",
     plainExplanation:
-      "AI 不会自动知道你脑子里的目标。你只说“帮我写一下”，它就必须猜：写什么、给谁看、有什么限制、最后要什么格式。Prompt 的第一层能力，就是把这些任务要求说清楚。",
+      "AI 不会自动知道你脑子里的目标。你只说“帮我写一下”，它就必须猜：写什么、给谁看、有什么限制、最后要什么格式。提示词（Prompt）的第一层能力，就是把这些任务要求说清楚。",
     whyItMatters:
       "很多 AI 结果不好，不一定是模型不行，而是任务本身没有说清楚。先学会把任务说明写清，后面的补资料、修改和核验才有稳定起点。",
     points: [
@@ -374,8 +374,8 @@ export const track01T102Draft = {
     ],
     content: [
       "四项不是万能公式，而是一份最低够用的任务说明。",
-      "Prompt 负责说清“做什么”；完成任务所需的事实、资料和背景留到下一课再补。",
-      "如果一条 Prompt 很长，却仍然说不清目标、对象、要求和输出，它依然是模糊的。"
+      "提示词（Prompt）负责说清“做什么”；完成任务所需的事实、资料和背景留到下一课再补。",
+      "如果一条提示词很长，却仍然说不清目标、对象、要求和输出，它依然是模糊的。"
     ],
     example: {
       title: "同一条 AI 工具内容，从“帮我写一下”到真正可执行",
@@ -389,13 +389,13 @@ export const track01T102Draft = {
         "第二种说法没有增加大量背景资料，只是把目标、对象、关键要求和输出形式说清楚，AI 就更少需要自己猜任务。"
     },
     mistakes: [
-      "误区：Prompt 越长越专业｜正确理解：长度不是目标，关键是任务要求是否清楚。",
-      "误区：把所有资料都塞进 Prompt 才完整｜正确理解：这一课只先说清任务，任务所需资料留到下一课再补。",
+      "误区：提示词越长越专业｜正确理解：长度不是目标，关键是任务要求是否清楚。",
+      "误区：把所有资料都塞进提示词才完整｜正确理解：这一课只先说清任务，任务所需资料留到下一课再补。",
       "误区：写了“专业一点、好一点”就算有要求｜正确理解：要求要尽量具体到可以检查，例如“讲 3 个场景、不夸大能力”。"
     ],
     related: [
       "T1-01 已经帮你找到一个真实 AI 使用场景。",
-      "T1-03 会在 Clear Task Brief 不变的前提下补充完成任务真正需要的信息。"
+      "下一课会在清晰任务说明不变的前提下，补充完成任务真正需要的信息。"
     ]
   },
   check: null,
@@ -412,18 +412,18 @@ export const track01T102Draft = {
       ],
       correctValues: ["B"],
       explanation: "B 明确了任务目标、使用对象、关键要求和输出形式。",
-      correctFeedback: "正确。你不需要把 Prompt 写得很长，只要把执行任务真正需要的要求说清楚。",
+      correctFeedback: "正确。你不需要把提示词写得很长，只要把执行任务真正需要的要求说清楚。",
       incorrectFeedback: "再检查四件事：要完成什么、给谁看、有什么关键要求、最后输出成什么样。"
     },
     {
       id: "t102_misconception",
       questionType: "TRUE_FALSE",
       masteryRole: "MISCONCEPTION",
-      question: "判断：Prompt 写得越长，AI 就一定越容易给出好结果。",
+      question: "判断：提示词写得越长，AI 就一定越容易给出好结果。",
       options: [{ value: "TRUE", label: "对" }, { value: "FALSE", label: "错" }],
       correctValues: ["FALSE"],
-      explanation: "长度不能代替任务清晰度。很长但目标模糊的 Prompt 仍然会让 AI 猜。",
-      correctFeedback: "正确。Prompt 的重点是任务清楚，不是字数多。",
+      explanation: "长度不能代替任务清晰度。很长但目标模糊的提示词仍然会让 AI 猜。",
+      correctFeedback: "正确。提示词的重点是任务清楚，不是字数多。",
       incorrectFeedback: "想一想：如果一大段话仍没说清目标和输出，AI 是否真的知道要做什么？"
     },
     {
@@ -446,7 +446,7 @@ export const track01T102Draft = {
   practice: {
     id: "t102_clear_task_brief",
     title: "把你的真实任务说清楚",
-    goal: "把 T1-01 找到的真实内容任务整理成一份 Clear Task Brief。",
+    goal: "把上一课找到的真实内容任务整理成一份清晰任务说明。",
     instructions: [
       { key: "goal", label: "任务目标", prompt: "这次到底要 AI 帮你完成什么？用一句话写清。" },
       { key: "audience", label: "使用对象", prompt: "这份结果主要给谁看或给谁使用？" },
@@ -469,7 +469,7 @@ export const track01T102Draft = {
   },
   hints: [
     "如果不知道从哪里开始，就继续使用 T1-01 的 AI 工具内容任务。",
-    "四项写清楚就够了，这一课不要求加入参考资料或复杂 Prompt 技巧。"
+    "四项写清楚就够了，这一课不要求加入参考资料或复杂的提示词技巧。"
   ],
   referenceAnswer:
     "任务目标：写一条介绍某个 AI 工具实际用途的短内容。\n使用对象：第一次接触这个工具、没有技术背景的普通用户。\n关键要求 / 限制：重点讲 3 个日常使用场景；不夸大工具能力。\n输出形式：标题 + 3 个要点 + 一句总结。",
@@ -480,9 +480,9 @@ export const track01T102Draft = {
     "把输出形式说清楚｜替你猜最后需要标题、清单、表格还是完整文章。"
   ],
   selfAssessment: [
-    "我能指出一条模糊 Prompt 到底缺了哪些任务信息。",
-    "我能用目标、对象、要求、输出四项写出自己的 Clear Task Brief。",
-    "我知道 Prompt 负责说清任务，而不是把所有背景资料都塞进去。"
+    "我能指出一条模糊提示词到底缺了哪些任务信息。",
+    "我能用目标、对象、要求、输出四项写出自己的清晰任务说明。",
+    "我知道提示词（Prompt）负责说清任务，而不是把所有背景资料都塞进去。"
   ]
 } as const;
 
