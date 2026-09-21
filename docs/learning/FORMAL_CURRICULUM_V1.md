@@ -110,12 +110,15 @@ CURRICULUM-005 已废弃早期“先讲模型机制”的 9 课开场。当前 F
 
 - `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`：Track 01 当前 canonical audit，基于 28 个正式候选得出 20 节最终基础课程；
 - `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`：Track 02–05 继续使用；Track 01 的旧 17 节方案已被 R1 re-audit supersede；
+- `docs/learning/TRACK01_CANONICAL_REALIGNMENT_V1.md`：定义 T1-01～T1-20 唯一 canonical identity、旧 F alias 映射与 Trial 迁移规则；
+- `docs/learning/TRACK01_CATALOG_METADATA_V2.md`：定义 Track 01 当前 20 节 canonical planning catalog；
+- `docs/learning/TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md`：T1-01～T1-05 当前 Course Builder-ready Formal Brief；
 - `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`：定义五条主线的跨课能力与 Artifact continuity；
-- `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`：保留产品级 28 个 Foundation pre-audit candidates；仓库额外测试/冗余课程资产不属于正式 Curriculum，用于历史映射但不进入课程审计；
-- `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`：保留旧 F1/F2 Trial 的 continuity evidence，等待 Track 01 canonical ID realignment；
-- `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`：只描述当前 Catalog 既有 metadata，不反向决定审计后的课程目录。
+- `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`：保留产品级 28 个 Foundation pre-audit candidates，用于历史知识映射；
+- `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`：只保留旧 F1/F2 Trial continuity evidence；
+- `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`：legacy F-ID catalog reference，不再决定新 Track 01 planning。
 
-Track 01 已完成基于正确 28 个正式候选的逐项 Six-step re-audit，最终 canonical directory = T1-01～T1-20。旧 T1-01～T1-17 v1 方案被 supersede；旧 F1/F2/F3…编号继续只作为 pre-audit identity / historical mapping。
+Track 01 canonical directory = T1-01～T1-20，且 realignment 已完成。所有新 Formal Brief / Course Builder / planning catalog / provenance 只使用 T1 IDs；旧 F1/F2/F3…编号只作为 historical alias。当前只有 T1-01～T1-05 达到 BRIEF_READY，T1-06～T1-20 保持 PLANNED。
 
 ---
 

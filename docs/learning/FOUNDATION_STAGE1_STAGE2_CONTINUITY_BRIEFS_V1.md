@@ -1,9 +1,11 @@
 # Foundation Stage 1 + Stage 2 Continuity Formal Briefs v1
 
-Status: **BRIEF_READY_CONTINUITY_V1**  
+Status: **HISTORICAL_CONTINUITY_EVIDENCE / SUPERSEDED_FOR_CANONICAL_IDS**
 Task: **FOUNDATION-CONTINUITY-REWORK-001**  
 Scope: **F1-01～F2-04**  
 Canonical source: `FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`
+
+Current canonical Track 01 IDs and continuity mapping are defined by `TRACK01_CANONICAL_REALIGNMENT_V1.md`; T1-01～T1-05 Formal Briefs are in `TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md`. 本文件的 F1/F2 IDs 只用于定位历史 Trial evidence。
 
 ## 1. Purpose
 

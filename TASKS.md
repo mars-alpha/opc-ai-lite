@@ -755,6 +755,12 @@ Status: COMPLETE_AUDITED_V1_20_LESSONS
 
 按产品负责人确认的 28 个正式 AI 基础认知候选重新逐项执行六步审计，并明确排除 `task-brief`、`memory-rag`、`writing-files`、`task-decomposition` 四个历史 Runtime/UX 测试资产。最终得到 20 节 Track 01 canonical directory：KEEP 20、MERGE 6、SUPPORTING_KNOWLEDGE 1、DEFER 1、REMOVE 0。旧 17 节方案 superseded；Knowledge Base / Source of Truth、Structured Output / Schema、Coding / Browser / Computer Use 恢复为独立课程。详见 `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`。下一步：`CURRICULUM-AUDIT-REALIGN-001-R1 — Track 01 20-Lesson Canonical Realignment`。
 
+### CURRICULUM-AUDIT-REALIGN-001-R1 — Track 01 20-Lesson Canonical Realignment
+
+Status: COMPLETE_REALIGNED_V1
+
+T1-01～T1-20 已成为 Track 01 新课程生产唯一 canonical identity；旧 F IDs 仅作 historical alias。新增 canonical realignment、20-lesson Catalog metadata v2、T1-01～T1-05 Formal Briefs；旧 F Catalog 与 Continuity Brief 降级为 legacy / historical evidence。五课新 Artifact Thread 为 First Draft → Clear Task Brief → Minimum Context Pack → Iterated Draft → Verification Record / Verified Publishable Draft。现有 Trial 只迁移教学方法与交互经验，不直接继承旧 Check/Practice/Review/Capability。当前不改 UI/runtime/schema；下一步先 Human Review T1-01～T1-05 Brief，再决定 `COURSE-PRODUCTION-TRACK01-A-001`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

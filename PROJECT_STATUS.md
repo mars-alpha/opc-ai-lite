@@ -71,8 +71,9 @@ COURSE-GOV-SIX-STEP-001 Mandatory Six-step Rule for All New Courses COMPLETE_GOV
 CURRICULUM-SIX-STEP-PLANNING-001 Core Curriculum Audit Direction COMPLETE_DIRECTION_LOCKED
 CURRICULUM-SIX-STEP-AUDIT-001 Five-Track Core Curriculum & Knowledge Point Audit SUPERSEDED_TRACK01_V1
 CURRICULUM-SIX-STEP-AUDIT-001-R1 Track 01 28-Candidate Six-step Re-audit COMPLETE_AUDITED_V1_20_LESSONS
+CURRICULUM-AUDIT-REALIGN-001-R1 Track 01 20-Lesson Canonical Realignment COMPLETE_REALIGNED_V1
 
-NEXT: CURRICULUM-AUDIT-REALIGN-001-R1 — Track 01 20-Lesson Canonical Realignment
+NEXT: HUMAN REVIEW — T1-01～T1-05 Formal Briefs before Course Builder production
 ```
 
 ## 当前系统健康

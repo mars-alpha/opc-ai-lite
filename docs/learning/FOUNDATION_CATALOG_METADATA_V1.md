@@ -1,7 +1,9 @@
 # Foundation Catalog Metadata v1
 
-Status: **COMPLETE_V1**  
+Status: **LEGACY_F_ID_CATALOG_REFERENCE**
 Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
+
+Superseded for new curriculum planning by `TRACK01_CATALOG_METADATA_V2.md`. 本文件只保留旧 F identity / historical UI metadata，不再决定 Track 01 canonical lesson count、ID、顺序或 production status。
 
 ## 1. Purpose
 
