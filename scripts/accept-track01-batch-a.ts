@@ -1,5 +1,14 @@
 import { createCourseBuilderReviewPacket } from "../lib/learning/course-builder";
-import { track01T101Draft, track01T101KnowledgeDepth, track01T101Meta, track01T101ReferenceFill } from "../fixtures/course-builder/track01-batch-a";
+import {
+  track01T101Draft,
+  track01T101KnowledgeDepth,
+  track01T101Meta,
+  track01T101ReferenceFill,
+  track01T102Draft,
+  track01T102KnowledgeDepth,
+  track01T102Meta,
+  track01T102ReferenceFill
+} from "../fixtures/course-builder/track01-batch-a";
 
 function assert(condition: unknown, code: string) {
   if (!condition) throw new Error(code);
@@ -80,6 +89,53 @@ for (const deferred of ["Context Window", "Embedding", "MCP Server", "Agent Runt
 assert(!visibleText.includes("审批流程"), "TRACK01_T101_NO_APPROVAL_TEACHING");
 assert(!visibleText.includes("权限控制"), "TRACK01_T101_NO_PERMISSION_TEACHING");
 
+const t102Packet = createCourseBuilderReviewPacket(
+  track01T102Draft,
+  new Date("2026-09-21T00:00:00.000Z"),
+  "0.2.0"
+);
+if (t102Packet.output.mode !== "BUILD") throw new Error("TRACK01_T102_BUILD_REQUIRED");
+const t102 = t102Packet.output;
+
+assert(track01T102Meta.canonicalId === "T1-02", "TRACK01_T102_CANONICAL_ID");
+assert(t102.lessonSpec.lessonId === "t1-02-clear-prompt", "TRACK01_T102_LESSON_ID");
+assert(t102.lessonSpec.lessonType === "APPLICATION", "TRACK01_T102_TYPE");
+assert(t102.lessonSpec.prerequisites.join(",") === "T1-01", "TRACK01_T102_PREREQUISITE");
+assert(t102.lessonSpec.completionGates.join(",") === "CHECK,PRACTICE", "TRACK01_T102_GATES");
+assert(t102.pedagogy.qualityProfile?.allowedCoreTerms.join(",") === "Prompt", "TRACK01_T102_PROMPT_PRIMARY_HOME");
+assert(t102.checkSequence?.length === 3, "TRACK01_T102_THREE_QUESTION_MASTERY");
+assert(
+  t102.checkSequence?.map((item) => item.masteryRole).join(",") === "BEST_JUDGMENT,MISCONCEPTION,BOUNDARY_CONDITIONS",
+  "TRACK01_T102_MASTERY_ROLES"
+);
+assert(t102.practice?.instructions.map((item) => item.key).join(",") === "goal,audience,requirements,format", "TRACK01_T102_STEP4_KEYS");
+assert(t102.practice?.hints.every((hint) => !/^\s*\d+\s*(?:[｜|、.．]|\))/.test(hint)), "TRACK01_T102_HINTS_UI_OWNS_NUMBERING");
+assert(t102.review.length === 4, "TRACK01_T102_REVIEW_COUNT");
+assert(track01T102KnowledgeDepth.review.length === 4, "TRACK01_T102_REVIEW_DEPTH_COUNT");
+assert(track01T102Meta.caseThread === "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT", "TRACK01_T102_CASE_THREAD");
+assert(track01T102Meta.artifactOutput === "CLEAR_TASK_BRIEF", "TRACK01_T102_ARTIFACT");
+assert(track01T102Draft.content.example.situation.includes("AI 工具"), "TRACK01_T102_OPC_CONTENT_EXAMPLE");
+assert(!track01T102Draft.referenceAnswer?.includes("下一课"), "TRACK01_T102_REFERENCE_INTERNAL_ORCHESTRATION_LEAK");
+assert(!track01T102Draft.referenceAnswer?.includes("AI 回复"), "TRACK01_T102_REFERENCE_AI_REPLY_LEAK");
+for (const value of Object.values(track01T102ReferenceFill)) {
+  for (const forbidden of ["下一课", "继续使用", "参考答案", "说明：", "为什么"]) {
+    assert(!value.includes(forbidden), "TRACK01_T102_REFERENCE_FILL_PURE_VALUE:" + forbidden);
+  }
+}
+const t102VisibleText = [
+  t102.lessonSpec.title,
+  ...t102.lessonSpec.learningObjectives,
+  ...t102.lessonSpec.knowledgePoints,
+  ...t102.content.points,
+  ...t102.content.content,
+  ...t102.review,
+  ...t102.selfAssessment,
+  ...(t102.practice?.instructions.flatMap((item) => [item.label, item.prompt]) ?? [])
+].join(" ");
+assert(!t102VisibleText.includes("System Prompt"), "TRACK01_T102_NO_SYSTEM_PROMPT_TEACHING");
+assert(!t102VisibleText.includes("Prompt Engineering"), "TRACK01_T102_NO_PROMPT_ENGINEERING_TEACHING");
+assert(!t102VisibleText.includes("Minimum Context Pack"), "TRACK01_T102_NO_CONTEXT_METHOD_TEACHING");
+
 console.log("TRACK01_T101_COURSE_BUILDER_V02=PASS");
 console.log("TRACK01_T101_FORMAL_BRIEF_ALIGNMENT=PASS");
 console.log("TRACK01_T101_SIX_STEP_CONTENT=PASS");
@@ -91,3 +147,10 @@ console.log("TRACK01_T101_STEP4_NATURAL_PRACTICE=PASS");
 console.log("TRACK01_T101_REFERENCE_FILL_PURE_VALUES=PASS");
 console.log("TRACK01_T101_OPC_DEFAULT_CASE_THREAD=PASS");
 console.log("TRACK01_T101_OPC_CONTENT_EXAMPLE=PASS");
+console.log("TRACK01_T102_COURSE_BUILDER_V02=PASS");
+console.log("TRACK01_T102_FORMAL_BRIEF_ALIGNMENT=PASS");
+console.log("TRACK01_T102_PROMPT_CONTEXT_BOUNDARY=PASS");
+console.log("TRACK01_T102_STEP4_CLEAR_TASK_BRIEF=PASS");
+console.log("TRACK01_T102_REVIEW_2_TO_4=PASS");
+console.log("TRACK01_T102_REFERENCE_FILL_PURE_VALUES=PASS");
+console.log("TRACK01_T102_OPC_DEFAULT_CASE_THREAD=PASS");

@@ -769,15 +769,21 @@ Status: COMPLETE_HUMAN_REVIEW_PASS_BRIEF_LEVEL
 
 ### COURSE-PRODUCTION-TRACK01-A-001 — T1-01～T1-05 Course Builder Production
 
-Status: T1-01_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: T1-01_HUMAN_REVIEW_PASS_SUPERSEDED_BY_A_002
 
-Batch A 按 pilot-first 开始生产。T1-01 `AI 能帮什么，不能帮什么` 使用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1`。第三轮 Human Review 已按已验证 Beginner-first 结果恢复 v0.2 教学流，并继续遵守 `OPC / 自媒体 AI 内容任务` 默认 Case Thread：Step 2 围绕一条 AI 内容，用想标题 / 整理资料 / 列表达角度三个直观步骤讲解；Step 4 保留现有填写字段，只填写 `我原本要做的事` + `AI 先帮哪一步`，不再做 3-task classification，不新增任务目标概念，也不回填 AI 回复。Artifact=`TASK_FIT_NOTE`。Preview：`/course-builder/preview/track01-batch-a/t1-01`。T1-01 Human Review PASS 前不扩产 T1-02～T1-05。
+T1-01 pilot 已完成技术验收与多轮 Human Review 修订；最终 Human Review PASS 由 `COURSE-PRODUCTION-TRACK01-A-002` 收口。T1-01 仍未进行正式 Runtime Provisioning / Runtime Acceptance，因此不标记 AVAILABLE。
 
 ### COURSE-BUILDER-SKILL-005-A — Lesson Output Contract v1
 
 Status: COMPLETE_BASELINE_V1
 
 不新增新 Skill；将 T1-01 Human Review 已验证的课程输出方式固化进现有 `course-builder@0.2.0`。新增 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`，固定 Six-step 输出职责、Step 4 Hint / Artifact 规则、Step 5 2–4 卡与分层说明、边界类对比卡、Step 6 可执行自证、Case Thread 与 Stable Method Layer 边界。可确定性规则进入 Code Validation；教学自然度继续 Human Review。后续 T1-02～T1-20 必须继承该 Contract，若需要改变则先版本化 Contract，不在单课静默漂移。
+
+### COURSE-PRODUCTION-TRACK01-A-002 — T1-01 Human Review Closure & T1-02 Prompt Pilot
+
+Status: T1-01_HUMAN_REVIEW_PASS / T1-02_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+T1-01 已正式关闭 Human Review，但未进入 Runtime Ready / AVAILABLE。T1-02 已按 `course-builder@0.2.0` + `LESSON_OUTPUT_CONTRACT_V1` 生产 Pilot：只教 Prompt = Task Instruction，使用任务目标 / 使用对象 / 关键要求与限制 / 输出形式四项形成 `CLEAR_TASK_BRIEF`；不正式教授 Context，不要求回填外部 AI 回复。Preview：`/course-builder/preview/track01-batch-a/t1-02`。T1-03～T1-05 继续不扩产，等待 T1-02 Human Review。
 
 第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
 

@@ -93,7 +93,7 @@ Prerequisite: **T1-01**
 为什么“帮我写一下”经常得不到我真正想要的结果？怎样把任务说到 AI 能执行？
 
 ### Inherited Capability / Artifact
-T1-01 的真实任务 + AI First Draft。
+T1-01 的真实任务 + `AI 先帮哪一步`。T1-02 不依赖外部 AI First Draft。
 
 ### Current Learner Job
 把原始模糊要求重写成一份清楚、可执行、可检查的任务说明。
@@ -106,13 +106,13 @@ T1-01 的真实任务 + AI First Draft。
 - 希望输出成什么样。
 
 ### Artifact Action / Output
-Before / After 对比原始要求，形成 **Clear Task Brief**，再生成 Prompt-improved Draft。
+把原始模糊要求拆成 **任务目标 / 使用对象 / 关键要求与限制 / 输出形式** 四项，形成 **Clear Task Brief**。可选复制给常用 AI 体验结果差异，但课程 Artifact 不要求回填 AI 回复。
 
 ### Six-step intent
 1. EXPLAIN：AI 不会自动知道目标、对象和交付标准。
 2. EXAMPLE：只改变目标 / 对象 / 要求 / 输出四类关键信息，看结果怎样变化。
 3. CHECK：判断哪些任务说明“信息很多但仍不清楚”，哪些真正可执行。
-4. PRACTICE：把自己的原始要求拆成四项填写：①任务目标 ②使用对象 ③关键要求 / 限制 ④输出形式；合成为 Clear Task Brief，再提交给 AI 生成新版本。保留 **Before prompt + 4-field Clear Task Brief + Prompt-improved Draft**。
+4. PRACTICE：把自己的原始要求拆成四项填写：任务目标 / 使用对象 / 关键要求与限制 / 输出形式，形成 Clear Task Brief。提示区由 UI 自动编号，不在 Hint 文案内手写编号。可选复制 Clear Task Brief 给常用 AI 体验结果差异，但课程只保留 **4-field Clear Task Brief**，不要求回填 AI 回复。
 5. REVIEW：目标清楚；对象清楚；必要要求明确；输出可检查。
 6. CAPABILITY：能把模糊需求变成 AI 可以执行的任务说明。
 
