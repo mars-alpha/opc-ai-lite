@@ -743,6 +743,12 @@ Status: COMPLETE_DIRECTION_LOCKED
 
 将六步从单课生产 Gate 进一步提升为课程目录审计工具。后续不再按“专业名词 = 一节课”扩目录，而是先定义五大板块 Capability Map，再建立 Knowledge Map，并逐个使用六步检验候选知识点是否值得独立成课。审计结论限定为 KEEP / MERGE / SPLIT / SUPPORTING_KNOWLEDGE / DEFER / REMOVE。`FOUNDATION_KNOWLEDGE_MAP_V1.md` 当前 28 个 Lesson Brief 改为 candidate knowledge map / audit input，不视为最终固定课程数量。下一主任务：`CURRICULUM-SIX-STEP-AUDIT-001 — Five-Track Core Curriculum & Knowledge Point Audit`；审计完成前暂停继续批量生产 Stage 3+，F1-03/F1-04/F2-04 暂不推进完整生产。
 
+### CURRICULUM-SIX-STEP-AUDIT-001 — Five-Track Core Curriculum & Knowledge Point Audit
+
+Status: COMPLETE_AUDITED_V1
+
+完成五大板块 Capability Map → Knowledge Map → Six-step Audit → Core Directory。审计纠正旧 Foundation 数量漂移：旧文档正文称 28 个，但实际候选表枚举 32 个（4+4+4+4+4+6+6）；本次以实际 32 个候选为输入并收敛为 17 个 Track 01 core lessons。RAG / MCP / Skill / Agent / Multimodal 保留独立清晰的 Primary Knowledge Home，Embedding / Vector Search 等工程细节下沉 Technical Track。Track 02 / 03 / 04 / 05 分别形成 8 / 7 / 7 / 7 个核心能力单元；渠道按钮类内容统一下沉 Channel Practice。Canonical baseline：`docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。旧 F1/F2 Trial 继续作为六步教学证据，但不自动保留旧 identity。下一步：`CURRICULUM-AUDIT-REALIGN-001 — Track 01 Canonical IDs & Formal Brief Realignment`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

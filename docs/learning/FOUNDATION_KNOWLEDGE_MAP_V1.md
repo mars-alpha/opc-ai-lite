@@ -1,6 +1,6 @@
 # Foundation Knowledge Map v1
 
-Status: **DEFINED_V1**  
+Status: **PRE_AUDIT_CANDIDATE_MAP / SUPERSEDED_FOR_DIRECTORY_DECISIONS**
 Task: **CURRICULUM-002 — Foundation Knowledge Map & Lesson Briefs**  
 Scope: **Track 01 / AI 基础认知**
 
@@ -22,10 +22,10 @@ Scope: **Track 01 / AI 基础认知**
 - 与相邻课程的去重边界；
 - 现有测试资产如何迁移。
 
-**当前 v1 候选知识地图共 28 个 Lesson Brief。**
-28 不是最终固定课程数量，也不等于必须一次上线 28 节。`CURRICULUM-SIX-STEP-AUDIT-001` 将使用六步知识点检验重新审计每个候选项，可得出 KEEP / MERGE / SPLIT / SUPPORTING_KNOWLEDGE / DEFER / REMOVE。正式课程目录以审计后的能力链与知识粒度为准；内容继续按 3–5 节一个 Production Batch 分批生产。
+**本文件正文曾标记 28 个 pre-audit candidate Lesson Brief，但实际表格枚举为 32 个（4+4+4+4+4+6+6）。该 28 数量为历史规划统计错误。**
+`CURRICULUM-SIX-STEP-AUDIT-001` 已完成六步知识点审计，正式课程粒度与 KEEP / MERGE / SUPPORTING_KNOWLEDGE / DEFER 结论以 `FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md` 为准。Track 01 已收敛为 17 个 core lessons；本文件不再决定新的正式 Course Directory。
 
-F1-01～F2-04 的 Lesson identity / Primary Knowledge Home / Type / Gate 继续以本 Knowledge Map 为知识边界；但其当前教学承接、Case Thread、Artifact Thread、Inherited/New Capability 与 Do-Not-Reteach 由 `FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md` 定义。二者冲突时：Knowledge Map 决定“知识归属”，Continuity Brief 决定“怎样承上启下地教”。
+F1-01～F2-04 的历史 Continuity Brief 与 Trial 继续作为教学承接和六步体验证据，但它们的旧 Lesson identity 不自动成为审计后的 canonical production identity。
 
 ---
 

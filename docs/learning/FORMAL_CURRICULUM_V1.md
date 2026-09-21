@@ -106,20 +106,15 @@ Lesson Type 只表达学习目标：
 
 CURRICULUM-005 已废弃早期“先讲模型机制”的 9 课开场。当前 Foundation 不再使用本文件早期的 Module 1.1 / 1.2 旧编号作为 Lesson 定义。
 
-当前 lesson-level Source of Truth：
+当前 curriculum-level Source of Truth：
 
-- `docs/learning/BEGINNER_FOUNDATION_REFRAME_V1.md`：定义 Beginner-first 前三阶段顺序；
-- `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`：定义 7 Stage / 28 Lesson、Primary Knowledge Home、前置依赖和去重边界；
-- `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`：定义 F1-01～F2-04 的跨课 Case Thread、Artifact Thread、Inherited/New Capability、Next Reuse 与 Do-Not-Reteach；
-- `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`：定义当前 Catalog lessonId / status / availability。
+- `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`：定义审计后的五大板块核心课程粒度、Primary Knowledge Home 与 KEEP / MERGE / SUPPORTING / DEFER 结论；
+- `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`：定义五条主线的跨课能力与 Artifact continuity；
+- `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`：保留 pre-audit Foundation candidate map；正文旧称 28 个，但实际表格枚举 32 个，用于历史映射，不再是最终 Course Directory；
+- `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`：保留旧 F1/F2 Trial 的 continuity evidence，等待 Track 01 canonical ID realignment；
+- `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`：只描述当前 Catalog 既有 metadata，不反向决定审计后的课程目录。
 
-当前前三阶段固定为：
-
-1. **先认识 AI 怎么用** — F1-01～F1-04；
-2. **学会和 AI 基本协作** — F2-01～F2-04；
-3. **再理解 AI 背后的基本机制** — F3-01～F3-04。
-
-因此 Prompt 当前 Primary Home = F2-01，Task Context = F2-02，Training / Inference = F3-02，Token = F3-03，Context Window = F3-04。不得再引用 pre-reframe Lesson 1～9 旧编号作为当前课程事实。
+Track 01 审计后核心目录使用 T1-01～T1-17。旧 F1/F2/F3…编号只作为 pre-audit identity / historical mapping，不得继续作为新课程生产默认事实。
 
 ---
 
