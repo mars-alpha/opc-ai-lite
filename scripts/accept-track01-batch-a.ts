@@ -33,8 +33,11 @@ assert(
 );
 assert(draft.practice?.instructions.length === 2, "TRACK01_T101_STEP4_TWO_LEARNER_OUTPUTS");
 assert(draft.practice?.instructions.map((item) => item.key).join(",") === "task,help", "TRACK01_T101_STEP4_KEYS");
-assert(draft.review.length === 4, "TRACK01_T101_REVIEW_COUNT");
+assert(draft.review.length === 3, "TRACK01_T101_REVIEW_COUNT");
 assert(draft.review.every((item) => item.includes("｜")), "TRACK01_T101_REVIEW_EXPLANATION");
+assert(draft.review[0]?.startsWith("先让 AI 帮一步｜"), "TRACK01_T101_REVIEW_ACTION_1");
+assert(draft.review[1]?.startsWith("AI 给的内容要自己看｜"), "TRACK01_T101_REVIEW_ACTION_2");
+assert(draft.review[2]?.startsWith("最后怎么发，由你决定｜"), "TRACK01_T101_REVIEW_ACTION_3");
 assert(draft.selfAssessment.length >= 2, "TRACK01_T101_SELF_ASSESSMENT");
 assert(Boolean(draft.referenceAnswer?.trim()), "TRACK01_T101_REFERENCE_ANSWER");
 assert(draft.hints.length >= 2, "TRACK01_T101_HINTS");
