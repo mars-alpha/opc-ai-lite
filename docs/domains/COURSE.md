@@ -175,6 +175,27 @@ Practice.type = LATEST_PRACTICE
 
 学习进度不属于课程内容本体，不放进 Course Canonical Content。Progress 由独立 Learning / Progress 领域记录用户状态，并通过稳定的 `user_id + lesson_id / course_id` 关联课程实体。
 
+### Formal Lesson Runtime 状态边界
+
+正式 Lesson Runtime 必须保持单一事实源：
+
+```text
+Lesson position / Completion → Lesson Progress
+Step 3 Check                 → lesson_check_responses
+Step 4 Practice              → practice_submissions + practice_evaluations
+Rating                       → learning_feedback
+```
+
+前端组件状态只允许承载尚未正式提交的输入、busy 与当前响应反馈，不得建立第二套 passed / completion / gate 事实。
+
+课程恢复位置属于 Learning Progress，不属于 Course Content。正式客户端（Web / H5 / 后续原生微信小程序）必须通过同一 Backend/API Read Model 恢复 Lesson Runtime，不复制 Gate 规则。
+
+Step 3 三题 Sequence 的当前题由 required Check 正式状态推导；三题全部正确前不得推进。重新学习必须通过正式服务端 reset 更新 Check 当前状态。
+
+Step 4 正式通过状态只认最新正式 Submission / Evaluation。重新练习中尚未正式提交的编辑草稿不是 Production Fact，MVP 默认不持久化。
+
+Lesson Completion 只能由服务器重新验证 required Gate 后写入；复习 / 重学不得自动撤销历史 Completion。
+
 ---
 
 ## 3. 主 Stage

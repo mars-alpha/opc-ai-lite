@@ -1,6 +1,6 @@
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
-> 业务代码验证基线：`main@605d231`
+> 001-B 实施前业务代码基线：`main@d74b442`；工作区仍包含尚未收尾的 Phase 1 Runtime 实验代码，后续将按 001-B 审计后保留 / 删除 / 重写。
 >
 > 本文件只记录当前事实。历史过程看 `docs/task-results/*`，未来规划看 `TASKS.md`。
 
@@ -44,13 +44,13 @@ postgres.js
 
 ## 3. 当前健康状态
 
-本次全仓事实审计：
+当前最近验证：
 
 ```text
 npm run typecheck  PASS
 npm run build      PASS
-Next production build: 30 static pages generated
-Git working tree at audit start: clean
+Phase 1 focused Runtime Acceptance PASS
+Git working tree intentionally dirty: Phase 1 Runtime experiments pending 001-B consolidation
 ```
 
 当前系统满足继续开发的基本条件。
@@ -76,6 +76,8 @@ Migration：
 0007 → Knowledge Provenance / Multi-source Content Links
 0008 → Knowledge Deep Resource / Feishu Bridge
 0009 → Knowledge → Practice Draft Workflow
+0010 → Check multi-select / correct_answers
+0011 → Check incorrect_explanation
 ```
 
 当前远程数据库状态：
@@ -90,7 +92,9 @@ Drizzle migration rows = 10
 0009 Practice Drafts                        VERIFIED
 ```
 
-RUNTIME-001 已完成真实远程 Runtime smoke：
+RUNTIME-001 已完成 0000–0009 真实远程 Runtime smoke。0010–0011 migration 文件已进入仓库；当前 Phase 1 Runtime Acceptance 使用兼容该 schema 的数据库完成 focused smoke。正式 release / deploy 前仍必须重新核对目标数据库 migration 状态，不从旧 0009 记录推断。
+
+RUNTIME-001 已完成：
 
 ```text
 Content → Knowledge → PRIMARY / SUPPORTING provenance    PASS
@@ -118,9 +122,9 @@ Lesson Resource
 Admin Lesson edit / publish
 ```
 
-正式 Lesson 优先从 PostgreSQL 读取；DB 读取失败或内容非法时仍存在静态课程 fallback。
+正式 Lesson 仍存在 legacy DB/static renderer 与当前 `foundation-ai` Generic Six-step Runtime 两条路径。`chatgpt-worker / task-brief` 等早期 Guided Learning 样板保留为历史 reference，不再代表当前主学习入口。
 
-LEARNING-UX-001 已实现 1 个真实 Guided Learning 样板：`chatgpt-worker / task-brief`。该 Lesson 不再使用长页阅读作为主要体验，而是复用现有 Lesson Check / Practice / RULE Evaluation / Completion Gate，拆成 6 步“理解 → 案例 → 检查 → 实操 → 反馈复习 → 能力总结”。LEARNING-UX-001-C 当前验收版保留课程侧栏、当前课位置、完成进度和后续课程可见性，主内容区按单 Step 推进；Step 切换保持当前位置；“还是不懂”只给当前 Step 明确提示；选择题不会在作答前泄露答案；实操支持查看参考、一键带入、恢复自己的版本；真实 AI 操作结果可记录。课程完成后先展示能力成长，第 6 步不放公众号 / 会员 CTA，仅提供“学习路径”；可选课程反馈移动到上一课 / 下一课导航之后。学习路径页新增免费 / 公众号 / 会员权益说明。上述行为继续复用 learning_events / learning_feedback，不新增 Schema。其他 Lesson 尚未迁移。
+当前主学习课程为 `foundation-ai`：T1-01～T1-05 已 Human Review PASS 并接入正式六步 Runtime；T1-06～T1-20 仍为规划目录。001-B 将明确分流 foundation Runtime 与 legacy renderer，并把恢复位置、Check、Practice、Completion、Rating 收敛为服务端权威状态。
 
 ### Auth
 
@@ -434,37 +438,11 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `TRACK01-BATCH-A-BRIEF-REVIEW-001` 已完成 T1-01～T1-05 Formal Brief targeted Human Review revision，Brief-level Human Review PASS。固定 Prompt = AI 要做什么 / Task Instruction，Context = AI 完成任务需要知道什么 / Task Information；T1-03 不教授 Source of Truth。五课 Step 4 均已明确 learner action + retained output。T1-05 现在包含最低 Task-fit Evaluation + Reliability Verification：先对照 Clear Task Brief 判断任务是否完成，再按事实性、时效性、可验证性、错误后果决定核验强度；Hallucination 只作为原因解释。T1-05 不教授 HITL / Permissions / Approval / Core Authority（T1-20），也不教授 Evaluation Engineering（Track 04）。
 
-`COURSE-PRODUCTION-TRACK01-A-002` 已关闭 T1-01 Human Review：T1-01 `AI 能帮什么，不能帮什么` = **HUMAN_REVIEW_PASS**，但尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。T1-02 `Prompt：把任务说清楚` 已进入 pilot，canonical Draft lessonId=`t1-02-clear-prompt`，Preview=`/course-builder/preview/track01-batch-a/t1-02`。T1-02 继续使用 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` + `LESSON_OUTPUT_CONTRACT_V1`，核心只教任务目标 / 使用对象 / 关键要求与限制 / 输出形式四项；Prompt = Task Instruction，正式 Context 方法后置到 T1-03。Step 4 形成 `CLEAR_TASK_BRIEF`，外部 AI 回复不回填、不评分、不作为 Artifact。T1-02 当前 TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING；T1-03～T1-05 尚未扩产。
+T1-01～T1-05 当前均已通过 Human Review，并统一遵守 `LESSON_OUTPUT_CONTRACT_V1`：六步职责固定；Step 4 COPY_TO_AI 默认只复制学习者实际填写值；提供参考答案时必须是完整、可直接验证的成品样例；Step 5 卡片数量按知识密度使用 2–4 张，不再固定 3 张。Track 01 Batch A 继续使用 OPC / 自媒体 AI 内容任务作为连续 Case Thread，Stable Method Layer 保持行业中立。
 
-`COURSE-PRODUCTION-TRACK01-A-003` 已关闭：T1-02、T1-03 均为 **HUMAN_REVIEW_PASS**，但尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。T1-03 canonical Draft lessonId=`t1-03-minimum-context`，Preview=`/course-builder/preview/track01-batch-a/t1-03`。
+`foundation-ai` 已成为当前主学习入口。T1-01～T1-05 的 canonical Draft、LessonSpec、Check、Practice 与 Approved Presentation 均由 Human Review PASS Course Builder Draft 派生；不再在 Runtime 复制第二套课程正文。T1-06～T1-20 仍只保留规划 metadata。
 
-T1-03 Human Review 第一轮继续精简：Step 4 不再要求完整填写“三类信息清单 + 最小信息包”，改为 3 个最小动作——`这次必须给 AI 的信息` / `这次可以先不放的信息` / `我的最小信息包`，降低 Beginner 填写负担；Step 5 不再预设 3 张卡，继续遵守全局 `2–4 张、数量由本课真正需要总结的判断决定`，本课当前收束为 2 张：`只选必要信息`、`信息够用就停`。T1-03 仍为 HUMAN_REVIEW_PENDING。
-
-T1-03 Human Review 第二轮进一步对齐 T1-01 / T1-02 的可验证体验：Step 4 只保留 `我要 AI 完成的任务` + `这次提供给 AI 的必要信息` 两个字段，并复用现有 COPY_TO_AI 能力，把已填写内容组合成可直接复制到用户自己 AI 软件里的验证内容；不要求把 AI 回复粘贴回课程。Step 5 保持上一轮确认的 2 张总结卡，不变。
-
-Step 4 COPY_TO_AI 已提升为全局默认规则：所有当前及后续课程的表单字段标题只用于界面引导；点击复制时默认只复制学习者实际填写的字段值，不复制字段名、课程标题、内部课程编号、Artifact / Schema 名或其他课程脚手架。若未来确有需要带标签复制，必须作为显式例外单独批准。
-
-Step 4 Reference Answer 规则同步提升为全局默认：凡课程提供 COPY_TO_AI + 参考答案 / 一键填充，参考答案必须是一份完整、可直接复制到 AI 验证的成品样例，而不是零散字段碎片；默认优先围绕 OPC / 自媒体真实任务构造，Stable Method Layer 继续行业中立；不得包含内部课程编号、Artifact / Schema 名或教学编排说明。T1-03 已改为 `OPC AI 学习站 + 自媒体短内容` 的完整可验证样例。
-
-T1-01 / T1-02 已同步到同一 Reference Answer 标准：T1-01 Step 4 由 MINI_TASK 调整为 COPY_TO_AI，但仍只练“找一个 AI 先帮的小步骤”；一键填充后形成 `OPC AI 学习站 + 自媒体短内容 + 只列标题方向` 的完整可验证样例。T1-02 四个参考字段改为完整句式，一键填充后可直接拼成 `OPC AI 学习站 + AI 新手使用习惯` 的完整提示词验证任务。
-
-T1-01～T1-05 当前均已通过 Human Review，但 Runtime Provisioning / Runtime Acceptance 独立治理，因此仍不是 AVAILABLE。
-
-`COURSE-PRODUCTION-TRACK01-A-004` 已完成 Human Review：T1-04 `迭代（Iteration）：把第一版结果改到可用` = **HUMAN_REVIEW_PASS**。canonical lessonId=`t1-04-purposeful-iteration`，Preview=`/course-builder/preview/track01-batch-a/t1-04`。仍未 Runtime Provisioning / Runtime Acceptance，因此不是 AVAILABLE。
-
-`COURSE-PRODUCTION-TRACK01-A-005` 已完成 Human Review：T1-05 `结果可靠性：什么时候必须核验` = **HUMAN_REVIEW_PASS**，canonical lessonId=`t1-05-reliability-verification`。
-
-`TRACK01-PHASE1-RUNTIME-001` 已完成代码侧 Runtime bridge：新增 canonical Runtime course `foundation-ai`，直接复用 T1-01～T1-05 Human Review PASS Draft 派生 Course / LessonSpec / Check / Practice / Approved Presentation。旧 `ai-literacy` 数据仍保留兼容，但已退出首页 / Header 主学习 CTA。学习路径已从旧 28 课草案切换到 Track 01 canonical 20 课（6 个阶段）；T1-01～T1-05 可从正式课程 URL 进入，T1-06～T1-20 仅展示规划状态。
-
-当前 DB schema blocker 期间，正式 `foundation-ai` Lesson 页面使用受控本地互动回退显示已验收的六步体验（3 题 Check、Step 4、Reference Fill、values-only COPY_TO_AI、Review、Self Assessment），但明确不保存正式进度，Completion 继续锁定。DB provisioning 完成后再切回正式 DB/API Runtime。
-
-当前目标数据库 `foundation-ai` Lesson 数仍为 0。provisioning 写前 schema gate 返回 `TRACK01_PHASE1_DB_SCHEMA_REQUIRES_0010_0011`；所需字段为 0010 `lesson_checks.correct_answers` 与 0011 `lesson_checks.incorrect_explanation`。第一次事务 provisioning 在首条 Check 写入失败并完整回滚，复查仍为 0 Lesson。按任务边界未执行远程 migration。因此当前状态为 **IMPLEMENTATION_READY / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011**，尚未 Runtime Acceptance PASS / Runtime Ready / AVAILABLE。
-
-`COURSE-BUILDER-SKILL-005-A` 已将近期 Human Review 验证出的课程输出方式固化为 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`，不新增 Skill，继续由 `course-builder@0.2.0` 承担教学生成。Contract 固定 Step 1–6 输出职责、Step 4 Hint 编号归 UI / Artifact 必须自然产生、Step 5 使用 2–4 张卡且每张卡固定上下对比：上层 `AI 适合做什么` = 核心判断，下层 `AI 不应该替你做什么` = 边界理解；补充解释负责“为什么”，Pitfalls 负责纠错；Step 6 必须可执行和自证。Track 01 Batch A 继续遵守 `OPC / 自媒体 AI 内容任务` Case Thread，Stable Method Layer 行业中立。Code Validation 负责可确定性规则；案例自然度、Artifact 是否被强行制造、Review 是否重复等由 Human Review 负责。
-
-T1-01 早期 Human Review 的“AI 新变化整理”入口已被后续版本 supersede；最终通过版本以 `COURSE-PRODUCTION-TRACK01-A-002` 与 `LESSON_OUTPUT_CONTRACT_V1` 为准：OPC / 自媒体内容主线、自然 Step 4、UI-owned Hint numbering、Step 5 上下边界对比和分层解释。
-
-本任务技术验收发现 `validateBeginnerQualityDraft()` 仍使用旧的 Review `>3` 限制，与已批准的 Step 5 `2–4` 规则漂移。已最小修正为 `>4` 拒绝，并更新 Beginner Quality acceptance：4 条 PASS、5 条 REJECT。未修改 Unified Lesson Shell、Runtime Schema 或正式学习状态逻辑。
+`COURSE-BUILDER-SKILL-005-A` 已将上述课程输出规则固化到 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`。Code Validation 负责可确定规则；案例自然度、Review 是否重复、Artifact 是否被强行制造等继续由 Human Review 负责。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
@@ -472,7 +450,9 @@ Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforeP
 
 正式学习 Runtime 代码支持三种题型和三题 Sequence。`lesson_checks` 继续以多行 + `order` 表达题组，不新增题组表。Answer API 接受 `answer` 或 `answers`；单选/判断只允许一个答案，多选去重后精确集合判分。Interactive API 在答题前只返回题型、题目、选项和已有作答状态，不返回正确答案；答题后返回对应解释。Generic Lesson Runtime 一次只显示一题：答错显示错误反馈并要求重新选择，答对后才允许下一题；三题全部答对才满足 Sequence CHECK Gate。Legacy 单题仍保持“该题答对才通过”。
 
-本地 migrations `drizzle/0010_famous_blockbuster.sql` 与 `drizzle/0011_milky_sharon_carter.sql` 已生成。0010 增加 TRUE_FALSE / MULTI_SELECT 与 `correct_answers / answers`；0011 增加 `lesson_checks.incorrect_explanation`。**均未执行远程 migration**。当前远程 DB 仍为 0009，正式环境启用三题 Mastery 前必须按顺序授权执行 0010、0011。
+`drizzle/0010_famous_blockbuster.sql` 与 `drizzle/0011_milky_sharon_carter.sql` 已进入仓库。0010 增加 TRUE_FALSE / MULTI_SELECT 与 `correct_answers / answers`；0011 增加 `lesson_checks.incorrect_explanation`。当前 Phase 1 acceptance 数据库已能运行对应正式 Check Runtime；任何独立 release / deploy 目标仍需在发布前核对 migration journal，不把历史“remote=0009”记录当成当前部署事实。
+
+`TRACK01-PHASE1-RUNTIME-001-B` 已批准为当前下一开发任务：收敛 currentStep / Check / Practice / Completion / Rating / resume，并清理重复本地状态与临时桥接。详细计划见 `docs/learning/TRACK01_PHASE1_RUNTIME_001_B_IMPLEMENTATION_PLAN.md`。
 
 ## 6. AI Provider
 
@@ -562,15 +542,16 @@ LEARNING-RUNTIME-001-A 已完成正式 Pilot Provisioning 与真实 Runtime Acce
 
 LEARNING-UX-RUNTIME-ALIGN-001 已完成 Reference UX 对齐：`task-brief`、`memory-rag`（CONCEPT）、`task-decomposition`（PRACTICE）与 `writing-files`（APPLICATION）均进入同一 Generic Guided Lesson Shell。Core 只依据 Lesson Spec、Step Kind、Runtime configuration 与 Completion Gate 组合行为，不按课程名选择 Renderer。`writing-files` 已注册用于统一 APPLICATION UX，但仍保持 `configurationReady=false / enforcementActive=false`：required Check / Practice 尚未 provision，REAL_AI evidence = ARTIFACT 仍缺可信 Resolver；同一 Shell 会明确显示 blocker，并隐藏正式完成动作，不允许手填引用绕过 Gate。此前 `/learning-preview` 三课型演示页与旧 `InteractiveLessonPanel` 均已删除。
 
-下一阶段候选：
+当前下一阶段：
 
 ```text
-COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
+TRACK01-PHASE1-RUNTIME-001-B
+→ Lesson Runtime State Flow Consolidation
+→ T1-01～T1-05 full + manual acceptance
+→ 再讨论 T1-06 / AI Daily / 其它产品任务
 ```
 
-统一 Reference UX 已覆盖 CONCEPT / PRACTICE / APPLICATION 三类验证样本。下一步进入 `COURSE-BUILDER-SKILL-001`：基于已稳定的 Lesson Spec + Generic Runtime + Unified Lesson Shell 生成受控 Structured Draft / Improvement Proposal；Skill 不得直接 Publish、改 Access、改 Progress 或绕过 Runtime blocker。`writing-files` 的 ARTIFACT Resolver 仍是独立 Runtime 缺口，不因 UX 对齐完成而视为已解决。
-
-AI-DAILY-001 保持排队，不在本阶段扩展。
+001-B 不新增 Skill、AI Daily、渠道自动化或小程序功能；只保证新的 Lesson Runtime API / 状态边界以后可以被 Web / H5 / 小程序复用，并保持 Skill / AI / Channel Adapter 无学习核心状态 authority。
 
 当前产品工程顺序固定为：
 

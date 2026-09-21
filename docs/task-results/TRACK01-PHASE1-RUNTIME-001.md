@@ -1,6 +1,8 @@
 # TRACK01-PHASE1-RUNTIME-001 — T1-01～T1-05 Runtime Provisioning & Acceptance
 
-Status: **FRONTEND_ALIGNED / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011**
+Status: **HISTORICAL_BASELINE / SUPERSEDED_BY_TRACK01-PHASE1-RUNTIME-001-B**
+
+> 本文件保留 001 任务当时的 provisioning / schema blocker 历史证据。0010/0011 blocker、本地互动 fallback 与当时的 pending acceptance 不再代表当前开发状态。当前事实看 `docs/CURRENT_SYSTEM_FACTS.md`；当前实施方向看 `docs/learning/TRACK01_PHASE1_RUNTIME_001_B_IMPLEMENTATION_PLAN.md`。
 
 ## Goal
 

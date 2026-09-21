@@ -209,6 +209,23 @@ Rule 6
 Skill 挂掉，核心系统仍可运行
 ```
 
+### Learning Runtime 的客户端与渠道边界
+
+正式学习状态属于 Core System / PostgreSQL。Web、H5 与后续原生微信小程序只是客户端，必须消费同一 Backend/API 业务规则；不得在客户端复制 Check / Practice / Completion Gate。
+
+Skill / AI 可以生成教学 Draft、Practice Draft、分析或 Course Impact Candidate，但不得直接改变 currentStep、Check Passed、Practice Passed、Lesson Completion、Entitlement 或 Publication 状态。
+
+公众号、飞书、Obsidian、企业微信均属于 Distribution / Resource / Knowledge Adapter：
+
+```text
+Official Account → distribution / follow entitlement / deep link
+Feishu           → Knowledge-owned deep resource
+Obsidian         → reviewed Knowledge one-way Markdown mirror
+WeCom            → reviewed Knowledge customer service / unresolved feedback
+```
+
+这些外部连接均不得成为 Course / Progress / Check / Practice / Completion 的事实源。
+
 标准运行架构：
 
 ```text

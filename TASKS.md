@@ -807,28 +807,30 @@ T1-05 已通过 Human Review。T1-01～T1-05 当前全部 HUMAN_REVIEW_PASS，�
 
 ### TRACK01-PHASE1-RUNTIME-001 — T1-01～T1-05 Runtime Provisioning & Acceptance
 
-Status: FRONTEND_ALIGNED / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
+Status: HISTORICAL_BASELINE / SUPERSEDED_BY_TRACK01-PHASE1-RUNTIME-001-B
 
-已建立 `foundation-ai` canonical Runtime course、5 节 LessonSpec 注册、Approved Presentation Bridge、15 道 CHECK + 5 个 Practice 的幂等 provisioning 工具，以及真实 HTTP Runtime Acceptance 工具。根据实际前端体验反馈，学习路径已同步 canonical 20 课（6 阶段），T1-01～T1-05 正式 URL 可进入完整六步互动体验，首页 / Header“继续学习”不再回 legacy `ai-literacy`。目标数据库仍无 `foundation-ai` 数据；schema gate 阻塞于 migration 0010/0011。当前本地互动回退不保存正式完成状态，因此尚未 Runtime Ready / AVAILABLE。
+已建立 `foundation-ai` canonical Runtime course、5 节 LessonSpec、15 道 required CHECK、5 个 required Practice、Approved Presentation Bridge、provisioning 与真实 HTTP Runtime Acceptance 工具。后续正式 Check / Practice / Completion 已进入 server-authoritative 调试与 focused acceptance；原“0010/0011 schema blocker + 本地互动 fallback”描述只代表该任务早期历史阶段，不再作为当前开发方向。
 
 第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
 
 ### TRACK01-PHASE1-RUNTIME-001-B — Lesson Runtime State Flow Consolidation
 
-Status: PLANNED / NEXT_AFTER_CURRENT_MANUAL_ACCEPTANCE
+Status: PLAN_APPROVED / IMPLEMENTATION_NOT_STARTED
 
-Goal：不再围绕当前 Lesson Runtime 继续叠加局部 Bug patch，而是先审计并收敛课程恢复、Step 3 Check、Step 4 Practice、Completion 与评分的状态主链。
+Goal：重写并收敛课程恢复、Step 3 Check、Step 4 Practice、Completion、Rating 与下一课主链；不再围绕当前旧状态流继续叠加局部 Bug patch。
 
 固定执行原则：
 
-- 先定义用户最终行为与服务端事实源，再决定旧代码保留 / 删除 / 重写；
-- 优先减少 currentStep / highestStepReached / retakingStep / localPassedCheckIds 等重叠状态，而不是继续增加新状态；
-- 课程恢复位置、Check 状态、Practice 状态、Completion 必须各自只有明确权威来源；
-- legacy / fallback / compatibility 若不再服务 MVP 正式主链，允许删除；
-- 不使用前端假完成、乐观 Gate、后台补写等方式掩盖真实 Runtime 延迟；
+- Canonical facts：课程位置 / Completion → Lesson Progress；Step 3 → `lesson_check_responses`；Step 4 → Practice Submission / Evaluation；Rating → `learning_feedback`。
+- 计划新增最小 `lesson_progress.current_step`，migration 只先生成并 review，应用目标数据库前需单独确认。
+- 优先删除 `highestStepReached / localPassedCheckIds / retakingStep / LessonRuntimeUiContext` 等重复状态与同步 effect，而不是继续增加新状态。
+- foundation-ai 正式 Runtime 与 legacy renderer 明确分流。
+- 未来 Web / H5 / 小程序共用同一 Backend/API；Skill / AI、公众号、飞书、Obsidian 不拥有学习核心状态。
 - 完成后必须用“进入课程 → 中断 → 返回 → Check 重学 → Practice 重练 → 完成 → 评分 → 下一课”的端到端场景整体验证。
 
-Out of Scope：课程内容改写、T1-06 扩产、通用状态框架、微服务化、额外抽象层。
+Detailed plan: `docs/learning/TRACK01_PHASE1_RUNTIME_001_B_IMPLEMENTATION_PLAN.md`
+
+Out of Scope：课程内容改写、T1-06 扩产、AI Daily、渠道自动化、新 Skill、通用状态框架、微服务化。
 
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 

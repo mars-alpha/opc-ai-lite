@@ -80,21 +80,22 @@ COURSE-PRODUCTION-TRACK01-A-002 T1-01 Closure & T1-02 Prompt Pilot COMPLETE_T1-0
 COURSE-PRODUCTION-TRACK01-A-003 T1-02 Closure & T1-03 Context Pilot COMPLETE_T1-03_HUMAN_REVIEW_PASS
 COURSE-PRODUCTION-TRACK01-A-004 T1-04 Purposeful Iteration Pilot COMPLETE_T1-04_HUMAN_REVIEW_PASS
 COURSE-PRODUCTION-TRACK01-A-005 T1-04 Closure & T1-05 Reliability Pilot COMPLETE_T1-05_HUMAN_REVIEW_PASS
-TRACK01-PHASE1-RUNTIME-001 T1-01～T1-05 Runtime Provisioning & Acceptance FRONTEND_ALIGNED_PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
+TRACK01-PHASE1-RUNTIME-001 T1-01～T1-05 Runtime Provisioning & Acceptance HISTORICAL_BASELINE_SUPERSEDED_BY_001_B
+TRACK01-PHASE1-RUNTIME-001-B Lesson Runtime State Flow Consolidation PLAN_APPROVED_IMPLEMENTATION_NOT_STARTED
 
-NEXT: frontend / learning-path 已对齐 `foundation-ai`；正式持久化 Runtime 仍需目标 DB migration 0010/0011 授权，之后 rerun provisioning + real HTTP acceptance。T1-01～T1-05 当前可体验但尚未 Runtime Ready / AVAILABLE。
+NEXT: 先执行 `TRACK01-PHASE1-RUNTIME-001-B`，收敛 foundation-ai 的 currentStep / Check / Practice / Completion / Rating / resume 状态主链，删除重复本地状态与临时桥接。T1-06 暂不启动。
 ```
 
 ## 当前系统健康
 
-当前业务代码验证基线：FOUNDATION-CONTINUITY-TRIAL-001（typecheck/build PASS，51 pages）。
+当前业务代码验证基线：Phase 1 foundation-ai Runtime（latest local typecheck/build PASS；focused Runtime Acceptance PASS）。
 
 ```text
 npm run typecheck     PASS
 npm run build         PASS
-Production build      51 pages generated
+Production build      PASS（page count 不作为当前验收事实）
 Local npm run dev      DIRECT_NEXT_NODE_ENTRY
-Remote migrations     0000 → 0009 APPLIED; 0010–0011 GENERATED / NOT APPLIED
+DB migrations         0000 → 0009 remote-smoke verified; 0010–0011 exist and current Phase1 acceptance schema is compatible; release target must reverify before deploy
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
 ACCESS UX render      PASS
@@ -126,8 +127,8 @@ APPLICATION knowledge depth PASS
 Six-step responsibility contract PASS
 Concept mastery before practice PASS
 Check single / true-false / multi-select PASS
-Formal Check Runtime   CODE PASS / MIGRATION 0010 PENDING
-Three-question mastery PASS / MIGRATIONS 0010–0011 PENDING
+Formal Check Runtime   SERVER-AUTHORITATIVE / FOCUSED ACCEPTANCE PASS
+Three-question mastery SERVER STATE PASS / 001-B STATE FLOW CONSOLIDATION PENDING
 Unified Lesson Shell v1 FROZEN / ACCEPTANCE PASS
 PRACTICE Draft          PASS
 PRACTICE independent mode PASS
@@ -183,7 +184,7 @@ MVP 后续默认顺序：明确最终产品行为 → 收敛状态与事实源 �
 
 ## 下一步边界
 
-COURSE-BUILDER-SKILL-002-F 已把新课程 Step 3 固化为 Three-Question Mastery Sequence：SINGLE_CHOICE → TRUE_FALSE → MULTI_SELECT，一次只显示一题。答错必须展示错误反馈并重新选择，不能跳题；答对后展示正确反馈才出现“下一题”；三题全部答对后 CHECK Gate 才通过。Prompt APPLICATION 已作为真实样板升级。正式 Runtime 复用 lesson_checks 多行 + order，不新增题组表。当前 Lesson Runtime 的下一步优先做 TRACK01-PHASE1-RUNTIME-001-B 状态流收敛，不再继续叠加局部恢复状态；数据库 migration / Runtime 事实仍以 Git 与实际目标数据库核验结果为准。
+`TRACK01-PHASE1-RUNTIME-001-B` 已完成实施计划确认。下一步不是继续修单个按钮，而是收敛 Lesson Runtime：课程位置由正式 Progress 状态负责，Step 3 由 `lesson_check_responses` 负责，Step 4 由正式 Practice Submission / Evaluation 负责，Completion 由 `lesson_progress` 负责，Rating 由 `learning_feedback` 负责。详细范围见 `docs/learning/TRACK01_PHASE1_RUNTIME_001_B_IMPLEMENTATION_PLAN.md`。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 
