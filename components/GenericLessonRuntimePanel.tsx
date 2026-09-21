@@ -14,6 +14,7 @@ import {
   isThreeQuestionMasteryComplete,
   isThreeQuestionMasterySequence
 } from "../lib/learning/check-evaluator";
+import { buildPracticeCopyText } from "../lib/learning/practice-copy";
 import { unifiedLessonStepLabel } from "../lib/learning/unified-lesson-shell";
 
 type InteractiveData = {
@@ -133,6 +134,20 @@ type PreviewKnowledgeDepth = {
   review: ReadonlyArray<{ title: string; text: string }>;
 };
 
+type ApprovedPresentation = {
+  activity: PreviewActivity;
+  introComparison: PreviewIntroComparison;
+  referenceAnswer: string | null;
+  referenceFill: PreviewReferenceFill;
+  knowledgeDepth: PreviewKnowledgeDepth;
+  reviewItems: ReadonlyArray<string>;
+  reviewLabels: { primary: string; secondary: string };
+  reviewCardFill: boolean;
+  practiceHintsGrouped: boolean;
+  practiceCopyValuesOnly: boolean;
+  selfAssessment: ReadonlyArray<string>;
+};
+
 function emptyPracticeContent(
   instructions: Array<{ key: string }>
 ): PracticeContent {
@@ -167,6 +182,7 @@ export function GenericLessonRuntimePanel({
   lessonSlug,
   plan,
   lesson,
+  approvedPresentation = null,
   previewMode = false,
   previewCheck = null,
   previewCheckSequence = null,
@@ -187,6 +203,7 @@ export function GenericLessonRuntimePanel({
   lessonSlug: string;
   plan: LessonRuntimePlan;
   lesson: Lesson;
+  approvedPresentation?: ApprovedPresentation | null;
   previewMode?: boolean;
   previewCheck?: PreviewCheck | null;
   previewCheckSequence?: ReadonlyArray<PreviewCheck> | null;
@@ -203,6 +220,41 @@ export function GenericLessonRuntimePanel({
   previewSelfAssessment?: ReadonlyArray<string> | null;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
+  const presentationActivity = previewMode
+    ? previewActivity
+    : approvedPresentation?.activity ?? null;
+  const presentationIntroComparison = previewMode
+    ? previewIntroComparison
+    : approvedPresentation?.introComparison ?? null;
+  const presentationReferenceAnswer = previewMode
+    ? previewReferenceAnswer
+    : approvedPresentation?.referenceAnswer ?? null;
+  const presentationReferenceFill = previewMode
+    ? previewReferenceFill
+    : approvedPresentation?.referenceFill ?? null;
+  const presentationKnowledgeDepth = previewMode
+    ? previewKnowledgeDepth
+    : approvedPresentation?.knowledgeDepth ?? null;
+  const presentationReviewItems = previewMode
+    ? previewReviewItems
+    : approvedPresentation?.reviewItems ?? null;
+  const presentationReviewLabels = previewMode
+    ? previewReviewLabels
+    : approvedPresentation?.reviewLabels ?? null;
+  const presentationReviewCardFill = previewMode
+    ? previewReviewCardFill
+    : approvedPresentation?.reviewCardFill ?? false;
+  const presentationPracticeHintsGrouped = previewMode
+    ? previewPracticeHintsGrouped
+    : approvedPresentation?.practiceHintsGrouped ?? false;
+  const presentationPracticeCopyValuesOnly = previewMode
+    ? previewPracticeCopyValuesOnly
+    : approvedPresentation?.practiceCopyValuesOnly ?? true;
+  const presentationSelfAssessment = previewMode
+    ? previewSelfAssessment
+    : approvedPresentation?.selfAssessment ?? null;
+  const richPresentationEnabled = previewMode || Boolean(approvedPresentation);
+
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
     previewMode
       ? {
@@ -625,21 +677,21 @@ export function GenericLessonRuntimePanel({
       )}
 
       <div className="guided-step-panel">
-      {step.kind === "EXPLAIN" && previewMode && previewIntroComparison ? (
+      {step.kind === "EXPLAIN" && presentationIntroComparison ? (
         <div className="guided-step-content guided-intro-comparison">
           <div className="guided-step-label">从一个真实场景开始</div>
-          <h3>{previewIntroComparison.situation}</h3>
+          <h3>{presentationIntroComparison.situation}</h3>
           <div className="guided-intro-approaches">
-            {previewIntroComparison.approaches.map((item) => (
+            {presentationIntroComparison.approaches.map((item) => (
               <div key={item.label}>
                 <span>{item.label}</span>
                 <p>{item.text}</p>
               </div>
             ))}
           </div>
-          {previewIntroComparison.comparison.length > 0 && previewIntroComparison.comparisonPlacement !== "BOTTOM" && (
+          {presentationIntroComparison.comparison.length > 0 && presentationIntroComparison.comparisonPlacement !== "BOTTOM" && (
             <div className="guided-intro-compare">
-              {previewIntroComparison.comparison.map((item) => (
+              {presentationIntroComparison.comparison.map((item) => (
                 <div key={item.term}>
                   <span>{item.term}</span>
                   <strong>{item.meaning}</strong>
@@ -649,11 +701,11 @@ export function GenericLessonRuntimePanel({
           )}
           <div className="guided-key-highlight guided-intro-takeaway">
             <strong>记住这一句</strong>
-            <p>{previewIntroComparison.takeaway}</p>
+            <p>{presentationIntroComparison.takeaway}</p>
           </div>
-          {previewIntroComparison.comparison.length > 0 && previewIntroComparison.comparisonPlacement === "BOTTOM" && (
+          {presentationIntroComparison.comparison.length > 0 && presentationIntroComparison.comparisonPlacement === "BOTTOM" && (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
-              {previewIntroComparison.comparison.map((item) => (
+              {presentationIntroComparison.comparison.map((item) => (
                 <div key={item.term}>
                   <strong>{item.term}</strong>
                   <p>{item.meaning}</p>
@@ -661,9 +713,9 @@ export function GenericLessonRuntimePanel({
               ))}
             </div>
           )}
-          {previewIntroComparison.bottomDetails?.length ? (
+          {presentationIntroComparison.bottomDetails?.length ? (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
-              {previewIntroComparison.bottomDetails.map((item) => (
+              {presentationIntroComparison.bottomDetails.map((item) => (
                 <div key={item.title}>
                   <strong>{item.title}</strong>
                   <p>{item.text}</p>
@@ -699,9 +751,9 @@ export function GenericLessonRuntimePanel({
             {lesson.example.after && <div><span>调整后的做法</span><p>{lesson.example.after}</p></div>}
           </div>}
           <div className="guided-gain"><strong>结果</strong><p>{lesson.example.result}</p></div>
-          {previewMode && previewKnowledgeDepth?.example.length ? (
+          {presentationKnowledgeDepth?.example.length ? (
             <div className="guided-knowledge-depth">
-              {previewKnowledgeDepth.example.map((item) => (
+              {presentationKnowledgeDepth.example.map((item) => (
                 <div key={item.title}>
                   <strong>{item.title}</strong>
                   <p>{item.text}</p>
@@ -945,7 +997,7 @@ export function GenericLessonRuntimePanel({
             ))}
           </div>
           {practice.hints.length > 0 && (
-            <div className={`interactive-hints guided-numbered-hints${previewPracticeHintsGrouped ? " is-single-box" : ""}`}>
+            <div className={`interactive-hints guided-numbered-hints${presentationPracticeHintsGrouped ? " is-single-box" : ""}`}>
               <strong>提示</strong>
               <div className="guided-numbered-list">
                 {practice.hints.map((hint, index) => (
@@ -976,22 +1028,19 @@ export function GenericLessonRuntimePanel({
             </button>
           </div>
 
-          {previewMode && previewActivity?.kind === "COPY_TO_AI" && (
+          {presentationActivity?.kind === "COPY_TO_AI" && (
             <div className="guided-preview-activity guided-application-test">
               <div className="guided-step-label">放进你的 AI 软件试一下</div>
-              <p>{previewActivity.instruction}</p>
+              <p>{presentationActivity.instruction}</p>
               <button
                 type="button"
                 className="btn"
                 onClick={async () => {
-                  const combined = practice.instructions
-                    .map((item) => {
-                      const value = (content[item.key] ?? "").trim();
-                      if (!value) return "";
-                      return previewPracticeCopyValuesOnly ? value : item.label + "：" + value;
-                    })
-                    .filter(Boolean)
-                    .join("\n");
+                  const combined = buildPracticeCopyText(
+                    practice.instructions,
+                    content,
+                    presentationPracticeCopyValuesOnly
+                  );
                   if (!combined) {
                     setMessage("先把上面的练习内容填好，再复制。");
                     return;
@@ -1004,7 +1053,7 @@ export function GenericLessonRuntimePanel({
               </button>
               <div className="guided-gain">
                 <strong>比较两次结果</strong>
-                <p>{previewActivity.reflection}</p>
+                <p>{presentationActivity.reflection}</p>
               </div>
             </div>
           )}
@@ -1029,18 +1078,18 @@ export function GenericLessonRuntimePanel({
             </div>
           )}
 
-          {previewMode && evaluation && !evaluation.passed && previewReferenceAnswer && (
+          {evaluation && !evaluation.passed && presentationReferenceAnswer && (
             <div className="guided-reference-answer">
               <div className="guided-step-label">还是卡住？先参考一个完整答案</div>
               <p>你可以先看懂它为什么合格，再修改自己的版本。复制参考答案不会自动判定练习通过。</p>
-              <div className="guided-preview-prompt">{previewReferenceAnswer}</div>
+              <div className="guided-preview-prompt">{presentationReferenceAnswer}</div>
               <div className="interactive-actions">
-                {previewReferenceFill && (
+                {presentationReferenceFill && (
                   <button
                     type="button"
                     className="btn btn-primary"
                     onClick={() => {
-                      setContent((current) => ({ ...current, ...previewReferenceFill }));
+                      setContent((current) => ({ ...current, ...presentationReferenceFill }));
                       setPreviewEvaluation(null);
                       setMessage("参考答案已填入。你可以继续修改，然后重新检查。");
                       setFilledReferenceAnswer(true);
@@ -1053,7 +1102,7 @@ export function GenericLessonRuntimePanel({
                   type="button"
                   className="btn"
                   onClick={async () => {
-                    await navigator.clipboard.writeText(previewReferenceAnswer);
+                    await navigator.clipboard.writeText(presentationReferenceAnswer);
                     setCopiedReferenceAnswer(true);
                   }}
                 >
@@ -1119,18 +1168,18 @@ export function GenericLessonRuntimePanel({
         <div className="guided-step-content">
           <div className="guided-step-label">复盘框架</div>
           <h3>把这一课真正值得带走的判断留下来</h3>
-          {previewMode && previewReviewItems?.length ? (
-            <div className={`guided-misconception-grid${previewReviewCardFill ? " is-fill-layout" : ""}`}>
-              {previewReviewItems.map((item) => {
+          {presentationReviewItems?.length ? (
+            <div className={`guided-misconception-grid${presentationReviewCardFill ? " is-fill-layout" : ""}`}>
+              {presentationReviewItems.map((item) => {
                 const [title, description] = item.split("｜");
                 return (
                   <div key={item} className="guided-misconception-card">
                     <div>
-                      <span>{previewReviewLabels?.primary ?? "核心判断"}</span>
+                      <span>{presentationReviewLabels?.primary ?? "核心判断"}</span>
                       <p><strong>{title}</strong></p>
                     </div>
                     <div>
-                      <span>{previewReviewLabels?.secondary ?? "怎么理解"}</span>
+                      <span>{presentationReviewLabels?.secondary ?? "怎么理解"}</span>
                       <p>{description ?? title}</p>
                     </div>
                   </div>
@@ -1138,7 +1187,7 @@ export function GenericLessonRuntimePanel({
               })}
             </div>
           ) : (
-            <div className={`guided-misconception-grid${previewReviewCardFill ? " is-fill-layout" : ""}`}>
+            <div className={`guided-misconception-grid${presentationReviewCardFill ? " is-fill-layout" : ""}`}>
               {lesson.mistakes.map((item) => {
                 const [misconception, correction] = item.split("｜");
                 return (
@@ -1150,9 +1199,9 @@ export function GenericLessonRuntimePanel({
               })}
             </div>
           )}
-          {previewMode && previewKnowledgeDepth?.review.length ? (
+          {presentationKnowledgeDepth?.review.length ? (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
-              {previewKnowledgeDepth.review.map((item) => (
+              {presentationKnowledgeDepth.review.map((item) => (
                 <div key={item.title}>
                   <strong>{item.title}</strong>
                   <p>{item.text}</p>
@@ -1160,7 +1209,7 @@ export function GenericLessonRuntimePanel({
               ))}
             </div>
           ) : null}
-          {previewMode && lesson.mistakes.length > 0 && (
+          {richPresentationEnabled && lesson.mistakes.length > 0 && (
             <div className="guided-pitfall-section">
               <strong>容易踩的坑</strong>
               <div className="guided-pitfall-list">
@@ -1193,11 +1242,11 @@ export function GenericLessonRuntimePanel({
           <div className="guided-achievement-list">
             {plan.capabilityGain.map((item) => <div key={item}><span>✓</span><p>{item}</p></div>)}
           </div>
-          {previewMode && previewSelfAssessment?.length ? (
+          {presentationSelfAssessment?.length ? (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
               <div>
                 <strong>怎么知道自己真的会了</strong>
-                {previewSelfAssessment.map((item) => <p key={item}>✓ {item}</p>)}
+                {presentationSelfAssessment.map((item) => <p key={item}>✓ {item}</p>)}
               </div>
               <div>
                 <strong>马上可以怎么用</strong>

@@ -73,6 +73,7 @@ export async function getStageAccess(
   userId: string | null,
   courseSlug: string
 ): Promise<{ allowed: boolean; requiredCourseSlug?: string }> {
+  if (courseSlug === "foundation-ai") return { allowed: true };
   const currentIndex = courses.findIndex((course) => course.slug === courseSlug);
   if (currentIndex <= 0) return { allowed: true };
   if (!userId) {

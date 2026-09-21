@@ -444,11 +444,15 @@ Step 4 Reference Answer 规则同步提升为全局默认：凡课程提供 COPY
 
 T1-01 / T1-02 已同步到同一 Reference Answer 标准：T1-01 Step 4 由 MINI_TASK 调整为 COPY_TO_AI，但仍只练“找一个 AI 先帮的小步骤”；一键填充后形成 `OPC AI 学习站 + 自媒体短内容 + 只列标题方向` 的完整可验证样例。T1-02 四个参考字段改为完整句式，一键填充后可直接拼成 `OPC AI 学习站 + AI 新手使用习惯` 的完整提示词验证任务。
 
-T1-03 已于 Human Review 明确验收通过：`上下文（Context）：给 AI 足够但不过量的信息` = **HUMAN_REVIEW_PASS**。T1-01～T1-04 当前均已通过 Human Review，但都尚未 Runtime Provisioning / Runtime Acceptance，因此仍不是 AVAILABLE。
+T1-01～T1-05 当前均已通过 Human Review，但 Runtime Provisioning / Runtime Acceptance 独立治理，因此仍不是 AVAILABLE。
 
 `COURSE-PRODUCTION-TRACK01-A-004` 已完成 Human Review：T1-04 `迭代（Iteration）：把第一版结果改到可用` = **HUMAN_REVIEW_PASS**。canonical lessonId=`t1-04-purposeful-iteration`，Preview=`/course-builder/preview/track01-batch-a/t1-04`。仍未 Runtime Provisioning / Runtime Acceptance，因此不是 AVAILABLE。
 
-`COURSE-PRODUCTION-TRACK01-A-005` 已生产 T1-05 `结果可靠性：什么时候必须核验` Pilot，canonical lessonId=`t1-05-reliability-verification`，Preview=`/course-builder/preview/track01-batch-a/t1-05`。只教最低可靠性判断：事实 / 数字 / 日期 / 当前功能 / 来源、时效性、错误后果。Step 4 只填写 `我准备核验的内容` / `我会去核对什么`；COPY_TO_AI 只整理核验清单，不允许 AI 替用户判断真假。Hallucination 仅作原因解释；HITL / Permissions / Approval、Evaluation Engineering、RAG / Source of Truth、Agent / Workflow 与复杂来源研究后置。当前状态：**TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING**。
+`COURSE-PRODUCTION-TRACK01-A-005` 已完成 Human Review：T1-05 `结果可靠性：什么时候必须核验` = **HUMAN_REVIEW_PASS**，canonical lessonId=`t1-05-reliability-verification`。
+
+`TRACK01-PHASE1-RUNTIME-001` 已完成代码侧 Runtime bridge：新增独立 canonical Runtime course `foundation-ai`，直接复用 T1-01～T1-05 Human Review PASS Draft 派生正式 Course / LessonSpec / Check / Practice / Approved Presentation；旧 `ai-literacy` 不替换。正式 Generic Runtime 可复用已批准 Step 1 场景、Step 4 COPY_TO_AI + Reference Fill、Step 5 Review、Step 6 Self Assessment，同时继续使用真实 DB/API Gate 与 Progress。新增 values-only COPY_TO_AI 可测试 helper、幂等 provisioning 与真实 HTTP acceptance 工具。
+
+当前目标数据库 `foundation-ai` Lesson 数仍为 0。provisioning 写前 schema gate 返回 `TRACK01_PHASE1_DB_SCHEMA_REQUIRES_0010_0011`；所需字段为 0010 `lesson_checks.correct_answers` 与 0011 `lesson_checks.incorrect_explanation`。第一次事务 provisioning 在首条 Check 写入失败并完整回滚，复查仍为 0 Lesson。按任务边界未执行远程 migration。因此当前状态为 **IMPLEMENTATION_READY / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011**，尚未 Runtime Acceptance PASS / Runtime Ready / AVAILABLE。
 
 `COURSE-BUILDER-SKILL-005-A` 已将近期 Human Review 验证出的课程输出方式固化为 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`，不新增 Skill，继续由 `course-builder@0.2.0` 承担教学生成。Contract 固定 Step 1–6 输出职责、Step 4 Hint 编号归 UI / Artifact 必须自然产生、Step 5 使用 2–4 张卡且每张卡固定上下对比：上层 `AI 适合做什么` = 核心判断，下层 `AI 不应该替你做什么` = 边界理解；补充解释负责“为什么”，Pitfalls 负责纠错；Step 6 必须可执行和自证。Track 01 Batch A 继续遵守 `OPC / 自媒体 AI 内容任务` Case Thread，Stable Method Layer 行业中立。Code Validation 负责可确定性规则；案例自然度、Artifact 是否被强行制造、Review 是否重复等由 Human Review 负责。
 

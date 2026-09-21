@@ -79,9 +79,10 @@ COURSE-BUILDER-SKILL-005-A Lesson Output Contract v1 COMPLETE_BASELINE_V1
 COURSE-PRODUCTION-TRACK01-A-002 T1-01 Closure & T1-02 Prompt Pilot COMPLETE_T1-02_HUMAN_REVIEW_PASS
 COURSE-PRODUCTION-TRACK01-A-003 T1-02 Closure & T1-03 Context Pilot COMPLETE_T1-03_HUMAN_REVIEW_PASS
 COURSE-PRODUCTION-TRACK01-A-004 T1-04 Purposeful Iteration Pilot COMPLETE_T1-04_HUMAN_REVIEW_PASS
-COURSE-PRODUCTION-TRACK01-A-005 T1-04 Closure & T1-05 Reliability Pilot T1-05_TECHNICAL_PASS_HUMAN_REVIEW_PENDING
+COURSE-PRODUCTION-TRACK01-A-005 T1-04 Closure & T1-05 Reliability Pilot COMPLETE_T1-05_HUMAN_REVIEW_PASS
+TRACK01-PHASE1-RUNTIME-001 T1-01～T1-05 Runtime Provisioning & Acceptance PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
 
-NEXT: HUMAN REVIEW — `/course-builder/preview/track01-batch-a/t1-05`; T1-01～T1-04 are Human Review PASS but still not AVAILABLE before separate Runtime Provisioning / Runtime Acceptance.
+NEXT: resolve target DB migration 0010/0011 authorization, then rerun `learning:runtime:track01-phase1 -- --apply --confirm=TRACK01-PHASE1-RUNTIME-001` and real HTTP acceptance. T1-01～T1-05 are Human Review PASS but not Runtime Ready / AVAILABLE.
 ```
 
 ## 当前系统健康

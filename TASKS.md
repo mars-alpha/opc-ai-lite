@@ -799,9 +799,17 @@ T1-04 `迭代（Iteration）：把第一版结果改到可用` 已通过 Human R
 
 ### COURSE-PRODUCTION-TRACK01-A-005 — T1-04 Closure & T1-05 Reliability Pilot
 
-Status: T1-04_HUMAN_REVIEW_PASS / T1-05_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: T1-04_HUMAN_REVIEW_PASS / T1-05_HUMAN_REVIEW_PASS
 
 T1-05 `结果可靠性：什么时候必须核验` 已生产 Pilot：只建立最低可靠性判断——可查证事实 / 数字 / 日期 / 功能 / 来源要核验，会变化的信息要核对最新状态，错误后果越明显越优先核验。Step 4 只填写 `我准备核验的内容` / `我会去核对什么`；COPY_TO_AI 仅整理核验清单，不允许 AI 替学员判断真假。不教 HITL、权限/审批、Evaluation Engineering、RAG/Source of Truth、Agent/Workflow 或复杂证据研究。Preview：`/course-builder/preview/track01-batch-a/t1-05`。
+
+T1-05 已通过 Human Review。T1-01～T1-05 当前全部 HUMAN_REVIEW_PASS，但 Runtime / AVAILABLE 状态保持独立。
+
+### TRACK01-PHASE1-RUNTIME-001 — T1-01～T1-05 Runtime Provisioning & Acceptance
+
+Status: IMPLEMENTATION_READY / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
+
+已建立 `foundation-ai` canonical Runtime course、5 节 LessonSpec 注册、Approved Presentation Bridge、15 道 CHECK + 5 个 Practice 的幂等 provisioning 工具，以及真实 HTTP Runtime Acceptance 工具。现有 Runtime / Track01 typecheck 与回归检查 PASS。目标数据库当前没有 `foundation-ai` 数据；provisioning 写前 schema gate 明确阻塞于 migration 0010/0011（`correct_answers` / `incorrect_explanation`）。首次事务写入失败后已确认完整回滚，数据库仍为 0 节 `foundation-ai` Lesson。根据任务边界未执行远程 migration；因此尚未 Runtime Ready / AVAILABLE。
 
 第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
 

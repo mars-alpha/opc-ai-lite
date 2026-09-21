@@ -1,3 +1,5 @@
+import { track01Phase1Course } from "./learning/track01-phase1-runtime";
+
 export type LessonGuideBlock = {
   type: "prompt" | "template" | "steps" | "checklist" | "example";
   title: string;
@@ -238,7 +240,8 @@ export const courses: Course[] = [
         }
       ]}
     ]
-  }
+  },
+  track01Phase1Course
 ];
 
 export function getCourse(slug:string){ return courses.find((course)=>course.slug===slug); }

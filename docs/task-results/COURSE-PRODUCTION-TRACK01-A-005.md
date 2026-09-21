@@ -1,6 +1,6 @@
 # COURSE-PRODUCTION-TRACK01-A-005 — T1-04 Closure & T1-05 Reliability Pilot
 
-Status: **T1-04 HUMAN_REVIEW_PASS / T1-05 TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING**
+Status: **T1-04 HUMAN_REVIEW_PASS / T1-05 HUMAN_REVIEW_PASS**
 
 ## Scope
 
@@ -89,3 +89,7 @@ Each uses the fixed vertical contrast:
 4. Step 4 是否足够轻，不把复杂研究工作提前交给 Beginner。
 5. COPY_TO_AI 是否清楚限定为“整理清单”，而不是让 AI 自证事实。
 6. Step 5 的 3 张卡是否来自真实知识密度。
+
+## Human Review closure
+
+User explicitly accepted T1-05. T1-05 is **HUMAN_REVIEW_PASS**. Runtime readiness is tracked separately by `TRACK01-PHASE1-RUNTIME-001`.

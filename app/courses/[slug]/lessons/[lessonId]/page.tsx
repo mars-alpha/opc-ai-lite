@@ -10,6 +10,7 @@ import { LessonFeedbackPrompt } from "../../../../../components/LessonFeedbackPr
 import { LockedAccessCta } from "../../../../../components/LockedAccessCta";
 import { courses,getAllLessons,getCourse,getLesson } from "../../../../../lib/courses";
 import { getLessonSpec } from "../../../../../lib/learning/lesson-spec-registry";
+import { getTrack01Phase1RuntimePresentation } from "../../../../../lib/learning/track01-phase1-runtime";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
 import { getLessonRuntimeReadModel } from "../../../../../lib/server/lesson-runtime/service";
@@ -51,6 +52,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
     runtimeReadModel?.registered
       ? runtimeReadModel.plan
       : null;
+  const approvedPresentation = getTrack01Phase1RuntimePresentation(course.slug, lesson.id);
 
   if (genericRuntimePlan) {
   return <section className="lesson-page">
@@ -82,6 +84,7 @@ export default async function LessonPage({params}:{params:Promise<{slug:string;l
             lessonSlug={lesson.id}
             plan={genericRuntimePlan}
             lesson={lesson}
+            approvedPresentation={approvedPresentation}
           />
 
           <div className="lesson-complete-wrap">
