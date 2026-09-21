@@ -701,6 +701,12 @@ Status: TECHNICAL_PASS_HUMAN_REVIEW_PENDING
 
 使用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` 独立重做 F1-01 / F1-02 / F2-01 / F2-02 / F2-03 五个 Trial Draft，历史生产 Draft 不覆盖。五课保持同一 OPC / 自媒体 Case Thread，并通过 trial metadata 明确 inheritedArtifact / artifactOutput / nextReuse / doNotReteach。新增 5 个独立 Preview 与 `course-builder:accept:continuity-trial`。首次验收准确拦截 F1-02 主正文 Case Thread 表达变弱，修复内容后未放宽规则。最终 Continuity Trial、Course Builder Contract、Beginner Quality、Unified Shell、typecheck、build 全部 PASS，51 pages。结论：当前证据下 v0.2 技术上足够，v0.3 / COURSE-BUILDER-SKILL-006 暂不实现；下一步 Human Review 5 个 Trial Preview。F1-03/F1-04/F2-04 尚未 trial rework，Runtime 继续暂停。
 
+### FOUNDATION-CONTINUITY-TRIAL-001-A — Learner-facing Language & Case Neutralization
+
+Status: COMPLETE_REVIEW_PENDING
+
+不改变 5 个 Trial 的节奏、连续性、Lesson ID/Type/Gate、Course Builder v0.2 或 Runtime 边界，只修学习者可见表达。固定新规则：中文优先；AI 专业词第一次有意义出现写“中文（English）”；内部 Artifact 英文名转为自然中文；OPC / 自媒体继续作为隐藏 Case Logic / metadata，但前台使用行业中性的真实内容任务，不反复显示 OPC / 自媒体。专项 acceptance 新增 LEARNER_LANGUAGE / CASE_NEUTRALIZATION 检查；全部回归、typecheck、build PASS。下一步继续 Human Review 同一 5 个 Preview。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

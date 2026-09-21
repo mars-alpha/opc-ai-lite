@@ -47,6 +47,8 @@ const expectedGates = [
 
 const visibleText = (draft: (typeof drafts)[number]) =>
   [
+    draft.lessonSpec.title,
+    draft.lessonSpec.nextLessonValue,
     draft.content.summary,
     draft.content.plainExplanation,
     draft.content.whyItMatters,
@@ -60,6 +62,9 @@ const visibleText = (draft: (typeof drafts)[number]) =>
     ...draft.content.mistakes,
     ...draft.content.related,
     ...draft.lessonSpec.steps.flatMap((step) => [step.title, step.objective]),
+    draft.pedagogy.participation.title,
+    draft.pedagogy.participation.instruction,
+    draft.pedagogy.participation.reflection,
     ...(draft.practice?.instructions.flatMap((item) => [item.label, item.prompt]) ?? []),
     ...(draft.practice?.hints ?? []),
     ...(draft.review ?? []),
@@ -86,8 +91,12 @@ for (const [index, input] of drafts.entries()) {
   assert(meta.artifactOutput.length > 0 && meta.nextReuse.length > 0, "CONTINUITY_TRIAL_ARTIFACT_METADATA");
 
   const text = visibleText(input);
-  assert(text.includes("OPC") || text.includes("自媒体"), "CONTINUITY_TRIAL_CASE_VISIBLE:" + expectedIds[index]);
+  assert(!text.includes("OPC"), "CONTINUITY_TRIAL_OPC_VISIBLE_LEAK:" + expectedIds[index]);
+  assert(!text.includes("自媒体"), "CONTINUITY_TRIAL_SELF_MEDIA_VISIBLE_LEAK:" + expectedIds[index]);
   assert(!text.includes("客户跟进消息"), "CONTINUITY_TRIAL_UNRELATED_CASE_LEAK");
+  for (const term of ["AI First Draft","Better Draft","Task Brief","Context Pack","Context-enriched Draft","Iteration Notes","Iterated Draft","Artifact"]) {
+    assert(!text.includes(term), "CONTINUITY_TRIAL_INTERNAL_ENGLISH_LEAK:" + expectedIds[index] + ":" + term);
+  }
 }
 
 assert(
@@ -108,23 +117,26 @@ assert(!f102Text.includes("Context："), "CONTINUITY_TRIAL_F102_CONTEXT_RETEACH"
 assert(f102Text.includes("单变量"), "CONTINUITY_TRIAL_F102_SINGLE_VARIABLE");
 
 const f201Text = visibleText(continuityTrialPromptDraft);
-assert(f201Text.includes("Task Brief"), "CONTINUITY_TRIAL_F201_TASK_BRIEF");
+assert(f201Text.includes("任务说明"), "CONTINUITY_TRIAL_F201_TASK_BRIEF_CN");
+assert(continuityTrialPromptDraft.lessonSpec.title.startsWith("提示词（Prompt）"), "CONTINUITY_TRIAL_F201_TERM_FORMAT");
 assert(!f201Text.includes("咖啡店"), "CONTINUITY_TRIAL_F201_OLD_CASE_LEAK");
-assert(continuityTrialPromptDraft.lessonSpec.nextLessonValue.includes("Context Pack"), "CONTINUITY_TRIAL_F201_NEXT_REUSE");
+assert(continuityTrialPromptDraft.lessonSpec.nextLessonValue.includes("上下文资料包"), "CONTINUITY_TRIAL_F201_NEXT_REUSE_CN");
 
 const f202Text = visibleText(continuityTrialContextDraft);
-assert(f202Text.includes("Context Pack"), "CONTINUITY_TRIAL_F202_CONTEXT_PACK");
+assert(f202Text.includes("上下文资料包"), "CONTINUITY_TRIAL_F202_CONTEXT_PACK_CN");
+assert(continuityTrialContextDraft.lessonSpec.title.startsWith("上下文（Context）"), "CONTINUITY_TRIAL_F202_TERM_FORMAT");
 assert(!f202Text.includes("你知道 ≠ AI"), "CONTINUITY_TRIAL_F202_OLD_EXPLANATION");
-assert(continuityTrialContextDraft.lessonSpec.nextLessonValue.includes("Context-enriched Draft"), "CONTINUITY_TRIAL_F202_NEXT_REUSE");
+assert(continuityTrialContextDraft.lessonSpec.nextLessonValue.includes("补充资料后的草稿"), "CONTINUITY_TRIAL_F202_NEXT_REUSE_CN");
 
 const f203Text = visibleText(continuityTrialIterationDraft);
-assert(f203Text.includes("Context-enriched Draft"), "CONTINUITY_TRIAL_F203_INHERIT");
-assert(f203Text.includes("Iterated Draft"), "CONTINUITY_TRIAL_F203_OUTPUT");
+assert(f203Text.includes("补充资料后的草稿"), "CONTINUITY_TRIAL_F203_INHERIT_CN");
+assert(f203Text.includes("迭代后的草稿"), "CONTINUITY_TRIAL_F203_OUTPUT_CN");
+assert(continuityTrialIterationDraft.lessonSpec.title.startsWith("迭代（Iteration）"), "CONTINUITY_TRIAL_F203_TERM_FORMAT");
 assert(!f203Text.includes("催款"), "CONTINUITY_TRIAL_F203_OLD_CASE_LEAK");
 
-assert(continuityTrialUseCasesDraft.lessonSpec.nextLessonValue.includes("AI First Draft"), "CONTINUITY_TRIAL_F101_NEXT_REUSE");
-assert(continuityTrialResultQualityDraft.lessonSpec.nextLessonValue.includes("Better Draft"), "CONTINUITY_TRIAL_F102_NEXT_REUSE");
-assert(continuityTrialIterationDraft.lessonSpec.nextLessonValue.includes("Iterated Draft"), "CONTINUITY_TRIAL_F203_NEXT_REUSE");
+assert(continuityTrialUseCasesDraft.lessonSpec.nextLessonValue.includes("AI 第一版草稿"), "CONTINUITY_TRIAL_F101_NEXT_REUSE_CN");
+assert(continuityTrialResultQualityDraft.lessonSpec.nextLessonValue.includes("改进后草稿"), "CONTINUITY_TRIAL_F102_NEXT_REUSE_CN");
+assert(continuityTrialIterationDraft.lessonSpec.nextLessonValue.includes("迭代后的草稿"), "CONTINUITY_TRIAL_F203_NEXT_REUSE_CN");
 
 const stage1 = foundationCatalog.find((stage) => stage.stageId === "foundation-1");
 const stage2 = foundationCatalog.find((stage) => stage.stageId === "foundation-2");
@@ -142,6 +154,8 @@ for (const lessonId of ["beginner-prompt","beginner-context","beginner-iteration
 
 console.log("FOUNDATION_CONTINUITY_TRIAL_V02=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CASE_THREAD=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_LEARNER_LANGUAGE=PASS");
+console.log("FOUNDATION_CONTINUITY_TRIAL_CASE_NEUTRALIZATION=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_ARTIFACT_CHAIN=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_ANTI_REPEAT=PASS");
 console.log("FOUNDATION_CONTINUITY_TRIAL_CATALOG_BOUNDARY=PASS");

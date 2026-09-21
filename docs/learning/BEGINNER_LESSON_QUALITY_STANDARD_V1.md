@@ -28,6 +28,19 @@ Status: **QUALITY_BASELINE_V1**
 
 如果内容超出预算，优先后移，不通过“再加一张卡片”解决。
 
+## 2.1 Learner-facing Language
+
+面向零基础学习者的课程文案固定遵守：
+
+- 中文表达优先；
+- AI 专业术语第一次有意义地出现时使用“中文（English）”，例如：提示词（Prompt）、上下文（Context）、迭代（Iteration）；
+- 首次说明后优先继续使用中文，不反复堆叠英文；
+- 内部工程 / Schema / Artifact 名称不直接作为学习者主要文案，例如 Task Brief 应显示为“任务说明”，Context Pack 应显示为“上下文资料包”；
+- 默认 OPC / 自媒体 / 内容运营可以继续作为课程背后的 Case Thread，但除非业务语境确有必要，不在学习者正文反复凸显品牌或行业标签；
+- 学习者看到的是可迁移的真实任务，教学设计层保留业务连续性。
+
+固定原则：**内部工程语言 ≠ 学习者界面语言；Case Logic 可以稳定，前台表达必须自然、通用。**
+
 ## 3. Six-step quality bar
 
 ### Step 1 — 建立直觉

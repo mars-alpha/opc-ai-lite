@@ -1,6 +1,6 @@
 # Foundation Continuity Trial v1
 
-Status: **TECHNICAL_PASS_HUMAN_REVIEW_PENDING**  
+Status: **TECHNICAL_PASS_LANGUAGE_REVISED_HUMAN_REVIEW_PENDING**
 Task: **FOUNDATION-CONTINUITY-TRIAL-001**
 
 ## Trial scope
@@ -18,6 +18,17 @@ Quality Profile: **BEGINNER_QUALITY_V1**
 Formal Brief: **FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md**
 
 No Skill code was modified.
+
+## Learner-facing language refinement
+
+FOUNDATION-CONTINUITY-TRIAL-001-A keeps the same trial architecture but revises visible copy:
+
+- Chinese first;
+- AI professional terms first appear as 中文（English）;
+- internal Artifact labels are translated to natural Chinese for learner UI;
+- internal OPC/self-media Case Thread remains in metadata/grounding, but learner copy uses neutral real-content scenarios and does not repeatedly expose OPC / 自媒体.
+
+The acceptance now separately verifies hidden Case Thread continuity and learner-facing case neutralization.
 
 ## Trial design
 
@@ -143,7 +154,8 @@ Human Review should judge:
 3. Does F2-01 feel like formalizing prior experience rather than repeating Stage 1?
 4. Does F2-02 feel like building materials for the same task?
 5. Does F2-03 visibly continue the same Artifact?
-6. Does the OPC / self-media running case help without making the method industry-specific?
+6. Does the same real-content task stay continuous without unnecessary OPC / self-media wording?
+7. Do professional AI terms appear naturally as 中文（English） and then return to Chinese-first wording?
 
 ## Boundary
 
