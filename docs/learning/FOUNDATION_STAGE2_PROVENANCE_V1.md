@@ -1,6 +1,6 @@
 # Foundation Stage 2 Batch Provenance
 
-Status: **TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING**
+Status: **TECHNICAL_ACCEPTANCE_PASS_CONTINUITY_REWORK_REQUIRED**
 
 Production Batch ID: FOUNDATION-STAGE2-BATCH-A
 Canonical Lessons: beginner-prompt / beginner-context / beginner-iteration / beginner-result-check
@@ -18,11 +18,12 @@ Quality Profile: BEGINNER_QUALITY_V1
 Grounding: REVIEWED OPC Beginner Foundation knowledge
 
 Draft Version: v1
-Human Review Status: PENDING
+Human Review Status: PAUSED_FOR_CONTINUITY_REWORK
 Runtime Readiness: NOT_STARTED
 Catalog curriculumStatus: IN_PRODUCTION
 Catalog availability: COMING_SOON
 Publication Decision: NOT_PUBLISHED
+Continuity Decision: REWORK_STAGE1_STAGE2_BRIEFS_BEFORE_FURTHER_REVIEW
 
 Boundary:
 - Preview only for Human Review

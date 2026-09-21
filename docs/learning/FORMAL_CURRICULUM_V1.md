@@ -17,6 +17,8 @@ OPC 第一版正式课程采用一条清晰主线：
 
 这五大板块是长期课程主线。**完整目录设计与内容生产批次必须分开**：课程知识体系先完整设计，内容再按 3–5 节一个 Production Batch 分批制作；任何单次 MVP 批次数量都不得被解释成完整课程范围。
 
+跨板块能力承接、Artifact Thread、Do-Not-Reteach 与默认业务 Case Thread 统一以 `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md` 为 canonical continuity baseline。五大板块必须表现为一条连续能力链，而不是五套独立课程。
+
 课程优先服务没有编程背景、希望真正把 AI 用到工作和业务中的学习者。
 
 本文件定义“教什么、按什么顺序、哪些是必修/进阶/项目”。它不是 Published Course 数据，不替代 PostgreSQL，也不代表当前 `lib/courses.ts` 已经完成迁移。

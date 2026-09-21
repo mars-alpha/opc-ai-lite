@@ -139,16 +139,14 @@ Hallucination（幻觉）已经在 F1-03 以用户问题方式建立直觉，Sta
 
 ---
 
-# 7. Revised production sequence
+# 7. Current continuity rework requirement
+
+COURSE-PRODUCTION-002 与 COURSE-PRODUCTION-003 已证明 Beginner-first 方向本身可行，但最新 Human Review 发现 Stage 1 / Stage 2 在跨课承接上仍有知识重复、案例断裂和 Artifact 不连续。
+
+当前以 `FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md` 为更高优先级 Continuity Baseline。
 
 下一任务：
 
-**COURSE-PRODUCTION-002 — Beginner Batch A Rebuild**
+**FOUNDATION-CONTINUITY-REWORK-001 — Stage 1 + Stage 2 Formal Brief Continuity Rework**
 
-优先生产：
-1. F1-01 AI 到底能帮我做什么
-2. F1-02 为什么同一个 AI，有时好用、有时不好用
-3. F1-03 AI 为什么会说错，而且还说得很像真的
-4. F1-04 AI 软件里的模型、搜索、文件和记忆是什么关系
-
-Human Review 通过后，再生产 F2-01～F2-04。
+只先重做 Formal Brief / Case Thread / Artifact Thread / Do-Not-Reteach，不直接进入 Runtime，也不继续批量生产 Stage 3+。

@@ -631,9 +631,9 @@ Human Review 判定 COURSE-PRODUCTION-001 四节虽然技术 PASS，但对零基
 
 ### COURSE-PRODUCTION-002 — Beginner Batch A Rebuild
 
-Status: HUMAN_REVIEW_PASS_RUNTIME_PENDING
+Status: CONTINUITY_REWORK_REQUIRED_RUNTIME_PAUSED
 
-已重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`，不复用旧失败 Draft lessonId。前两节为 APPLICATION（CHECK + PRACTICE），后两节为 CONCEPT（CHECK；Step 4 非 Gate）。新增 `BeginnerFoundationDraftPreview` 共享 Preview 和 Beginner Batch 专项 acceptance，固定检查新手 ID、BEGINNER audience、统一六步、Three-Question Mastery、Review 数量以及开场禁止重术语。四节 Catalog 状态为 IN_PRODUCTION + COMING_SOON，未发布。Beginner acceptance、Course Builder、Unified Lesson Shell、typecheck、build 全部 PASS。当前 Human Review 已通过；下一步不直接 AVAILABLE，而是按 COURSE-GOV-001 进入后续 Runtime Provisioning / Acceptance。
+已重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`，不复用旧失败 Draft lessonId。前两节为 APPLICATION（CHECK + PRACTICE），后两节为 CONCEPT（CHECK；Step 4 非 Gate）。新增 `BeginnerFoundationDraftPreview` 共享 Preview 和 Beginner Batch 专项 acceptance，固定检查新手 ID、BEGINNER audience、统一六步、Three-Question Mastery、Review 数量以及开场禁止重术语。四节 Catalog 状态为 IN_PRODUCTION + COMING_SOON，未发布。Beginner acceptance、Course Builder、Unified Lesson Shell、typecheck、build 全部 PASS；历史单课 Human Review PASS 继续保留为质量证据。最新 CURRICULUM-CONTINUITY-001 判定 Stage 1 / Stage 2 需要按同一能力链重做 Formal Brief / Artifact Thread，因此当前暂停 Runtime，不直接 AVAILABLE。
 
 ### COURSE-PRODUCTION-002-A — Beginner Batch A Experience Restoration
 
@@ -673,15 +673,21 @@ Status: COMPLETE_DOCS_ALIGNED
 
 ### COURSE-PRODUCTION-003 — Foundation Stage 2 Collaboration Batch
 
-Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: TECHNICAL_ACCEPTANCE_PASS_CONTINUITY_REWORK_REQUIRED
 
-F2-01～F2-04 已按 current Brief 使用单一 `course-builder@0.2.0` 生产：`beginner-prompt`（APPLICATION）、`beginner-context`（CONCEPT）、`beginner-iteration`（APPLICATION）、`beginner-result-check`（APPLICATION）。全部使用 `BEGINNER_QUALITY_V1`、Three-Question Mastery 与 Unified Lesson Shell；APPLICATION 使用 GUIDED Practice + Reference Answer，Prompt / Iteration 使用 COPY_TO_AI。Catalog 四节从 PLANNED 切为 IN_PRODUCTION，availability 仍 COMING_SOON，无 Runtime mapping。专项 Stage2 acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS，build 46 pages。新增 Stage2 Formal Brief / Provenance / 四个 Preview。下一步：Human Review 四节 Preview；不自动 Runtime / AVAILABLE。
+F2-01～F2-04 已按 current Brief 使用单一 `course-builder@0.2.0` 生产：`beginner-prompt`（APPLICATION）、`beginner-context`（CONCEPT）、`beginner-iteration`（APPLICATION）、`beginner-result-check`（APPLICATION）。全部使用 `BEGINNER_QUALITY_V1`、Three-Question Mastery 与 Unified Lesson Shell；APPLICATION 使用 GUIDED Practice + Reference Answer，Prompt / Iteration 使用 COPY_TO_AI。Catalog 四节从 PLANNED 切为 IN_PRODUCTION，availability 仍 COMING_SOON，无 Runtime mapping。专项 Stage2 acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS，build 46 pages。新增 Stage2 Formal Brief / Provenance / 四个 Preview。最新 CURRICULUM-CONTINUITY-001 已暂停当前 Human Review：先与 Stage 1 一起重做 Continuity Brief / Case Thread / Artifact Thread，再决定后续生产；不自动 Runtime / AVAILABLE。
 
 ### DEV-RUNTIME-FIX-001 — Windows Dev Startup
 
 Status: COMPLETE_DEV_START_FIX
 
 诊断 `npm run dev` 时确认项目代码、首页与 Stage 2 四个 Preview 在直接 Next dev 启动下均正常返回 HTTP 200；异常集中在 Windows 的 npm → `next.cmd` shim 启动层。将 `package.json` 的 dev script 从 `next dev` 改为 `node node_modules/next/dist/bin/next dev`，保持用户操作仍为 `npm run dev`，不改变业务代码、课程 Runtime 或 Catalog。
+
+### CURRICULUM-CONTINUITY-001 — Five-Track Capability Continuity Baseline
+
+Status: COMPLETE_BASELINE_V1
+
+新增 `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`，锁定五大板块为一条连续能力链。方法层必须行业通用，OPC / 自媒体 / 内容运营→推广→获客→业务转化为默认贯穿 Case Thread。后续 Formal Brief 必须明确 Inherited Capability / Inherited Artifact / Current Learner Job / New Capability / Artifact Output / Next Reuse / Do Not Re-teach / Case Thread。Stage 1 / Stage 2 当前技术成果保留，但因知识重复、案例断裂与 Artifact 不连续进入 CONTINUITY_REWORK_REQUIRED，暂停 Runtime。Course Builder v0.2 Gap Review 结论：v0.2 暂不升级；v0.3 Capability Continuity Alignment 有候选价值，但必须先用新的 Stage 1/2 Brief 验证真实缺口。下一步：`FOUNDATION-CONTINUITY-REWORK-001`。
 
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 

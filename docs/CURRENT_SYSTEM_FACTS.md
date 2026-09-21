@@ -392,7 +392,7 @@ COURSE-PRODUCTION-002-A 已恢复 Beginner Batch A 之前丢失的教学体验�
 
 `COURSE-UX-QUALITY-001` 已将 Beginner Batch A 四节课固化为后续 Beginner Lesson 的质量样板，并新增 `docs/learning/BEGINNER_LESSON_QUALITY_STANDARD_V1.md`。Cognitive Load Budget 固定为：一节 1 个主问题、1 个主概念/判断、最多 1–2 个新核心术语、1 个主要案例、Step 1 bottomDetails 最多 2 条、Step 2 example depth 最多 2 条、主 Review 最多 3 条、review depth 最多 2 条。Stage 1 新增整课用户可见术语泄漏检查，禁止提前出现 Training / Inference / Token / Embedding / Vector Search / Deterministic Logic / API / Tool / MCP / Agent Runtime / RAG / Evaluation。F1-03 Review 已由 4 条收敛为 3 条，F1-04 提前出现的 API/RAG/Tool 等用户可见术语已改为自然语言。四节 Lesson ID / Type / Gate / IN_PRODUCTION + COMING_SOON 状态均未变化。
 
-当前产品负责人已认可 Beginner Batch A 最终质量体验，四节当前治理状态为 **HUMAN_REVIEW_PASS / RUNTIME_PENDING**。这不改变 Catalog：F1-01～F1-04 继续保持 `IN_PRODUCTION + COMING_SOON`，尚未 Runtime Provisioning / Runtime Acceptance，也没有任何 Foundation Lesson AVAILABLE。
+Beginner Batch A 的单课质量体验曾获得 Human Review PASS，但最新跨课 Continuity Review 发现 Stage 1 / Stage 2 之间存在知识重复、案例断裂与 Artifact 不连续。当前 F1-01～F1-04 仍保持 `IN_PRODUCTION + COMING_SOON`，但治理状态改为 **CONTINUITY_REWORK_REQUIRED / RUNTIME_PAUSED**；历史 Human Review PASS 只保留为当时的单课质量证据，不再代表当前可进入 Runtime。
 
 `COURSE-BUILDER-SKILL-005` 已新增 `skills/course-builder/v0.2.ts`，把 Beginner Lesson Quality Standard 正式写回 Course Builder Skill。v0.1 保留用于历史兼容；后续新 Beginner BUILD 默认使用 v0.2。`CourseBuilderPedagogy` 新增可选 `qualityProfile=BEGINNER_QUALITY_V1`，包含 mainLearnerQuestion / mainConcept / allowedCoreTerms / deferredTerms。v0.2 的 BEGINNER BUILD 强制要求该 profile；Code Validation 确定性检查 allowedCoreTerms<=2、Review<=3、Example 必须有 Before/After、Capability 必须是可执行能力表达，并阻止 deferredTerms 在用户可见内容中提前泄漏。若某术语就是当前课 Primary Knowledge Home，可显式加入 allowedCoreTerms 后合法教授，因此不会用 Stage 1 禁词误杀 Stage 3 的 Token / Training 等正式主题。新增 `course-builder:accept:beginner-quality` acceptance，已验证缺 profile / Review 超预算 / deferred term 泄漏会拒绝，allowed core term 与 v0.1 legacy path 均通过。
 
@@ -402,9 +402,11 @@ COURSE-PRODUCTION-002-A 已恢复 Beginner Batch A 之前丢失的教学体验�
 
 `FACT-DRIFT-AUDIT-001` 已对齐 CURRICULUM-005 后残留的文档漂移：Foundation Knowledge Map 的 Primary Knowledge Home / asset mapping / batch sequencing 已改为 Beginner-first 当前编号；Formal Curriculum 的旧九课 Stage 1 细节不再作为当前定义；Stage 1 Beginner Batch 当前明确为 Human Review PASS / Runtime Pending。历史 task-results 保留当时状态，不作为当前事实源。
 
-`COURSE-PRODUCTION-003` 已完成 Foundation Stage 2 F2-01～F2-04 技术生产：`beginner-prompt` / `beginner-context` / `beginner-iteration` / `beginner-result-check`。本批 Skill Decision=EXISTING_SKILL，单独使用 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1`，无 v0.1 复合调用。四课均复用 Unified Lesson Shell 与共享 Beginner Preview；F2-01/F2-03 使用 COPY_TO_AI，APPLICATION 课程均有 GUIDED Practice + Reference Fill，F2-02 为 CONCEPT + CHECK only。Stage 2 acceptance、Course Builder、Unified Shell、typecheck、build 全部 PASS；build 生成 46 pages。Catalog F2-01～F2-04 已切为 `IN_PRODUCTION + COMING_SOON`，无 Runtime mapping、无 Progress/Completion 正式写入、无 AVAILABLE；当前等待 Human Review。
+`COURSE-PRODUCTION-003` 已完成 Foundation Stage 2 F2-01～F2-04 技术生产，技术 acceptance / Course Builder / Unified Shell / typecheck / build 均 PASS；但最新 Continuity Review 认定 Stage 1 / Stage 2 需要作为一条能力链重新设计。F2-01～F2-04 继续保持 `IN_PRODUCTION + COMING_SOON`，当前状态为 **TECHNICAL_ACCEPTANCE_PASS / CONTINUITY_REWORK_REQUIRED**，Human Review 与 Runtime 均暂停到新的 Formal Brief 完成。
 
 `DEV-RUNTIME-FIX-001` 已修正 Windows 本地开发启动链：`npm run dev` 不再通过 `next.cmd` shim 启动，而直接调用 `node node_modules/next/dist/bin/next dev`。诊断确认项目本身与 Stage 2 四个 Preview 在 Next dev 下均可返回 HTTP 200；问题位于 npm → Windows `.cmd` 包装启动层，而非课程 Runtime / Preview 代码。
+
+`CURRICULUM-CONTINUITY-001` 已新增 `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`，将五大长期板块锁定为一条连续能力链：AI 基础认知 → AI 工作应用 → 推广运营与业务增长 → Workflow 与自动化 → FDE。课程方法层必须行业通用；OPC / 自媒体 / 内容运营→推广→获客→业务转化只作为默认 Case Thread。Formal Brief 后续必须明确 inherited capability / inherited artifact / current learner job / new capability / artifact output / next reuse / do-not-reteach / case thread。Stage 1 + Stage 2 当前进入 Continuity Rework。Course Builder v0.2 暂不升级；`course-builder@0.3.0` 仅作为候选，必须先用新的 Stage 1/2 Brief 真实验证 v0.2 后再决定。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
