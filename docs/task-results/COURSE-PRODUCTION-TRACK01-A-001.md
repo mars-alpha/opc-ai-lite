@@ -64,3 +64,16 @@ T1-01 保持 **HUMAN_REVIEW_PENDING**；T1-02～T1-05 仍未扩产。
 - Artifact 改为 `TASK_FIT_NOTE_WITH_SELECTED_TASK_GOAL`，T1-02 不再依赖 AI First Draft。
 
 新增 acceptance：`TRACK01_T101_STEP4_NO_EXTERNAL_AI_REPLY_FIELD`、`TRACK01_T101_REFERENCE_FILL_PURE_VALUES`。状态继续保持 **HUMAN_REVIEW_PENDING**。
+
+## Human Review refinement 3 — restore v0.2 teaching flow
+
+第三轮反馈确认问题不在 Shell / 字段能力，而在课程构建偏离了已批准的 `course-builder@0.2.0`：案例与 Practice 被 Artifact continuity 反向驱动，导致 Step 2 和 Step 4 都不自然。此次不改框架、不改 Skill、不新增交互，而是直接恢复仓库中已验证过的 Beginner-first 构建方式：
+
+- EXPLAIN 保留 Beginner-first 逻辑，但案例层继续遵守已锁定的 `OPC / 自媒体 AI 内容任务` Case Thread，从做一条真实内容开始；
+- EXAMPLE 围绕同一条内容使用三个直观步骤：想标题、整理已有资料、列内容角度；
+- CHECK 继续验证“哪些工作适合先让 AI 协助 / 最终判断不能直接交出去”；
+- PRACTICE 沿用现有填写字段，但只要求 `我原本要做的事` + `AI 先帮哪一步`，不再要求 3-task classification、任务分类或额外任务目标；
+- Reference Fill 使用 OPC / 自媒体直接示例：`做一条介绍某个 AI 工具实际用途的内容` + `先根据我已有的资料列 3 个标题方向`；
+- T1-01 Artifact 收敛为 `TASK_FIT_NOTE`。T1-02 可以复用，但不得反向要求 T1-01 为后续课生产额外字段。
+
+新增专项 acceptance：`TRACK01_T101_BEGINNER_OBVIOUS_EXAMPLE`、`TRACK01_T101_STEP4_NATURAL_PRACTICE`。状态继续保持 **HUMAN_REVIEW_PENDING**，T1-02～T1-05 不扩产。

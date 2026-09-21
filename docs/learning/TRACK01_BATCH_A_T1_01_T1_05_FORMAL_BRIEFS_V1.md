@@ -39,35 +39,36 @@ Primary Knowledge Home: **Everyday AI task fit / human judgment boundary**
 Prerequisite: **None**
 
 ### Learner Question
-面对一个真实任务，我应该把哪部分交给 AI，哪部分保留自己判断？
+做一条 OPC / 自媒体内容时，哪些步骤可以先让 AI 帮一把？
 
 ### Current Learner Job
-从自己的真实内容 / 工作需求中选一个任务，判断 AI 可以协助哪里，并完成第一次小生成。
+从 OPC / 自媒体内容生产中，看见 AI 最容易协助的入口，并找出一个可以先交给 AI 帮一步的内容步骤。
 
 ### Inherited Capability / Artifact
 无。输入是学习者自己的真实任务想法。
 
 ### New Capability
-能把任务分成：
-- AI 适合协助；
-- AI 可以协助但必须核验；
-- 不应直接交给 AI 决定。
+能从 OPC / 自媒体内容任务中识别 AI 常见的协助入口：
+- 起草标题 / 开头 / 结构；
+- 整理 / 总结已有资料；
+- 围绕主题找表达角度；
+并知道重要事实需要核验、最终决定仍由人负责。
 
 ### Artifact Action / Output
-选一个真实任务 → 写一句目标。外部 AI 操作可以作为体验，但课程不要求回填 AI 回复。
+选一条自己真实准备做的内容 → 写清 AI 可以先帮哪一个小步骤。
 
-Output: **Task Fit Note + Selected Task Goal**
+Output: **Task Fit Note**
 
 ### Six-step intent
-1. EXPLAIN：第一课先完成一个极简单任务——把关于一个 AI 新变化的几句零散想法整理成 3 个清楚重点；先获得“AI 确实帮我完成了一件事”的直观体验，再扩展判断。
-2. EXAMPLE：从刚完成的内容整理任务逐步扩展：整理 / 草拟可以交给 AI；事实信息需要谨慎核验；最终发布决定不能直接交给 AI。
-3. CHECK：给 3 个真实小场景，判断“可协助 / 需核验 / 不应直接决定”。
-4. PRACTICE：写下自己的 3 个真实任务，逐个标记“AI 可协助 / 需谨慎核验 / 人负责最终决定”；从中选 1 个，并用一句话写清希望 AI 先协助完成什么。课程只保留 **3-task classification + selected task goal**，不要求把外部 AI 回复粘贴回系统。
+1. EXPLAIN：从 OPC / 自媒体做一条内容的真实流程开始，讲清 AI 最常见的价值是先帮忙起草、整理资料和找表达角度。
+2. EXAMPLE：围绕同一条内容，用“想标题 / 整理已有资料 / 列表达角度”三个直观步骤讲透同一个原则：AI 先完成容易检查的中间工作，人继续负责事实准确性、取舍和最终发布判断。
+3. CHECK：给 3 个真实小场景，检查学习者是否能识别哪些工作适合 AI 先协助，以及最终判断不能直接交出去。
+4. PRACTICE：沿用现有填写字段，写 1 条自己准备做的真实 OPC / 自媒体内容，再写 **AI 先帮哪一步**。不要求列 3 个任务、不要求分类、不引入新的任务目标概念。保留 **task + help step**。
 5. REVIEW：任务是否清楚；AI 是否真的能帮；错误成本是否可接受；最终判断权在哪里。
 6. CAPABILITY：能选择一个适合 AI 的真实任务并安全开始。
 
 ### Next Reuse
-T1-02 直接使用当前选中的任务和一句话目标，把模糊需求改成 Clear Task Brief。
+T1-02 可以继续使用当前真实任务与 help step，把模糊需求改成 Clear Task Brief；T1-01 不为下一课强制生产额外字段。
 
 ### Anti-repeat / Deferred
 - 不正式教 Prompt 结构；
