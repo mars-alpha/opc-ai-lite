@@ -1,5 +1,8 @@
 # Foundation Batch A Briefs v1
 
+> **PEDAGOGY_REJECTED / RETIRED AS FAILED DRAFT REFERENCE**
+> 2026-09 Human Review 判定本 Batch 对零基础学习者理论过重、逻辑混乱。本文仅保留历史证据，不再代表当前 Foundation 开场课程。新的 Beginner Foundation 以 `docs/learning/BEGINNER_FOUNDATION_REFRAME_V1.md` 为准。旧 F1-01～F1-04 不得继续正式化或切换 AVAILABLE。
+
 Status: **BRIEF_READY_V1**  
 Task: **CURRICULUM-003 — Foundation Batch A Brief Finalization**  
 Scope: F1-01 → F1-04

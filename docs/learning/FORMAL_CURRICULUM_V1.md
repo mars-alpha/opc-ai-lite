@@ -90,9 +90,9 @@ Lesson Type 只表达学习目标：
 
 基础课内部固定按 **7 个学习阶段** 组织。这里的“阶段”用于组织认知，不代表每一个知识点都必须独立成一节课：
 
-1. **认识 AI**：AI / Machine Learning / Generative AI / LLM、模型与产品、Training 与 Inference 的基本直觉。
-2. **理解模型怎么工作**：Token、概率生成、Context Window、模型能力与限制、Hallucination、知识边界、验证意识。
-3. **学会和 AI 沟通**：Prompt、Goal / Context / Input / Constraint / Output、Example、Iteration、让 AI 提问。
+1. **先认识 AI 怎么用**：从真实工作场景理解 AI 能帮什么、为什么结果会变化、为什么会出错，以及 AI 软件的基本能力地图。
+2. **学会和 AI 基本协作**：Prompt、Task Context、Iteration、Clarification 与基础结果检查。
+3. **再理解 AI 背后的基本机制**：LLM / Model、Training 与 Inference、Token / 概率生成、Context Window。
 4. **理解 AI 的记忆与知识**：Conversation History、Memory、Knowledge Base、Search、RAG、Source of Truth、Embedding / Vector Search 的直觉。
 5. **理解 AI 如何连接外部世界**：API、Structured Output、Function Calling、Tool、MCP、Schema 与权限边界。
 6. **理解 AI 的复用与执行方式**：Prompt / Skill / Workflow / Automation / Agent、State、Stop Rule、Failure Handling、Human-in-the-loop。

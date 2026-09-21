@@ -623,6 +623,12 @@ Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 F1-01～F1-04 四节真实 CONCEPT Draft 已落盘并接入统一 Course Builder Preview。四节全部保持 EXPLAIN→EXAMPLE→CHECK→PRACTICE→REVIEW→CAPABILITY、conceptMasteryBeforePractice=true、Completion Gate=CHECK、practiceMode=NONE、Three-Question Mastery；Step 4 仅做轻量参与，不增加 Gate。新增共享 `FoundationConceptDraftPreview`，不按 lesson slug 改 Generic Runtime。Catalog 状态更新为 IN_PRODUCTION + COMING_SOON，未发布。学习路径页 Human Review 文案已将“课程导航”改为“学习地图”。Foundation Batch A acceptance、Course Builder contract、Concept Mastery、Three-Question Mastery、typecheck、build 全部 PASS。下一步：Human Review 四个 Preview，通过后逐节修订并进入正式化。
 
+### CURRICULUM-005 — Beginner Foundation Reframe
+
+Status: COMPLETE_REFRAMED_V1
+
+Human Review 判定 COURSE-PRODUCTION-001 四节虽然技术 PASS，但对零基础用户理论过重、逻辑混乱，因此统一降级为 `PEDAGOGY_REJECTED / RETIRE_AS_FAILED_DRAFT_REFERENCE`，不再继续正式化。Foundation 开场改为“先使用世界观、后技术世界观”：Stage 1 先认识 AI 怎么用；Stage 2 学会和 AI 基本协作；Stage 3 再理解 Model / Training-Inference / Token / Context Window。新前 8 节依次解决 AI 能做什么、结果为什么变化、为什么会错、AI 软件能力地图、Prompt、Task Context、Iteration、基础结果检查。固定约束：示例先于定义、一节一个主问题、每节最多 1–2 个新核心术语。下一步：`COURSE-PRODUCTION-002 — Beginner Batch A Rebuild`。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

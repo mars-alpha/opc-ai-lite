@@ -49,8 +49,9 @@ CURRICULUM-004 Foundation Catalog Metadata Completion COMPLETE_CATALOG_READY_V1
 LEARNING-CATALOG-001 Formal Curriculum Catalog UI COMPLETE_UI_V1
 LEARNING-CATALOG-001-A Navigation & Progress Refinement COMPLETE_UI_REFINEMENT_V1
 COURSE-PRODUCTION-001 Foundation Batch A Real Lessons TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+CURRICULUM-005 Beginner Foundation Reframe COMPLETE_REFRAMED_V1
 
-NEXT: HUMAN REVIEW — Foundation Batch A four lesson previews; then revise and provision approved lessons
+NEXT: COURSE-PRODUCTION-002 — Beginner Batch A Rebuild
 ```
 
 ## 当前系统健康

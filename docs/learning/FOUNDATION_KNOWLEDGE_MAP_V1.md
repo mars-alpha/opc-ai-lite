@@ -25,56 +25,53 @@ Scope: **Track 01 / AI 基础认知**
 
 ---
 
-# 2. Foundation Stage 1 — 认识 AI
+# 2. Foundation Stage 1 — 先认识 AI 怎么用
 
-目标：先建立“AI / 模型 / 产品 / 训练 / 推理”的基本世界观。
+目标：完全零基础的学习者先知道 AI 能帮什么、为什么结果会变化、为什么会犯错，以及自己正在使用的是一个完整 AI 软件。
 
 | ID | Lesson | Type | Gate | Primary Knowledge Home | Prerequisite | Grounding | Learner outcome | Anti-overlap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| F1-01 | AI、机器学习与生成式 AI 到底是什么 | CONCEPT | CHECK | AI / ML / Generative AI taxonomy | 无 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 能区分规则软件、机器学习、生成式 AI | 不讲 LLM 内部生成机制；交给 F1-03/F2 |
-| F1-02 | 大语言模型是什么：Model 不等于 AI 产品 | CONCEPT | CHECK | LLM / Model vs Product | F1-01 | REVIEWED_KNOWLEDGE · MEDIUM_FRESHNESS | 能区分模型、App、平台能力 | 不讲 API / Tool；交给 Stage 5 |
-| F1-03 | Training 与 Inference：模型是怎样“学会”再“使用”的 | CONCEPT | CHECK | Training / Inference | F1-01,F1-02 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 理解训练与实际回答不是同一过程 | 不展开 Fine-tuning 工程实现 |
-| F1-04 | AI 为什么不是数据库：生成、检索与确定性规则的区别 | CONCEPT | CHECK | Generation vs Retrieval vs Deterministic Logic | F1-01,F1-02 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 能判断一个问题是在“生成”“查资料”还是“按规则计算” | RAG 机制只点到为止；主课在 Stage 4 |
+| F1-01 | AI 到底能帮我做什么 | APPLICATION | CHECK+PRACTICE | Everyday AI use cases | 无 | REVIEWED_KNOWLEDGE · MEDIUM_FRESHNESS | 能从日常工作中识别适合 AI 协助的任务 | 不讲 AI/ML taxonomy、LLM、Training、Token |
+| F1-02 | 为什么同一个 AI，有时好用、有时不好用 | APPLICATION | CHECK+PRACTICE | Input quality → result quality intuition | F1-01 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 理解任务信息是否清楚会直接影响结果 | Prompt 正式结构交给 F2-01；不讲 Context Window |
+| F1-03 | AI 为什么会说错，而且还说得很像真的 | CONCEPT | CHECK | Hallucination / verification intuition | F1-01 | RESEARCH_PACKET · HIGH_FRESHNESS | 知道事实、数字、最新信息需要核实 | 不讲 next-token prediction、Retrieval 架构、Evaluation 指标 |
+| F1-04 | AI 软件里的模型、搜索、文件和记忆是什么关系 | CONCEPT | CHECK | AI product capability map | F1-01,F1-03 | RESEARCH_PACKET · HIGH_FRESHNESS | 建立“核心模型 + 产品能力”的简单地图 | 不讲 API、Tool、RAG、模型参数或内部架构 |
 
-Supporting concepts:
-- 数据、参数、训练语料仅做直觉说明；
-- 不进入神经网络数学、Transformer 结构、GPU 训练细节。
+Stage 1 原则：
+- 示例先于定义；
+- 每节最多 1–2 个必须记住的新术语；
+- 不要求解释 Machine Learning、Inference、Deterministic Logic 等技术术语。
 
 ---
 
-# 3. Foundation Stage 2 — 理解模型怎么工作
+# 3. Foundation Stage 2 — 学会和 AI 基本协作
 
-目标：解释 AI 为什么会这样回答、为什么会不稳定、为什么需要验证。
+目标：在已有使用直觉上，学会把任务说清楚、把必要信息给够、逐轮改进，并知道什么时候必须检查。
 
 | ID | Lesson | Type | Gate | Primary Knowledge Home | Prerequisite | Grounding | Learner outcome | Anti-overlap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| F2-01 | Token 与概率生成：AI 怎样一句句生成答案 | CONCEPT | CHECK | Token / next-token prediction | F1-02,F1-03 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 理解 Token 和概率生成直觉 | 不把 Token 与 Context 混成一课 |
-| F2-02 | Context Window：模型一次到底能看到多少 | CONCEPT | CHECK | Context Window | F2-01 | REVIEWED_KNOWLEDGE · MEDIUM_FRESHNESS | 理解窗口有限、长对话会有取舍 | Prompt 内容设计交给 Stage 3 |
-| F2-03 | 幻觉与知识边界：为什么 AI 说得像真的也可能错 | CONCEPT | CHECK | Hallucination / knowledge limits | F1-04,F2-01 | RESEARCH_PACKET · HIGH_FRESHNESS | 能识别需要查证的事实型输出 | 不教正式 Evaluation 方法 |
-| F2-04 | 模型能力与可靠性：什么时候应该信、什么时候必须验证 | APPLICATION | CHECK+PRACTICE | Reliability judgment | F2-02,F2-03 | RESEARCH_PACKET · HIGH_FRESHNESS | 能按风险/可验证性决定验证强度 | Evaluation 指标体系交给 Track 04 |
-
-Supporting concepts:
-- Parameters / model size / temperature 只做“知道存在”的辅助概念；
-- Benchmark 不作为基础课主知识；
-- 不比较“哪个模型最好”。
+| F2-01 | Prompt：怎样把想做的事情说清楚 | APPLICATION | CHECK+PRACTICE | Prompt foundations | F1-01,F1-02 | RESEARCH_PACKET · MEDIUM_FRESHNESS | 能把模糊要求变成清楚、可执行的任务说明 | 不讲万能 Prompt、System Prompt、Prompt Engineering |
+| F2-02 | Context：AI 只知道你这次给它看到的东西 | CONCEPT | CHECK | Task Context | F2-01 | REVIEWED_KNOWLEDGE · MEDIUM_FRESHNESS | 知道什么时候需要补背景、资料、历史信息 | 不讲 Token mechanics、Context Window 数字、Context Engineering |
+| F2-03 | 第一次结果不对，怎样继续让 AI 改好 | APPLICATION | CHECK+PRACTICE | Iteration / clarification | F2-01,F2-02 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 能指出偏差、补信息、给示例或让 AI 先提问 | 不讲 Workflow loop / Agent self-correction |
+| F2-04 | AI 的结果什么时候能直接用，什么时候一定要检查 | APPLICATION | CHECK+PRACTICE | Basic reliability judgment | F1-03,F2-03 | REVIEWED_KNOWLEDGE · MEDIUM_FRESHNESS | 能按事实性、风险、可验证性决定是否复核 | 正式 Evaluation Framework 留到 Stage 7 / Track 04 |
 
 ---
 
-# 4. Foundation Stage 3 — 学会和 AI 沟通
+# 4. Foundation Stage 3 — 再理解 AI 背后的基本机制
 
-目标：让学习者知道怎样把真实任务说明白，而不是迷信“神奇 Prompt”。
+目标：用户已经会基本使用 AI 之后，再补“为什么 AI 会这样工作”的机制知识。
 
 | ID | Lesson | Type | Gate | Primary Knowledge Home | Prerequisite | Grounding | Learner outcome | Anti-overlap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| F3-01 | Prompt：怎样把任务说清楚 | APPLICATION | CHECK+PRACTICE | Prompt | F2-04 | RESEARCH_PACKET · MEDIUM_FRESHNESS | 能写出目标、背景、输入、限制、结果要求 | 旧 task-brief 合并到这里 |
-| F3-02 | Context：AI 当前到底看到了什么 | CONCEPT | CHECK | Task Context | F2-02,F3-01 | REVIEWED_KNOWLEDGE · MEDIUM_FRESHNESS | 能区分 Prompt wording 与真正进入上下文的信息 | Context Engineering 不在这里教 |
-| F3-03 | Example 与 Structured Request：复杂要求怎样表达更稳定 | APPLICATION | CHECK+PRACTICE | Few-shot example / structured request | F3-01,F3-02 | RESEARCH_PACKET · MEDIUM_FRESHNESS | 知道何时给示例、结构和格式要求 | Structured Output 的系统级 Schema 在 Stage 5 |
-| F3-04 | Iteration 与 Clarification：第一次不对，怎样继续和 AI 合作 | APPLICATION | CHECK+PRACTICE | Iteration / clarification | F3-01,F3-03 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 能针对偏差补信息、要求 AI 先提问 | 不讲 Workflow loop |
+| F3-01 | 大语言模型是什么：Model 不等于 AI 软件 | CONCEPT | CHECK | LLM / Model vs Product | F1-04 | RESEARCH_PACKET · MEDIUM_FRESHNESS | 能区分核心模型与完整 AI 产品 | 不讲 API / Tool；F1-04 只给简单地图，本课再补正式概念 |
+| F3-02 | Training 与 Inference：模型怎样学会、又怎样被使用 | CONCEPT | CHECK | Training / Inference | F3-01 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 理解训练与当前使用不是同一过程 | 不展开 Fine-tuning 工程实现 |
+| F3-03 | Token 与概率生成：AI 为什么不是在查一条固定答案 | CONCEPT | CHECK | Token / generation intuition | F3-01,F3-02 | REVIEWED_KNOWLEDGE · LOW_FRESHNESS | 理解模型按模式逐步生成的直觉 | 不重复教授 F1-03 的“必须核实”结论 |
+| F3-04 | Context Window：AI 一次能看到的信息为什么有限 | CONCEPT | CHECK | Context Window | F2-02,F3-03 | REVIEWED_KNOWLEDGE · MEDIUM_FRESHNESS | 理解上下文容量有限、资料过多会有取舍 | 不重复教授 Prompt / Task Context |
 
 Existing asset:
-- `prompt-foundations` → **REUSE + FORMALIZE** 为 F3-01 主候选；
-- `task-brief` → **MERGE** 到 F3-01；
-- `context-token` → **SPLIT/REWRITE**：Context 内容进 F3-02，Token/Window 归 F2。
+- `prompt-foundations` → 迁入 F2-01，需按新手规则重写而不是直接正式化；
+- `task-brief` → MERGE 到 F2-01；
+- `context-token` → Task Context 归 F2-02；Token / Window 后移 F3-03 / F3-04；
+- COURSE-PRODUCTION-001 四个旧 Draft → **PEDAGOGY_REJECTED / RETIRE_AS_FAILED_DRAFT_REFERENCE**。
 
 ---
 

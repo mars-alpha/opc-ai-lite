@@ -9,8 +9,9 @@ Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
 
 固定规则：
 
-- F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`
-- 其余 24 节：`PLANNED + COMING_SOON`
+- 新 F1-01～F1-04：`PLANNED + COMING_SOON`（等待 Beginner Batch A 重建）
+- 其余 Foundation：`PLANNED + COMING_SOON`
+- 旧 COURSE-PRODUCTION-001 四个 Draft：`PEDAGOGY_REJECTED`，不是当前 Catalog 候选
 - 当前没有任何 Foundation Lesson 标记为 `AVAILABLE`
 - `PLANNED / BRIEF_READY / IN_PRODUCTION` 可以显示在目录，但不得进入空 Lesson 页面
 - 只有 `AVAILABLE` 才允许跳转正式 Lesson Runtime
@@ -35,9 +36,9 @@ Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
 
 | order | stageId | title | stagePromise | lessonCount |
 | ---: | --- | --- | --- | ---: |
-| 1 | foundation-1 | 认识 AI | 建立 AI、模型、训练与生成机制的基本世界观。 | 4 |
-| 2 | foundation-2 | 理解模型怎么工作 | 看懂 Token、Context Window、幻觉与模型可靠性。 | 4 |
-| 3 | foundation-3 | 学会和 AI 沟通 | 学会把任务、上下文、示例与反馈说清楚。 | 4 |
+| 1 | foundation-1 | 先认识 AI 怎么用 | 先知道 AI 能帮什么、为什么会出错，以及自己正在使用的是什么。 | 4 |
+| 2 | foundation-2 | 学会和 AI 基本协作 | 学会把任务说清楚、把信息给够、逐轮改进并知道何时必须检查。 | 4 |
+| 3 | foundation-3 | 再理解 AI 背后的基本机制 | 已经会用之后，再理解 Model、Training、Token 与 Context Window。 | 4 |
 | 4 | foundation-4 | 理解 AI 的记忆与知识 | 分清 Memory、Knowledge Base、Search、RAG 与语义检索。 | 4 |
 | 5 | foundation-5 | 理解 AI 如何连接外部世界 | 看懂 API、Structured Output、Tool 与 MCP 怎样让 AI 获得外部能力。 | 4 |
 | 6 | foundation-6 | 理解 AI 的复用与执行方式 | 分清 Skill、Workflow、Automation、Agent 与 Human-in-the-loop。 | 6 |
@@ -47,36 +48,36 @@ Total: **7 stages / 28 lessons**
 
 ---
 
-# 4. Stage 1 — 认识 AI
+# 4. Stage 1 — 先认识 AI 怎么用
 
 | order | lessonId | title | subtitle | learnerOutcome | type | min | status | availability | prerequisites | badge |
 | ---: | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
-| 1 | foundation-ai-ml-generative-ai | AI、机器学习与生成式 AI 到底是什么 | 先分清 AI、机器学习和生成式 AI，不把所有“智能功能”都当成同一种东西。 | 能够判断一个常见产品能力属于规则程序、机器学习还是生成式 AI，并说出三者的核心区别。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | 无 | 基础必修 |
-| 2 | foundation-llm-model-vs-product | 大语言模型是什么：Model 不等于 AI 产品 | 理解你正在使用的是一个 AI 产品，而真正负责语言生成的只是其中的 Model。 | 能够区分 Model、AI App 和平台功能，不再把“产品”与“模型”混成同一个概念。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | F1-01 | 基础必修 |
-| 3 | foundation-training-inference | Training 与 Inference：模型是怎样“学会”再“使用”的 | 把“模型训练时学到什么”和“你现在问它问题时发生什么”分清楚。 | 能够解释 Training 与 Inference 的区别，并理解聊天时模型通常不是现场重新训练。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | F1-01,F1-02 | 基础必修 |
-| 4 | foundation-generation-retrieval-rules | AI 为什么不是数据库：生成、检索与确定性规则的区别 | 学会判断一个答案应该让模型生成、从资料中查找，还是交给普通程序计算。 | 能够针对真实任务判断 Generation、Retrieval、Deterministic Logic 哪一种机制更适合。 | CONCEPT | 15 | IN_PRODUCTION | COMING_SOON | F1-01,F1-02,F1-03 | 基础必修 |
+| 1 | beginner-ai-use-cases | AI 到底能帮我做什么 | 从真实工作任务开始，看见 AI 能帮你写、整理、总结、分析和找思路。 | 能从自己的日常工作中找出 3 类适合 AI 协助的任务。 | APPLICATION | 12 | PLANNED | COMING_SOON | 无 | 新手第一课 |
+| 2 | beginner-ai-result-quality | 为什么同一个 AI，有时好用、有时不好用 | AI 不是读心术，你给出的目标和信息会直接影响结果。 | 能发现一个模糊任务缺了什么信息，并主动补充。 | APPLICATION | 12 | PLANNED | COMING_SOON | F1-01 | 新手必修 |
+| 3 | beginner-ai-can-be-wrong | AI 为什么会说错，而且还说得很像真的 | 说得流畅不代表事实正确，先学会什么时候不能直接相信。 | 能识别事实、数字、最新信息等需要核实的结果。 | CONCEPT | 12 | PLANNED | COMING_SOON | F1-01 | 新手必修 |
+| 4 | beginner-ai-product-map | AI 软件里的模型、搜索、文件和记忆是什么关系 | 先看懂你正在使用的是一个完整 AI 软件，不需要先学系统架构。 | 能说出模型是核心能力之一，搜索、文件、记忆等属于产品额外能力。 | CONCEPT | 12 | PLANNED | COMING_SOON | F1-01,F1-03 | 新手必修 |
 
 ---
 
-# 5. Stage 2 — 理解模型怎么工作
+# 5. Stage 2 — 学会和 AI 基本协作
 
 | order | lessonId | title | subtitle | learnerOutcome | type | min | status | availability | prerequisites | badge |
 | ---: | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
-| 1 | foundation-token-generation | Token 与概率生成：AI 怎样一句句生成答案 | 看懂模型如何把输入拆成 Token，并一步步生成下一段内容。 | 能解释 Token 与概率生成的基本直觉，不再把 AI 回答理解成“直接查出整段答案”。 | CONCEPT | 12 | PLANNED | COMING_SOON | F1-02,F1-03 | 基础必修 |
-| 2 | foundation-context-window | Context Window：模型一次到底能看到多少 | 理解模型的“眼前信息”有范围，资料越多不一定越好。 | 能判断长对话、长文件和大量资料为什么会受到 Context Window 限制。 | CONCEPT | 12 | PLANNED | COMING_SOON | F2-01 | 基础必修 |
-| 3 | foundation-hallucination-knowledge-limits | 幻觉与知识边界：为什么 AI 说得像真的也可能错 | AI 可以表达得很自信，但表达流畅不等于事实正确。 | 能识别需要查证的事实型输出，并知道哪些信息不能只靠模型记忆。 | CONCEPT | 14 | PLANNED | COMING_SOON | F1-04,F2-01 | 基础必修 |
-| 4 | foundation-model-reliability | 模型能力与可靠性：什么时候应该信、什么时候必须验证 | 不追求“永远正确”，而是学会按风险决定验证强度。 | 能根据任务风险、可验证性和错误成本判断 AI 结果需要怎样复核。 | APPLICATION | 16 | PLANNED | COMING_SOON | F2-02,F2-03 | 应用 |
+| 1 | beginner-prompt | Prompt：怎样把想做的事情说清楚 | 不学“神奇提示词”，先把目标、必要背景和结果要求说清楚。 | 能把模糊要求改成 AI 更容易执行的任务说明。 | APPLICATION | 16 | PLANNED | COMING_SOON | F1-01,F1-02 | 应用 |
+| 2 | beginner-context | Context：AI 只知道你这次给它看到的东西 | 你知道的背景，AI 不一定知道；需要时要把资料和背景给它。 | 能判断 AI 还缺哪些当前任务信息。 | CONCEPT | 14 | PLANNED | COMING_SOON | F2-01 | 新手必修 |
+| 3 | beginner-iteration | 第一次结果不对，怎样继续让 AI 改好 | 不满意时不要只重来，学会指出偏差、补信息、给示例和让 AI 提问。 | 能把一次不满意的结果逐步改到可用。 | APPLICATION | 16 | PLANNED | COMING_SOON | F2-01,F2-02 | 应用 |
+| 4 | beginner-result-check | AI 的结果什么时候能直接用，什么时候一定要检查 | 学会按事实、风险和可验证性决定检查力度。 | 能判断哪些结果可以直接参考，哪些必须核实后再用。 | APPLICATION | 16 | PLANNED | COMING_SOON | F1-03,F2-03 | 应用 |
 
 ---
 
-# 6. Stage 3 — 学会和 AI 沟通
+# 6. Stage 3 — 再理解 AI 背后的基本机制
 
 | order | lessonId | title | subtitle | learnerOutcome | type | min | status | availability | prerequisites | badge |
 | ---: | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
-| 1 | foundation-prompt | Prompt：怎样把任务说清楚 | 把目标、背景、输入、限制和结果要求交代清楚，减少 AI 猜测。 | 能把模糊需求改写成 AI 更容易执行和检查的任务说明。 | APPLICATION | 18 | PLANNED | COMING_SOON | F2-04 | 应用 |
-| 2 | foundation-task-context | Context：AI 当前到底看到了什么 | Prompt 只是你说的话，Context 是模型这次任务真正能看到的全部信息。 | 能区分 Prompt、对话历史、文件、系统信息和工具结果如何进入当前任务。 | CONCEPT | 14 | PLANNED | COMING_SOON | F2-02,F3-01 | 基础必修 |
-| 3 | foundation-examples-structured-request | Example 与 Structured Request：复杂要求怎样表达更稳定 | 当文字说明不够时，用示例、结构和格式减少理解偏差。 | 能判断什么时候应该补示例、分字段说明或明确结果格式。 | APPLICATION | 16 | PLANNED | COMING_SOON | F3-01,F3-02 | 应用 |
-| 4 | foundation-iteration-clarification | Iteration 与 Clarification：第一次不对，怎样继续和 AI 合作 | 不满意时不要从头重来，要找到偏差并补充真正缺失的信息。 | 能根据结果偏差继续追问、补 Context、要求澄清并逐轮改进。 | APPLICATION | 16 | PLANNED | COMING_SOON | F3-01,F3-03 | 应用 |
+| 1 | foundation-llm-model-vs-product-v2 | 大语言模型是什么：Model 不等于 AI 软件 | 已经会用 AI 后，再理解“模型”和完整 AI 产品不是一回事。 | 能区分核心 Model 与完整 AI 软件。 | CONCEPT | 14 | PLANNED | COMING_SOON | F1-04 | 机制基础 |
+| 2 | foundation-training-inference-v2 | Training 与 Inference：模型怎样学会、又怎样被使用 | 把模型长期训练形成的能力和当前一次使用分开。 | 能解释 Training 与 Inference 的基本区别。 | CONCEPT | 14 | PLANNED | COMING_SOON | F3-01 | 机制基础 |
+| 3 | foundation-token-generation-v2 | Token 与概率生成：AI 为什么不是在查一条固定答案 | 到这里再理解 AI 是怎样一步步生成内容的。 | 能理解 Token 与概率生成的基本直觉。 | CONCEPT | 14 | PLANNED | COMING_SOON | F3-01,F3-02 | 机制基础 |
+| 4 | foundation-context-window-v2 | Context Window：AI 一次能看到的信息为什么有限 | 已经理解 Task Context 后，再理解“能看到多少”也有容量限制。 | 能理解上下文容量有限以及长资料需要取舍。 | CONCEPT | 14 | PLANNED | COMING_SOON | F2-02,F3-03 | 机制基础 |
 
 ---
 
