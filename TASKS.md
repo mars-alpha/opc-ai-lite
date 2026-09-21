@@ -653,6 +653,12 @@ Status: COMPLETE_V02_QUALITY_ALIGNED
 
 新增 `skills/course-builder/v0.2.ts`，保留 v0.1 历史兼容。v0.2 将 Beginner Quality Standard 写入生成 Prompt，并通过 `BEGINNER_QUALITY_V1` profile 下沉到 Code Validation：mainLearnerQuestion、mainConcept、allowedCoreTerms、deferredTerms。v0.2 Beginner BUILD 缺 profile 会拒绝；allowedCoreTerms 最多 2 个、主 Review 最多 3 条、Example 必须 Before/After、Capability 必须表达可执行能力，deferredTerms 不得在用户可见内容中提前泄漏。当前课 Primary Knowledge Home 的术语可通过 allowedCoreTerms 显式放行，因此 Stage 3 可合法教授 Token / Training，不受 Stage 1 禁词误杀。新增 `course-builder:accept:beginner-quality`，已验证 profile required / review budget / deferred term / allowed term / v0.1 compatibility 全部 PASS；typecheck/build PASS。下一步：Stage 2 新课程默认走 Course Builder Skill v0.2。
 
+### SKILL-GOV-001 — Skill Responsibility & Orchestration Baseline
+
+Status: COMPLETE_GOVERNANCE_BASELINE_V1
+
+新增 `docs/SKILL_GOVERNANCE.md` 与 `skills/REGISTRY.md`，并把 Skill Decision Gate 写入 `AGENTS.md`。后续开发任务实现前必须先判断 `CODE_ONLY / EXISTING_SKILL / NEW_SKILL_NEEDED`；需要新 Skill 时必须先讨论 Mini Skill Proposal，再实现最小 v0.1。固定一个 Skill 只做一个可独立验收职责、只产出一个主要结果；Skill 为 Architecture-neutral Content / Intelligence Layer，不得修改 DB / Schema / API / Runtime / Workflow / Permission / Publish / Progress / Completion；Skill 默认不互调，联动由 Workflow 编排。Registry 只登记真实落盘的 course-builder v0.1.0 / v0.2.0。自动化可逐步提高，但后台审核与 Core Authority 不变。下一步：COURSE-GOV-001，再进入 Foundation Stage 2。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

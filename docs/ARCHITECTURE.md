@@ -400,6 +400,48 @@ ALLOW / DENY / PREVIEW
 
 Skill 不参与最终权限判断。
 
+### Skill Responsibility & Orchestration Boundary
+
+Skill 固定为 **Architecture-neutral Content / Intelligence Producer**。
+
+```text
+Architecture defines the box.
+Skill fills the box.
+```
+
+单个 Skill 只承担一个可独立验收的职责和一个主要输出。可以分别验收、失败、替换或优化的多个输出必须拆分，禁止把整理文章、配图、生成 PPT、发布等职责合并成一个万能 Skill。
+
+Skill 可以读取系统提供的受控 Contract，但不得自行重新定义：
+
+```text
+DB / Schema / Migration
+API Contract
+Runtime
+Route / Module Boundary
+Workflow
+Permission / Access
+Publish / Unpublish
+Progress / Completion
+Production State
+```
+
+若当前 Contract 不支持所需结果，Skill 只能返回 Proposal / Unsupported；架构变化必须作为独立工程任务处理。
+
+Skill 默认不直接调用 Skill。联动固定由 Workflow 编排：
+
+```text
+Controlled Input
+→ Skill A
+→ Code / Schema Validation
+→ Workflow
+→ Skill B
+→ Code / Schema Validation
+→ Human / Rules
+→ Core Action
+```
+
+每个新开发任务实现前必须执行 Skill Decision Gate：`CODE_ONLY / EXISTING_SKILL / NEW_SKILL_NEEDED`。只有第三种情况才先形成 Mini Skill Proposal，经确认后实现最小 v0.1。完整规则见 `docs/SKILL_GOVERNANCE.md`，已实现版本登记在 `skills/REGISTRY.md`。
+
 ---
 
 ## 5. Content Engine

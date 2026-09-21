@@ -191,6 +191,53 @@ Human / Rules
 Production Data
 ```
 
+### 7.2 Skill Responsibility & Orchestration Gate
+
+后续所有开发任务在实现前必须先判断：
+
+```text
+CODE_ONLY
+→ 普通代码可以确定性完成，不创建 Skill
+
+EXISTING_SKILL
+→ 已有 Skill 的职责与输入输出已覆盖，复用现有版本
+
+NEW_SKILL_NEEDED
+→ 需要新的独立语义能力
+```
+
+当结论为 `NEW_SKILL_NEEDED` 时，不得直接进入完整业务开发。必须先与产品负责人讨论一个最小 `Mini Skill Proposal`，至少明确：
+
+```text
+Skill ID / Proposed Version
+Single Responsibility
+Primary Output
+Input Schema
+Output Schema
+Forbidden Actions
+Acceptance Criteria
+Failure Strategy
+Human Review Requirement
+Called By Workflow
+Why Code Is Not Enough
+Why Existing Skill Cannot Be Reused
+```
+
+固定 Skill 治理规则：
+
+- 一个 Skill 只承担一个可独立验收的职责，并只有一个主要输出；
+- 两个输出若可以分别验收、分别失败、分别优化，默认拆成两个 Skill；
+- Skill 只属于 Content / Intelligence Layer，必须 Architecture-neutral；
+- Skill 可以消费现有 Contract，但不得自行修改 Schema / API / Runtime / DB / Workflow / Permission / Publish / Progress / Completion；
+- 架构能力不足时，Skill 只能返回 Proposal / Unsupported，由独立工程任务处理；
+- Skill 默认不得直接调用另一个 Skill，多 Skill 串联统一由 Workflow 编排；
+- 输入输出优先 Schema First，不依赖 Skill 之间的隐式状态；
+- Skill 必须版本化落盘，依据真实输出独立迭代，不静默覆盖旧版本；
+- 已实现 Skill / Version 必须登记到 `skills/REGISTRY.md`；
+- 自动化程度提高不改变 Human Review 与 Core System Authority。
+
+完整规范见 `docs/SKILL_GOVERNANCE.md`。
+
 ## 8. 任务完成后的固定收口
 
 固定流程：
