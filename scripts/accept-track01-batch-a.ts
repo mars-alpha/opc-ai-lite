@@ -35,9 +35,9 @@ assert(draft.practice?.instructions.length === 2, "TRACK01_T101_STEP4_TWO_LEARNE
 assert(draft.practice?.instructions.map((item) => item.key).join(",") === "task,help", "TRACK01_T101_STEP4_KEYS");
 assert(draft.review.length === 3, "TRACK01_T101_REVIEW_COUNT");
 assert(draft.review.every((item) => item.includes("｜")), "TRACK01_T101_REVIEW_EXPLANATION");
-assert(draft.review[0]?.startsWith("先找 AI 最适合介入的一步｜"), "TRACK01_T101_REVIEW_JUDGMENT_1");
-assert(draft.review[1]?.startsWith("分清“创意建议”和“事实信息”｜"), "TRACK01_T101_REVIEW_JUDGMENT_2");
-assert(draft.review[2]?.startsWith("把 AI 放在“给方案”的位置｜"), "TRACK01_T101_REVIEW_JUDGMENT_3");
+assert(draft.review[0]?.startsWith("适合先做第一版 ↔ 不应该替你做最终决定｜"), "TRACK01_T101_REVIEW_JUDGMENT_1");
+assert(draft.review[1]?.startsWith("适合提供创意方案 ↔ 不应该把事实当成已确认｜"), "TRACK01_T101_REVIEW_JUDGMENT_2");
+assert(draft.review[2]?.startsWith("适合整理和比较 ↔ 不应该替你承担结果｜"), "TRACK01_T101_REVIEW_JUDGMENT_3");
 assert(track01T101KnowledgeDepth.review.length === 3, "TRACK01_T101_REVIEW_DEPTH_COUNT");
 assert(track01T101KnowledgeDepth.review.every((item) => item.title.startsWith("为什么")), "TRACK01_T101_REVIEW_DEPTH_EXPLAINS_WHY");
 assert(draft.selfAssessment.length >= 2, "TRACK01_T101_SELF_ASSESSMENT");
