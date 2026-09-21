@@ -177,6 +177,8 @@ export function GenericLessonRuntimePanel({
   previewKnowledgeDepth = null,
   previewReviewCardFill = false,
   previewReviewItems = null,
+  previewReviewLabels = null,
+  previewPracticeHintsGrouped = false,
   previewSelfAssessment = null,
   previewIntroComparison = null
 }: {
@@ -194,6 +196,8 @@ export function GenericLessonRuntimePanel({
   previewKnowledgeDepth?: PreviewKnowledgeDepth | null;
   previewReviewCardFill?: boolean;
   previewReviewItems?: ReadonlyArray<string> | null;
+  previewReviewLabels?: { primary: string; secondary: string } | null;
+  previewPracticeHintsGrouped?: boolean;
   previewSelfAssessment?: ReadonlyArray<string> | null;
   previewIntroComparison?: PreviewIntroComparison | null;
 }) {
@@ -939,7 +943,7 @@ export function GenericLessonRuntimePanel({
             ))}
           </div>
           {practice.hints.length > 0 && (
-            <div className="interactive-hints guided-numbered-hints">
+            <div className={`interactive-hints guided-numbered-hints${previewPracticeHintsGrouped ? " is-single-box" : ""}`}>
               <strong>提示</strong>
               <div className="guided-numbered-list">
                 {practice.hints.map((hint, index) => (
@@ -1116,11 +1120,11 @@ export function GenericLessonRuntimePanel({
                 return (
                   <div key={item} className="guided-misconception-card">
                     <div>
-                      <span>核心判断</span>
+                      <span>{previewReviewLabels?.primary ?? "核心判断"}</span>
                       <p><strong>{title}</strong></p>
                     </div>
                     <div>
-                      <span>怎么理解</span>
+                      <span>{previewReviewLabels?.secondary ?? "怎么理解"}</span>
                       <p>{description ?? title}</p>
                     </div>
                   </div>

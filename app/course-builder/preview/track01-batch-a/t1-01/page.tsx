@@ -15,6 +15,8 @@ export default function Page() {
       introPreview={track01T101Intro}
       knowledgeDepth={track01T101KnowledgeDepth}
       referenceFill={track01T101ReferenceFill}
+      reviewLabels={{ primary: "AI 适合做什么", secondary: "AI 不应该替你做什么" }}
+      practiceHintsGrouped
       skillVersion="0.2.0"
       batchLabel="Track 01 · Batch A · T1-01"
       duration="约 15 分钟"

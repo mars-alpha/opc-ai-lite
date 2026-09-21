@@ -13,6 +13,8 @@ export function BeginnerFoundationDraftPreview({
   referenceFill = null,
   knowledgeDepth = null,
   reviewCardFill = true,
+  reviewLabels = null,
+  practiceHintsGrouped = false,
   skillVersion = "0.1.0",
   batchLabel = "Beginner Batch A",
   duration,
@@ -23,6 +25,8 @@ export function BeginnerFoundationDraftPreview({
   referenceFill?: RuntimeProps["previewReferenceFill"];
   knowledgeDepth?: RuntimeProps["previewKnowledgeDepth"];
   reviewCardFill?: boolean;
+  reviewLabels?: RuntimeProps["previewReviewLabels"];
+  practiceHintsGrouped?: boolean;
   skillVersion?: "0.1.0" | "0.2.0";
   batchLabel?: string;
   duration: string;
@@ -113,6 +117,8 @@ export function BeginnerFoundationDraftPreview({
             previewKnowledgeDepth={knowledgeDepth}
             previewReviewCardFill={reviewCardFill}
             previewReviewItems={draft.review}
+            previewReviewLabels={reviewLabels}
+            previewPracticeHintsGrouped={practiceHintsGrouped}
             previewSelfAssessment={draft.selfAssessment}
             previewActivity={draft.pedagogy.participation}
             previewIntroComparison={introPreview}
