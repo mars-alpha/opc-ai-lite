@@ -156,6 +156,20 @@ Knowledge Point Six-step Gate
 
 固定：**六步不是 UI 模板，而是知识是否值得成为一节正式课程的教学检验。**
 
+### 3.8 Lesson Output Contract
+
+Formal Brief 进入 Course Builder 后，正式 Draft 还必须遵守 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`。
+
+该 Contract 固定六步的输出职责、Step 4 Hint / Artifact 规则、Step 5 2–4 卡与“卡片 / 补充解释 / Pitfalls”分层、Step 6 Capability 自证要求，以及 Code Validation 与 Human Review 的职责边界。
+
+关键原则：
+- 不因单节课内容问题扩展 Runtime / UI；
+- Artifact 必须从当前课自然学习动作产生，不得为了下一课 handoff 反向制造字段；
+- Production Brief 已锁定 Case Thread 时必须遵守；Track 01 Batch A 当前默认 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立；
+- 技术规则能自动判断的进入 Code Validation，案例自然度、教学清晰度、Review 是否重复等语义质量必须由 Human Review 判断。
+
+后续若需要改变这套输出方式，必须版本化 Lesson Output Contract，不允许在单节课里静默漂移。
+
 ### 3.4 HUMAN_REVIEW_PASS — governance gate
 
 Human Review 必须由产品负责人实际体验或明确授权的审核者完成。

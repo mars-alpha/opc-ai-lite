@@ -676,6 +676,9 @@ export function validateBeginnerQualityDraft(draft: CourseBuilderBuildDraft) {
   if (draft.review.length > 4) {
     throw new Error("BEGINNER_QUALITY_REVIEW_BUDGET_EXCEEDED");
   }
+  if (draft.lessonSpec.reviewEnabled && draft.review.length < 2) {
+    throw new Error("BEGINNER_QUALITY_REVIEW_MINIMUM_NOT_MET");
+  }
   if (draft.content.example.before === undefined || draft.content.example.after === undefined) {
     throw new Error("BEGINNER_QUALITY_BEFORE_AFTER_REQUIRED");
   }

@@ -42,6 +42,26 @@ const fourReviewAccepted = createCourseBuilderReviewPacket(
 );
 assert(fourReviewAccepted.skill.version === "0.2.0", "QUALITY_FOUR_REVIEW_ITEMS_REJECTED");
 
+const twoReviewAccepted = createCourseBuilderReviewPacket(
+  { ...base, review: ["规则1", "规则2"] },
+  new Date("2026-09-21T00:00:00.000Z"),
+  "0.2.0"
+);
+assert(twoReviewAccepted.skill.version === "0.2.0", "QUALITY_TWO_REVIEW_ITEMS_REJECTED");
+
+let oneReviewRejected = false;
+try {
+  createCourseBuilderReviewPacket(
+    { ...base, review: ["规则1"] },
+    new Date("2026-09-21T00:00:00.000Z"),
+    "0.2.0"
+  );
+} catch (error) {
+  oneReviewRejected =
+    error instanceof Error && error.message === "BEGINNER_QUALITY_REVIEW_MINIMUM_NOT_MET";
+}
+assert(oneReviewRejected, "QUALITY_REVIEW_MINIMUM_NOT_ENFORCED");
+
 let reviewBudgetRejected = false;
 try {
   createCourseBuilderReviewPacket(
@@ -112,6 +132,7 @@ assert(legacy.skill.version === "0.1.0", "QUALITY_V01_COMPATIBILITY");
 
 console.log("COURSE_BUILDER_V02_PROFILE_REQUIRED=PASS");
 console.log("COURSE_BUILDER_V02_REVIEW_BUDGET=PASS");
+console.log("COURSE_BUILDER_V02_REVIEW_MINIMUM=PASS");
 console.log("COURSE_BUILDER_V02_DEFERRED_TERMS=PASS");
 console.log("COURSE_BUILDER_V02_ALLOWED_TERMS=PASS");
 console.log("COURSE_BUILDER_V01_COMPATIBILITY=PASS");

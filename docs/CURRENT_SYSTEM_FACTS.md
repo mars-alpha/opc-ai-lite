@@ -432,6 +432,8 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `COURSE-PRODUCTION-TRACK01-A-001` 已进入 pilot-first production。T1-01 `AI 能帮什么，不能帮什么` 使用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1`，canonical Draft lessonId=`t1-01-ai-task-fit`，Preview=`/course-builder/preview/track01-batch-a/t1-01`。第三轮 Human Review 已按既有 v0.2 结果纠偏：保留 Beginner-first 教学结构，同时继续遵守 `OPC / 自媒体 AI 内容任务` 默认 Case Thread；EXPLAIN / EXAMPLE 围绕做一条真实 AI 内容，用想标题、整理已有资料、列表达角度建立使用直觉；Step 4 沿用现有填写字段，只保留 `task + help step`（`我原本要做的事` + `AI 先帮哪一步`），不再要求 3-task classification、额外任务目标或 AI 回复回填；Artifact 收敛为 `TASK_FIT_NOTE`。专项 acceptance、Beginner Quality 当前 PASS；状态继续 HUMAN_REVIEW_PENDING，T1-02～T1-05 尚未扩产。
 
+`COURSE-BUILDER-SKILL-005-A` 已将近期 T1-01 Human Review 验证出的课程输出方式固化为 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`，不新增 Skill，继续由 `course-builder@0.2.0` 承担教学生成。Contract 固定 Step 1–6 输出职责、Step 4 Hint 编号归 UI / Artifact 必须自然产生、Step 5 使用 2–4 张卡且卡片 / 补充解释 / Pitfalls 分层、边界类知识可使用“适合做什么 / 不应该替你做什么”上下对比、Step 6 必须可执行和自证。Track 01 Batch A 继续遵守 `OPC / 自媒体 AI 内容任务` Case Thread，Stable Method Layer 行业中立。Code Validation 负责可确定性规则；案例自然度、Artifact 是否被强行制造、Review 是否重复等由 Human Review 负责。
+
 T1-01 Human Review 第一轮反馈后只做三项定向修订：第一课入口改为“先把一个 AI 新变化的几句零散想法整理成 3 个清楚重点”，先体验再扩展 task-fit judgment；Reference Answer / 一键填充已移除“下一课继续使用”等内部课程编排文字，只保留学习者真实产物；Batch A Formal Brief 已正式锁定 `OPC / 自媒体 AI 内容任务` 为 T1-01～T1-05 默认连续 Case Thread，但 Stable Method Layer 继续行业中立，学习者可替换成自己的行业任务。专项 acceptance 新增 `SIMPLE_FIRST_TASK / REFERENCE_FILL_CLEAN / OPC_DEFAULT_CASE_THREAD`，typecheck、build PASS。状态仍为 HUMAN_REVIEW_PENDING，T1-02～T1-05 未扩产。
 
 本任务技术验收发现 `validateBeginnerQualityDraft()` 仍使用旧的 Review `>3` 限制，与已批准的 Step 5 `2–4` 规则漂移。已最小修正为 `>4` 拒绝，并更新 Beginner Quality acceptance：4 条 PASS、5 条 REJECT。未修改 Unified Lesson Shell、Runtime Schema 或正式学习状态逻辑。
