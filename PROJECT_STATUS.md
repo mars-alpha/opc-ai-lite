@@ -48,8 +48,9 @@ CURRICULUM-003 Foundation Batch A Brief Finalization COMPLETE_BRIEF_READY_V1
 CURRICULUM-004 Foundation Catalog Metadata Completion COMPLETE_CATALOG_READY_V1
 LEARNING-CATALOG-001 Formal Curriculum Catalog UI COMPLETE_UI_V1
 LEARNING-CATALOG-001-A Navigation & Progress Refinement COMPLETE_UI_REFINEMENT_V1
+COURSE-PRODUCTION-001 Foundation Batch A Real Lessons TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
-NEXT: HUMAN REVIEW — /learning-path navigation + progress refinement, then Foundation Batch A real course production
+NEXT: HUMAN REVIEW — Foundation Batch A four lesson previews; then revise and provision approved lessons
 ```
 
 ## 当前系统健康

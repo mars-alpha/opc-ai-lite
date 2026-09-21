@@ -31,13 +31,14 @@ export type FoundationCatalogStage = {
 
 const planned = { curriculumStatus: "PLANNED" as const, availability: "COMING_SOON" as const };
 const briefReady = { curriculumStatus: "BRIEF_READY" as const, availability: "COMING_SOON" as const };
+const inProduction = { curriculumStatus: "IN_PRODUCTION" as const, availability: "COMING_SOON" as const };
 
 export const foundationCatalog: FoundationCatalogStage[] = [
   { stageId:"foundation-1", title:"认识 AI", promise:"建立 AI、模型、训练与生成机制的基本世界观。", order:1, lessons:[
-    { lessonId:"foundation-ai-ml-generative-ai", title:"AI、机器学习与生成式 AI 到底是什么", subtitle:"先分清 AI、机器学习和生成式 AI，不把所有“智能功能”都当成同一种东西。", learnerOutcome:"能判断常见产品能力属于规则程序、机器学习还是生成式 AI。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:[], badge:"基础必修", order:1, ...briefReady },
-    { lessonId:"foundation-llm-model-vs-product", title:"大语言模型是什么：Model 不等于 AI 产品", subtitle:"理解你正在使用的是一个 AI 产品，而 Model 只是其中的核心能力之一。", learnerOutcome:"能区分 Model、AI App 和平台功能。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01"], badge:"基础必修", order:2, ...briefReady },
-    { lessonId:"foundation-training-inference", title:"Training 与 Inference：模型是怎样“学会”再“使用”的", subtitle:"把“模型训练时学到什么”和“你现在问它问题时发生什么”分清楚。", learnerOutcome:"能解释 Training 与 Inference 的区别。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01","F1-02"], badge:"基础必修", order:3, ...briefReady },
-    { lessonId:"foundation-generation-retrieval-rules", title:"AI 为什么不是数据库：生成、检索与确定性规则的区别", subtitle:"学会判断一个答案应该让模型生成、从资料中查找，还是交给普通程序计算。", learnerOutcome:"能判断 Generation、Retrieval、Deterministic Logic 哪种机制更适合。", lessonType:"CONCEPT", estimatedMinutes:15, prerequisites:["F1-01","F1-02","F1-03"], badge:"基础必修", order:4, ...briefReady }
+    { lessonId:"foundation-ai-ml-generative-ai", title:"AI、机器学习与生成式 AI 到底是什么", subtitle:"先分清 AI、机器学习和生成式 AI，不把所有“智能功能”都当成同一种东西。", learnerOutcome:"能判断常见产品能力属于规则程序、机器学习还是生成式 AI。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:[], badge:"基础必修", order:1, ...inProduction },
+    { lessonId:"foundation-llm-model-vs-product", title:"大语言模型是什么：Model 不等于 AI 产品", subtitle:"理解你正在使用的是一个 AI 产品，而 Model 只是其中的核心能力之一。", learnerOutcome:"能区分 Model、AI App 和平台功能。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01"], badge:"基础必修", order:2, ...inProduction },
+    { lessonId:"foundation-training-inference", title:"Training 与 Inference：模型是怎样“学会”再“使用”的", subtitle:"把“模型训练时学到什么”和“你现在问它问题时发生什么”分清楚。", learnerOutcome:"能解释 Training 与 Inference 的区别。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-01","F1-02"], badge:"基础必修", order:3, ...inProduction },
+    { lessonId:"foundation-generation-retrieval-rules", title:"AI 为什么不是数据库：生成、检索与确定性规则的区别", subtitle:"学会判断一个答案应该让模型生成、从资料中查找，还是交给普通程序计算。", learnerOutcome:"能判断 Generation、Retrieval、Deterministic Logic 哪种机制更适合。", lessonType:"CONCEPT", estimatedMinutes:15, prerequisites:["F1-01","F1-02","F1-03"], badge:"基础必修", order:4, ...inProduction }
   ]},
   { stageId:"foundation-2", title:"理解模型怎么工作", promise:"看懂 Token、Context Window、幻觉与模型可靠性。", order:2, lessons:[
     { lessonId:"foundation-token-generation", title:"Token 与概率生成：AI 怎样一句句生成答案", subtitle:"看懂模型如何把输入拆成 Token，并一步步生成下一段内容。", learnerOutcome:"能解释 Token 与概率生成的基本直觉。", lessonType:"CONCEPT", estimatedMinutes:12, prerequisites:["F1-02","F1-03"], badge:"基础必修", order:1, ...planned },

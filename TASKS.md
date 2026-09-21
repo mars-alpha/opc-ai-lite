@@ -617,6 +617,12 @@ Status: COMPLETE_UI_REFINEMENT_V1
 
 Human Review 后将五大长期学习板块移到课程目录上方作为一级课程导航；当前 AI 基础认知高亮，其余板块标记后续开放。Foundation 区域桌面端采用左侧圆环进度 + 右侧 7 Stage / 28 Lesson 目录，移动端上下堆叠。新增 `LearningBlockProgress`，进度仅统计 AVAILABLE 且绑定正式 Runtime 标识的课程，再读取 ProgressProvider 完成状态；规划中/准备中/即将开放课程不进入分母。当前没有 AVAILABLE Foundation Lesson，因此显示 0%，不会使用旧课程 fallback 制造假完成率。typecheck/build PASS。下一步继续 Human Review `/learning-path`。
 
+### COURSE-PRODUCTION-001 — Foundation Batch A Real Lessons
+
+Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+
+F1-01～F1-04 四节真实 CONCEPT Draft 已落盘并接入统一 Course Builder Preview。四节全部保持 EXPLAIN→EXAMPLE→CHECK→PRACTICE→REVIEW→CAPABILITY、conceptMasteryBeforePractice=true、Completion Gate=CHECK、practiceMode=NONE、Three-Question Mastery；Step 4 仅做轻量参与，不增加 Gate。新增共享 `FoundationConceptDraftPreview`，不按 lesson slug 改 Generic Runtime。Catalog 状态更新为 IN_PRODUCTION + COMING_SOON，未发布。学习路径页 Human Review 文案已将“课程导航”改为“学习地图”。Foundation Batch A acceptance、Course Builder contract、Concept Mastery、Three-Question Mastery、typecheck、build 全部 PASS。下一步：Human Review 四个 Preview，通过后逐节修订并进入正式化。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

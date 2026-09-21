@@ -9,7 +9,7 @@ Task: **CURRICULUM-004 — Foundation Catalog Metadata Completion**
 
 固定规则：
 
-- F1-01～F1-04：`BRIEF_READY + COMING_SOON`
+- F1-01～F1-04：`IN_PRODUCTION + COMING_SOON`
 - 其余 24 节：`PLANNED + COMING_SOON`
 - 当前没有任何 Foundation Lesson 标记为 `AVAILABLE`
 - `PLANNED / BRIEF_READY / IN_PRODUCTION` 可以显示在目录，但不得进入空 Lesson 页面
@@ -51,10 +51,10 @@ Total: **7 stages / 28 lessons**
 
 | order | lessonId | title | subtitle | learnerOutcome | type | min | status | availability | prerequisites | badge |
 | ---: | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
-| 1 | foundation-ai-ml-generative-ai | AI、机器学习与生成式 AI 到底是什么 | 先分清 AI、机器学习和生成式 AI，不把所有“智能功能”都当成同一种东西。 | 能够判断一个常见产品能力属于规则程序、机器学习还是生成式 AI，并说出三者的核心区别。 | CONCEPT | 12 | BRIEF_READY | COMING_SOON | 无 | 基础必修 |
-| 2 | foundation-llm-model-vs-product | 大语言模型是什么：Model 不等于 AI 产品 | 理解你正在使用的是一个 AI 产品，而真正负责语言生成的只是其中的 Model。 | 能够区分 Model、AI App 和平台功能，不再把“产品”与“模型”混成同一个概念。 | CONCEPT | 12 | BRIEF_READY | COMING_SOON | F1-01 | 基础必修 |
-| 3 | foundation-training-inference | Training 与 Inference：模型是怎样“学会”再“使用”的 | 把“模型训练时学到什么”和“你现在问它问题时发生什么”分清楚。 | 能够解释 Training 与 Inference 的区别，并理解聊天时模型通常不是现场重新训练。 | CONCEPT | 12 | BRIEF_READY | COMING_SOON | F1-01,F1-02 | 基础必修 |
-| 4 | foundation-generation-retrieval-rules | AI 为什么不是数据库：生成、检索与确定性规则的区别 | 学会判断一个答案应该让模型生成、从资料中查找，还是交给普通程序计算。 | 能够针对真实任务判断 Generation、Retrieval、Deterministic Logic 哪一种机制更适合。 | CONCEPT | 15 | BRIEF_READY | COMING_SOON | F1-01,F1-02,F1-03 | 基础必修 |
+| 1 | foundation-ai-ml-generative-ai | AI、机器学习与生成式 AI 到底是什么 | 先分清 AI、机器学习和生成式 AI，不把所有“智能功能”都当成同一种东西。 | 能够判断一个常见产品能力属于规则程序、机器学习还是生成式 AI，并说出三者的核心区别。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | 无 | 基础必修 |
+| 2 | foundation-llm-model-vs-product | 大语言模型是什么：Model 不等于 AI 产品 | 理解你正在使用的是一个 AI 产品，而真正负责语言生成的只是其中的 Model。 | 能够区分 Model、AI App 和平台功能，不再把“产品”与“模型”混成同一个概念。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | F1-01 | 基础必修 |
+| 3 | foundation-training-inference | Training 与 Inference：模型是怎样“学会”再“使用”的 | 把“模型训练时学到什么”和“你现在问它问题时发生什么”分清楚。 | 能够解释 Training 与 Inference 的区别，并理解聊天时模型通常不是现场重新训练。 | CONCEPT | 12 | IN_PRODUCTION | COMING_SOON | F1-01,F1-02 | 基础必修 |
+| 4 | foundation-generation-retrieval-rules | AI 为什么不是数据库：生成、检索与确定性规则的区别 | 学会判断一个答案应该让模型生成、从资料中查找，还是交给普通程序计算。 | 能够针对真实任务判断 Generation、Retrieval、Deterministic Logic 哪一种机制更适合。 | CONCEPT | 15 | IN_PRODUCTION | COMING_SOON | F1-01,F1-02,F1-03 | 基础必修 |
 
 ---
 

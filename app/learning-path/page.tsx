@@ -44,8 +44,8 @@ export default function LearningPathPage() {
         <div className="container">
           <Reveal className="section-head">
             <div>
-              <div className="eyebrow">Course Navigation</div>
-              <h2 className="section-title">课程导航</h2>
+              <div className="eyebrow">Learning Map</div>
+              <h2 className="section-title">学习地图</h2>
               <p className="section-subtitle">五大长期学习板块按能力递进排列。当前先完成 AI 基础认知，其他板块会随着正式课程建设逐步开放。</p>
             </div>
           </Reveal>
