@@ -568,11 +568,11 @@ export const track01T103Draft = {
       ]
     },
     participation: {
-      kind: "MINI_TASK",
-      title: "从手头资料里选出真正需要的内容",
-      instruction: "选一个你准备做的真实 AI 内容任务，把手头相关信息分成三类，再整理出一份最小信息包。课程不要求把 AI 回复粘贴回来。",
-      prompt: "请先只根据当前任务，帮我检查哪些信息是必须知道、哪些只是有帮助、哪些可以暂时不放。",
-      reflection: "重点不是资料越多越好，而是你能说明为什么这条信息是当前任务必须知道的。"
+      kind: "COPY_TO_AI",
+      title: "复制到你的 AI 里验证一次",
+      instruction: "把下面两项填好后，直接复制到你常用的 AI 软件里。看看只提供必要信息时，AI 是否已经能围绕你的真实任务给出更贴合的结果。课程不要求把 AI 回复粘贴回来。",
+      prompt: "请根据我写清楚的任务和必要信息完成内容，只使用我提供的真实信息，不要自行补充未经确认的事实。",
+      reflection: "如果 AI 已经能围绕你的任务和必要信息正常完成内容，就说明这份上下文已经基本够用；不需要为了显得完整继续塞资料。"
     },
     sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
   },
@@ -607,7 +607,7 @@ export const track01T103Draft = {
       { id: "explain", kind: "EXPLAIN", title: "任务说清楚了，AI 为什么还是可能答不好", objective: "让学习者理解 AI 仍然缺少完成任务所需的信息。" },
       { id: "example", kind: "EXAMPLE", title: "同一条内容，信息太少、太多和刚好够用有什么区别", objective: "通过一个内容任务看见信息选择会直接影响结果。" },
       { id: "check", kind: "CHECK", title: "这些信息真的需要放进去吗", objective: "检查学习者能否区分必须、可选和暂时不要放的信息。" },
-      { id: "practice", kind: "PRACTICE", title: "整理你自己的最小信息包", objective: "选出当前任务必须给 AI 的信息，并去掉这次可以先不放的内容。" },
+      { id: "practice", kind: "PRACTICE", title: "整理一段可以直接给 AI 使用的内容", objective: "写清当前任务，并只补充完成任务真正需要的信息。" },
       { id: "review", kind: "REVIEW", title: "准备信息时，记住这 2 个判断", objective: "留下“只选必要信息”和“够用就停”两个可复用判断。" },
       { id: "capability", kind: "CAPABILITY", title: "你已经会为 AI 准备刚好够用的信息", objective: "确认学习者能独立判断信息是否必要，并整理最小信息包。" }
     ],
@@ -702,22 +702,20 @@ export const track01T103Draft = {
   ],
   practice: {
     id: "t103_minimum_information_pack",
-    title: "整理你自己的最小信息包",
-    goal: "为一个你准备做的真实 AI 内容任务，选出真正需要的信息。",
+    title: "整理一段可以直接给 AI 使用的内容",
+    goal: "把任务和真正需要的信息放在一起，形成一段可以直接复制验证的内容。",
     instructions: [
-      { key: "mustKnow", label: "这次必须给 AI 的信息", prompt: "写出 1～3 条：如果缺少这些信息，AI 很容易把当前任务做错。" },
-      { key: "leaveOut", label: "这次可以先不放的信息", prompt: "写出 1～3 条和当前任务关系较弱、重复、过时，或只是锦上添花的信息。" },
-      { key: "minimumPack", label: "我的最小信息包", prompt: "把第一项整理成一小段真正准备提供给 AI 的信息即可。" }
+      { key: "task", label: "我要 AI 完成的任务", prompt: "用一句话写清这次要 AI 做什么。可以直接沿用你已经准备好的任务说明。" },
+      { key: "mustKnow", label: "这次提供给 AI 的必要信息", prompt: "只写 1～3 条真正会影响结果的信息，不需要把手头资料全部放进去。" }
     ],
     hints: [
-      "先从 1～3 条最关键的信息开始，不需要把手头资料全部列出来。",
-      "“可以先不放”不代表永远没用，只表示这次任务暂时不需要。",
-      "最小信息包直接整理第一项即可，不需要重新写一遍所有资料。"
+      "任务只写这次要完成什么，不需要重新写复杂提示词。",
+      "必要信息优先写你亲自确认、而且会直接影响结果的内容。",
+      "填好后直接复制去自己的 AI 验证，不需要把 AI 回复粘贴回课程。"
     ],
     rubric: [
-      { key: "mustKnow", label: "必要信息与任务直接相关", maxScore: 35, minScore: 20, example: "目标读者是普通用户；我亲自试过并确认可用的 3 个功能。" },
-      { key: "leaveOut", label: "能去掉这次不必要的信息", maxScore: 30, minScore: 15, example: "半年前旧文章；和这次主题无关的产品截图。" },
-      { key: "minimumPack", label: "最小信息包足够且不过量", maxScore: 35, minScore: 20, example: "目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。" }
+      { key: "task", label: "任务本身清楚", maxScore: 45, minScore: 25, example: "为第一次接触这个工具的普通用户，写一条介绍它实际用途的短内容。" },
+      { key: "mustKnow", label: "必要信息足够且不过量", maxScore: 55, minScore: 30, example: "我亲自试过并确认可用的 3 个功能；每个功能各有一句真实体验。" }
     ],
     passScore: 60
   },
@@ -726,7 +724,7 @@ export const track01T103Draft = {
     "这一课只练信息取舍，不要求判断哪一个来源最权威。"
   ],
   referenceAnswer:
-    "这次必须给 AI 的信息：目标读者是普通用户；我亲自试过并确认可用的 3 个功能。\n这次可以先不放的信息：半年前旧文章；与主题无关的产品更新截图；一个不影响核心介绍的补充场景。\n我的最小信息包：目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。",
+    "我要 AI 完成的任务：为第一次接触这个工具的普通用户，写一条介绍它实际用途的短内容。\n这次提供给 AI 的必要信息：我亲自试过并确认可用的 3 个功能；每个功能各有一句真实体验。",
   review: [
     "围绕当前任务使用你选出的必要信息｜替你决定手头所有资料都必须放进任务。",
     "在信息已经够用时继续完成任务｜替你判断哪些资料一定可信、哪些事实已经确认。"
@@ -749,7 +747,6 @@ export const track01T103KnowledgeDepth = {
 } as const;
 
 export const track01T103ReferenceFill = {
-  mustKnow: "目标读者是普通用户；我亲自试过并确认可用的 3 个功能。",
-  leaveOut: "半年前旧文章；与这次主题无关的产品更新截图；一个不影响核心介绍的补充场景。",
-  minimumPack: "目标读者 + 3 个已验证功能 + 每个功能的一句真实体验。"
+  task: "为第一次接触这个工具的普通用户，写一条介绍它实际用途的短内容。",
+  mustKnow: "我亲自试过并确认可用的 3 个功能；每个功能各有一句真实体验。"
 } as const;
