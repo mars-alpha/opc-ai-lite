@@ -175,9 +175,15 @@ Subscription / Order / Payment / WeChat Pay
 微信真实 OAuth / Official Account webhook
 ```
 
+## 当前工程治理补充
+
+当前 Phase 1 Lesson Runtime 的多轮交互调试已经暴露出旧状态流叠加风险。后续不再以新增局部状态 / fallback 作为默认修复方式；若 currentStep / Check / Practice / Completion / resume 等状态互相冲突，优先重写并收敛为少量服务端事实源，再进行完整学习链路验收。
+
+MVP 后续默认顺序：明确最终产品行为 → 收敛状态与事实源 → 删除无必要 legacy / compatibility 分支 → 重写最小清晰主链 → 端到端验收 → 最后处理残余 Bug。
+
 ## 下一步边界
 
-`COURSE-BUILDER-SKILL-002-F` 已把新课程 Step 3 固化为 Three-Question Mastery Sequence：SINGLE_CHOICE → TRUE_FALSE → MULTI_SELECT，一次只显示一题。答错必须展示错误反馈并重新选择，不能跳题；答对后展示正确反馈才出现“下一题”；三题全部答对后 CHECK Gate 才通过。Prompt APPLICATION 已作为真实样板升级。正式 Runtime 复用 `lesson_checks` 多行 + order，不新增题组表。0010 与新增 0011 migration 均只在本地生成，远程 DB 仍为 0009。
+COURSE-BUILDER-SKILL-002-F 已把新课程 Step 3 固化为 Three-Question Mastery Sequence：SINGLE_CHOICE → TRUE_FALSE → MULTI_SELECT，一次只显示一题。答错必须展示错误反馈并重新选择，不能跳题；答对后展示正确反馈才出现“下一题”；三题全部答对后 CHECK Gate 才通过。Prompt APPLICATION 已作为真实样板升级。正式 Runtime 复用 lesson_checks 多行 + order，不新增题组表。当前 Lesson Runtime 的下一步优先做 TRACK01-PHASE1-RUNTIME-001-B 状态流收敛，不再继续叠加局部恢复状态；数据库 migration / Runtime 事实仍以 Git 与实际目标数据库核验结果为准。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 

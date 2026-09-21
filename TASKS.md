@@ -813,6 +813,23 @@ Status: FRONTEND_ALIGNED / PROVISIONING_BLOCKED_DB_SCHEMA_0010_0011
 
 第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
 
+### TRACK01-PHASE1-RUNTIME-001-B — Lesson Runtime State Flow Consolidation
+
+Status: PLANNED / NEXT_AFTER_CURRENT_MANUAL_ACCEPTANCE
+
+Goal：不再围绕当前 Lesson Runtime 继续叠加局部 Bug patch，而是先审计并收敛课程恢复、Step 3 Check、Step 4 Practice、Completion 与评分的状态主链。
+
+固定执行原则：
+
+- 先定义用户最终行为与服务端事实源，再决定旧代码保留 / 删除 / 重写；
+- 优先减少 currentStep / highestStepReached / retakingStep / localPassedCheckIds 等重叠状态，而不是继续增加新状态；
+- 课程恢复位置、Check 状态、Practice 状态、Completion 必须各自只有明确权威来源；
+- legacy / fallback / compatibility 若不再服务 MVP 正式主链，允许删除；
+- 不使用前端假完成、乐观 Gate、后台补写等方式掩盖真实 Runtime 延迟；
+- 完成后必须用“进入课程 → 中断 → 返回 → Check 重学 → Practice 重练 → 完成 → 评分 → 下一课”的端到端场景整体验证。
+
+Out of Scope：课程内容改写、T1-06 扩产、通用状态框架、微服务化、额外抽象层。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

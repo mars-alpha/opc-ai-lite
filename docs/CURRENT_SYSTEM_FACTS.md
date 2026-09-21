@@ -55,6 +55,10 @@ Git working tree at audit start: clean
 
 当前系统满足继续开发的基本条件。
 
+### MVP 维护治理事实
+
+当前仓库后续开发已明确采用“整体主链优先于补丁修复”的治理方式：当旧代码、历史 fallback、重复状态或兼容逻辑开始影响当前 MVP 主线时，先审计并收敛状态模型 / 模块边界，必要时直接删除或重写旧实现；不通过不断增加本地状态、fallback 或特殊判断维持旧结构。业务行为以单一事实源与端到端 Runtime Acceptance 为准。
+
 ## 4. 数据库事实
 
 正式 Schema：`lib/server/db/schema.ts`

@@ -170,6 +170,14 @@ Pending due database blocker:
 - Runtime Ready
 - AVAILABLE / publish decision
 
+## Runtime stabilization decision
+
+Phase 1 的多轮前端体验验证暴露出一个明确工程风险：旧 Runtime 状态、局部 React 状态、历史兼容与恢复逻辑叠加后，继续按单点 Bug 方式修复会快速增加状态分支并降低可维护性。
+
+因此后续固定为：先看完整学习主链，再决定旧实现是否保留；必要时删除 / 重写冲突代码，以更少状态、更少 fallback、更少兼容分支重新形成单一主链，然后做端到端整体验证。
+
+后续状态流收敛任务记为 TRACK01-PHASE1-RUNTIME-001-B。该任务以 MVP 简洁性和可维护性为目标，不建设通用状态框架，不扩课程内容。
+
 ## Out of scope
 
 - No T1-06
