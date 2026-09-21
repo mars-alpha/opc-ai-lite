@@ -432,6 +432,8 @@ FOUNDATION-CONTINUITY-TRIAL-001-A 已完成 5 个 Trial Preview 的学习者语�
 
 `COURSE-PRODUCTION-TRACK01-A-001` 已进入 pilot-first production。T1-01 `AI 能帮什么，不能帮什么` 已用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` 重新生产，canonical Draft lessonId=`t1-01-ai-task-fit`，Preview=`/course-builder/preview/track01-batch-a/t1-01`。六步内容、三题 Mastery、Step 4 `3-task classification + selected task goal + AI First Draft`、Artifact handoff `TASK_FIT_NOTE_WITH_AI_FIRST_DRAFT → T1-02_CLEAR_TASK_BRIEF` 均通过专项 acceptance；Course Builder contract、Beginner Quality、typecheck、build PASS。当前状态为 TECHNICAL_ACCEPTANCE_PASS / HUMAN_REVIEW_PENDING；T1-02～T1-05 尚未扩产。
 
+T1-01 Human Review 第一轮反馈后只做三项定向修订：第一课入口改为“先把一个 AI 新变化的几句零散想法整理成 3 个清楚重点”，先体验再扩展 task-fit judgment；Reference Answer / 一键填充已移除“下一课继续使用”等内部课程编排文字，只保留学习者真实产物；Batch A Formal Brief 已正式锁定 `OPC / 自媒体 AI 内容任务` 为 T1-01～T1-05 默认连续 Case Thread，但 Stable Method Layer 继续行业中立，学习者可替换成自己的行业任务。专项 acceptance 新增 `SIMPLE_FIRST_TASK / REFERENCE_FILL_CLEAN / OPC_DEFAULT_CASE_THREAD`，typecheck、build PASS。状态仍为 HUMAN_REVIEW_PENDING，T1-02～T1-05 未扩产。
+
 本任务技术验收发现 `validateBeginnerQualityDraft()` 仍使用旧的 Review `>3` 限制，与已批准的 Step 5 `2–4` 规则漂移。已最小修正为 `>4` 拒绝，并更新 Beginner Quality acceptance：4 条 PASS、5 条 REJECT。未修改 Unified Lesson Shell、Runtime Schema 或正式学习状态逻辑。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。

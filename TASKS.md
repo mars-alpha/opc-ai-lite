@@ -773,6 +773,8 @@ Status: T1-01_TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
 
 Batch A 按 pilot-first 开始生产。T1-01 `AI 能帮什么，不能帮什么` 已使用单一 `course-builder@0.2.0` + `BEGINNER_QUALITY_V1` 重新生成，不直接继承旧 F1-01 Check / Practice / Review / Capability。Step 4 产出 `3-task classification + selected task goal + AI First Draft`，并交给 T1-02。专项 acceptance、Beginner Quality、Course Builder contract、typecheck、build 全部 PASS。Preview：`/course-builder/preview/track01-batch-a/t1-01`。验收中修复旧 Review 上限 3 与新 2–4 规则不一致的 validator drift；4 项允许、5 项拒绝。T1-01 Human Review PASS 前不扩产 T1-02～T1-05。
 
+第一轮 Human Review 后仅做三项定向修订：① 第一屏从一个极简单 OPC/自媒体 AI 内容整理任务开始，先体验再扩展任务边界判断；② Reference Answer / 一键填充只保留学习者实际产物，禁止混入“下一课继续”等内部编排文案；③ Batch A 默认连续 Case Thread 正式固定为 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立并允许学员替换自己的业务任务。新增专项 acceptance 全部 PASS，typecheck/build PASS。继续等待 T1-01 Human Review，不扩产 T1-02～T1-05。
+
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
 Status: TECHNICAL_ACCEPTANCE_PASS_RUNTIME_BLOCKED_HUMAN_REVIEW_PENDING

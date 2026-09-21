@@ -14,34 +14,34 @@ export const track01T101Meta = {
   qualityProfile: "BEGINNER_QUALITY_V1",
   formalBrief: "TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md",
   grounding: "REVIEWED_KNOWLEDGE",
-  caseThread: "SWAPPABLE_REAL_TASK",
+  caseThread: "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT",
   inheritedArtifact: "REAL_TASK_IDEA",
   artifactOutput: "TASK_FIT_NOTE_WITH_AI_FIRST_DRAFT",
   nextReuse: "T1-02_CLEAR_TASK_BRIEF"
 } as const;
 
 export const track01T101Intro = {
-  situation: "你手上同时有几件事：整理一页会议记录、写一段活动介绍、决定一笔重要支出。AI 都可能给你答案，但这三件事并不应该用同一种方式交给 AI。",
+  situation: "你刚看到一个值得分享的 AI 新变化，手里只有几句零散想法。先别想复杂：第一步只是让 AI 帮你把这些想法整理成 3 个清楚重点。",
   approaches: [
     {
-      label: "什么都交给 AI",
-      text: "看到 AI 能回答，就默认它也应该替你判断，结果容易把“协助”和“决定”混在一起。"
+      label: "自己从零整理",
+      text: "一边想内容、一边想顺序，容易卡在空白页，迟迟没有第一版。"
     },
     {
-      label: "先判断 AI 适合帮哪一步",
-      text: "先看任务是不是适合让 AI 协助、结果要不要核验，以及最后决定是不是必须由人负责。"
+      label: "先让 AI 整理第一步",
+      text: "把已有的几句想法交给 AI，让它先整理成 3 个重点，你马上就有一个可以继续判断和修改的结果。"
     }
   ],
   comparison: [],
-  takeaway: "会用 AI 的第一步，不是多会几个按钮，而是先判断：这件事应该让 AI 帮到什么程度。",
+  takeaway: "第一课先做成一件小事：让 AI 帮你把零散想法整理清楚。做出来之后，再慢慢学会判断它还适合帮哪些事情。",
   bottomDetails: [
     {
       title: "从你自己熟悉的任务开始",
       text: "你越熟悉任务，就越容易判断 AI 的结果有没有偏，也越容易建立真正可迁移的使用判断。"
     },
     {
-      title: "第一课只做一级判断",
-      text: "现在只分清“可以协助、需要谨慎核验、人负责最终决定”。怎么核验、权限怎么管，后面会分别学习。"
+      title: "先体验，再扩展判断",
+      text: "先通过一个简单任务感受 AI 的协助价值，再从这个体验扩展到“哪些可以交给 AI、哪些需要更谨慎”。"
     }
   ],
   comparisonPlacement: "BOTTOM"
@@ -66,8 +66,8 @@ export const track01T101Draft = {
     conceptMasteryBeforePractice: true,
     qualityProfile: {
       id: "BEGINNER_QUALITY_V1",
-      mainLearnerQuestion: "面对一个真实任务，我应该把哪部分交给 AI，哪部分保留自己判断？",
-      mainConcept: "先判断 AI 适合帮到什么程度，再开始使用。",
+      mainLearnerQuestion: "我第一次用 AI，可以先让它帮我做哪件简单的小事？",
+      mainConcept: "先让 AI 完成一个容易看懂的小任务，再逐步建立任务边界判断。",
       allowedCoreTerms: [],
       deferredTerms: [
         "Prompt",
@@ -82,11 +82,11 @@ export const track01T101Draft = {
     },
     participation: {
       kind: "COPY_TO_AI",
-      title: "把你选中的任务真正交给 AI 做第一版",
+      title: "先完成你的第一个 AI 小任务",
       instruction:
-        "完成下面的任务分类后，从“AI 可协助”的任务里选 1 个，写清一句目标，把这句话复制到你常用的 AI 软件，让它先给第一版。把第一版保存回来，不要求现在就做到完美。",
-      prompt: "请先根据我的任务目标给我一个最小可用的第一版。我会继续检查和修改，不需要替我做最终决定。",
-      reflection: "这一课的结果不是“得到完美答案”，而是你已经知道为什么选这个任务，以及 AI 应该先帮到哪一步。"
+        "先用默认案例体验：写下 3 句你对一个 AI 新变化的零散想法，让 AI 帮你整理成 3 个清楚重点。完成这个小任务后，再把同样的方法迁移到自己的工作任务。",
+      prompt: "请把下面这些零散想法整理成 3 个清楚、普通人容易看懂的重点。不要补充我没有提供的新事实。",
+      reflection: "先看 AI 有没有帮你把已有内容整理得更清楚。接下来再判断：这种协助适合哪些任务，哪些任务需要更谨慎。"
     },
     sixStepResponsibilities: COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES
   },
@@ -118,8 +118,8 @@ export const track01T101Draft = {
     courseFeedbackEnabled: true,
     completionGates: ["CHECK", "PRACTICE"],
     steps: [
-      { id: "explain", kind: "EXPLAIN", title: "先判断 AI 应该帮到哪一步", objective: "建立任务适配直觉：会回答不等于应该替你决定。" },
-      { id: "example", kind: "EXAMPLE", title: "同一天的三件事，为什么不能都交给 AI", objective: "用可协助、需核验、最终决定三个场景讲清一级边界。" },
+      { id: "explain", kind: "EXPLAIN", title: "先让 AI 帮你完成一件小事", objective: "从一个简单内容整理任务建立第一次成功体验，降低第一课认知负担。" },
+      { id: "example", kind: "EXAMPLE", title: "从整理 3 个重点，再慢慢看 AI 还能帮什么", objective: "从已完成的小任务扩展到起草、整理、核验与最终判断的不同边界。" },
       { id: "check", kind: "CHECK", title: "你会判断 AI 适合帮到什么程度吗", objective: "通过真实情境检查三类任务适配判断是否真正理解。" },
       { id: "practice", kind: "PRACTICE", title: "给自己的 3 个任务分类，再做出第一版", objective: "完成真实任务分类，选 1 个任务生成并保留 AI 第一版。" },
       { id: "review", kind: "REVIEW", title: "以后遇到新任务，先用这 4 个判断", objective: "留下任务清楚、AI 能否协助、错误后果、最终判断权四个复盘点。" },
@@ -134,11 +134,11 @@ export const track01T101Draft = {
   },
   content: {
     summary:
-      "先不学复杂术语。你会从自己的真实工作出发，判断哪些事情适合让 AI 协助、哪些要更谨慎，以及哪些最终决定必须留在人手里。",
+      "第一课只从一个很简单的任务开始：把几句零散想法交给 AI，让它整理成 3 个清楚重点。做完以后，再逐步认识 AI 可以帮到什么程度。",
     plainExplanation:
-      "AI 很擅长先起草、整理、提取、比较和给方向，但“能生成一个答案”和“应该替你做决定”不是一回事。第一次真正学会用 AI，最重要的是先判断它应该参与到哪一步，再让它产生一个你可以继续检查和修改的中间结果。",
+      "刚开始学 AI，不需要先理解一堆边界和术语。你可以先把它当成一个整理助手：你已经有一些内容，它先帮你排清楚。等你亲眼看到这个小任务完成，再去理解“起草、整理、核验、最终决定”之间有什么不同，会容易很多。",
     whyItMatters:
-      "如果没有这层判断，你很容易走向两个极端：什么都不敢交给 AI，或者看到它会回答就什么都交给它。先学会选对任务，后面的提示词、上下文、迭代和核验才有真实对象。",
+      "第一课最重要的是先建立“我真的用 AI 完成了一件事”的感觉。只有先有这个简单体验，后面的任务判断、任务说明、补资料、修改和核验才不会变成抽象概念。",
     points: [
       "可协助：AI 先产生草稿、整理结果或候选方向，你可以很快检查。",
       "需谨慎核验：AI 可以先帮忙，但事实、日期、数字等不能只看它写得顺不顺。",
@@ -150,15 +150,15 @@ export const track01T101Draft = {
       "真正的学习产物不是“我知道 AI 很厉害”，而是一个你选对了边界、并已经开始加工的真实任务。"
     ],
     example: {
-      title: "三件真实工作，AI 应该参与到不同程度",
+      title: "先把一个 AI 新变化整理成 3 个重点",
       situation:
-        "上午你要整理会议记录、写一段活动介绍，还要决定是否批准一笔重要支出。",
+        "你准备做一条 AI 学习内容，手里只有三句零散想法：功能变简单了、普通人更容易用、但重要信息仍要自己确认。",
       before:
-        "如果只问“AI 能不能做”，三件事它都能给出某种答案，但你还不知道答案应该被怎么使用。",
+        "三句话散在一起，你知道大概想说什么，但还没有清楚结构。",
       after:
-        "会议记录可以让 AI 先整理行动项；活动介绍可以让 AI 起草，但事实要自己核对；重要支出可以让 AI 帮你列分析点，最终批准仍由人负责。",
+        "让 AI 只做一件事：把已有内容整理成 3 个普通人容易看懂的重点，不补充新的事实。",
       result:
-        "关键不是把任务分成“AI 会 / AI 不会”，而是判断 AI 应该帮到什么程度。"
+        "你马上得到一个清楚的第一版。接着再看：整理和起草可以让 AI 多帮一点，事实信息要谨慎核验，最终发布决定仍由你负责。"
     },
     mistakes: [
       "问题：AI 能回答，就代表可以直接采用｜正确理解：能生成结果不等于结果已经可靠或适合直接使用。",
@@ -221,7 +221,7 @@ export const track01T101Draft = {
     title: "给 3 个真实任务分类，再做出你的 AI 第一版",
     goal: "从自己的真实工作中完成一次任务适配判断，并留下后续 T1-02 可以继续使用的第一版。",
     instructions: [
-      { key: "tasks", label: "我的 3 个真实任务 + 分类", prompt: "写 3 个你最近真的要做的任务，并分别标记：AI 可协助 / 需谨慎核验 / 人负责最终决定。" },
+      { key: "tasks", label: "从简单案例扩展到我的 3 个真实任务", prompt: "先参考刚才“整理 3 个重点”的体验，再写 3 个你最近真的要做的任务，并分别标记：AI 可协助 / 需谨慎核验 / 人负责最终决定。" },
       { key: "goal", label: "我选中的任务 + 一句话目标", prompt: "从中选 1 个适合 AI 先协助的任务，用一句话写清你希望它先帮你得到什么。" },
       { key: "draft", label: "AI 给出的第一版", prompt: "把这句话交给你常用的 AI 软件，把它生成的第一版粘贴或记录在这里。现在不要提前优化。" }
     ],
@@ -231,9 +231,9 @@ export const track01T101Draft = {
       "3｜第一版只要能继续检查和修改就够了，不需要现在追求完美。"
     ],
     rubric: [
-      { key: "tasks", label: "3 个任务真实且完成分类", maxScore: 35, minScore: 18, example: "整理会议记录—AI 可协助；核对活动日期—需谨慎核验；批准付款—人负责最终决定。" },
-      { key: "goal", label: "选中的任务目标具体", maxScore: 25, minScore: 13, example: "把今天的会议记录先整理成待办事项清单。" },
-      { key: "draft", label: "留下可继续加工的第一版", maxScore: 40, minScore: 20, example: "保留 AI 根据任务目标生成的第一版结果，下一课继续使用。" }
+      { key: "tasks", label: "3 个任务真实且完成分类", maxScore: 35, minScore: 18, example: "整理 AI 新变化的零散想法—AI 可协助；核对功能发布日期—需谨慎核验；决定是否正式发布—人负责最终决定。" },
+      { key: "goal", label: "选中的任务目标具体", maxScore: 25, minScore: 13, example: "把我对这个 AI 新变化的零散想法整理成 3 个普通人容易看懂的重点。" },
+      { key: "draft", label: "留下可继续加工的第一版", maxScore: 40, minScore: 20, example: "1. 新功能让操作更简单。2. 普通用户更容易开始使用。3. 涉及日期、价格等信息仍要自己确认。" }
     ],
     passScore: 60
   },
@@ -242,7 +242,7 @@ export const track01T101Draft = {
     "不要在这一课提前优化提示词；先保留最初任务目标和第一版，下一课会专门处理。"
   ],
   referenceAnswer:
-    "我的 3 个真实任务 + 分类：\n1. 整理今天的项目会议记录——AI 可协助。\n2. 写一段包含活动日期的对外介绍——需谨慎核验。\n3. 批准一笔供应商付款——人负责最终决定。\n\n我选中的任务 + 一句话目标：把今天的会议记录先整理成“待办事项 / 负责人 / 时间”三栏。\n\nAI 给出的第一版：保留 AI 生成的第一版行动清单，先不继续优化，下一课再把任务要求说得更清楚。",
+    "我的 3 个真实任务 + 分类：\n1. 整理一个 AI 新变化的零散想法——AI 可协助。\n2. 核对这个功能的正式发布日期——需谨慎核验。\n3. 决定内容是否正式发布——人负责最终决定。\n\n我选中的任务 + 一句话目标：把我对这个 AI 新变化的零散想法整理成 3 个普通人容易看懂的重点。\n\nAI 给出的第一版：\n1. 新功能让操作更简单。\n2. 普通用户更容易开始使用。\n3. 涉及日期、价格等信息仍要自己确认。",
   review: [
     "任务先看清｜先确认自己到底要完成什么，避免因为 AI 能回答就直接开始。",
     "协助程度要匹配｜优先让 AI 产生容易检查的中间结果，而不是默认把整个任务交出去。",
@@ -267,7 +267,7 @@ export const track01T101KnowledgeDepth = {
 } as const;
 
 export const track01T101ReferenceFill = {
-  tasks: "1. 整理会议记录—AI 可协助；2. 写带日期的活动介绍—需谨慎核验；3. 批准供应商付款—人负责最终决定。",
-  goal: "把今天的会议记录先整理成“待办事项 / 负责人 / 时间”三栏。",
-  draft: "待办事项：整理客户反馈；负责人：小林；时间：周五前。下一课继续用这份第一版检查任务说明是否足够清楚。"
+  tasks: "1. 整理一个 AI 新变化的零散想法—AI 可协助；2. 核对功能正式发布日期—需谨慎核验；3. 决定内容是否正式发布—人负责最终决定。",
+  goal: "把我对这个 AI 新变化的零散想法整理成 3 个普通人容易看懂的重点。",
+  draft: "1. 新功能让操作更简单。\n2. 普通用户更容易开始使用。\n3. 涉及日期、价格等信息仍要自己确认。"
 } as const;

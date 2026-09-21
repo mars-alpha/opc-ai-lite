@@ -34,3 +34,20 @@ During acceptance, a deterministic validator drift was found and corrected: `BEG
 3. Step 4 是否能自然完成 3-task classification + selected goal + AI First Draft；
 4. Step 5 四个判断是否清楚且没有提前进入 T1-05 / T1-20；
 5. 第一版是否值得直接带入 T1-02。
+
+## Human Review refinement 1
+
+只按产品负责人反馈修改三项：
+
+1. **简单任务先行**：T1-01 第一屏不再同时抛出三类抽象判断，而从 OPC / 自媒体默认案例开始——“看到一个值得分享的 AI 新变化，先把几句零散想法整理成 3 个清楚重点”。完成第一次简单成功体验后，再逐步扩展到可协助 / 需谨慎核验 / 人负责最终决定。
+2. **清理 Reference Fill**：Reference Answer、rubric example 与一键填充字段只保留学习者应真实产出的内容；移除“下一课继续使用”“下一课检查”等内部 Artifact orchestration 文案。
+3. **锁定 Batch A 默认 Case Thread**：Formal Brief 正式写明 T1-01～T1-05 默认连续案例为 `OPC / 自媒体 AI 内容任务`；方法层仍行业中立，学员可替换为房地产、电商、教育、企业服务等真实任务。
+
+新增专项 acceptance：
+- `TRACK01_T101_SIMPLE_FIRST_TASK=PASS`
+- `TRACK01_T101_REFERENCE_FILL_CLEAN=PASS`
+- `TRACK01_T101_OPC_DEFAULT_CASE_THREAD=PASS`
+- `npm run typecheck` — PASS
+- `npm run build` — PASS
+
+T1-01 保持 **HUMAN_REVIEW_PENDING**；T1-02～T1-05 仍未扩产。

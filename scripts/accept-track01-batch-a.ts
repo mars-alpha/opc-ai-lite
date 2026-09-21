@@ -40,6 +40,10 @@ assert(Boolean(draft.referenceAnswer?.trim()), "TRACK01_T101_REFERENCE_ANSWER");
 assert(draft.hints.length >= 2, "TRACK01_T101_HINTS");
 assert(track01T101Meta.artifactOutput === "TASK_FIT_NOTE_WITH_AI_FIRST_DRAFT", "TRACK01_T101_ARTIFACT_OUTPUT");
 assert(track01T101Meta.nextReuse === "T1-02_CLEAR_TASK_BRIEF", "TRACK01_T101_NEXT_REUSE");
+assert(track01T101Meta.caseThread === "OPC_SELF_MEDIA_AI_CONTENT_DEFAULT", "TRACK01_T101_DEFAULT_CASE_THREAD");
+assert(track01T101Draft.content.example.title.includes("AI 新变化"), "TRACK01_T101_SIMPLE_OPC_ENTRY_TASK");
+assert(track01T101Draft.pedagogy.participation.title.includes("第一个 AI 小任务"), "TRACK01_T101_PROGRESSIVE_ENTRY");
+assert(!track01T101Draft.referenceAnswer?.includes("下一课"), "TRACK01_T101_REFERENCE_INTERNAL_ORCHESTRATION_LEAK");
 
 const visibleText = [
   draft.lessonSpec.title,
@@ -65,3 +69,6 @@ console.log("TRACK01_T101_FORMAL_BRIEF_ALIGNMENT=PASS");
 console.log("TRACK01_T101_SIX_STEP_CONTENT=PASS");
 console.log("TRACK01_T101_STEP4_ARTIFACT=PASS");
 console.log("TRACK01_T101_NEXT_REUSE=PASS");
+console.log("TRACK01_T101_SIMPLE_FIRST_TASK=PASS");
+console.log("TRACK01_T101_REFERENCE_FILL_CLEAN=PASS");
+console.log("TRACK01_T101_OPC_DEFAULT_CASE_THREAD=PASS");

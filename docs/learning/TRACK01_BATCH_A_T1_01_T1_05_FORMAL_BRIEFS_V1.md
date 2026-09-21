@@ -7,7 +7,7 @@ Course Builder target: **course-builder@0.2.0 + BEGINNER_QUALITY_V1**
 
 ## 1. Batch continuity
 
-默认 Case Thread：一个真实内容 / 工作任务，从“想让 AI 帮忙”逐步做到“结果可用且已做最小核验”。
+默认 Case Thread：**OPC / 自媒体 AI 内容任务**。从“看到一个值得分享的 AI 变化、手里只有零散想法”开始，先让 AI 完成一个极简单的整理任务，再逐步做到任务说明清楚、资料足够、迭代完成、结果可用且已做最小核验。学习者始终可以替换成自己的真实工作任务。
 
 ```text
 T1-01 选择任务并生成 First Draft
@@ -18,7 +18,7 @@ T1-01 选择任务并生成 First Draft
 → Verified Publishable Draft
 ```
 
-Stable Method Layer 必须行业中立。OPC / 自媒体只作为默认案例层，可替换房地产、电商、教育、企业服务等。
+Stable Method Layer 必须行业中立。**Batch A 默认连续案例层固定使用 OPC / 自媒体 AI 内容任务**，用于保证 T1-01～T1-05 的同一 Artifact 连续推进；学习者可替换为房地产、电商、教育、企业服务等自己的真实任务，方法与验收标准不变。
 
 ### Prompt vs Context fixed boundary
 
@@ -59,8 +59,8 @@ Prerequisite: **None**
 Output: **AI First Draft + Task Fit Note**
 
 ### Six-step intent
-1. EXPLAIN：不知道 AI 适合做什么，会出现“什么都让 AI 做”或“完全不知道从哪开始”。
-2. EXAMPLE：同一个内容任务中，草拟结构可以交给 AI；事实承诺、最终发布决定不能直接交给 AI。
+1. EXPLAIN：第一课先完成一个极简单任务——把关于一个 AI 新变化的几句零散想法整理成 3 个清楚重点；先获得“AI 确实帮我完成了一件事”的直观体验，再扩展判断。
+2. EXAMPLE：从刚完成的内容整理任务逐步扩展：整理 / 草拟可以交给 AI；事实信息需要谨慎核验；最终发布决定不能直接交给 AI。
 3. CHECK：给 3 个真实小场景，判断“可协助 / 需核验 / 不应直接决定”。
 4. PRACTICE：写下自己的 3 个真实任务，逐个标记“AI 可协助 / 需谨慎核验 / 人负责最终决定”；从中选 1 个，写一句任务目标并让 AI 生成最小 First Draft。保留 **3-task classification + selected task goal + AI First Draft**。
 5. REVIEW：任务是否清楚；AI 是否真的能帮；错误成本是否可接受；最终判断权在哪里。
