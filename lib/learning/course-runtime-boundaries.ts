@@ -1,0 +1,17 @@
+export const FORMAL_RUNTIME_COURSE_SLUGS = ["foundation-ai"] as const;
+export const LEGACY_STATIC_COURSE_SLUGS = [
+  "ai-literacy",
+  "chatgpt-worker",
+  "ai-workflow"
+] as const;
+
+const formalRuntimeCourseSlugs = new Set<string>(FORMAL_RUNTIME_COURSE_SLUGS);
+const legacyStaticCourseSlugs = new Set<string>(LEGACY_STATIC_COURSE_SLUGS);
+
+export function isFormalRuntimeCourse(courseSlug: string) {
+  return formalRuntimeCourseSlugs.has(courseSlug);
+}
+
+export function isLegacyStaticCourse(courseSlug: string) {
+  return legacyStaticCourseSlugs.has(courseSlug);
+}

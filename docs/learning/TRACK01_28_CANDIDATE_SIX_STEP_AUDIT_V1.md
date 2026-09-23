@@ -26,7 +26,7 @@ Scope: **AI 基础认知 / product-level 28 formal candidates only**
 2. EXAMPLE：有不可被相邻课替代的核心规律；
 3. CHECK：能通过真实判断题检查理解；
 4. PRACTICE：能完成一个最小动作 / 产物；
-5. REVIEW：能留下 2–4 个长期可复用判断；
+5. REVIEW：能围绕固定核心方向留下本课真正需要的长期可复用判断，并用课题化说明讲清原因与边界；数量不固定；
 6. CAPABILITY：能形成后续课程可调用的新能力。
 
 否则使用 MERGE / SUPPORTING_KNOWLEDGE / DEFER / SPLIT / REMOVE。

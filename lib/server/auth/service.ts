@@ -223,11 +223,18 @@ export async function requireSessionUser(request: Request) {
   return user;
 }
 
+export function shouldUseSecureSessionCookie() {
+  return (
+    process.env.NODE_ENV === "production" &&
+    process.env.OPC_ALLOW_INSECURE_SESSION_COOKIE !== "1"
+  );
+}
+
 export function sessionCookieOptions(expiresAt: Date) {
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureSessionCookie(),
     path: "/",
     expires: expiresAt
   };

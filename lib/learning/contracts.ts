@@ -4,6 +4,8 @@ export type CourseId = StageId;
 export type LessonId = string;
 
 export type ProgressMap = Record<string, LessonId[]>;
+export type LessonStatusMap = Record<string, Record<string, LessonProgressStatus>>;
+export type LessonStepMap = Record<string, Record<string, number>>;
 export type LearningStorageMode = "api" | "local";
 
 export type LessonProgressStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
@@ -58,6 +60,8 @@ export type LearningSnapshot = {
   authenticated: boolean;
   enrolledCourses: string[];
   completed: ProgressMap;
+  statusByCourse: LessonStatusMap;
+  currentStepByCourse: LessonStepMap;
   storageMode: LearningStorageMode;
   warning?: string;
 };
@@ -67,5 +71,7 @@ export type LocalProgressSnapshot = LearningSnapshot;
 export type LearningStateResponse = {
   enrolledCourses: string[];
   completed: ProgressMap;
+  statusByCourse: LessonStatusMap;
+  currentStepByCourse: LessonStepMap;
 };
 

@@ -597,13 +597,13 @@ Status: COMPLETE_DEFINED_V1
 
 Status: COMPLETE_BRIEF_READY_V1
 
-新增 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md`。F1-01～F1-04 已提升为 Course Builder-ready Formal Brief，分别覆盖 AI/ML/Generative AI、LLM Model vs Product、Training vs Inference、Generation vs Retrieval vs Deterministic Logic。每节已固定最终标题、Catalog subtitle/outcome、预计时长、Prerequisite、Lesson Type/Gate、Learning Objectives、Canonical Knowledge、Misconceptions、Scenario、六步教学意图、Three-Question Mastery focus、Grounding 与 Anti-overlap。新增 Catalog Display Contract，明确 curriculumStatus 与 availability 分离；PLANNED/BRIEF_READY 可展示但不可进入空课程页。下一步：`LEARNING-CATALOG-001 — Formal Curriculum Catalog UI`。
+该任务历史上完成了 pre-reframe F1-01～F1-04 Brief；后续 Beginner Reframe 已否决该方向，旧 `FOUNDATION_BATCH_A_BRIEFS_V1.md` 已删除。该任务只保留历史记录，不再提供 Course Builder 输入；后续不得从本任务恢复旧课程结构。
 
 ### CURRICULUM-004 — Foundation Catalog Metadata Completion
 
 Status: COMPLETE_CATALOG_READY_V1
 
-新增 `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`。AI 基础认知完整 7 Stage / 28 Lesson 均已补齐前端目录元数据，包括 lessonId、title、subtitle、learnerOutcome、lessonType、estimatedMinutes、curriculumStatus、availability、stage/module/order、prerequisites、badge，以及 Stage title/promise/count。F1-01～F1-04 为 BRIEF_READY + COMING_SOON，其余 24 节为 PLANNED + COMING_SOON；当前没有 AVAILABLE。目录可完整展示，但所有未发布课程不得进入空 Lesson Runtime。下一步：`LEARNING-CATALOG-001 — Formal Curriculum Catalog UI`。
+该任务历史上建立过 F-ID 7 Stage / 28 Lesson Catalog metadata；该旧文件现已被 `TRACK01_CATALOG_METADATA_V2.md` 的 T1-01～T1-20 / 6 Phase 目录取代并删除。本条只保留历史任务结论，不再作为当前 Catalog 输入。
 
 ### LEARNING-CATALOG-001 — Formal Curriculum Catalog UI
 
@@ -621,7 +621,7 @@ Human Review 后将五大长期学习板块移到课程目录上方作为一级�
 
 Status: PEDAGOGY_REJECTED_RETIRED_REFERENCE
 
-F1-01～F1-04 四节真实 CONCEPT Draft 已落盘并接入统一 Course Builder Preview。四节全部保持 EXPLAIN→EXAMPLE→CHECK→PRACTICE→REVIEW→CAPABILITY、conceptMasteryBeforePractice=true、Completion Gate=CHECK、practiceMode=NONE、Three-Question Mastery；Step 4 仅做轻量参与，不增加 Gate。新增共享 `FoundationConceptDraftPreview`，不按 lesson slug 改 Generic Runtime。Catalog 状态更新为 IN_PRODUCTION + COMING_SOON，未发布。学习路径页 Human Review 文案已将“课程导航”改为“学习地图”。Foundation Batch A acceptance、Course Builder contract、Concept Mastery、Three-Question Mastery、typecheck、build 全部 PASS。下一步：Human Review 四个 Preview，通过后逐节修订并进入正式化。
+该批次四节旧 CONCEPT Draft 虽曾技术 PASS，但已被 Human Review 判定为教学失败。旧 `FoundationConceptDraftPreview`、fixture、acceptance、4 个 Preview route 与 pre-reframe Brief 已删除；该任务仅保留历史失败证据，不得继续 Human Review、Runtime Provisioning、AVAILABLE，也不得恢复旧入口。
 
 ### CURRICULUM-005 — Beginner Foundation Reframe
 
@@ -747,7 +747,7 @@ Status: COMPLETE_DIRECTION_LOCKED
 
 Status: COMPLETE_AUDITED_V1
 
-完成五大板块 Capability Map → Knowledge Map → Six-step Audit 第一版。产品负责人确认 Track 01 正式审计输入仍为最初 28 个 AI 基础认知候选课程，仓库额外 4 个历史测试/冗余课程资产不进入 Curriculum。当前 17 个 Track 01 core lessons 保留为第一版能力收敛方案，不锁死最终数量；下一步必须基于正确的 28 个候选重新逐项确认 KEEP / MERGE / SUPPORTING_KNOWLEDGE / DEFER。RAG / MCP / Skill / Agent / Multimodal 继续保留清晰 Primary Knowledge Home。Canonical baseline：`docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`。
+该任务是 Track 01 17 课第一版 Six-step Audit 历史记录；后续 R1 已基于 28 个正式候选重新审计并收敛为 20 课，因此旧 17 课 audit 文件已删除。当前 canonical audit 证据为 `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`，目录 owner 为 `docs/learning/TRACK01_CATALOG_METADATA_V2.md`。
 
 ### CURRICULUM-SIX-STEP-AUDIT-001-R1 — Track 01 28-Candidate Six-step Re-audit
 
@@ -815,9 +815,9 @@ Status: HISTORICAL_BASELINE / SUPERSEDED_BY_TRACK01-PHASE1-RUNTIME-001-B
 
 ### TRACK01-PHASE1-RUNTIME-001-B — Lesson Runtime State Flow Consolidation
 
-Status: PLAN_APPROVED / IMPLEMENTATION_NOT_STARTED
+Status: B1-B5_CORE_IMPLEMENTED / MANUAL_BROWSER_ACCEPTANCE_PENDING
 
-Goal：重写并收敛课程恢复、Step 3 Check、Step 4 Practice、Completion、Rating 与下一课主链；不再围绕当前旧状态流继续叠加局部 Bug patch。
+Goal：重写并收敛课程恢复、Step 3 Check、Step 4 Practice、Completion、Rating 与下一课主链；不再围绕当前旧状态流继续叠加局部 Bug patch。B1～B5 核心实现已完成，剩余真实浏览器手工全流程验收独立保留。
 
 固定执行原则：
 
@@ -831,6 +831,26 @@ Goal：重写并收敛课程恢复、Step 3 Check、Step 4 Practice、Completion
 Detailed plan: `docs/learning/TRACK01_PHASE1_RUNTIME_001_B_IMPLEMENTATION_PLAN.md`
 
 Out of Scope：课程内容改写、T1-06 扩产、AI Daily、渠道自动化、新 Skill、通用状态框架、微服务化。
+
+### TRACK01-RUNTIME-PERF-002 — Critical Path Reduction
+
+Status: COMPLETE / BROWSER_ACCEPTANCE_PASS_WITH_INFRA_LIMITATION
+
+Goal：在 `TRACK01-PHASE1-RUNTIME-001-B` 已完成主链收敛基础上，继续缩短进入课程、检查答案、重新学习、Practice 检查、Completion、Rating 的用户等待 critical path；不改变课程模型、不改 UI 版式、不把正式状态交给前端。`0013 background_jobs` 已应用当前开发数据库，Outbox enqueue + drain 已真实 PASS；Check / Reset / Practice / Completion / Rating 已完成多轮 DB round-trip 收敛与真实浏览器验收。最终体验约为：进入课程 3s、Check 3s、Reset 4s、Practice 6s、Practice Retry 5s、Completion 4s、Rating 3s。剩余主要瓶颈转为 DB locality 与 Auth/Session request overhead。
+
+固定顺序：PERF-002-A Timing Instrumentation → B Durable Behavior Signal Outbox → C Command Internal Reread Reduction → D Runtime Lazy Reads → E Immediate UI Feedback → Acceptance。
+
+关键约束：先测量后优化；Behavior / Insight 只有建立 durable PostgreSQL outbox/job 后才能移出同步请求，禁止 fire-and-forget 伪异步；不新增第二套 Runtime truth，不引入 Redis / MQ / 微服务。
+
+Detailed plan: `docs/learning/TRACK01_RUNTIME_PERF_002_IMPLEMENTATION_PLAN.md`
+
+### RUNTIME-INFRA-PERF-003 — Database Locality & Request Overhead Reduction
+
+Status: PROPOSED / NOT_STARTED
+
+Goal：承接 PERF-002 剩余基础设施瓶颈，不再继续复杂化课程 Runtime 业务代码。重点验证与优化 Backend↔PostgreSQL 同区域部署、连接建立成本、API Session/Auth 固定 DB 开销，以及可安全采用的短 TTL server-side session cache / request-scoped auth reuse。
+
+边界：不改变 Check / Practice / Completion / Rating 权威模型；不引入 Redis 作为 MVP 前置依赖；不以缓存权限结果替代正式 Entitlement 校验；先测部署与请求开销，再决定是否增加缓存层。
 
 ### COURSE-BUILDER-SKILL-004-A — Real PROJECT Lesson Acceptance
 
@@ -854,6 +874,180 @@ MEDIA-001            Skill-driven Media Asset Factory
 
 Skill 固定原则：真实业务需要时版本化落盘并依据真实结果迭代；不提前建设通用 Skill Platform。
 
+### FACT-ALIGN-002 — Runtime / Access / Course Production Fact Realignment
+
+Status: COMPLETE_FACTS_ALIGNED
+
+Goal：清除 001-B / PERF-002 / staging 后的当前事实漂移，并建立“每类事实只有一个 owner 文件”的治理方式。
+
+Result：当前系统事实统一归属 `docs/CURRENT_SYSTEM_FACTS.md`；阶段摘要归属 `PROJECT_STATUS.md`；本文件只保留 Task 状态与边界。Course Builder v0.2 + Lesson Output Contract v1 保持当前课程生产基线。
+
+Out of Scope：课程内容、前端视觉、Runtime 行为、数据库迁移、T1-06 扩产。
+
+### ACCESS-RESUME-ACCEPTANCE-001 — Access + Resume Acceptance
+
+Status: COMPLETE_PASS
+
+Goal：对匿名 / FREE / FOLLOWER / MEMBER 权益与 foundation-ai Resume / Gate 做真实 HTTP + PostgreSQL 验收，不扩业务功能。
+
+Result：匿名课程入口 307 登录门禁 PASS；FREE / FOLLOWER / MEMBER Access Matrix PASS；T1-01～T1-05 currentStep Resume、Check Gate、Practice Gate、Completion Persistence、Relearn / Repractice 全 PASS；一次性测试数据均已清理。可复用脚本：npm run access:resume:accept -- --base-url=http://127.0.0.1:3001。
+
+Out of Scope：课程内容、视觉 UI、权益模型重构、T1-06、支付 / OAuth / 小程序。
+
+### TRACK01-PHASE2-CURRICULUM-001 — Core Learning Path Freeze
+
+Status: COMPLETE_FROZEN
+
+Goal：冻结 Track 01 的 20 节核心学习路径，固定课程顺序、6 个 Phase、Lesson Type、Primary Knowledge Point 与 prerequisite，并明确单一 curriculum owner，防止后续 Brief / Course Builder 再次漂移。
+
+Result：`docs/learning/TRACK01_CATALOG_METADATA_V2.md` 已升级为 **FROZEN_CORE_PATH_V1**，成为 Track 01 目录唯一 owner；20 节课程数量与顺序保持不变；T1-01～T1-20 均固定唯一 Primary Knowledge Point 与 Core Capability；Runtime / Access / Production 状态从 Catalog 职责中移除。下一课程生产入口为 T1-06 Formal Brief，小批次推进，不直接批量生成正文。
+
+Out of Scope：课程正文、T1-06 Draft、前端目录迁移、Runtime / Access、数据库、AI Daily、Track 02～05 重构。
+
+### TRACK01-PHASE2-T1-06-001 — T1-06 Formal Brief
+
+Status: COMPLETE_HUMAN_REVIEW_PASS
+
+Result：`docs/learning/TRACK01_T1_06_FORMAL_BRIEF_V1.md` Human Review PASS。
+
+### TRACK01-PHASE2-T1-06-002 — T1-06 Course Builder v0.2 Draft Production
+
+Status: COMPLETE_DRAFT_HUMAN_REVIEW_PASS
+
+Result：T1-06 Course Builder v0.2 Draft 已完成 Code Validation + Human Review。
+
+Validation：`npm run course-builder:check` PASS；`npx tsx scripts/validate-track01-t106-draft.ts` PASS；`npm run typecheck` PASS。
+
+### TRACK01-PHASE2-T1-06-003 — T1-06 Runtime Provisioning & Acceptance
+
+Status: COMPLETE_RUNTIME_ACCEPTANCE_PASS
+
+Result：T1-06 已进入 `foundation-ai` Phase 2 Runtime，并完成 Runtime Acceptance。
+
+### TRACK01-PHASE2-T1-06-004 — T1-06 Content & Step4 Experience Correction
+
+Status: COMPLETE_ACCEPTANCE_PASS
+
+Result：T1-06 当前课程内容与 Practice 已按 Lesson Output Contract / Course Builder v0.2 收敛并通过真实 Runtime Acceptance。
+
+Validation：T1-06 Runtime Acceptance PASS；T1-01～T1-05 Interaction Parity PASS；`npm run typecheck` PASS。
+
+### TRACK01-PHASE2-T1-07-001 — T1-07 Formal Brief
+
+Status: COMPLETE_HUMAN_REVIEW_PASS
+
+Result：`docs/learning/TRACK01_T1_07_FORMAL_BRIEF_V1.md` Human Review PASS。Primary Knowledge Point = Token / Probability Generation；Context Window 仅作 supporting intuition；Temperature / Top-p / Seed / Sampling、Memory / RAG 等保持在本课边界之外。
+
+### TRACK01-PHASE2-T1-07-002 — T1-07 Course Builder v0.2 Draft Production
+
+Status: COMPLETE_DRAFT_HUMAN_REVIEW_PASS
+
+Result：新增 `fixtures/course-builder/track01-phase2-t107.ts`；T1-07 Course Builder v0.2 Draft 已完成 Code Validation + Human Review。
+
+Validation：`npx tsx scripts/validate-track01-t107-draft.ts` PASS；`npm run course-builder:check` PASS；`npm run typecheck` PASS。
+
+### TRACK01-PHASE2-T1-07-003 — T1-07 Runtime Provisioning & Acceptance
+
+Status: COMPLETE_RUNTIME_ACCEPTANCE_PASS
+
+Result：T1-07 已 Provision 到 `foundation-ai` Phase 2 Runtime，并完成真实 Runtime Acceptance。
+
+Validation：T1-07 Runtime Acceptance PASS；T1-06 → T1-07 Navigation PASS；T1-06 Runtime Acceptance 回归 PASS；T1-01～T1-05 Interaction Parity PASS；`npm run typecheck` PASS。
+
+### COURSE-INTERACTION-CLEANUP-001 — Formal / Legacy Interaction Isolation & Dead UI Removal
+
+Status: COMPLETE_CODE_ACCEPTANCE_PASS
+
+Result：课程页已收敛为 Formal / Locked / Legacy 三路决策。正式交互唯一主链为 `FormalGuidedLessonView → AsyncLessonRuntimeShell → GenericLessonRuntimePanel`；历史 static renderer 已物理隔离至 `components/legacy-learning/`；Formal / Legacy slug 唯一边界为 `lib/learning/course-runtime-boundaries.ts`。已删除零引用旧交互组件 `StageProgress.tsx`、`CourseProgress.tsx`、`CourseCompletionBadge.tsx`、`LessonStatus.tsx`，并移除顶层旧 `CopyableGuide.tsx` / `LessonHelpPanel.tsx`，legacy 专用版本只存在隔离目录。Course Builder Preview 继续仅服务 Human Review / regression，不写正式 Progress / Completion。
+
+Validation：新增 `learning:course-interaction:check`；与 PERF-003、Sidebar UX、Formal Registry、Course Build Entry、typecheck、production build 联合验收。
+
+### TRACK01-T1-09-PRODUCTION-001 — Knowledge Base / Source of Truth Formal Production
+
+Status: COMPLETE_RUNTIME_ACCEPTANCE_PASS / AVAILABLE
+
+Result：T1-09 Formal Brief + Course Builder v0.2 Draft 已完成 Human Review，Reviewed Draft 为 `1.0.1-track01-t109-review`。随后已接入 LessonSpec Registry 与正式 Runtime Definition，并完成数据库 provisioning：3 个 required PUBLISHED Checks + 1 个 optional PUBLISHED Practice（required=false）。Catalog 当前为 `AVAILABLE + AVAILABLE`，runtimeLessonId=`t1-09-knowledge-source`。authenticated Runtime Acceptance 已通过：Check Gate、三题 Sequence、optional Practice、currentStep、Completion 与 T1-08 → T1-09 Navigation 均 PASS；Catalog 已提升为 AVAILABLE。
+
+Cleanup：删除旧 17-Lesson audit、旧 canonical realignment、旧 F-ID 7 Stage / 28 Lesson Catalog，当前 Track 01 只允许从 `TRACK01_CATALOG_METADATA_V2.md` 恢复目录。
+
+### TRACK01-T1-10-PRODUCTION-001 — Search / RAG Formal Production
+
+Status: COMPLETE_RUNTIME_ACCEPTANCE_PASS / AVAILABLE
+
+Result：已按 COURSE_BUILD_START_HERE.md 重新读取正式课程入口与当前事实源，完成 T1-09 → T1-10 → T1-11 连续性、Primary Knowledge Point、Main Learner Question 与 Deferred Boundaries。新增 Research Packet、Formal Brief、Course Builder v0.2 Draft 与 T1-10 validator。
+
+Boundary：T1-10 只教“问题 → 找到相关证据 → 交给 AI → 基于证据回答”的 Beginner RAG 直觉；Embedding / Vector Search / Vector Database / Chunk / Top-K / Reranking / Tool Use / Function Calling / MCP / Agent 不进入本课正文。Human Review、LessonSpec Registry、Runtime Definition、数据库 Provisioning 与 authenticated Runtime Acceptance 均已 PASS；Catalog 已提升为 AVAILABLE。
+
+Validation：npm run learning:t110:check PASS；T1_10_RUNTIME_PROVISION=PASS；T1_10_RUNTIME_ACCEPTANCE=PASS。
+
+### COURSE-BUILDER-SKILL-V1-WORKFLOW-001 — Stable Course Production Workflow
+
+Status: COMPLETE_ARCHITECTURE_ACCEPTANCE_PASS
+
+Result：课程生产已收敛为 Stable Contract + Course Builder Skill v1 + Orchestrator + Deterministic Validators + Human Review Gate + Runtime Pipeline。Workflow 固定生命周期，只绑定 Contract / Gate，不绑定具体 Skill version；Current Skill 由 skills/course-builder/index.ts 解析。
+
+Rule Sync：Workflow 每次运行通过 COURSE_PRODUCTION_RULE_SOURCES 读取规则 owner 文件最新内容，不复制规则正文；因此后续 COURSE_BUILD_START_HERE、Lesson Output Contract、Beginner Quality、Governance 等规则变化会自动进入下一次课程生产。
+
+Validation：learning:course-production-workflow:check PASS；learning:course-build-entry:check PASS；typecheck PASS。
+
+## TRACK01-T11-T20-WORKFLOW-BATCH-001 — T1-11～T1-20 Workflow Batch Draft Generation
+
+Status: COMPLETE_DETERMINISTIC_PASS
+Priority: P0
+
+已由 Course Production Workflow 一次性生成 T1-11～T1-20 共 10 个 Course Builder Skill v1 Draft；全部通过 Deterministic Validation，并统一停在 Human Review Gate。严格沿用 Unified Lesson Shell，不新增 UI / Renderer，不调整 CSS。生成过程中当前基础课不应展开的知识统一进入 DEFERRED_KNOWLEDGE_LEDGER_V1，并规划到 Track 02～05；Ledger 已进入 COURSE_PRODUCTION_RULE_SOURCES，后续变化由 Workflow read-latest 自动消费。
+
+Human Review 已由 `TRACK01-T11-T20-HUMAN-REVIEW-001` 完成；Runtime Gate 不绕过。
+
+结果：docs/task-results/TRACK01-T11-T20-WORKFLOW-BATCH-001.md；旧 TRACK01-T11-T20-BATCH-START-001 仅保留 HISTORICAL_ONLY。
+
+### TRACK01-T11-T20-HUMAN-REVIEW-001 — T1-11～T1-20 Batch Human Review
+
+Status: COMPLETE_HUMAN_REVIEW_PASS
+Priority: P0
+
+Goal：直接承接已 Deterministic PASS 的 10 个 Workflow Draft，对 T1-11～T1-20 做真实教学 Human Review，不重新生成 Draft，不新增 UI / Renderer / CSS。
+
+Result：10 课全部 HUMAN_REVIEW_PASS。Human Review 补齐 Step 6 的现实触发情境，并修正少量 Beginner learner-facing language：T1-12 去除代码式字段名示例；T1-13 用“商品编号”替代 SKU；T1-17 使用中文优先的目标 / 当前状态与观察 / 判断与行动 / 停止条件表达。Deferred 工程知识继续由 `docs/learning/DEFERRED_KNOWLEDGE_LEDGER_V1.md` 管理。
+
+Next Gate：LessonSpec Registry → Runtime Provisioning → Runtime Acceptance。Human Review PASS 不等于 AVAILABLE。
+
+Result：`docs/task-results/TRACK01-T11-T20-HUMAN-REVIEW-001.md`。
+
+### TRACK01-T11-T20-RUNTIME-001 — T1-11～T1-20 Batch Runtime Provisioning & Acceptance
+
+Status: COMPLETE_RUNTIME_ACCEPTANCE_PASS / AVAILABLE
+Priority: P0
+
+Result：T1-11～T1-20 已批次接入现有 `foundation-ai` 正式主链：LessonSpec Registry → Phase 4～6 Runtime Provisioning → Runtime API → Check / Practice Gate → Completion → 实际课程页。10/10 Runtime Acceptance 全部 PASS；APPLICATION 课程继续使用 `CHECK + PRACTICE` Gate，CONCEPT 课程使用 `CHECK` Gate + optional Practice。没有新增 UI / Renderer / interaction type，也没有调整 CSS。
+
+Validation：`T1_11_RUNTIME_ACCEPTANCE=PASS` ～ `T1_20_RUNTIME_ACCEPTANCE=PASS`；`T1_11_T1_20_LESSON_SPEC_REGISTRY=PASS`；`T1_11_T1_20_RUNTIME_PROVISIONED=PASS`；`T1_11_T1_20_CHECK_PRACTICE_GATES=PASS`；`T1_11_T1_20_PAGE_RENDERING=PASS`；测试数据清理 PASS。
+
+Result evidence：`docs/task-results/TRACK01-T11-T20-RUNTIME-001.md`。
+
+### TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001 — T1-11～T1-20 Post-runtime Learning Experience Rework
+
+Status: COMPLETE_QUALITY_REWORK / RUNTIME_ACCEPTANCE_PASS
+Priority: P0
+
+Result：根据真实学习体验重新审计 T1-11～T1-20，并把经验回写全局课程生产规则。Learner-facing 普通英文改为自然中文；Step 4 Reference Fill 现在按字段组合即可直接复制给 AI 并得到本课目标输出；Step 6 新增独立现实触发场景，不再拿下一课预告代替。该任务当时关于 Step 5“取消固定核心标题”的结论已被后续课程标准修订并明确废止；当前唯一标准为上方固定回答“AI适合做什么 / AI不应该替你做什么”，卡片数量不固定，下方说明使用“明确命题 + 回答/解释”，数量同样不固定。
+
+Rule Sync：已同步 COURSE_BUILD_START_HERE、LESSON_OUTPUT_CONTRACT、BEGINNER_LESSON_QUALITY_STANDARD、COURSE_PRODUCTION_GOVERNANCE、Course Builder Skill v1、COURSE_PRODUCTION_WORKFLOW 与 Deterministic Validator；Workflow 继续通过 Rule Sources read-latest 自动消费最新规则。
+
+Validation：Chinese-first / Copy-ready Reference Answer / Review Density Variation / Trigger Scenarios 四项新增质量门全部 PASS；重新 Provision 后 T1-11～T1-20 10/10 authenticated Runtime Acceptance PASS；无 UI / Renderer / CSS 改动。
+
+Result：`docs/task-results/TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001.md`。
+
+### COURSE-WORKFLOW-GLOBAL-001 — Universal Course Production Baseline & Workspace Reconciliation
+
+Status: COMPLETE_BASELINE_GLOBALIZED / GIT_RECONCILIATION
+
+Result：课程生产标准已从 Track 01 局部经验提升为所有正式板块通用基线。全局 Rule Sources 只保存跨板块长期规则；Track / 板块 Catalog、上一课→本课→下一课连续性、Formal Brief、Deferred Knowledge Boundary 与 Grounding 作为每次运行 Context，并通过 `courseContextReady` 硬 Gate 后才能进入 Course Builder。六步责任、中文优先、Step 3 锁定交互、Step 4 Copy-ready、Step 5 固定双核心方向 + 数量灵活 + 下方命题解释层、Step 6 现实触发均由 Workflow / Skill / Validator / Human Review 共同约束。
+
+Drift Cleanup：现行 owner 已移除 Track01 专属 Rule Source 绑定、固定 2–4 Review 数量、旧 Step 5 反向规则和 Current Facts 中的旧 Human Review 状态；历史设计文档仅保留历史角色并标记 superseded，不再声明 Current Next Task / Current Skill。
+
+Workspace：执行 Git 工作区基线清场；保留当前正式 Runtime、课程数据、迁移、治理、验收与已确认前端基线，正式记录已淘汰旧 Preview / 旧组件 / 旧 Catalog / 旧 fixture 删除，不使用 reset/clean 回退当前成果。
+
 # BACKLOG
 
 ```text
@@ -869,7 +1063,4 @@ Obsidian Markdown 导出
 会员与权益增强
 微信小程序客户端
 ```
-
-
-
-
+\n

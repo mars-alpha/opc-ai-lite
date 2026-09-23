@@ -1,0 +1,2 @@
+ALTER TABLE "lesson_progress" ADD COLUMN "current_step" integer DEFAULT 1 NOT NULL;--> statement-breakpoint
+ALTER TABLE "lesson_progress" ADD CONSTRAINT "lesson_progress_current_step_check" CHECK ("lesson_progress"."current_step" between 1 and 6);

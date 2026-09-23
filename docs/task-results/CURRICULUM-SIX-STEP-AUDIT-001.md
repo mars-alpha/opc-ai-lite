@@ -6,8 +6,7 @@ Status: **COMPLETE_AUDITED_V1**
 
 五条长期课程主线保持不变，但课程粒度已从“术语驱动”改为“能力闭环驱动”。
 
-Canonical audit baseline:
-- `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`
+Historical audit baseline：该任务曾产生 17 课第一版审计，相关文件后续已被 R1 的 20 课 re-audit supersede 并删除。当前 Track 01 审计证据以 `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md` 为准。
 
 核心结论：
 - 产品级 Track 01 审计输入固定为原始 28 个 AI 基础认知 candidates；额外 4 个历史测试/冗余课程资产不纳入 Curriculum；

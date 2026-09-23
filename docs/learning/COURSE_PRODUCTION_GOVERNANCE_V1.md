@@ -9,18 +9,21 @@ Status: **APPROVED_BASELINE_V1**
 正式课程生产固定为：
 
 ```text
-Curriculum / Knowledge Map
+LOAD CURRENT RULE SOURCES
+→ Grounding / Curriculum
 → Formal Lesson Brief
-→ Course Builder
-→ Code Validation
-→ Draft Preview
-→ Human Review
+→ Current Course Builder Skill
+→ Deterministic Validators
+→ Human Review Gate
+→ LessonSpec Registry
 → Runtime Provisioning
 → Runtime Acceptance
 → AVAILABLE
 ```
 
 任何阶段都不得因为“技术已经能跑”而跳过下一阶段的准入条件。
+
+稳定 Workflow 定义见 `docs/learning/COURSE_PRODUCTION_WORKFLOW_V1.md`。Workflow 不直接依赖具体 Skill version；当前 Skill 由 `skills/course-builder/index.ts` registry 解析。
 
 ## 2. Existing catalog state vs governance stage
 
@@ -127,12 +130,14 @@ Exit to publication requires同时满足：
 
 Formal Brief 必须能够为当前 Primary Knowledge Point 明确：
 
-EXPLAIN → 为什么值得学
-EXAMPLE → 核心规律怎样被讲透
-CHECK → 怎样证明真正理解
-PRACTICE → 学习者怎样亲手做
-REVIEW → 哪 2–4 个判断值得长期保留
-CAPABILITY → 最终真正会什么、怎样自证
+EXPLAIN → 如何让学习者快速明白当前问题、学习价值和核心判断
+EXAMPLE → 用什么真实任务让核心规律变得可见
+CHECK → 怎样证明真正理解而不是背定义
+PRACTICE → 学习者怎样亲手完成一个最小真实动作
+REVIEW → 哪些判断值得长期保留
+CAPABILITY → 最终真正会什么、怎样自证、什么真实情况会触发这项能力
+
+Step 1 Clarity Gate：如果第一步必须先解释大量业务背景、数字、角色或条件，学习者才能理解核心问题，则 EXPLAIN 过载；应只保留进入课题所需的信息，把完整案例和复杂边界后移到 EXAMPLE。
 
 任何新 Lesson 不得因为属于 CONCEPT、进阶课或专业课而跳过六步。Lesson Type 只影响 Step 4 深度和 Completion Gate。
 
@@ -154,18 +159,18 @@ Knowledge Point Six-step Gate
 → Runtime Acceptance
 → AVAILABLE
 
-固定：**六步不是 UI 模板，而是知识是否值得成为一节正式课程的教学检验。**
+固定：**六步不是 UI 模板，也不是某节 reference lesson 的复制模板；它是知识是否真正被教会的教学检验。教学责任固定，案例、字段、文案组织和具体表现按课题决定。**
 
 ### 3.8 Lesson Output Contract
 
 Formal Brief 进入 Course Builder 后，正式 Draft 还必须遵守 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`。
 
-该 Contract 固定六步的输出职责、Step 4 Hint / Artifact 规则、Step 5 2–4 卡与“卡片 / 补充解释 / Pitfalls”分层、Step 6 Capability 自证要求，以及 Code Validation 与 Human Review 的职责边界。
+该 Contract 固定六步的输出职责、Step 4 完整学习动作 / Hint / Reference / Artifact 规则、Step 5 复盘与纠错分层、Step 6 Capability 自证与触发情境要求，以及 Code Validation 与 Human Review 的职责边界；它不固定具体案例写法、Practice 字段数量或某一课的文案模板。
 
 关键原则：
 - 不因单节课内容问题扩展 Runtime / UI；
 - Artifact 必须从当前课自然学习动作产生，不得为了下一课 handoff 反向制造字段；
-- Production Brief 已锁定 Case Thread 时必须遵守；Track 01 Batch A 当前默认 `OPC / 自媒体 AI 内容任务`，Stable Method Layer 仍行业中立；
+- Production Brief 若锁定内部 Case Thread，可用于保持业务连续性；但 Stable Method Layer 与学员可见案例必须行业中立、自然真实、可迁移，不得把内部 OPC / 自媒体 / 品牌 / 项目标签作为课程正文默认表达；
 - 技术规则能自动判断的进入 Code Validation，案例自然度、教学清晰度、Review 是否重复等语义质量必须由 Human Review 判断。
 
 后续若需要改变这套输出方式，必须版本化 Lesson Output Contract，不允许在单节课里静默漂移。
@@ -192,9 +197,12 @@ Human Review 前还必须完成 **Six-step Content Integrity Review**：
 - Step 4 必须有真实学习动作；CONCEPT 可不设 Practice Gate，但不能出现“有 PRACTICE Step、无可操作内容”；
 - Review / Capability 必须收束当前版本，而不是旧稿残留；
 - 仅修改标题、正文或 Case Thread，而未同步 Check / Practice / Participation，视为未完成 Rework。
-- Step 5 必须把真正可复用的知识 / 判断放在 Review 主体，mistakes 只做辅助纠偏；不允许用固定卡片数量代替教学判断；
-- Step 6 必须同时能回答“会做什么 / 怎么知道自己会了 / 马上能用在哪里 / 下一步为什么继续”；
+- Step 5 上方 Review 主体固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向回答；二者不能删除。主卡片数量由课题与知识密度决定、不固定，每张都必须有本课具体回答正文，禁止泛化口号；主卡片下方必须保留 `knowledgeDepth.review` 说明层，按“明确命题 + 回答/解释”继续讲清为什么、边界、使用条件和易混淆判断，数量同样不固定，且不得与主卡片机械重复。mistakes 只做辅助纠偏；
+- Step 6 必须同时能回答“会做什么 / 怎么知道自己会了 / 遇到什么情况应该想到这节课 / 下一步为什么继续”；
 - Guided Step 4 若要求学习者输入或产出内容，Human Review 必须检查 Hint / Reference / Fill / Copy 等辅助是否足够，避免出现“能输入但不会做”的伪实操。
+- 若 Step 4 使用 COPY_TO_AI，Human Review 必须把学习者实际字段按顺序组合，验证它们无需额外解释即可成为完整、准确、可执行并能得到本课目标输出的 AI 任务；若缺真实输入材料必须补为字段。Reference Fill 与 Reference Answer 必须表达同一标准任务，Reference Answer 不带字段主标题。
+- Step 6 的触发情境必须描述学习者未来会真实遇到的具体场景，并与 Next Lesson Value 分开存放和展示；若内容只是“本课使用某知识 / 上一课已学某知识 / 下一课继续某知识”，视为 CAPABILITY_TRIGGER_FAIL。
+- Human Review 必须检查是否出现模板漂移：把某一课的案例结构、字段数量、Review 数量或生产术语复制成其他课程的默认结构；Step 5 只有“AI适合做什么 / AI不应该替你做什么”两个核心复盘方向是固定的，主卡片数量、具体回答和下方说明数量都必须由课题决定；同时检查是否错误删除主卡片后的说明层、把说明固定成某个条数，或让上下两层机械重复；并检查 `Beginner`、`Schema`、过程英文标签等是否在没有教学必要时泄漏到学员端。
 
 Human Review FAIL：
 ```text
@@ -277,10 +285,11 @@ availability
 原则：
 - 一次 generation attempt 只能使用一个明确的 Skill Version；
 - 不允许 `course-builder v0.1 + v0.2` 复合生成；
-- 当前新 Beginner 课程默认 `course-builder@0.2.0`；
-- v0.1 仅用于历史 provenance / legacy compatibility；
+- 当前新正式课程默认通过 `skills/course-builder/index.ts` 解析 Current Skill；当前为 `course-builder@1.0.0`；
+- v0.1 / v0.2 仅用于历史 provenance / legacy compatibility；
 - Skill Version 与 Draft Version 分开；
 - Skill 升级不会自动改变历史 Lesson Draft。
+- Skill / Orchestrator / Deterministic Validators / Human Review Policy 的内部升级不要求修改 Workflow；只有稳定 Contract breaking change、正式 Gate 增删或 Gate 顺序变化才升级 Workflow。
 
 ## 6. Production batch rule
 
@@ -341,9 +350,9 @@ Out of Scope
 Acceptance
 ```
 
-对于当前 Foundation Stage 2：
+对于当前新正式课程：
 - Skill Decision = EXISTING_SKILL；
-- Selected Skill = course-builder@0.2.0；
+- Selected Skill = 由 `skills/course-builder/index.ts` 解析，当前为 `course-builder@1.0.0`；
 - Human Review = REQUIRED；
 - Runtime publication 不与内容生产任务自动绑定。
 

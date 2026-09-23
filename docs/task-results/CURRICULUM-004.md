@@ -4,7 +4,7 @@ Status: COMPLETE_CATALOG_READY_V1
 
 ## Result
 
-新增 `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`。
+历史上曾新增 `FOUNDATION_CATALOG_METADATA_V1.md`（旧 F-ID 7 Stage / 28 Lesson Catalog）；该文件后续已被 `TRACK01_CATALOG_METADATA_V2.md` 取代并删除，本 task-result 仅保留当时历史。
 
 AI 基础认知现已有完整前端目录元数据：
 - 7 Stages

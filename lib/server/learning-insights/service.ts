@@ -4,6 +4,10 @@ import { and, desc, eq, or } from "drizzle-orm";
 import { courses, getAllLessons, getCourse, getLesson } from "../../courses";
 import { getDatabase } from "../db";
 import {
+  enqueueLearningBehaviorRefresh,
+  isBackgroundJobsUnavailable
+} from "../background-jobs";
+import {
   courseInsights,
   courseUpdateCandidates,
   knowledgeItems,
@@ -923,6 +927,114 @@ export async function refreshLearningBehaviorSignals(
   });
 }
 
+export async function getLessonHelpfulnessState(
+  userId: string,
+  input: { courseSlug: string; lessonSlug: string }
+) {
+  const row = await getPublishedLessonRow(input.courseSlug, input.lessonSlug);
+  if (!row) throw new Error("LESSON_NOT_FOUND");
+
+  const db = getDatabase();
+  const [latestFeedbackRows, latestCheckRows, latestPracticeRows] = await Promise.all([
+    db
+      .select({ createdAt: learningFeedback.createdAt })
+      .from(learningFeedback)
+      .where(
+        and(
+          eq(learningFeedback.userId, userId),
+          eq(learningFeedback.lessonId, row.lessonId),
+          eq(learningFeedback.issueType, "LESSON_HELPFULNESS")
+        )
+      )
+      .orderBy(desc(learningFeedback.createdAt))
+      .limit(1),
+    db
+      .select({ updatedAt: lessonCheckResponses.updatedAt })
+      .from(lessonCheckResponses)
+      .innerJoin(lessonChecks, eq(lessonCheckResponses.checkId, lessonChecks.id))
+      .where(
+        and(
+          eq(lessonCheckResponses.userId, userId),
+          eq(lessonChecks.lessonId, row.lessonId)
+        )
+      )
+      .orderBy(desc(lessonCheckResponses.updatedAt))
+      .limit(1),
+    db
+      .select({ updatedAt: practiceSubmissions.updatedAt })
+      .from(practiceSubmissions)
+      .innerJoin(practices, eq(practiceSubmissions.practiceId, practices.id))
+      .where(
+        and(
+          eq(practiceSubmissions.userId, userId),
+          eq(practices.lessonId, row.lessonId)
+        )
+      )
+      .orderBy(desc(practiceSubmissions.updatedAt))
+      .limit(1)
+  ]);
+
+  const latestFeedbackAt = latestFeedbackRows[0]?.createdAt ?? null;
+  const latestInteractionAt = [latestCheckRows[0]?.updatedAt, latestPracticeRows[0]?.updatedAt]
+    .filter((value): value is Date => value instanceof Date)
+    .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
+
+  return {
+    canRate: !latestFeedbackAt || Boolean(
+      latestInteractionAt && latestInteractionAt.getTime() > latestFeedbackAt.getTime()
+    ),
+    submittedAt: latestFeedbackAt?.toISOString() ?? null,
+    latestInteractionAt: latestInteractionAt?.toISOString() ?? null
+  };
+}
+
+export async function getLessonHelpfulnessStateByLessonId(
+  userId: string,
+  lessonId: string
+) {
+  const db = getDatabase();
+  const [latestFeedbackRows, latestCheckRows, latestPracticeRows] = await Promise.all([
+    db.select({ createdAt: learningFeedback.createdAt })
+      .from(learningFeedback)
+      .where(and(
+        eq(learningFeedback.userId, userId),
+        eq(learningFeedback.lessonId, lessonId),
+        eq(learningFeedback.issueType, "LESSON_HELPFULNESS")
+      ))
+      .orderBy(desc(learningFeedback.createdAt))
+      .limit(1),
+    db.select({ updatedAt: lessonCheckResponses.updatedAt })
+      .from(lessonCheckResponses)
+      .innerJoin(lessonChecks, eq(lessonCheckResponses.checkId, lessonChecks.id))
+      .where(and(
+        eq(lessonCheckResponses.userId, userId),
+        eq(lessonChecks.lessonId, lessonId)
+      ))
+      .orderBy(desc(lessonCheckResponses.updatedAt))
+      .limit(1),
+    db.select({ updatedAt: practiceSubmissions.updatedAt })
+      .from(practiceSubmissions)
+      .innerJoin(practices, eq(practiceSubmissions.practiceId, practices.id))
+      .where(and(
+        eq(practiceSubmissions.userId, userId),
+        eq(practices.lessonId, lessonId)
+      ))
+      .orderBy(desc(practiceSubmissions.updatedAt))
+      .limit(1)
+  ]);
+  const latestFeedbackAt = latestFeedbackRows[0]?.createdAt ?? null;
+  const latestInteractionAt = [latestCheckRows[0]?.updatedAt, latestPracticeRows[0]?.updatedAt]
+    .filter((value): value is Date => value instanceof Date)
+    .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
+  return {
+    canRate: !latestFeedbackAt || Boolean(
+      latestInteractionAt && latestInteractionAt.getTime() > latestFeedbackAt.getTime()
+    ),
+    submittedAt: latestFeedbackAt?.toISOString() ?? null,
+    latestInteractionAt: latestInteractionAt?.toISOString() ?? null
+  };
+}
+
 export async function submitLearningFeedback(
   userId: string,
   input: {
@@ -956,16 +1068,24 @@ export async function submitLearningFeedback(
       qualityRisk: false,
       reviewStatus: "CLOSED"
     });
-    await recordLearningEvent({
-      userId,
-      lessonId: row.lessonId,
-      eventName: "lesson_helpfulness_submitted",
-      targetType: "LESSON",
-      targetId: row.lessonId,
-      properties: { helpfulness: input.helpfulness }
-    });
-    await refreshLearningBehaviorSignals(row.lessonId, "HELPFULNESS");
-    return { stored: true, insightStatus: "AGGREGATED_ONLY" };
+    try {
+      await Promise.all([
+        recordLearningEvent({
+          userId,
+          lessonId: row.lessonId,
+          eventName: "lesson_helpfulness_submitted",
+          targetType: "LESSON",
+          targetId: row.lessonId,
+          properties: { helpfulness: input.helpfulness }
+        }),
+        enqueueLearningBehaviorRefresh(row.lessonId, "HELPFULNESS")
+      ]);
+      return { stored: true, insightStatus: "QUEUED_FOR_AGGREGATION" };
+    } catch (error) {
+      if (!isBackgroundJobsUnavailable(error)) throw error;
+      await refreshLearningBehaviorSignals(row.lessonId, "HELPFULNESS");
+      return { stored: true, insightStatus: "AGGREGATED_SYNC_FALLBACK" };
+    }
   }
 
   if (!HELP_ISSUE_TYPES.includes(input.issueType)) {

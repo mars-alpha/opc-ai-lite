@@ -323,15 +323,6 @@ COURSE-PRODUCTION-001 的旧四个技术型 Foundation Draft 统一为 `PEDAGOGY
 
 ---
 
-# 14. Current next task
+# 14. Historical handoff
 
-**Foundation Stage 2 Production — F2-01～F2-04**
-
-当前进入下一生产批次前已具备：
-- Beginner Foundation Reframe；
-- Beginner Lesson Quality Standard v1；
-- Course Builder Skill v0.2；
-- Skill Governance v1；
-- Course Production Governance v1。
-
-Stage 2 内容生产继续保持 Preview → Human Review，与 Runtime Provisioning / AVAILABLE 分开。
+本文件是 **pre-audit candidate map**，不再声明 Current Next Task、Current Skill 或当前生产批次。Track 01 当前正式目录以 `TRACK01_CATALOG_METADATA_V2.md` 为准；所有新课程与其他板块课程统一从 `COURSE_BUILD_START_HERE.md` 进入 Course Production Workflow，并由 `skills/course-builder/index.ts` 解析 Current Skill。

@@ -4,12 +4,14 @@ import {
   HELP_ISSUE_TYPES,
   submitLearningFeedback
 } from "../../../../lib/server/learning-insights/service";
+import { createRuntimeTiming } from "../../../../lib/server/runtime-performance";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
     const user = await requireSessionUser(request);
+    const timing = createRuntimeTiming("learning_feedback");
     const body = await request.json().catch(() => null);
     const issueType = typeof body?.issueType === "string" ? body.issueType : "";
 
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
         typeof body?.relatedLessonId === "string" ? body.relatedLessonId : null
     });
 
+    timing.finish({ issue_type: issueType, stored: result.stored });
     return NextResponse.json(result, { status: result.stored ? 201 : 200 });
   } catch (error) {
     const code = error instanceof Error ? error.message : "FEEDBACK_FAILED";

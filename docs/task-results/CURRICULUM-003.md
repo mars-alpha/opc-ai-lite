@@ -1,10 +1,10 @@
 # CURRICULUM-003 — Foundation Batch A Brief Finalization
 
-Status: COMPLETE_BRIEF_READY_V1
+Status: HISTORICAL_SUPERSEDED_ASSETS_REMOVED
 
 ## Result
 
-新增 `docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md`。
+历史上曾新增 pre-reframe `FOUNDATION_BATCH_A_BRIEFS_V1.md`；该 Brief 后续被 Beginner Reframe 否决，并已从工程删除。
 
 F1-01～F1-04 已从 Planning Brief 升级为 Course Builder-ready Formal Brief：
 
@@ -46,8 +46,6 @@ F1-01～F1-04:
 其余 Foundation:
 - curriculumStatus = PLANNED
 
-## Next
+## Current disposition
 
-`LEARNING-CATALOG-001 — Formal Curriculum Catalog UI`
-
-先做规划数据 bridge + Catalog UI，不写 Production DB，不发布空课程。
+本文件仅保留历史决策证据。旧 Brief 文件、对应旧 Draft/Preview 实现均已删除；后续不得从本 task-result 恢复旧课程结构。当前课程生产以正式 Curriculum、当前 Formal Brief 与 `COURSE_BUILD_START_HERE.md` 为准。

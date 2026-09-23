@@ -7,10 +7,19 @@ export class AuthRequiredError extends Error {
   }
 }
 
+export type LessonCompletionResult = {
+  completed: boolean;
+  canRate: boolean;
+};
+
 export interface ProgressAdapter {
   load(): Promise<LearningSnapshot>;
   enroll(courseSlug: string): Promise<void>;
-  setLessonCompleted(courseSlug: string, lessonSlug: string, completed: boolean): Promise<void>;
+  setLessonCompleted(
+    courseSlug: string,
+    lessonSlug: string,
+    completed: boolean
+  ): Promise<LessonCompletionResult>;
 }
 
 const STORAGE_KEY = "opc-ai-course-progress-v1";
@@ -21,6 +30,8 @@ function emptyLocalSnapshot(): LearningSnapshot {
     authenticated: false,
     enrolledCourses: [],
     completed: {},
+    statusByCourse: {},
+    currentStepByCourse: {},
     storageMode: "local"
   };
 }
@@ -50,6 +61,13 @@ export const localProgressAdapter: ProgressAdapter = {
         authenticated: false,
         enrolledCourses,
         completed,
+        statusByCourse: Object.fromEntries(
+          Object.entries(completed).map(([courseSlug, lessonIds]) => [
+            courseSlug,
+            Object.fromEntries((Array.isArray(lessonIds) ? lessonIds : []).map((lessonSlug) => [lessonSlug, "COMPLETED"]))
+          ])
+        ),
+        currentStepByCourse: {},
         storageMode: "local"
       };
     } catch {
@@ -65,12 +83,14 @@ export const localProgressAdapter: ProgressAdapter = {
   },
 
   async setLessonCompleted(courseSlug, lessonSlug, completedValue) {
-    if (typeof window === "undefined") return;
-    const snapshot = await this.load();
-    const next = new Set(snapshot.completed[courseSlug] || []);
-    completedValue ? next.add(lessonSlug) : next.delete(lessonSlug);
-    const completed = { ...snapshot.completed, [courseSlug]: Array.from(next) };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+    if (typeof window !== "undefined") {
+      const snapshot = await this.load();
+      const next = new Set(snapshot.completed[courseSlug] || []);
+      completedValue ? next.add(lessonSlug) : next.delete(lessonSlug);
+      const completed = { ...snapshot.completed, [courseSlug]: Array.from(next) };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+    }
+    return { completed: completedValue, canRate: false };
   }
 };
 
@@ -90,6 +110,8 @@ const apiProgressAdapter: ProgressAdapter = {
         authenticated: false,
         enrolledCourses: [],
         completed: {},
+        statusByCourse: {},
+        currentStepByCourse: {},
         storageMode: "api"
       };
     }
@@ -114,6 +136,7 @@ const apiProgressAdapter: ProgressAdapter = {
       body: JSON.stringify({ courseSlug, lessonSlug, completed })
     });
     await requireApiOk(response, "Progress API failed");
+    return (await response.json()) as LessonCompletionResult;
   }
 };
 
@@ -148,10 +171,11 @@ export function createHybridProgressAdapter(): ProgressAdapter {
     },
 
     async setLessonCompleted(courseSlug, lessonSlug, completed) {
-      await active.setLessonCompleted(courseSlug, lessonSlug, completed);
+      const result = await active.setLessonCompleted(courseSlug, lessonSlug, completed);
       if (usingLocalFallback) {
         console.info("[OPC AI] Lesson progress saved locally because Learning API is unavailable.");
       }
+      return result;
     }
   };
 }

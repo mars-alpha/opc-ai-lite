@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   deleteSession,
   readSessionToken,
-  SESSION_COOKIE
+  SESSION_COOKIE,
+  shouldUseSecureSessionCookie
 } from "../../../../lib/server/auth/service";
 
 export async function POST(request: Request) {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
   response.cookies.set(SESSION_COOKIE, "", {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureSessionCookie(),
     path: "/",
     expires: new Date(0)
   });

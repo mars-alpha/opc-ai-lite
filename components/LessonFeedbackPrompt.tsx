@@ -25,23 +25,30 @@ export function LessonFeedbackPrompt({
   lessonSlug,
   nextHref,
   nextTitle,
-  nextLabel = "下一课"
+  nextLabel = "下一课",
+  showRating = false,
+  canRate = false
 }: {
   courseSlug: string;
   lessonSlug: string;
   nextHref: string;
   nextTitle: string;
   nextLabel?: string;
+  showRating?: boolean;
+  canRate?: boolean;
 }) {
   const router = useRouter();
-  const { ready, authenticated, isCompleted } = useProgress();
+  const { ready, authenticated, isCompleted, getCompletionResult } = useProgress();
   const completed = ready && isCompleted(courseSlug, lessonSlug);
-  const [open, setOpen] = useState(false);
+  const completionResult = getCompletionResult(courseSlug, lessonSlug);
+  const effectiveCanRate = completionResult?.canRate ?? canRate;
+  const effectiveShowRating = showRating || completionResult?.completed === true;
   const [rating, setRating] = useState<"NOT_CLEAR" | "HELPFUL" | "VERY_HELPFUL" | null>(null);
   const [reasons, setReasons] = useState<string[]>([]);
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   function toggleReason(reason: string) {
     setReasons((current) =>
@@ -51,18 +58,13 @@ export function LessonFeedbackPrompt({
     );
   }
 
-  function goNext() {
-    router.push(nextHref);
-  }
-
-  async function submitAndContinue() {
+  async function submitRating() {
     if (!rating) {
-      setMessage("先选择一个课程评价，或者直接点击“暂时跳过”。");
+      setMessage("先选择一个课程评价。");
       return;
     }
 
     if (!authenticated) {
-      goNext();
       return;
     }
 
@@ -77,6 +79,7 @@ export function LessonFeedbackPrompt({
           courseSlug,
           lessonSlug,
           issueType: "LESSON_HELPFULNESS",
+          helpfulness: rating === "NOT_CLEAR" ? "NOT_HELPFUL" : "HELPFUL",
           reasons: ["课程评分：" + ratingLabel, ...reasons],
           comment,
           resolutionStatus: rating === "NOT_CLEAR" || reasons.length > 0 || comment.trim()
@@ -85,30 +88,15 @@ export function LessonFeedbackPrompt({
         })
       });
       if (!response.ok) throw new Error("FEEDBACK_FAILED");
-      goNext();
+      setRating(null);
+      setReasons([]);
+      setComment("");
+      setSubmitted(true);
     } catch {
-      setMessage("课程评分暂时没有保存成功。你可以重试，也可以直接跳过进入下一课。");
+      setMessage("课程评分暂时没有保存成功，请稍后重试。");
     } finally {
       setBusy(false);
     }
-  }
-
-  function skipAndContinue() {
-    if (authenticated) {
-      fetch("/api/learning/events", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          courseSlug,
-          lessonSlug,
-          eventName: "lesson_feedback_skipped",
-          targetType: "LESSON",
-          targetId: lessonSlug,
-          properties: { exitFlow: true }
-        })
-      }).catch(() => undefined);
-    }
-    goNext();
   }
 
   return (
@@ -116,7 +104,7 @@ export function LessonFeedbackPrompt({
       <button
         type="button"
         className={"lesson-next-feedback-trigger next " + (completed ? "" : "is-disabled")}
-        onClick={() => completed && setOpen(true)}
+        onClick={() => completed && router.push(nextHref)}
         disabled={!ready || !completed}
         aria-disabled={!completed}
       >
@@ -124,19 +112,16 @@ export function LessonFeedbackPrompt({
         <strong>{nextTitle} →</strong>
       </button>
 
-      {open && (
+      {completed && effectiveShowRating && effectiveCanRate && !submitted && (
         <section className="lesson-next-rating-panel">
           <div className="lesson-feedback-after-nav-head">
             <div>
               <span>可选 · 课程评分</span>
               <strong>这节课对你有帮助吗？</strong>
             </div>
-            <button type="button" className="lesson-feedback-skip" onClick={skipAndContinue}>
-              暂时跳过 →
-            </button>
           </div>
 
-          <p>课程已经完成。这个评分只用于改进课程，不影响学习进度。</p>
+          <p>评分只用于改进课程，不影响学习进度。</p>
 
           <div className="lesson-rating-options">
             {ratings.map(([value, label]) => (
@@ -175,8 +160,8 @@ export function LessonFeedbackPrompt({
               />
 
               <div className="interactive-actions">
-                <button type="button" className="btn btn-primary" onClick={submitAndContinue} disabled={busy}>
-                  {busy ? "正在提交…" : "提交并进入下一课 →"}
+                <button type="button" className="btn btn-primary" onClick={submitRating} disabled={busy}>
+                  {busy ? "正在提交…" : "提交评分"}
                 </button>
               </div>
             </>

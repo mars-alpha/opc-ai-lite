@@ -41,7 +41,7 @@ export type PracticeAccessResult = {
 
 const practiceStage = alias(stages, "practice_stage");
 
-type PracticeAccessRow = {
+export type PracticeAccessRow = {
   id: string;
   type: PracticeType;
   accessTier: PracticeAccessTier;
@@ -54,9 +54,17 @@ type PracticeAccessRow = {
   sourceContentStatus: "DRAFT" | "PUBLISHED" | "ARCHIVED" | null;
   sourceKnowledgeId: string | null;
   sourceKnowledgeStatus: "DRAFT" | "PUBLISHED" | "ARCHIVED" | null;
+  title: string;
+  goal: string;
+  instructions: unknown;
+  hints: unknown;
+  rubric: unknown;
+  submissionSchema: unknown;
+  passScore: number;
+  required: boolean;
 };
 
-async function readPracticeAccessRow(practiceId: string): Promise<PracticeAccessRow | null> {
+export async function readPracticeAccessRow(practiceId: string): Promise<PracticeAccessRow | null> {
   const [row] = await getDatabase()
     .select({
       id: practices.id,
@@ -70,7 +78,15 @@ async function readPracticeAccessRow(practiceId: string): Promise<PracticeAccess
       sourceContentId: practices.sourceContentId,
       sourceContentStatus: contentItems.status,
       sourceKnowledgeId: practices.sourceKnowledgeId,
-      sourceKnowledgeStatus: knowledgeItems.status
+      sourceKnowledgeStatus: knowledgeItems.status,
+      title: practices.title,
+      goal: practices.goal,
+      instructions: practices.instructions,
+      hints: practices.hints,
+      rubric: practices.rubric,
+      submissionSchema: practices.submissionSchema,
+      passScore: practices.passScore,
+      required: practices.required
     })
     .from(practices)
     .leftJoin(lessons, eq(practices.lessonId, lessons.id))
@@ -111,13 +127,10 @@ async function requireMembership(
     : { ...baseResult(row), allowed: false, reason: "MEMBERSHIP_REQUIRED" };
 }
 
-export async function resolvePracticeAccess(
+export async function resolvePracticeAccessRow(
   userId: string | null,
-  practiceId: string
+  row: PracticeAccessRow
 ): Promise<PracticeAccessResult> {
-  const row = await readPracticeAccessRow(practiceId);
-  if (!row) throw new Error("PRACTICE_NOT_FOUND");
-
   if (row.type === "LESSON_PRACTICE") {
     if (!row.lessonId || !row.lessonSlug || !row.lessonCourseSlug) {
       return { ...baseResult(row), allowed: false, reason: "PRACTICE_OWNERSHIP_INVALID" };
@@ -185,5 +198,11 @@ export async function resolvePracticeAccess(
   };
 }
 
-
-
+export async function resolvePracticeAccess(
+  userId: string | null,
+  practiceId: string
+): Promise<PracticeAccessResult> {
+  const row = await readPracticeAccessRow(practiceId);
+  if (!row) throw new Error("PRACTICE_NOT_FOUND");
+  return resolvePracticeAccessRow(userId, row);
+}

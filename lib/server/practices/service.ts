@@ -7,7 +7,11 @@ import {
   practiceSubmissions,
   practices
 } from "../db/schema";
-import { resolvePracticeAccess } from "./access";
+import {
+  readPracticeAccessRow,
+  resolvePracticeAccess,
+  resolvePracticeAccessRow
+} from "./access";
 
 export async function getLatestPracticeSubmission(userId: string, practiceId: string) {
   const [submission] = await getDatabase()
@@ -51,7 +55,10 @@ export async function getLatestPracticeSubmission(userId: string, practiceId: st
 }
 
 export async function getPracticeForSubmission(userId: string, practiceId: string) {
-  const access = await resolvePracticeAccess(userId, practiceId);
+  const row = await readPracticeAccessRow(practiceId);
+  if (!row) throw new Error("PRACTICE_NOT_FOUND");
+
+  const access = await resolvePracticeAccessRow(userId, row);
   if (!access.allowed) {
     if (access.reason === "MEMBERSHIP_REQUIRED") throw new Error("MEMBERSHIP_REQUIRED");
     if (access.reason === "STAGE_PREREQUISITE_REQUIRED") throw new Error("STAGE_PREREQUISITE_REQUIRED");
@@ -60,32 +67,27 @@ export async function getPracticeForSubmission(userId: string, practiceId: strin
     throw new Error("PRACTICE_OWNERSHIP_INVALID");
   }
 
-  const [practice] = await getDatabase()
-    .select({
-      id: practices.id,
-      type: practices.type,
-      accessTier: practices.accessTier,
-      lessonId: practices.lessonId,
-      stageId: practices.stageId,
-      sourceContentId: practices.sourceContentId,
-      sourceKnowledgeId: practices.sourceKnowledgeId,
-      title: practices.title,
-      goal: practices.goal,
-      instructions: practices.instructions,
-      hints: practices.hints,
-      rubric: practices.rubric,
-      submissionSchema: practices.submissionSchema,
-      passScore: practices.passScore,
-      required: practices.required
-    })
-    .from(practices)
-    .where(and(eq(practices.id, practiceId), eq(practices.status, "PUBLISHED")))
-    .limit(1);
-
-  if (!practice) throw new Error("PRACTICE_NOT_FOUND");
-  return { practice, access };
+  return {
+    practice: {
+      id: row.id,
+      type: row.type,
+      accessTier: row.accessTier,
+      lessonId: row.lessonId,
+      stageId: row.stageId,
+      sourceContentId: row.sourceContentId,
+      sourceKnowledgeId: row.sourceKnowledgeId,
+      title: row.title,
+      goal: row.goal,
+      instructions: row.instructions,
+      hints: row.hints,
+      rubric: row.rubric,
+      submissionSchema: row.submissionSchema,
+      passScore: row.passScore,
+      required: row.required
+    },
+    access
+  };
 }
-
 export async function getPracticeReadModel(userId: string | null, practiceId: string) {
   const access = await resolvePracticeAccess(userId, practiceId);
   const [practice] = await getDatabase()

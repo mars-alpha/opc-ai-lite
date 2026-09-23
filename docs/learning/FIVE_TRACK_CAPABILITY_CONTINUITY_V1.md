@@ -28,6 +28,19 @@ OPC 五大长期板块不是五套独立课程，而是一条连续能力链：
 
 **学完能继续做什么，比学完记住什么更重要。**
 
+### 1.1 Five-track curriculum is capability-complete, not lesson-count-complete
+
+五大板块都不以固定课数作为完成标准。
+
+每个 Track 的课程数量由 **Exit Capability 是否完整形成** 决定：
+- 如果现有课程足以让学习者稳定完成该 Track 的真实任务，不为“内容丰富”继续加课；
+- 如果 Human Review / Practice / Project / Learner Evidence 发现关键能力断层，可以继续增加课程；
+- 新课程必须说明它修复哪个能力缺口，以及后续 Track 怎样复用；
+- 课程目录可以扩展，但五大板块的能力方向保持稳定。
+
+因此 Track 01 当前 20 节是 Core Baseline，不是上限；Track 02～05 未来也采用同一规则，不预先锁死课数。
+
+
 ## 2. Universal method vs case layer
 
 课程必须分为两层。
@@ -80,6 +93,31 @@ OPC 五大长期板块不是五套独立课程，而是一条连续能力链：
 | 03 推广运营与业务增长 | Track 02 工作产物 | 内容运营、分发、获客、销售、客服、运营分析 | 内容资产、渠道素材、Lead、跟进/客服方案、运营复盘 | 能把 AI 工作结果转成业务机会 | Track 04 选择已验证的重复业务链路 |
 | 04 Workflow 与自动化 | Track 03 已验证流程 | Task Decomposition、Context Engineering、Code/Skill/Tool、Automation、HITL、Evaluation | 可执行 Workflow 方案 / Prototype | 能把有效方法变成稳定流程 | Track 05 将 Workflow 放入完整业务问题 |
 | 05 FDE | Track 04 Workflow 能力 | Problem Discovery、Value、Solution Design、Pilot、Evaluation、Adoption | 完整 AI Solution Package | 能发现并推动真实 AI 解决方案 | 形成真实项目 / 企业落地能力 |
+
+### 3.1 Five-track integration model
+
+五大板块不是“基础课 → 五套新内容”，而是同一对象持续升级：
+
+| Transition | 前一板块保留下来的东西 | 下一板块新增什么 | 结合方式 |
+| --- | --- | --- | --- |
+| Track 01 → 02 | Task Brief、Context、Iteration、Verification 方法 + 一个真实任务产物 | Research / Writing / Files / Data / Knowledge 工作技能 | 不重教 Prompt；直接拿已有方法去做更多工作 |
+| Track 02 → 03 | 研究结果、内容、文件、数据、知识资产 | 内容运营、推广、获客、销售、客服、运营分析 | 把“工作产物”变成“业务动作与业务结果” |
+| Track 03 → 04 | 已经人工跑通且证明有效的业务链路 | Workflow、Automation、Skill / Tool / Code、HITL、Evaluation | 只自动化已经理解和验证的流程 |
+| Track 04 → 05 | 可执行 Workflow、指标、异常、权限、人工确认点 | Problem Discovery、Value、Solution Design、Pilot、Adoption | 不从零做 Demo，而是把已有流程放进完整业务问题 |
+| Track 05 → Real Project | Solution Package、Pilot Evidence、Adoption Plan | 企业 / 项目真实实施 | 形成可交付的 FDE / AI 解决方案能力 |
+
+统一纵向主线：
+
+```text
+一个真实任务
+→ 做出可靠工作产物
+→ 让产物产生业务价值
+→ 把有效业务流程系统化
+→ 把系统化能力组合成完整 AI 解决方案
+```
+
+任何新增课程都必须能标注自己位于这条链的哪一段，以及它的输出由哪个后续模块继续使用。
+
 
 ## 4. Lesson continuity rules
 

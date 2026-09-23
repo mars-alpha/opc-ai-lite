@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Course } from "../lib/courses";
-import { getAllLessons } from "../lib/courses";
 import { useProgress } from "./ProgressProvider";
+
+const SIDEBAR_COLLAPSE_STORAGE_PREFIX = "opc:lesson-sidebar:collapsed:";
 
 export function LessonCourseSidebar({
   course,
@@ -16,12 +17,66 @@ export function LessonCourseSidebar({
   lockedLessonIds?: string[];
 }) {
   const [open, setOpen] = useState(false);
+  const [collapsedStageIds, setCollapsedStageIds] = useState<string[]>([]);
   const { ready, completedCount, isCompleted } = useProgress();
   const lessons = course.modules.flatMap((module) => module.lessons);
   const done = ready ? completedCount(course.slug) : 0;
   const percent = lessons.length ? Math.round((done / lessons.length) * 100) : 0;
   const currentIndex = Math.max(0, lessons.findIndex((item) => item.id === currentLessonId));
   const locked = new Set(lockedLessonIds);
+  const storageKey = SIDEBAR_COLLAPSE_STORAGE_PREFIX + course.slug;
+
+  const currentStageId = useMemo(
+    () =>
+      course.modules.find((module) =>
+        module.lessons.some((lesson) => lesson.id === currentLessonId)
+      )?.id ?? null,
+    [course.modules, currentLessonId]
+  );
+
+  useEffect(() => {
+    try {
+      const stored = window.sessionStorage.getItem(storageKey);
+      if (!stored) return;
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) return;
+      setCollapsedStageIds(
+        parsed.filter(
+          (value): value is string =>
+            typeof value === "string" && value !== currentStageId
+        )
+      );
+    } catch {
+      // Sidebar collapse state is optional UI state. Ignore unavailable storage.
+    }
+  }, [currentStageId, storageKey]);
+
+  useEffect(() => {
+    if (!currentStageId) return;
+    setCollapsedStageIds((current) =>
+      current.includes(currentStageId)
+        ? current.filter((id) => id !== currentStageId)
+        : current
+    );
+  }, [currentStageId]);
+
+  function toggleStage(stageId: string) {
+    if (stageId === currentStageId) return;
+
+    setCollapsedStageIds((current) => {
+      const next = current.includes(stageId)
+        ? current.filter((id) => id !== stageId)
+        : [...current, stageId];
+
+      try {
+        window.sessionStorage.setItem(storageKey, JSON.stringify(next));
+      } catch {
+        // UI preference persistence must never block course navigation.
+      }
+
+      return next;
+    });
+  }
 
   return (
     <aside className="lesson-sidebar">
@@ -61,29 +116,76 @@ export function LessonCourseSidebar({
         </div>
 
         <div className="lesson-side-list">
-          {lessons.map((item, itemIndex) => {
-            const complete = ready && isCompleted(course.slug, item.id);
-            const isLocked = locked.has(item.id);
+          {course.modules.map((module, moduleIndex) => {
+            const lessonOffset = course.modules
+              .slice(0, moduleIndex)
+              .reduce((total, item) => total + item.lessons.length, 0);
+            const isCurrentStage = module.id === currentStageId;
+            const collapsed =
+              !isCurrentStage && collapsedStageIds.includes(module.id);
+            const moduleDone = ready
+              ? module.lessons.filter((item) => isCompleted(course.slug, item.id)).length
+              : 0;
+            const lessonListId = "lesson-side-stage-" + module.id;
+
             return (
-              <Link
-                key={item.id}
-                href={"/courses/" + course.slug + "/lessons/" + item.id}
-                className={
-                  (item.id === currentLessonId ? "active " : "") +
-                  (complete ? "is-complete " : "") +
-                  (isLocked ? "is-locked" : "")
-                }
-                onClick={() => setOpen(false)}
+              <div
+                className={"lesson-side-stage " + (collapsed ? "is-collapsed" : "is-expanded")}
+                key={module.id}
               >
-                <span>
-                  {complete
-                    ? "✓"
-                    : isLocked
-                      ? "🔒"
-                      : String(itemIndex + 1).padStart(2, "0")}
-                </span>
-                {item.title}
-              </Link>
+                <button
+                  type="button"
+                  className="lesson-side-stage-title"
+                  aria-expanded={!collapsed}
+                  aria-controls={lessonListId}
+                  aria-label={
+                    isCurrentStage
+                      ? module.title + "，当前学习阶段，保持展开"
+                      : module.title + (collapsed ? "，展开阶段" : "，折叠阶段")
+                  }
+                  disabled={isCurrentStage}
+                  onClick={() => toggleStage(module.id)}
+                >
+                  <i aria-hidden="true" />
+                  <strong>{module.title}</strong>
+                  <span className="lesson-side-stage-progress">
+                    {moduleDone} / {module.lessons.length}
+                  </span>
+                  <span className="lesson-side-stage-chevron" aria-hidden="true">
+                    {collapsed ? "›" : "⌄"}
+                  </span>
+                </button>
+
+                {!collapsed && (
+                  <div className="lesson-side-stage-lessons" id={lessonListId}>
+                    {module.lessons.map((item, itemIndex) => {
+                      const complete = ready && isCompleted(course.slug, item.id);
+                      const isLocked = locked.has(item.id);
+                      return (
+                        <Link
+                          key={item.id}
+                          href={"/courses/" + course.slug + "/lessons/" + item.id}
+                          className={
+                            (item.id === currentLessonId ? "active " : "") +
+                            (complete ? "is-complete " : "") +
+                            (isLocked ? "is-locked" : "")
+                          }
+                          onClick={() => setOpen(false)}
+                        >
+                          <span>
+                            {complete
+                              ? "✓"
+                              : isLocked
+                                ? "🔒"
+                                : String(lessonOffset + itemIndex + 1).padStart(2, "0")}
+                          </span>
+                          {item.title}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
@@ -91,6 +193,3 @@ export function LessonCourseSidebar({
     </aside>
   );
 }
-
-
-

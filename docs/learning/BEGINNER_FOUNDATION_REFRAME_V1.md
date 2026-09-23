@@ -117,8 +117,8 @@ Hallucination（幻觉）已经在 F1-03 以用户问题方式建立直觉，Sta
 - 不再作为当前生产候选；
 - 不得切换 AVAILABLE；
 - 不得从学习地图链接为当前 Human Review；
-- 保留代码与 Preview 作为历史失败样本；
-- 未来若其中某个主题后移后重新生产，必须使用新的 Brief / lessonId，不直接把旧 Draft 修补成正式课。
+- 旧代码、Preview route、fixture、acceptance 与 pre-reframe Brief 已删除；历史失败结论只保留在治理/任务记录中；
+- 未来若其中某个主题后移后重新生产，必须从当前 Curriculum / Formal Brief 重新生成，不得恢复旧 Draft 文件、旧 Preview URL 或旧 lessonId 实现。
 
 **技术 PASS 不等于教学 PASS。**
 
@@ -134,7 +134,7 @@ Hallucination（幻觉）已经在 F1-03 以用户问题方式建立直觉，Sta
 - 如果不说英文术语也能讲明白，先用中文直觉；
 - Check 检查“会不会判断”，不是检查“会不会背定义”；
 - Practice 必须贴近日常工作；
-- Review 最多保留 2–4 条判断规则；
+- Review 数量不再使用本历史文档的 2–4 预算；现行 Step 5 以 `LESSON_OUTPUT_CONTRACT_V1.md` 为准；
 - Capability 用“我现在能做什么”表达，而不是“我理解了哪些理论”。
 
 ---
@@ -145,8 +145,4 @@ COURSE-PRODUCTION-002 与 COURSE-PRODUCTION-003 已证明 Beginner-first 方向�
 
 当前以 `FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md` 为更高优先级 Continuity Baseline。
 
-下一任务：
-
-**FOUNDATION-CONTINUITY-REWORK-001 — Stage 1 + Stage 2 Formal Brief Continuity Rework**
-
-只先重做 Formal Brief / Case Thread / Artifact Thread / Do-Not-Reteach，不直接进入 Runtime，也不继续批量生产 Stage 3+。
+本文件只保留 Beginner Reframe 的历史设计依据，不再声明 Current Next Task。当前课程入口、当前 Skill、Workflow 与下一阶段状态从 `COURSE_BUILD_START_HERE.md`、`CURRENT_SYSTEM_FACTS.md`、`PROJECT_STATUS.md` 恢复。

@@ -81,9 +81,27 @@ COURSE-PRODUCTION-TRACK01-A-003 T1-02 Closure & T1-03 Context Pilot COMPLETE_T1-
 COURSE-PRODUCTION-TRACK01-A-004 T1-04 Purposeful Iteration Pilot COMPLETE_T1-04_HUMAN_REVIEW_PASS
 COURSE-PRODUCTION-TRACK01-A-005 T1-04 Closure & T1-05 Reliability Pilot COMPLETE_T1-05_HUMAN_REVIEW_PASS
 TRACK01-PHASE1-RUNTIME-001 T1-01～T1-05 Runtime Provisioning & Acceptance HISTORICAL_BASELINE_SUPERSEDED_BY_001_B
-TRACK01-PHASE1-RUNTIME-001-B Lesson Runtime State Flow Consolidation PLAN_APPROVED_IMPLEMENTATION_NOT_STARTED
+TRACK01-PHASE1-RUNTIME-001-B Lesson Runtime State Flow Consolidation COMPLETE_CORE_IMPLEMENTATION_ACCEPTED
+TRACK01-RUNTIME-PERF-002 Critical Path Reduction COMPLETE_BROWSER_ACCEPTANCE_PASS_WITH_INFRA_LIMITATION
+FACT-ALIGN-002 Runtime / Access / Course Production Fact Realignment COMPLETE_FACTS_ALIGNED
+ACCESS-RESUME-ACCEPTANCE-001 Access + Resume Acceptance COMPLETE_PASS
+TRACK01-PHASE2-CURRICULUM-001 Core Learning Path Freeze COMPLETE_FROZEN
+TRACK01-PHASE2-T1-06-001 T1-06 Formal Brief COMPLETE_HUMAN_REVIEW_PASS
+TRACK01-PHASE2-T1-06-002 T1-06 Course Builder v0.2 Draft Production COMPLETE_DRAFT_HUMAN_REVIEW_PASS
+TRACK01-PHASE2-T1-06-003 T1-06 Runtime Provisioning & Acceptance COMPLETE_RUNTIME_ACCEPTANCE_PASS
+TRACK01-PHASE2-T1-06-004 T1-06 Content & Step4 Experience Correction COMPLETE_ACCEPTANCE_PASS
+TRACK01-PHASE2-T1-07-001 T1-07 Formal Brief COMPLETE_HUMAN_REVIEW_PASS
+TRACK01-PHASE2-T1-07-002 T1-07 Course Builder v0.2 Draft Production COMPLETE_DRAFT_HUMAN_REVIEW_PASS
+TRACK01-PHASE2-T1-07-003 T1-07 Runtime Provisioning & Acceptance COMPLETE_RUNTIME_ACCEPTANCE_PASS
+TRACK01-T1-09-PRODUCTION-001 Knowledge Base / Source of Truth Formal Production COMPLETE_RUNTIME_ACCEPTANCE_PASS_AVAILABLE
+TRACK01-T1-10-PRODUCTION-001 Search / RAG Formal Production COMPLETE_RUNTIME_ACCEPTANCE_PASS_AVAILABLE
+COURSE-BUILDER-SKILL-V1-WORKFLOW-001 Stable Course Production Workflow COMPLETE_ARCHITECTURE_ACCEPTANCE_PASS
+TRACK01-T11-T20-WORKFLOW-BATCH-001 T1-11～T1-20 Workflow Batch Draft Generation DETERMINISTIC_PASS
+TRACK01-T11-T20-HUMAN-REVIEW-001 T1-11～T1-20 Batch Human Review COMPLETE_HUMAN_REVIEW_PASS
+TRACK01-T11-T20-RUNTIME-001 T1-11～T1-20 Batch Runtime Provisioning & Acceptance COMPLETE_RUNTIME_ACCEPTANCE_PASS_AVAILABLE
+TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001 T1-11～T1-20 Post-runtime Learning Experience Rework COMPLETE_QUALITY_REWORK_RUNTIME_ACCEPTANCE_PASS
 
-NEXT: 先执行 `TRACK01-PHASE1-RUNTIME-001-B`，收敛 foundation-ai 的 currentStep / Check / Practice / Completion / Rating / resume 状态主链，删除重复本地状态与临时桥接。T1-06 暂不启动。
+CURRENT: foundation-ai T1-01～T1-20 已全部进入正式 Runtime。T1-11～T1-20 已完成 Course Production Workflow、10/10 Human Review、Runtime Provisioning / Acceptance，并在真实体验后完成 Learning Experience Rework：中文优先、Copy-ready Step 4、按知识密度组织的 Step 5、独立现实触发 Step 6 均已进入确定性校验；修改后 10/10 Runtime Acceptance 再次 PASS。全批继续沿用现有 Unified Lesson Shell，没有新增 UI / Renderer / interaction type，也没有调整 CSS；未展开知识继续由 Deferred Knowledge Ledger 作为 Track 02～05 规划输入。
 ```
 
 ## 当前系统健康
@@ -95,10 +113,11 @@ npm run typecheck     PASS
 npm run build         PASS
 Production build      PASS（page count 不作为当前验收事实）
 Local npm run dev      DIRECT_NEXT_NODE_ENTRY
-DB migrations         0000 → 0009 remote-smoke verified; 0010–0011 exist and current Phase1 acceptance schema is compatible; release target must reverify before deploy
+DB migrations         historical remote-smoke 0000→0009; 0010–0013 exist/use in later Runtime work; each release target must verify its own migration journal
 Remote runtime smoke  PASS
 ACCESS runtime smoke  PASS
 ACCESS UX render      PASS
+Access + Resume accept PASS
 Guided Lesson source  PASS
 Shared rule evaluator PASS
 Completion Loop smoke PASS
@@ -128,7 +147,7 @@ Six-step responsibility contract PASS
 Concept mastery before practice PASS
 Check single / true-false / multi-select PASS
 Formal Check Runtime   SERVER-AUTHORITATIVE / FOCUSED ACCEPTANCE PASS
-Three-question mastery SERVER STATE PASS / 001-B STATE FLOW CONSOLIDATION PENDING
+Three-question mastery SERVER STATE PASS / 001-B CONSOLIDATED
 Unified Lesson Shell v1 FROZEN / ACCEPTANCE PASS
 PRACTICE Draft          PASS
 PRACTICE independent mode PASS
@@ -152,17 +171,7 @@ Test data cleanup     PASS
 
 ## 当前用户 Access
 
-```text
-AI Daily Top3                   FREE
-AI Daily 全部                   公众号关注 OR OPC_MEMBER
-Knowledge 正文                  MEMBER
-Feishu Deep Resource            MEMBER
-Latest Practice 卡片            PUBLIC VISIBLE
-Latest Practice 详情 / 正式实操  MEMBER
-进阶内容关联课程入口             MEMBER
-```
-
-公众号关注不等价于 Membership。公开 Reader 不读取会员正文 / Deep Resource URL / Practice-Course 私有关系，会员通过 Access 后才读取完整详情。ACCESS-UX-001 进一步固定：受限内容保持可发现，锁定状态必须显示价值说明与对应解锁 CTA，不能因为无权限就把内容入口完全隐藏。
+当前 Access 详细矩阵以 `docs/CURRENT_SYSTEM_FACTS.md` 为唯一事实源。本文件只保留阶段摘要：匿名用户不能进入正式课程 Runtime；FOLLOWER 与 MEMBER 权限保持分层。
 
 ## 当前仍未完成
 
@@ -178,13 +187,11 @@ Subscription / Order / Payment / WeChat Pay
 
 ## 当前工程治理补充
 
-当前 Phase 1 Lesson Runtime 的多轮交互调试已经暴露出旧状态流叠加风险。后续不再以新增局部状态 / fallback 作为默认修复方式；若 currentStep / Check / Practice / Completion / resume 等状态互相冲突，优先重写并收敛为少量服务端事实源，再进行完整学习链路验收。
-
-MVP 后续默认顺序：明确最终产品行为 → 收敛状态与事实源 → 删除无必要 legacy / compatibility 分支 → 重写最小清晰主链 → 端到端验收 → 最后处理残余 Bug。
+Runtime / Access / Resume 的实现事实统一记录在 `docs/CURRENT_SYSTEM_FACTS.md`；本文件不再复制状态模型正文。
 
 ## 下一步边界
 
-`TRACK01-PHASE1-RUNTIME-001-B` 已完成实施计划确认。下一步不是继续修单个按钮，而是收敛 Lesson Runtime：课程位置由正式 Progress 状态负责，Step 3 由 `lesson_check_responses` 负责，Step 4 由正式 Practice Submission / Evaluation 负责，Completion 由 `lesson_progress` 负责，Rating 由 `learning_feedback` 负责。详细范围见 `docs/learning/TRACK01_PHASE1_RUNTIME_001_B_IMPLEMENTATION_PLAN.md`。
+Track 01 的 T1-01～T1-20 已完成正式生产与 Runtime Acceptance，并全部进入 AVAILABLE。课程生产基线现已提升为全板块通用 Workflow：全局 Rule Sources 只保存跨板块长期规则；每次运行必须解析当前 Track / 板块 Catalog、上一课→本课→下一课连续性、Formal Brief、Deferred Knowledge Boundary 与必要 Grounding，并通过 `courseContextReady` 后才能进入 Course Builder。Track 02～05 按各自能力目标重新做 Six-step Knowledge Point Gate；Deferred 条目不自动升级为课程。现有 Unified Lesson Shell 继续作为冻结前端边界，后续课程内容任务不新增 UI、不调整 CSS。
 
 `AI-DAILY-001` 仍保持后续最小内容供给闭环：
 
@@ -206,3 +213,5 @@ External Signal
 → 真实 MVP 可验收
 → 再增加功能
 ```
+
+\n

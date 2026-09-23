@@ -305,10 +305,12 @@ async function provision() {
 }
 
 function validateState(state: Awaited<ReturnType<typeof readState>>) {
-  if (state.lessons.length !== 5) {
+  const phase1Slugs = new Set(track01Phase1RuntimeDefinitions.map((item) => item.lesson.id));
+  const phase1Lessons = state.lessons.filter((lesson) => phase1Slugs.has(lesson.lessonSlug));
+  if (phase1Lessons.length !== track01Phase1RuntimeDefinitions.length) {
     throw new Error("TRACK01_PHASE1_LESSON_COUNT_MISMATCH");
   }
-  for (const lesson of state.lessons) {
+  for (const lesson of phase1Lessons) {
     if (lesson.status !== "PUBLISHED") throw new Error("TRACK01_PHASE1_LESSON_NOT_PUBLISHED");
     if (
       lesson.checks.length !== 3 ||

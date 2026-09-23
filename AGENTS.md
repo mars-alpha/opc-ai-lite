@@ -52,6 +52,23 @@ MVP 阶段特别禁止通过连续叠加以下内容来“修好一个点”：
 
 ## 2. 每个任务开始前必须读取
 
+### 2.0 正式课程构建唯一入口
+
+凡正式课程新建、续建、重构、Runtime 接入或新开对话恢复课程上下文，第一份课程文件必须读取：
+
+`docs/learning/COURSE_BUILD_START_HERE.md`
+
+该文件负责规定课程构建的启动顺序与 Required Reads。不得绕过它直接从历史聊天、`docs/task-results/*`、legacy static 课程或旧 fallback 实现恢复现行课程规则。
+
+课程构建的具体 Contract / Curriculum / Shell / Skill 规则仍由各自 owner 文件维护；`COURSE_BUILD_START_HERE.md` 是唯一入口，不是第二份规则正文。
+
+正式课程生产同时受 `docs/learning/COURSE_PRODUCTION_WORKFLOW_V1.md` 约束。Workflow 只绑定稳定 Contract / Gate，不绑定具体 Course Builder Skill version；当前 Skill 必须从 `skills/course-builder/index.ts` 解析。
+
+新开 Chat / Agent / Codex 对话恢复课程生产状态时，必须先读取 `docs/CURRENT_SYSTEM_FACTS.md` 的 **Current Course Production Snapshot**，并运行 `npm run learning:course-current-state:check`。如果该检查失败，必须先修复事实漂移；不得从历史 task-result、旧 Brief、旧 Batch 状态或聊天记录猜测当前 Gate。
+
+`COURSE_BUILD_START_HERE.md`、`LESSON_OUTPUT_CONTRACT_V1.md`、`BEGINNER_LESSON_QUALITY_STANDARD_V1.md`、`COURSE_PRODUCTION_GOVERNANCE_V1.md` 等规则 owner 文件后续发生变化时，不复制规则正文到 Workflow；Workflow 每次运行按 `COURSE_PRODUCTION_RULE_SOURCES` 读取最新内容。
+
+
 先确认：
 
 ```text
@@ -97,6 +114,38 @@ docs/task-results/*（历史证据）
 ```
 
 如果代码事实与当前文档不一致，任务中应同步修正文档，不能让漂移继续累积。
+### 3.1 当前事实单一归属规则
+
+禁止把同一“当前事实正文”复制到多个治理文件。每类信息只有一个 owner：
+
+```text
+docs/CURRENT_SYSTEM_FACTS.md
+→ 当前已经存在的系统 / Runtime / Access / Schema / Migration / Integration 事实
+
+PROJECT_STATUS.md
+→ 当前阶段、关键任务状态、健康状态、当前下一步
+→ 只允许摘要，不复制实现事实表、权限矩阵、Migration 明细
+
+TASKS.md
+→ Task 的 Goal / Status / Scope / Acceptance / Backlog
+→ 完成后只保留任务结论和指向事实源，不复制 Current Facts 正文
+
+docs/task-results/*
+→ 仅保存有独立长期价值的历史验收证据、决策过程或测试结果
+→ 如果内容只是重复 CURRENT_SYSTEM_FACTS / PROJECT_STATUS / TASKS，则不新建；已存在且无独立证据价值可删除
+
+docs/learning/* Contract / Spec
+→ 课程生产规则、教学契约、Lesson Spec 等规范性事实
+→ Runtime / Access 当前状态不得复制进课程 Contract
+```
+
+事实发生变化时必须先判断归属，再只修改 owner 文件；其他文件若需要提及，只写一行状态或引用路径。禁止“为了同步”把同一段事实同时更新到 3～4 个文件。
+
+任务结束时检查：
+- 当前事实是否只存在一个 owner；
+- 其他文件是否只是状态 / 链接；
+- 是否新建了无独立价值的重复 task-result；
+- 若有重复，优先删除重复内容或重复文件，而不是继续维护多份副本。
 
 ## 4. 上下文控制
 

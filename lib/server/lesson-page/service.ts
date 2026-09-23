@@ -11,11 +11,14 @@ export async function getLessonPageContext(input: {
   courseSlug: string;
   lessonSlug: string;
   staticLesson: Lesson;
+  preferStaticLesson?: boolean;
 }) {
   const [databaseLesson, user] = await Promise.all([
-    measureServerTask("lesson.content", () =>
-      getPublishedLessonFromDatabase(input.courseSlug, input.lessonSlug)
-    ),
+    input.preferStaticLesson
+      ? Promise.resolve(null)
+      : measureServerTask("lesson.content", () =>
+          getPublishedLessonFromDatabase(input.courseSlug, input.lessonSlug)
+        ),
     measureServerTask("lesson.session", () => getSessionUser(input.sessionToken))
   ]);
 

@@ -18,7 +18,7 @@ export type PracticeSubmissionSchema =
 
 export type SupportedSubmissionKind = PracticeSubmissionSchema["kind"];
 
-const fieldKeyPattern = /^[a-z][a-z0-9_]{0,63}$/;
+const fieldKeyPattern = /^[a-z][A-Za-z0-9_]{0,63}$/;
 
 const taskBriefFields: StructuredTextField[] = [
   { key: "goal", label: "Goal", minLength: 1, maxLength: 3000 },

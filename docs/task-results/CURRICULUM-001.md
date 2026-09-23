@@ -40,7 +40,7 @@ AI 基础认知内部固定采用 7 个学习阶段：认识 AI、模型工作�
 
 ## Boundary
 
-- `lib/courses.ts` 仍是 static/fallback；
+- 历史说明：当时 `lib/courses.ts` 尚承担 static/fallback 角色；该状态现已废止。当前正式 `foundation-ai` 不允许使用旧 static renderer 作为 fallback；
 - acceptance fixtures 仍不是正式课程 Source of Truth；
 - 无 DB / migration / provider / publish 副作用；
 - 无 UI / Shell 修改；

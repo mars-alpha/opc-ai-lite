@@ -106,19 +106,15 @@ Lesson Type 只表达学习目标：
 
 CURRICULUM-005 已废弃早期“先讲模型机制”的 9 课开场。当前 Foundation 不再使用本文件早期的 Module 1.1 / 1.2 旧编号作为 Lesson 定义。
 
-当前 curriculum-level Source of Truth：
+Track 01 当前课程目录唯一 owner：
 
-- `docs/learning/TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`：Track 01 当前 canonical audit，基于 28 个正式候选得出 20 节最终基础课程；
-- `docs/learning/FIVE_TRACK_CORE_CURRICULUM_AUDIT_V1.md`：Track 02–05 继续使用；Track 01 的旧 17 节方案已被 R1 re-audit supersede；
-- `docs/learning/TRACK01_CANONICAL_REALIGNMENT_V1.md`：定义 T1-01～T1-20 唯一 canonical identity、旧 F alias 映射与 Trial 迁移规则；
-- `docs/learning/TRACK01_CATALOG_METADATA_V2.md`：定义 Track 01 当前 20 节 canonical planning catalog；
-- `docs/learning/TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md`：T1-01～T1-05 当前 Course Builder-ready Formal Brief；
-- `docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md`：定义五条主线的跨课能力与 Artifact continuity；
-- `docs/learning/FOUNDATION_KNOWLEDGE_MAP_V1.md`：保留产品级 28 个 Foundation pre-audit candidates，用于历史知识映射；
-- `docs/learning/FOUNDATION_STAGE1_STAGE2_CONTINUITY_BRIEFS_V1.md`：只保留旧 F1/F2 Trial continuity evidence；
-- `docs/learning/FOUNDATION_CATALOG_METADATA_V1.md`：legacy F-ID catalog reference，不再决定新 Track 01 planning。
+- `docs/learning/TRACK01_CATALOG_METADATA_V2.md` — **FROZEN_CORE_PATH_V1**
 
-Track 01 canonical directory = T1-01～T1-20，且 realignment 已完成。所有新 Formal Brief / Course Builder / planning catalog / provenance 只使用 T1 IDs；旧 F1/F2/F3…编号只作为 historical alias。当前只有 T1-01～T1-05 达到 BRIEF_READY，T1-06～T1-20 保持 PLANNED。
+该文件唯一负责 T1-01～T1-20 的顺序、Phase、Lesson Type、Primary Knowledge Point 与 prerequisite。后续 Formal Brief / Course Builder / Lesson Production 必须读取该 owner，不再从 audit、legacy F-ID catalog 或历史 Trial 反推课程结构。
+
+其他文件只承担各自职责：Six-step audit 保存课程取舍证据；canonical realignment 保存历史 ID 映射；Five-Track continuity 保存跨课/跨 Track 连续性规则；Formal Brief 保存单批课程教学边界。它们不再与 Catalog 共同拥有当前 Track 01 目录。
+
+课程生产 / Runtime 当前状态不在本节维护，以 `docs/CURRENT_SYSTEM_FACTS.md` 与对应 Task 状态为准。
 
 ---
 
@@ -508,7 +504,7 @@ FDE 不要求所有学习者成为传统程序员；需要写代码的实现部�
 | `evaluation` | Foundation F7-05 建立基础，Track 04 深化 |
 | `ai-workflow-project` | Track 04 Workflow Project 候选；等待可信 Deliverable Runtime |
 
-当前 `lib/courses.ts` 继续视为 static/fallback，不因为本文件而升级成正式 Curriculum Source of Truth。
+当前 `lib/courses.ts` 中仍有早期 static 课程数据，仅作为显式 legacy 数据保留，不得作为正式课程的 fallback renderer 或 Curriculum Source of Truth。正式 `foundation-ai` 课程必须完整进入 LessonSpec Registry → Runtime Plan → GenericLessonRuntimePanel；缺少任一环节必须直接失败，不得静默回退旧 UI。
 
 ---
 

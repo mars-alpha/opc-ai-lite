@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import { getSessionUser, readSessionToken } from "../../../../../../lib/server/auth/service";
-import {
-  answerLessonCheck,
-  previewLessonCheck
-} from "../../../../../../lib/server/interactive/service";
+import { requireSessionUser } from "../../../../../../lib/server/auth/service";
+import { answerLessonCheck } from "../../../../../../lib/server/interactive/service";
 
 export const dynamic = "force-dynamic";
 
@@ -12,16 +9,11 @@ export async function POST(
   { params }: { params: Promise<{ checkId: string }> }
 ) {
   try {
-    const user = await getSessionUser(readSessionToken(request));
+    const user = await requireSessionUser(request);
     const { checkId } = await params;
     const body = await request.json().catch(() => null);
-    const preview = body?.preview === true;
     const submittedAnswer = body?.answers ?? body?.answer;
-    return NextResponse.json(
-      user && !preview
-        ? await answerLessonCheck(user.id, checkId, submittedAnswer)
-        : await previewLessonCheck(checkId, submittedAnswer)
-    );
+    return NextResponse.json(await answerLessonCheck(user.id, checkId, submittedAnswer));
   } catch (error) {
     const code = error instanceof Error ? error.message : "CHECK_ANSWER_FAILED";
     if (code === "UNAUTHENTICATED") return NextResponse.json({ error: code }, { status: 401 });

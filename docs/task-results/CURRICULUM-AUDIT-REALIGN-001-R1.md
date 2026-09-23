@@ -6,10 +6,10 @@ Status: **COMPLETE_REALIGNED_V1**
 
 Track 01 canonical identity is now exclusively **T1-01～T1-20** for all new curriculum production.
 
-Created:
-- `docs/learning/TRACK01_CANONICAL_REALIGNMENT_V1.md`
-- `docs/learning/TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md`
-- `docs/learning/TRACK01_CATALOG_METADATA_V2.md`
+Historical result:
+- 该任务当时曾创建 `TRACK01_CANONICAL_REALIGNMENT_V1.md`，后续已被当前 Catalog owner 取代并删除；
+- `docs/learning/TRACK01_BATCH_A_T1_01_T1_05_FORMAL_BRIEFS_V1.md` 保留为已批准 Brief；
+- `docs/learning/TRACK01_CATALOG_METADATA_V2.md` 现为 Track 01 唯一当前目录 owner。
 
 Legacy rules:
 - old F1/F2/F3… IDs = historical aliases only;

@@ -48,7 +48,10 @@ const taskBriefSuggestions: Record<string, string> = {
   triggerInput: "说明工作流什么时候启动，以及允许使用哪些真实输入资料。",
   workflowSteps: "按顺序写清普通规则、AI、人工分别做什么，并形成从触发到记录结果的闭环。",
   humanReview: "明确哪些高风险内容或动作必须由人确认，以及 AI 不允许自行决定什么。",
-  successMetric: "列出可以真实观察或统计的指标，不要只写“效率更高”“体验更好”。"
+  successMetric: "列出可以真实观察或统计的指标，不要只写“效率更高”“体验更好”。",
+  model_core: "指出哪些能力最接近模型本身的理解 / 生成，并写出判断依据。",
+  product_layer: "指出哪些能力明显还需要搜索、外部资料、文件处理、权限等产品层能力，并写出理由。",
+  uncertain: "指出哪些功能仅凭界面无法判断内部实现，并说明为什么需要保留不确定。"
 };
 
 const strongMarkers: Partial<Record<string, RegExp>> = {
@@ -71,6 +74,36 @@ function semanticScore(key: string, value: string, maxScore: number): number | n
 
   if (key === "deadline") {
     return deadlineMarker.test(text) ? maxScore : Math.round(maxScore * 0.5);
+  }
+
+  if (key === "model_core") {
+    const hasGeneration = /(生成|新文字|理解|内容生成)/.test(text);
+    const hasReason = /(因为|体现|根据输入|核心能力)/.test(text);
+    return hasGeneration && hasReason
+      ? maxScore
+      : hasGeneration || hasReason
+        ? Math.round(maxScore * 0.6)
+        : Math.round(maxScore * 0.3);
+  }
+
+  if (key === "product_layer") {
+    const hasExternal = /(搜索|网页|外部信息|文件|权限|工具)/.test(text);
+    const hasLayerReason = /(产品层|连接|管理|控制|系统)/.test(text);
+    return hasExternal && hasLayerReason
+      ? maxScore
+      : hasExternal || hasLayerReason
+        ? Math.round(maxScore * 0.6)
+        : Math.round(maxScore * 0.3);
+  }
+
+  if (key === "uncertain") {
+    const hasBoundaryExample = /(PDF|文件|记忆|长期偏好|偏好)/.test(text);
+    const hasUncertainty = /(不确定|无法判断|不能判断|仅凭|界面|内部实现|进一步确认)/.test(text);
+    return hasBoundaryExample && hasUncertainty
+      ? maxScore
+      : hasBoundaryExample || hasUncertainty
+        ? Math.round(maxScore * 0.6)
+        : Math.round(maxScore * 0.3);
   }
 
   return null;

@@ -1,5 +1,6 @@
 import {
   boolean,
+  check,
   integer,
   jsonb,
   pgEnum,
@@ -9,6 +10,7 @@ import {
   uniqueIndex,
   uuid
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const publicationStatus = pgEnum("publication_status", [
   "DRAFT",
@@ -228,12 +230,14 @@ export const lessonProgress = pgTable(
     userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     lessonId: text("lesson_id").notNull().references(() => lessons.id, { onDelete: "cascade" }),
     status: lessonProgressStatus("status").notNull().default("NOT_STARTED"),
+    currentStep: integer("current_step").notNull().default(1),
     startedAt: timestamp("started_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table) => [
-    uniqueIndex("lesson_progress_user_lesson_uidx").on(table.userId, table.lessonId)
+    uniqueIndex("lesson_progress_user_lesson_uidx").on(table.userId, table.lessonId),
+    check("lesson_progress_current_step_check", sql`${table.currentStep} between 1 and 6`)
   ]
 );
 
@@ -333,6 +337,25 @@ export const learningEvents = pgTable("learning_events", {
   properties: jsonb("properties").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
+
+export const backgroundJobs = pgTable(
+  "background_jobs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    jobType: text("job_type").notNull(),
+    dedupeKey: text("dedupe_key").notNull(),
+    payload: jsonb("payload").notNull().default({}),
+    status: text("status").notNull().default("PENDING"),
+    attempts: integer("attempts").notNull().default(0),
+    availableAt: timestamp("available_at", { withTimezone: true }).notNull().defaultNow(),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [uniqueIndex("background_jobs_dedupe_uidx").on(table.dedupeKey)]
+);
 
 export const learningFeedback = pgTable("learning_feedback", {
   id: uuid("id").primaryKey().defaultRandom(),

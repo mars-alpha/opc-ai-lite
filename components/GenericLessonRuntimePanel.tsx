@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { RealAiEvidence } from "../lib/learning/lesson-spec";
 import type { LessonRuntimePlan } from "../lib/learning/lesson-runtime";
 import type { Lesson } from "../lib/courses";
@@ -16,6 +16,7 @@ import {
 } from "../lib/learning/check-evaluator";
 import { buildPracticeCopyText } from "../lib/learning/practice-copy";
 import { unifiedLessonStepLabel } from "../lib/learning/unified-lesson-shell";
+import { useProgress } from "./ProgressProvider";
 
 type InteractiveData = {
   authenticated: boolean;
@@ -52,17 +53,42 @@ type InteractiveData = {
       submissionId: string;
       attempt: number;
       status: "SUBMITTED" | "NEEDS_REVISION" | "PASSED" | "EVALUATION_FAILED";
-      content: PracticeContent;
+      content: unknown;
       evaluation: EvaluationResult | null;
     };
   }>;
 };
 
-type RuntimeData = {
+type CheckCommandState = {
+  checks: Array<{
+    id: string;
+    state: InteractiveData["checks"][number]["state"];
+  }>;
+  passed: boolean;
+  requiredIds: string[];
+};
+
+type PracticeCommandResult = {
+  submissionId: string;
+  attempt: number;
+  content: PracticeContent;
+  status: "SUBMITTED" | "NEEDS_REVISION" | "PASSED" | "EVALUATION_FAILED";
+  evaluation: EvaluationResult | null;
+};
+
+export type RuntimeData = {
   registered: boolean;
   configurationReady: boolean;
   enforcementActive: boolean;
   blockers: string[];
+  progress?: {
+    currentStep: number;
+    completed: boolean;
+    status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  };
+  interactive?: InteractiveData;
+  canComplete?: boolean;
+  canRate?: boolean;
   gates: {
     realAi: {
       required: boolean;
@@ -89,6 +115,7 @@ type PreviewActivity = {
   title: string;
   instruction: string;
   prompt: string | null;
+  fields?: ReadonlyArray<{ key: string; label: string; prompt: string }>;
   reflection: string;
 };
 
@@ -112,6 +139,7 @@ type PreviewPractice = {
 type PreviewReferenceFill = Record<string, string>;
 
 type PreviewIntroComparison = {
+  title?: string;
   situation: string;
   approaches: ReadonlyArray<{
     label: string;
@@ -134,24 +162,55 @@ type PreviewKnowledgeDepth = {
   review: ReadonlyArray<{ title: string; text: string }>;
 };
 
-type ApprovedPresentation = {
+export type ApprovedPresentation = {
   activity: PreviewActivity;
   introComparison: PreviewIntroComparison;
   referenceAnswer: string | null;
   referenceFill: PreviewReferenceFill;
   knowledgeDepth: PreviewKnowledgeDepth;
   reviewItems: ReadonlyArray<string>;
-  reviewLabels: { primary: string; secondary: string };
+  reviewLabels: { primary: string; secondary: string } | null;
   reviewCardFill: boolean;
   practiceHintsGrouped: boolean;
   practiceCopyValuesOnly: boolean;
   selfAssessment: ReadonlyArray<string>;
+  triggerScenario?: string | null;
 };
 
 function emptyPracticeContent(
   instructions: Array<{ key: string }>
 ): PracticeContent {
   return Object.fromEntries(instructions.map((item) => [item.key, ""]));
+}
+
+function asPracticeContent(value: unknown): PracticeContent {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter((entry): entry is [string, string] =>
+      typeof entry[1] === "string"
+    )
+  );
+}
+
+function getRestoredCheck(interactive: InteractiveData | null | undefined) {
+  if (!interactive) return null;
+  const requiredChecks = interactive.checks.filter((item) => item.required);
+  const checks = requiredChecks.length ? requiredChecks : interactive.checks;
+  if (!checks.length) return null;
+  if (!isThreeQuestionMasterySequence(checks)) return checks[0] ?? null;
+  const firstUnpassedIndex = checks.findIndex((item) => item.state?.isCorrect !== true);
+  return checks[firstUnpassedIndex === -1 ? checks.length - 1 : firstUnpassedIndex] ?? null;
+}
+
+function getRestoredPracticeContent(interactive: InteractiveData | null | undefined) {
+  if (!interactive) return {};
+  const practice =
+    interactive.practices.find((item) => item.required) ?? interactive.practices[0];
+  if (!practice) return {};
+  return {
+    ...emptyPracticeContent(practice.instructions),
+    ...asPracticeContent(practice.state?.content)
+  };
 }
 
 function evidenceLabel(kind: RealAiEvidence) {
@@ -181,10 +240,10 @@ export function GenericLessonRuntimePanel({
   courseSlug,
   lessonSlug,
   plan,
+  initialRuntime = null,
   lesson,
   approvedPresentation = null,
   previewMode = false,
-  previewModeNote = "HUMAN_REVIEW",
   previewCheck = null,
   previewCheckSequence = null,
   previewActivity = null,
@@ -198,15 +257,17 @@ export function GenericLessonRuntimePanel({
   previewPracticeHintsGrouped = false,
   previewPracticeCopyValuesOnly = true,
   previewSelfAssessment = null,
-  previewIntroComparison = null
+  previewIntroComparison = null,
+  completionControl = null,
+  onRuntimeChange = null
 }: {
   courseSlug: string;
   lessonSlug: string;
   plan: LessonRuntimePlan;
+  initialRuntime?: RuntimeData | null;
   lesson: Lesson;
   approvedPresentation?: ApprovedPresentation | null;
   previewMode?: boolean;
-  previewModeNote?: "HUMAN_REVIEW" | "RUNTIME_FALLBACK";
   previewCheck?: PreviewCheck | null;
   previewCheckSequence?: ReadonlyArray<PreviewCheck> | null;
   previewActivity?: PreviewActivity | null;
@@ -221,7 +282,16 @@ export function GenericLessonRuntimePanel({
   previewPracticeCopyValuesOnly?: boolean;
   previewSelfAssessment?: ReadonlyArray<string> | null;
   previewIntroComparison?: PreviewIntroComparison | null;
+  completionControl?: ReactNode;
+  onRuntimeChange?: ((runtime: RuntimeData) => void) | null;
 }) {
+  const {
+    getStatus,
+    getCurrentStep,
+    markCurrentStep,
+    markLessonStatus
+  } = useProgress();
+  const cachedResumeStep = previewMode ? null : getCurrentStep(courseSlug, lessonSlug);
   const presentationActivity = previewMode
     ? previewActivity
     : approvedPresentation?.activity ?? null;
@@ -255,6 +325,9 @@ export function GenericLessonRuntimePanel({
   const presentationSelfAssessment = previewMode
     ? previewSelfAssessment
     : approvedPresentation?.selfAssessment ?? null;
+  const presentationTriggerScenario = previewMode
+    ? null
+    : approvedPresentation?.triggerScenario ?? null;
   const richPresentationEnabled = previewMode || Boolean(approvedPresentation);
 
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
@@ -294,7 +367,7 @@ export function GenericLessonRuntimePanel({
               }]
             : []
         }
-      : null
+      : initialRuntime?.interactive ?? null
   );
   const [runtime, setRuntime] = useState<RuntimeData | null>(() =>
     previewMode
@@ -311,44 +384,86 @@ export function GenericLessonRuntimePanel({
             }
           }
         }
-      : null
+      : initialRuntime
   );
-  const [answer, setAnswer] = useState("");
-  const [previewAnswers, setPreviewAnswers] = useState<string[]>([]);
-  const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(null);
-  const [currentCheckIndex, setCurrentCheckIndex] = useState(0);
-  const [localPassedCheckIds, setLocalPassedCheckIds] = useState<string[]>([]);
-  const [checkFeedback, setCheckFeedback] = useState<string | null>(null);
-  const [content, setContent] = useState<PracticeContent>({});
+  const restoredCheck = previewMode ? null : getRestoredCheck(initialRuntime?.interactive);
+  const [answer, setAnswer] = useState(() => restoredCheck?.state?.answer ?? "");
+  const [previewAnswers, setPreviewAnswers] = useState<string[]>(() =>
+    restoredCheck?.state?.answers?.length
+      ? restoredCheck.state.answers
+      : restoredCheck?.state?.answer
+        ? [restoredCheck.state.answer]
+        : []
+  );
+  const [localCheckCorrect, setLocalCheckCorrect] = useState<boolean | null>(() =>
+    restoredCheck?.state?.isCorrect ?? null
+  );
+  const [previewCheckIndex, setPreviewCheckIndex] = useState(0);
+  const [checkDisplayIndex, setCheckDisplayIndex] = useState<number | null>(null);
+  const [previewPassedCheckIds, setPreviewPassedCheckIds] = useState<string[]>([]);
+  const [checkFeedback, setCheckFeedback] = useState<string | null>(() =>
+    restoredCheck?.state?.explanation ?? null
+  );
+  const [content, setContent] = useState<PracticeContent>(() =>
+    previewMode ? {} : getRestoredPracticeContent(initialRuntime?.interactive)
+  );
   const [previewEvaluation, setPreviewEvaluation] =
     useState<EvaluationResult | null>(null);
+  const [practiceRetakeActive, setPracticeRetakeActive] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(() =>
+    previewMode
+      ? 0
+      : initialRuntime?.progress
+        ? Math.max(0, Math.min(plan.steps.length - 1, initialRuntime.progress.currentStep - 1))
+        : cachedResumeStep
+          ? Math.max(0, Math.min(plan.steps.length - 1, cachedResumeStep - 1))
+          : 0
+  );
+  useEffect(() => {
+    if (previewMode || runtime || !cachedResumeStep) return;
+    setCurrentStep(
+      Math.max(0, Math.min(plan.steps.length - 1, cachedResumeStep - 1))
+    );
+  }, [cachedResumeStep, plan.steps.length, previewMode, runtime]);
+
   const [confusedOpen, setConfusedOpen] = useState(false);
   const [copiedActivity, setCopiedActivity] = useState(false);
   const [copiedReferenceAnswer, setCopiedReferenceAnswer] = useState(false);
   const [filledReferenceAnswer, setFilledReferenceAnswer] = useState(false);
   const [previewActivityResponse, setPreviewActivityResponse] = useState("");
+  const [activityFieldValues, setActivityFieldValues] = useState<Record<string, string>>({});
   const [previewActivityCompleted, setPreviewActivityCompleted] = useState(false);
   const [copiedActivityResponse, setCopiedActivityResponse] = useState(false);
+  const stepSaveTargetRef = useRef<number | null>(null);
+  const stepSaveRunningRef = useRef(false);
+  const stepSaveGenerationRef = useRef(0);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (syncProgressPosition = false) => {
     if (previewMode) return;
     const params = new URLSearchParams({ courseSlug, lessonSlug });
-    const [runtimeResponse, interactiveResponse] = await Promise.all([
-      fetch("/api/learning/runtime?" + params.toString(), { cache: "no-store" }),
-      fetch("/api/learning/interactive?" + params.toString(), { cache: "no-store" })
-    ]);
-    if (!runtimeResponse.ok || !interactiveResponse.ok) {
+    const runtimeResponse = await fetch(
+      "/api/learning/runtime?" + params.toString(),
+      { cache: "no-store" }
+    );
+    if (!runtimeResponse.ok) {
       throw new Error("GENERIC_RUNTIME_READ_FAILED");
     }
 
     const nextRuntime = (await runtimeResponse.json()) as RuntimeData;
-    const nextInteractive = (await interactiveResponse.json()) as InteractiveData;
+    const nextInteractive = nextRuntime.interactive;
+    if (!nextInteractive) throw new Error("GENERIC_RUNTIME_INTERACTIVE_MISSING");
     setRuntime(nextRuntime);
+    onRuntimeChange?.(nextRuntime);
     setInteractive(nextInteractive);
+    if (nextRuntime.progress) {
+      markCurrentStep(courseSlug, lessonSlug, nextRuntime.progress.currentStep);
+    }
+    if (syncProgressPosition && nextRuntime.progress) {
+      setCurrentStep(Math.max(0, Math.min(plan.steps.length - 1, nextRuntime.progress.currentStep - 1)));
+    }
 
     const requiredChecks = nextInteractive.checks.filter((item) => item.required);
     const nextChecks = requiredChecks.length ? requiredChecks : nextInteractive.checks;
@@ -360,7 +475,6 @@ export function GenericLessonRuntimePanel({
       masterySequence && firstUnpassedIndex === -1
         ? Math.max(0, nextChecks.length - 1)
         : Math.max(0, firstUnpassedIndex);
-    setCurrentCheckIndex(nextIndex);
     const nextCheck = nextChecks[nextIndex];
     if (nextCheck?.state) {
       setAnswer(nextCheck.state.answer);
@@ -373,6 +487,11 @@ export function GenericLessonRuntimePanel({
       );
       setCheckFeedback(nextCheck.state.explanation);
       setLocalCheckCorrect(nextCheck.state.isCorrect);
+    } else {
+      setAnswer("");
+      setPreviewAnswers([]);
+      setCheckFeedback(null);
+      setLocalCheckCorrect(null);
     }
 
     const nextPractice =
@@ -381,27 +500,59 @@ export function GenericLessonRuntimePanel({
     if (nextPractice) {
       setContent({
         ...emptyPracticeContent(nextPractice.instructions),
-        ...(nextPractice.state?.content ?? {})
+        ...asPracticeContent(nextPractice.state?.content)
       });
     }
-  }, [courseSlug, lessonSlug, previewMode]);
+  }, [courseSlug, lessonSlug, markCurrentStep, onRuntimeChange, plan.steps.length, previewMode]);
 
   useEffect(() => {
-    if (previewMode) return;
-    refresh().catch(() =>
+    if (previewMode || initialRuntime) return;
+    refresh(true).catch(() =>
       setMessage("互动学习暂时读取失败，请稍后刷新。")
     );
-  }, [previewMode, refresh]);
+  }, [initialRuntime, previewMode, refresh]);
+
+  const applyCheckCommandState = useCallback((checkState: CheckCommandState) => {
+    const stateById = new Map(checkState.checks.map((item) => [item.id, item.state]));
+    setInteractive((current) =>
+      current
+        ? {
+            ...current,
+            checks: current.checks.map((item) =>
+              stateById.has(item.id)
+                ? { ...item, state: stateById.get(item.id) ?? null }
+                : item
+            )
+          }
+        : current
+    );
+  }, []);
 
   const checkSequence = useMemo(() => {
     const requiredChecks = interactive?.checks.filter((item) => item.required) ?? [];
     return requiredChecks.length ? requiredChecks : interactive?.checks ?? [];
   }, [interactive]);
   const isMasterySequence = isThreeQuestionMasterySequence(checkSequence);
+  const firstIncompleteCheckIndex = isMasterySequence
+    ? checkSequence.findIndex((item) => item.state?.isCorrect !== true)
+    : 0;
+  const derivedCheckIndex = isMasterySequence
+    ? firstIncompleteCheckIndex === -1
+      ? Math.max(0, checkSequence.length - 1)
+      : Math.max(0, firstIncompleteCheckIndex)
+    : 0;
+  const currentCheckIndex = previewMode
+    ? previewCheckIndex
+    : checkDisplayIndex === null
+      ? derivedCheckIndex
+      : Math.max(0, Math.min(checkSequence.length - 1, checkDisplayIndex));
   const check = useMemo(
     () => checkSequence[currentCheckIndex] ?? checkSequence[0] ?? null,
     [checkSequence, currentCheckIndex]
   );
+  const currentCheckCorrect =
+    localCheckCorrect === true || check?.state?.isCorrect === true;
+  const currentCheckLocked = currentCheckCorrect;
   const practice = useMemo(
     () =>
       interactive?.practices.find((item) => item.required) ??
@@ -409,20 +560,25 @@ export function GenericLessonRuntimePanel({
       null,
     [interactive]
   );
-  const evaluation =
-    previewEvaluation ?? practice?.state?.evaluation ?? null;
+  const evaluation = practiceRetakeActive
+    ? previewEvaluation
+    : previewEvaluation ?? practice?.state?.evaluation ?? null;
   const checkPassed = isMasterySequence
     ? isThreeQuestionMasteryComplete(
         checkSequence.map((item) => ({
           type: item.type,
           required: item.required,
-          isCorrect:
-            item.state?.isCorrect === true || localPassedCheckIds.includes(item.id)
+          isCorrect: previewMode
+            ? item.state?.isCorrect === true || previewPassedCheckIds.includes(item.id)
+            : item.state?.isCorrect === true
         }))
       )
-    : check?.state?.isCorrect || localCheckCorrect === true;
-  const practicePassed =
-    practice?.state?.status === "PASSED" || evaluation?.passed === true;
+    : previewMode
+      ? check?.state?.isCorrect || localCheckCorrect === true
+      : check?.state?.isCorrect === true;
+  const practicePassed = practiceRetakeActive
+    ? evaluation?.passed === true
+    : practice?.state?.status === "PASSED" || evaluation?.passed === true;
   const projectDraftPassed =
     plan.lessonType === "PROJECT" && evaluation?.passed === true;
   const realAiPassed =
@@ -436,19 +592,85 @@ export function GenericLessonRuntimePanel({
   ];
 
   const step = plan.steps[currentStep];
-  const canAdvance =
+  const runtimeHydrated = previewMode || Boolean(runtime && interactive);
+  const nextStep = plan.steps[currentStep + 1];
+  const nextStepNeedsRuntime =
+    nextStep?.kind === "CHECK" ||
+    nextStep?.kind === "PRACTICE" ||
+    nextStep?.kind === "CAPABILITY";
+  const stepGateSatisfied =
     step?.kind === "CHECK"
       ? Boolean(checkPassed)
       : step?.kind === "PRACTICE"
         ? plan.lessonType === "PROJECT"
           ? Boolean(projectDraftPassed)
-          : !plan.requiresPractice || (Boolean(practicePassed) && Boolean(realAiPassed))
+          : practice ? Boolean(practicePassed) && Boolean(realAiPassed) : !plan.requiresPractice
         : step?.kind === "CAPABILITY"
           ? requiredGateStates.every(Boolean)
           : true;
+  const interactionLocked = !runtimeHydrated;
+  const canAdvance =
+    runtimeHydrated && stepGateSatisfied && (!nextStepNeedsRuntime || runtimeHydrated);
+
+  const canRestartCheck = !previewMode && Boolean(checkPassed);
+  const canRestartPractice =
+    plan.lessonType !== "PROJECT" && Boolean(practicePassed) && !practiceRetakeActive;
+
+  function queueCurrentStepSave(stepNumber: number) {
+    stepSaveTargetRef.current = stepNumber;
+    stepSaveGenerationRef.current += 1;
+    if (stepSaveRunningRef.current) return;
+
+    stepSaveRunningRef.current = true;
+    void (async () => {
+      try {
+        while (stepSaveTargetRef.current !== null) {
+          const target = stepSaveTargetRef.current;
+          const generation = stepSaveGenerationRef.current;
+          stepSaveTargetRef.current = null;
+          try {
+            const response = await fetch("/api/learning/progress", {
+              method: "PATCH",
+              headers: { "content-type": "application/json" },
+              keepalive: true,
+              body: JSON.stringify({
+                courseSlug,
+                lessonSlug,
+                currentStep: target
+              })
+            });
+            if (!response.ok) throw new Error("CURRENT_STEP_SAVE_FAILED");
+          } catch {
+            if (generation === stepSaveGenerationRef.current) {
+              setMessage("当前学习位置暂时没有保存成功；本页仍可继续学习。");
+            }
+          }
+        }
+      } finally {
+        stepSaveRunningRef.current = false;
+        if (stepSaveTargetRef.current !== null) {
+          queueCurrentStepSave(stepSaveTargetRef.current);
+        }
+      }
+    })();
+  }
+
+  function moveToStep(nextIndex: number) {
+    const boundedIndex = Math.max(0, Math.min(plan.steps.length - 1, nextIndex));
+    setCurrentStep(boundedIndex);
+    setConfusedOpen(false);
+    setMessage(null);
+
+    if (previewMode || !interactive?.authenticated) return;
+    markCurrentStep(courseSlug, lessonSlug, boundedIndex + 1);
+    if (getStatus(courseSlug, lessonSlug) !== "COMPLETED") {
+      markLessonStatus(courseSlug, lessonSlug, "IN_PROGRESS");
+    }
+    queueCurrentStepSave(boundedIndex + 1);
+  }
 
   async function submitCheck() {
-    if (!check || (!answer && previewAnswers.length === 0)) return;
+    if (currentCheckLocked || !check || (!answer && previewAnswers.length === 0)) return;
     if (previewMode) {
       const previewSource = isMasterySequence
         ? previewCheckSequence?.[currentCheckIndex]
@@ -463,7 +685,7 @@ export function GenericLessonRuntimePanel({
       );
       setLocalCheckCorrect(correct);
       if (correct) {
-        setLocalPassedCheckIds((current) =>
+        setPreviewPassedCheckIds((current) =>
           current.includes(check.id) ? current : [...current, check.id]
         );
       }
@@ -484,7 +706,11 @@ export function GenericLessonRuntimePanel({
           headers: { "content-type": "application/json" },
           body: JSON.stringify(
             check.type === "MULTI_SELECT"
-              ? { answers: previewAnswers }
+              ? {
+                  answers: previewAnswers.filter((value) =>
+                    check.options.some((option) => option.value === value)
+                  )
+                }
               : { answer: previewAnswers[0] ?? answer }
           )
         }
@@ -493,13 +719,20 @@ export function GenericLessonRuntimePanel({
       if (!response.ok) throw new Error("CHECK_FAILED");
 
       const correct = result?.correct === true;
-      setLocalCheckCorrect(correct);
-      if (correct) {
-        setLocalPassedCheckIds((current) =>
-          current.includes(check.id) ? current : [...current, check.id]
-        );
+      if (result?.checkState) {
+        applyCheckCommandState(result.checkState as CheckCommandState);
       }
+      setCheckDisplayIndex(currentCheckIndex);
+      setLocalCheckCorrect(correct);
       setCheckFeedback(result?.explanation ?? (correct ? "判断正确。" : "这个判断需要调整。"));
+
+      // 多选题通常是三题 Mastery 的最后一题。答对后重新读取整组
+      // Check 状态，以数据库为最终事实源，避免局部前端状态或旧答题记录
+      // 造成“答案正确但无法通过”的卡住情况。
+      if (correct && check.type === "MULTI_SELECT") {
+        await refresh(false);
+        setCheckDisplayIndex(currentCheckIndex);
+      }
     } catch {
       setMessage("理解检查提交失败，请稍后重试。");
     } finally {
@@ -507,19 +740,60 @@ export function GenericLessonRuntimePanel({
     }
   }
 
-  function goToNextMasteryQuestion() {
+  async function restartCheckStep() {
+    if (previewMode) return;
+    setBusy("check-reset");
+    setMessage(null);
+    try {
+      const response = await fetch("/api/learning/checks/reset", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ courseSlug, lessonSlug, currentStep: currentStep + 1 })
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) throw new Error("CHECK_RELEARN_RESET_FAILED");
+      if (result?.checkState) {
+        applyCheckCommandState(result.checkState as CheckCommandState);
+      }
+      setCheckDisplayIndex(null);
+      setAnswer("");
+      setPreviewAnswers([]);
+      setLocalCheckCorrect(null);
+      setCheckFeedback(null);
+    } catch {
+      setMessage("重新学习初始化失败，请稍后重试。");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function goToNextMasteryQuestion() {
     if (
       !isMasterySequence ||
       currentCheckIndex >= checkSequence.length - 1 ||
-      !(localCheckCorrect === true || check?.state?.isCorrect === true)
+      !currentCheckCorrect
     ) {
       return;
     }
-    setCurrentCheckIndex((current) => current + 1);
+    if (previewMode) {
+      setPreviewCheckIndex((current) => current + 1);
+    } else {
+      setCheckDisplayIndex(null);
+    }
     setAnswer("");
     setPreviewAnswers([]);
     setLocalCheckCorrect(null);
     setCheckFeedback(null);
+    setMessage(null);
+  }
+
+  function restartPracticeStep() {
+    if (!practice) return;
+    setPracticeRetakeActive(true);
+    setContent(emptyPracticeContent(practice.instructions));
+    setPreviewEvaluation(null);
+    setFilledReferenceAnswer(false);
+    setCopiedActivity(false);
     setMessage(null);
   }
 
@@ -559,10 +833,32 @@ export function GenericLessonRuntimePanel({
         }
         throw new Error("PRACTICE_SUBMIT_FAILED");
       }
-      await refresh();
-      setPreviewEvaluation(null);
+      const practiceResult = result as PracticeCommandResult;
+      setInteractive((current) =>
+        current
+          ? {
+              ...current,
+              practices: current.practices.map((item) =>
+                item.id === practice.id
+                  ? {
+                      ...item,
+                      state: {
+                        submissionId: practiceResult.submissionId,
+                        attempt: practiceResult.attempt,
+                        status: practiceResult.status,
+                        content: practiceResult.content,
+                        evaluation: practiceResult.evaluation
+                      }
+                    }
+                  : item
+              )
+            }
+          : current
+      );
+      setPracticeRetakeActive(false);
+      setPreviewEvaluation(practiceResult.evaluation);
       setMessage(
-        result?.status === "EVALUATION_FAILED"
+        practiceResult.status === "EVALUATION_FAILED"
           ? "内容已保存，但本次检查暂时失败，请稍后重试。"
           : null
       );
@@ -621,13 +917,7 @@ export function GenericLessonRuntimePanel({
     }
   }
 
-  if (!interactive || !runtime || !step) {
-    return <section className="interactive-lesson guided-lesson guided-loading-panel">
-      <div className="kicker">引导式学习</div>
-      <h2>{message ? "课程互动暂时没有准备好" : "正在准备这一课…"}</h2>
-      <p>{message ?? "正在读取本课 Step、互动内容和完成条件。"}</p>
-    </section>;
-  }
+  if (!runtimeHydrated || !step) return null;
 
   return (
     <section className="interactive-lesson guided-lesson" id="lesson-runtime">
@@ -646,8 +936,8 @@ export function GenericLessonRuntimePanel({
       <div className="guided-progress-track" aria-label="学习进度">
         {previewMode && (
           <div className="guided-preview-mode-note">
-            <strong>{previewModeNote === "RUNTIME_FALLBACK" ? "课程互动体验" : "Human Review 预览"}</strong>
-            <span>{previewModeNote === "RUNTIME_FALLBACK" ? "课程内容与互动已对齐正式版本；当前数据库 Runtime 尚未完成 provisioning，因此本次互动暂不保存正式进度或完成状态。" : "本页只用于体验课程草稿，不保存进度、不产生完成状态、不会发布。"}</span>
+            <strong>Human Review 预览</strong>
+            <span>本页只用于体验课程草稿，不保存进度、不产生完成状态、不会发布。</span>
           </div>
         )}
         {plan.steps.map((item, index) => (
@@ -657,9 +947,7 @@ export function GenericLessonRuntimePanel({
             className={index === currentStep ? "is-current" : index < currentStep ? "is-done" : ""}
             onClick={() => {
               if (index <= currentStep || (index === currentStep + 1 && canAdvance)) {
-                setCurrentStep(index);
-                setConfusedOpen(false);
-                setMessage(null);
+                void moveToStep(index);
               }
             }}
           >
@@ -669,7 +957,7 @@ export function GenericLessonRuntimePanel({
         ))}
       </div>
 
-      {!runtime.configurationReady && (
+      {runtime && !runtime.configurationReady && (
         <div className="interactive-message">
           <strong>当前课程 Runtime 尚未全部准备完成</strong>
           {runtime.blockers.map((blocker) => (
@@ -682,7 +970,8 @@ export function GenericLessonRuntimePanel({
       {step.kind === "EXPLAIN" && presentationIntroComparison ? (
         <div className="guided-step-content guided-intro-comparison">
           <div className="guided-step-label">从一个真实场景开始</div>
-          <h3>{presentationIntroComparison.situation}</h3>
+          <h3>{presentationIntroComparison.title ?? "先看一个常见情况"}</h3>
+          <p className="guided-intro-lead">{presentationIntroComparison.situation}</p>
           <div className="guided-intro-approaches">
             {presentationIntroComparison.approaches.map((item) => (
               <div key={item.label}>
@@ -788,13 +1077,21 @@ export function GenericLessonRuntimePanel({
                     name={"check-" + check.id}
                     value={option.value}
                     checked={checked}
+                    disabled={currentCheckLocked || busy === "check"}
                     onChange={(event) => {
+                      if (currentCheckLocked) return;
                       if (multiSelect) {
-                        setPreviewAnswers((current) =>
-                          event.target.checked
-                            ? [...current, option.value]
-                            : current.filter((value) => value !== option.value)
-                        );
+                        setPreviewAnswers((current) => {
+                          const validValues = new Set(
+                            check.options.map((item) => item.value)
+                          );
+                          const scoped = current.filter((value) =>
+                            validValues.has(value)
+                          );
+                          return event.target.checked
+                            ? [...scoped, option.value]
+                            : scoped.filter((value) => value !== option.value);
+                        });
                       } else {
                         setAnswer(event.target.value);
                         setPreviewAnswers([event.target.value]);
@@ -812,17 +1109,24 @@ export function GenericLessonRuntimePanel({
             <button
               type="button"
               className="btn btn-primary"
-              onClick={submitCheck}
+              onClick={canRestartCheck ? restartCheckStep : submitCheck}
               disabled={
-                (!answer && previewAnswers.length === 0) ||
-                busy === "check" ||
-                (isMasterySequence
-                  ? localCheckCorrect === true || check.state?.isCorrect === true
-                  : checkPassed)
+                busy === "check-reset" ||
+                (!canRestartCheck && (
+                  (!answer && previewAnswers.length === 0) ||
+                  busy === "check" ||
+                  (isMasterySequence
+                     ? currentCheckLocked
+                     : checkPassed)
+                ))
               }
             >
-              {!isMasterySequence && checkPassed
-                ? "✓ 理解检查已通过"
+              {canRestartCheck
+                ? busy === "check-reset" ? "正在重置…" : "重新学习"                : isMasterySequence && currentCheckCorrect
+                  ? "✓ 本题已答对"
+
+                : !isMasterySequence && checkPassed
+                  ? "✓ 理解检查已通过"
                 : busy === "check"
                   ? "正在检查…"
                   : "检查答案"}
@@ -831,7 +1135,7 @@ export function GenericLessonRuntimePanel({
           {checkFeedback && (
             <div className="guided-gain">
               <strong>
-                {localCheckCorrect === true || check.state?.isCorrect === true
+                {currentCheckCorrect
                   ? "为什么这个判断正确"
                   : "为什么这个判断不成立"}
               </strong>
@@ -840,15 +1144,14 @@ export function GenericLessonRuntimePanel({
           )}
           {isMasterySequence &&
             checkFeedback &&
-            !(localCheckCorrect === true || check.state?.isCorrect === true) && (
+            !currentCheckCorrect && (
               <div className="guided-key-highlight">
                 <strong>根据反馈再选一次</strong>
                 <p>先理解上面的判断依据，再重新选择。答对后才会进入下一题。</p>
               </div>
             )}
           {isMasterySequence &&
-            checkFeedback &&
-            (localCheckCorrect === true || check.state?.isCorrect === true) &&
+            currentCheckLocked &&
             currentCheckIndex < checkSequence.length - 1 && (
               <div className="interactive-actions">
                 <button
@@ -865,13 +1168,13 @@ export function GenericLessonRuntimePanel({
             currentCheckIndex === checkSequence.length - 1 && (
               <div className="guided-key-highlight">
                 <strong>理解检查已完成</strong>
-                <p>三道题都已答对，可以进入下一步实操。</p>
+                <p>三道题都已答对，可以进入下一步练习。</p>
               </div>
             )}
         </div>
       )}
 
-      {step.kind === "CHECK" && plan.requiresCheck && !check && (
+      {step.kind === "CHECK" && plan.requiresCheck && runtimeHydrated && !check && (
         <div className="interactive-block">
           <div className="kicker">理解检查</div>
           <h3>Required Check 尚未配置</h3>
@@ -879,101 +1182,7 @@ export function GenericLessonRuntimePanel({
         </div>
       )}
 
-      {step.kind === "PRACTICE" && previewMode && !plan.requiresPractice && previewActivity && (
-        <div className="guided-step-content guided-preview-activity">
-          <div className="guided-step-label">动手体验</div>
-          <h3>{previewActivity.title}</h3>
-          <p>{previewActivity.instruction}</p>
-          {previewActivity.kind === "COPY_TO_AI" && previewActivity.prompt && (
-            <>
-              <div className="guided-preview-prompt">{previewActivity.prompt}</div>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(previewActivity.prompt ?? "");
-                  setCopiedActivity(true);
-                }}
-              >
-                {copiedActivity ? "✓ 已复制，去你的 AI 软件试一下" : "复制这段话"}
-              </button>
-            </>
-          )}
-          {previewActivity.kind !== "COPY_TO_AI" && previewActivity.prompt && (
-            <div className="guided-practice-fields">
-              <label>
-                <span>我的练习</span>
-                <small>{previewActivity.prompt}</small>
-                <textarea
-                  rows={5}
-                  maxLength={12000}
-                  value={previewActivityResponse}
-                  onChange={(event) => {
-                    setPreviewActivityResponse(event.target.value);
-                    setPreviewActivityCompleted(false);
-                  }}
-                />
-              </label>
-              <div className="interactive-actions">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={!previewActivityResponse.trim()}
-                  onClick={() => setPreviewActivityCompleted(true)}
-                >
-                  {previewActivityCompleted ? "✓ 已完成这一步" : "完成这一步"}
-                </button>
-                <button
-                  type="button"
-                  className="btn"
-                  disabled={!previewActivityResponse.trim()}
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(previewActivityResponse);
-                    setCopiedActivityResponse(true);
-                  }}
-                >
-                  {copiedActivityResponse ? "✓ 已复制我的练习" : "复制我的练习"}
-                </button>
-              </div>
-              {previewReferenceAnswer && (
-                <div className="guided-reference-answer">
-                  <div className="guided-step-label">需要参考？先看一个合格示例</div>
-                  <div className="guided-preview-prompt">{previewReferenceAnswer}</div>
-                  <div className="interactive-actions">
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={() => {
-                        setPreviewActivityResponse(previewReferenceAnswer);
-                        setPreviewActivityCompleted(false);
-                        setMessage("参考答案已填入。你可以继续修改成自己的版本。");
-                      }}
-                    >
-                      一键填充参考答案
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={async () => {
-                        await navigator.clipboard.writeText(previewReferenceAnswer);
-                        setCopiedReferenceAnswer(true);
-                      }}
-                    >
-                      {copiedReferenceAnswer ? "✓ 已复制参考答案" : "复制参考答案"}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          <div className="guided-gain">
-            <strong>{previewActivityCompleted ? "完成后检查" : "你应该得到什么"}</strong>
-            <p>{previewActivity.reflection}</p>
-          </div>
-        </div>
-      )}
-
-      {step.kind === "PRACTICE" && (plan.requiresPractice || (previewMode && plan.lessonType === "PROJECT")) && practice && (
+      {step.kind === "PRACTICE" && practice && (
         <div className="interactive-block" id="interactive-practice">
           <div className="kicker">{plan.lessonType === "PROJECT" ? "项目草稿验收" : "实操验收"}</div>
           <h3>{practice.title}</h3>
@@ -1015,15 +1224,17 @@ export function GenericLessonRuntimePanel({
             <button
               type="button"
               className="btn btn-primary"
-              onClick={submitPractice}
-              disabled={busy === "practice" || (plan.lessonType === "PROJECT" ? projectDraftPassed : practicePassed)}
+              onClick={canRestartPractice ? restartPracticeStep : submitPractice}
+              disabled={interactionLocked || busy === "practice" || (plan.lessonType === "PROJECT" && projectDraftPassed)}
             >
-              {(plan.lessonType === "PROJECT" ? projectDraftPassed : practicePassed)
+              {canRestartPractice
+                ? "重新练习"
+                : (plan.lessonType === "PROJECT" ? projectDraftPassed : practicePassed)
                 ? plan.lessonType === "PROJECT"
                   ? "✓ 项目草稿已通过"
                   : "✓ 实操已通过"
                 : busy === "practice"
-                  ? "正在检查…"
+                  ? "正在检查你的结果…"
                   : evaluation
                     ? "修改后重新检查"
                     : "检查我的结果"}
@@ -1116,7 +1327,7 @@ export function GenericLessonRuntimePanel({
         </div>
       )}
 
-      {step.kind === "PRACTICE" && (plan.requiresPractice || (previewMode && plan.lessonType === "PROJECT")) && !practice && (
+      {step.kind === "PRACTICE" && plan.requiresPractice && !practice && (
         <div className="interactive-block" id="interactive-practice">
           <div className="kicker">实操验收</div>
           <h3>Required Practice 尚未配置</h3>
@@ -1251,8 +1462,8 @@ export function GenericLessonRuntimePanel({
                 {presentationSelfAssessment.map((item) => <p key={item}>✓ {item}</p>)}
               </div>
               <div>
-                <strong>马上可以怎么用</strong>
-                <p>{lesson.related[0] ?? "把这个能力带回一个真实任务中再用一次。"}</p>
+                <strong>遇到什么情况，我应该想到这节课？</strong>
+                <p>{presentationTriggerScenario ?? lesson.related[0] ?? "当真实任务中再次出现本课解决的问题时，就应该调用这项能力。"}</p>
               </div>
             </div>
           ) : null}
@@ -1273,10 +1484,8 @@ export function GenericLessonRuntimePanel({
 
       <div className="guided-step-nav">
         <button type="button" className="btn btn-secondary" onClick={() => {
-          setCurrentStep((value) => Math.max(0, value - 1));
-          setMessage(null);
-          setConfusedOpen(false);
-        }} disabled={currentStep === 0}>← 上一步</button>
+          void moveToStep(currentStep - 1);
+        }} disabled={interactionLocked || currentStep === 0}>← 上一步</button>
         <div className="guided-step-nav-center">
           <span>{unifiedLessonStepLabel(step.kind)}</span>
           <small>{currentStep + 1} / {plan.steps.length}</small>
@@ -1284,13 +1493,12 @@ export function GenericLessonRuntimePanel({
         <div className="guided-step-nav-actions">
           <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>
           {currentStep < plan.steps.length - 1 && (
-            <button type="button" className="btn btn-primary" disabled={!canAdvance} onClick={() => {
+            <button type="button" className="btn btn-primary" disabled={interactionLocked || !canAdvance} onClick={() => {
               if (!canAdvance) return;
-              setCurrentStep((value) => Math.min(plan.steps.length - 1, value + 1));
-              setConfusedOpen(false);
-              setMessage(null);
+              void moveToStep(currentStep + 1);
             }}>下一步 →</button>
           )}
+          {currentStep === plan.steps.length - 1 && completionControl}
         </div>
       </div>
     </section>

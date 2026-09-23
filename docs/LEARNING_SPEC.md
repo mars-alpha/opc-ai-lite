@@ -173,7 +173,7 @@ Stage 4–6
 5. Token
 6. Multimodal / 多模态
 7. Knowledge Base / 知识库
-8. RAG / Retrieval-Augmented Generation
+8. RAG
 9. API
 10. MCP / Model Context Protocol
 11. Skill

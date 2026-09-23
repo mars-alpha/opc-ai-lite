@@ -1,24 +1,23 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { foundationCatalog } from "../lib/learning/foundation-catalog";
+import { foundationCatalog, isFoundationRuntimeLesson } from "../lib/learning/foundation-catalog";
 import { useProgress } from "./ProgressProvider";
 
 export function LearningBlockProgress() {
   const { ready, isCompleted } = useProgress();
   const lessons = foundationCatalog.flatMap((stage) => stage.lessons);
-  const available = lessons.filter(
-    (lesson) => lesson.availability === "AVAILABLE" && lesson.runtimeCourseSlug && lesson.runtimeLessonId
-  );
-  const previewable = lessons.filter(
-    (lesson) => lesson.availability === "RUNTIME_PREVIEW" && lesson.runtimeCourseSlug && lesson.runtimeLessonId
-  );
+  const activeLessons = lessons.filter(isFoundationRuntimeLesson);
+
+
   const done = ready
-    ? available.filter((lesson) =>
+    ? activeLessons.filter((lesson) =>
         isCompleted(lesson.runtimeCourseSlug!, lesson.runtimeLessonId!)
       ).length
     : 0;
-  const percent = available.length ? Math.round((done / available.length) * 100) : 0;
+  const percent = activeLessons.length
+    ? Math.round((done / activeLessons.length) * 100)
+    : 0;
 
   return (
     <aside className="learning-block-progress" aria-label="当前学习板块进度">
@@ -41,16 +40,14 @@ export function LearningBlockProgress() {
 
       <div className="learning-progress-stats">
         <div><strong>{done}</strong><span>已完成</span></div>
-        <div><strong>{available.length}</strong><span>已开放</span></div>
+        <div><strong>{activeLessons.length}</strong><span>已开放</span></div>
         <div><strong>{lessons.length}</strong><span>总课程</span></div>
       </div>
 
       <p className="learning-progress-note">
-        {available.length
-          ? "进度只统计已经正式开放并可完成的课程。"
-          : previewable.length
-            ? "前 " + previewable.length + " 节课程已可体验；正式 Runtime 完成后才计入持久化进度。"
-            : "课程正在按批次开放；未开放课程不会计入完成进度。"}
+        {activeLessons.length
+          ? "进度统计当前已经开放并可记录正式学习状态的课程。"
+          : "课程正在按批次开放；未开放课程不会计入完成进度。"}
       </p>
     </aside>
   );

@@ -14,8 +14,8 @@ export function getDatabase() {
   if (!client) {
     client = postgres(requireDatabaseUrl(), {
       prepare: false,
-      max: 3,
-      idle_timeout: 20,
+      max: 5,
+      idle_timeout: 300,
       max_lifetime: 60 * 30
     });
 

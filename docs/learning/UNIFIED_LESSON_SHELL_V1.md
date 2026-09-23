@@ -50,7 +50,7 @@ Draft Preview 必须复用 `GenericLessonRuntimePanel`。Preview 只用于 Human
 交互固定：
 - 一次只显示一题；
 - 答错：展示明确错误反馈与判断依据，必须重试，不能进入下一题；
-- 答对：展示为什么正确，再允许下一题；
+- 答对：展示为什么正确，立即锁定当前题的选项与提交动作；在用户点击“下一题”前不得再次改选，且“下一题”入口必须稳定保留；
 - 三题全部答对才满足新课程 CHECK Gate；
 - 多选使用 exact-set 判分；
 - legacy 单题 Check 继续兼容，但不是新课程默认。
@@ -67,7 +67,8 @@ Step 1 / Step 2 / Step 5 可以通过通用数据配置改变内容层级，但�
 - Bottom concept explanation；
 - `bottomDetails`；
 - Knowledge depth；
-- Review card fill presentation。
+- Review card fill presentation；
+- Step 5 主卡片后的 `knowledgeDepth.review` 补充说明层：数量由课题决定，不固定条数，但正式课程不得无故删除该层。
 
 这些是可选表达能力，不代表所有课程必须使用同一个具体视觉变体。
 

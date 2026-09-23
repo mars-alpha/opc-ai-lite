@@ -8,10 +8,15 @@ import { useProgress } from "./ProgressProvider";
 
 export function CourseRedirect({ course }: { course: Course }) {
   const router = useRouter();
-  const { ready, isCompleted } = useProgress();
+  const { ready, authenticated, isCompleted } = useProgress();
 
   useEffect(() => {
     if (!ready) return;
+    const courseHref = "/courses/" + course.slug;
+    if (!authenticated) {
+      router.replace("/auth?mode=login&returnTo=" + encodeURIComponent(courseHref));
+      return;
+    }
     const lessons = course.modules.flatMap((module) => module.lessons);
     const next = lessons.find((lesson) => !isCompleted(course.slug, lesson.id)) ?? lessons[0];
     if (next) {
@@ -19,7 +24,7 @@ export function CourseRedirect({ course }: { course: Course }) {
     } else {
       router.replace("/learning-path#progress");
     }
-  }, [course, isCompleted, ready, router]);
+  }, [authenticated, course, isCompleted, ready, router]);
 
   return (
     <section className="course-redirect">

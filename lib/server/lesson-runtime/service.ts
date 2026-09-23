@@ -1,5 +1,7 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { and, desc, eq } from "drizzle-orm";
 import type { RealAiEvidence } from "../../learning/lesson-spec";
 import { getLessonSpec } from "../../learning/lesson-spec-registry";
@@ -16,10 +18,16 @@ import {
 } from "../db/schema";
 import { getLessonAccess } from "../entitlements/service";
 import {
+  getInteractiveLesson,
   getRequiredCheckGateState,
   getRequiredPracticeGateState
 } from "../interactive/service";
-import { recordLearningEvent } from "../learning-insights/service";
+import {
+  getLessonHelpfulnessStateByLessonId,
+  recordLearningEvent
+} from "../learning-insights/service";
+import { getLessonProgressRuntimeState } from "../learning/service";
+import { createRuntimeTiming } from "../runtime-performance";
 
 type EvidenceProperties = {
   evidenceKind?: unknown;
@@ -29,25 +37,34 @@ type EvidenceProperties = {
   resultRef?: unknown;
 };
 
-async function getPublishedLessonIdentity(courseSlug: string, lessonSlug: string) {
-  const [row] = await getDatabase()
-    .select({
-      lessonId: lessons.id,
-      lessonSlug: lessons.slug,
-      courseSlug: stages.slug
-    })
-    .from(lessons)
-    .innerJoin(modules, eq(lessons.moduleId, modules.id))
-    .innerJoin(stages, eq(modules.stageId, stages.id))
-    .where(
-      and(
-        eq(stages.slug, courseSlug),
-        eq(lessons.slug, lessonSlug),
-        eq(lessons.status, "PUBLISHED")
+const readPublishedLessonIdentity = unstable_cache(
+  async (courseSlug: string, lessonSlug: string) => {
+    const [row] = await getDatabase()
+      .select({
+        lessonId: lessons.id,
+        lessonSlug: lessons.slug,
+        courseSlug: stages.slug
+      })
+      .from(lessons)
+      .innerJoin(modules, eq(lessons.moduleId, modules.id))
+      .innerJoin(stages, eq(modules.stageId, stages.id))
+      .where(
+        and(
+          eq(stages.slug, courseSlug),
+          eq(lessons.slug, lessonSlug),
+          eq(lessons.status, "PUBLISHED")
+        )
       )
-    )
-    .limit(1);
+      .limit(1);
 
+    return row ?? null;
+  },
+  ["published-lesson-runtime-identity"],
+  { revalidate: 60 }
+);
+
+async function getPublishedLessonIdentity(courseSlug: string, lessonSlug: string) {
+  const row = await readPublishedLessonIdentity(courseSlug, lessonSlug);
   if (!row) throw new Error("LESSON_NOT_FOUND");
   return row;
 }
@@ -132,20 +149,58 @@ export async function getRealAiEvidenceState(
   };
 }
 
+function deriveInteractiveGates(interactive: Awaited<ReturnType<typeof getInteractiveLesson>>) {
+  const requiredChecks = interactive.checks.filter((check) => check.required);
+  const requiredPractices = interactive.practices.filter((practice) => practice.required);
+  return {
+    checkGate: {
+      configured: requiredChecks.length > 0,
+      passed:
+        requiredChecks.length > 0 &&
+        requiredChecks.every((check) => check.state?.isCorrect === true),
+      requiredIds: requiredChecks.map((check) => check.id)
+    },
+    practiceGate: {
+      configured: requiredPractices.length > 0,
+      passed:
+        requiredPractices.length > 0 &&
+        requiredPractices.every((practice) => practice.state?.status === "PASSED"),
+      requiredIds: requiredPractices.map((practice) => practice.id)
+    }
+  };
+}
+
 export async function getLessonRuntimeReadModel(
   userId: string | null,
   courseSlug: string,
   lessonSlug: string
 ) {
+  const timing = createRuntimeTiming("lesson_runtime_read");
   const lesson = await getPublishedLessonIdentity(courseSlug, lessonSlug);
+  timing.mark("lesson_identity_ms");
   await assertLessonRuntimeAccess(userId, courseSlug, lessonSlug);
+  timing.mark("access_ms");
   const spec = getLessonSpec(courseSlug, lessonSlug);
-  const [checkGate, practiceGate] = await Promise.all([
-    getRequiredCheckGateState(userId, lesson.lessonId),
-    getRequiredPracticeGateState(userId, lesson.lessonId)
+  const stateStartedAt = performance.now();
+  const [interactive, progress] = await Promise.all([
+    getInteractiveLesson(userId, courseSlug, lessonSlug, {
+      lessonId: lesson.lessonId,
+      accessChecked: true
+    }),
+    getLessonProgressRuntimeState(userId, courseSlug, lessonSlug, lesson.lessonId)
   ]);
+  timing.set("interactive_progress_ms", Math.round(performance.now() - stateStartedAt));
+  const { checkGate, practiceGate } = deriveInteractiveGates(interactive);
+  const ratingStartedAt = performance.now();
+  const ratingState =
+    userId && progress.completed
+      ? await getLessonHelpfulnessStateByLessonId(userId, lesson.lessonId)
+      : { canRate: false, submittedAt: null, latestInteractionAt: null };
+  timing.set("rating_ms", Math.round(performance.now() - ratingStartedAt));
 
+  timing.set("completed", progress.completed);
   if (!spec) {
+    timing.finish({ registered: false });
     return {
       registered: false,
       lessonId: lesson.lessonId,
@@ -154,8 +209,12 @@ export async function getLessonRuntimeReadModel(
       gates: {
         check: checkGate,
         practice: practiceGate,
-        realAi: { required: false, satisfied: true, evidenceKind: "NONE", latest: null }
+        realAi: { required: false, satisfied: true, evidenceKind: "NONE" as const, latest: null }
       },
+      progress,
+      interactive,
+      canComplete: false,
+      canRate: ratingState.canRate,
       configurationReady: true,
       enforcementActive: false,
       blockers: [] as string[]
@@ -180,6 +239,7 @@ export async function getLessonRuntimeReadModel(
     blockers.push("REAL_AI_EVIDENCE_RUNTIME_NOT_SUPPORTED:" + plan.realAiEvidence);
   }
 
+  timing.finish({ registered: true });
   return {
     registered: true,
     lessonId: lesson.lessonId,
@@ -190,10 +250,54 @@ export async function getLessonRuntimeReadModel(
       practice: practiceGate,
       realAi
     },
+    progress,
+    interactive,
+    canComplete:
+      blockers.length === 0 &&
+      (!plan.requiresCheck || checkGate.passed) &&
+      (!plan.requiresPractice || practiceGate.passed) &&
+      (!plan.requiresRealAi || realAi.satisfied),
+    canRate: progress.completed && ratingState.canRate,
     configurationReady: blockers.length === 0,
     enforcementActive: blockers.length === 0,
     blockers
   };
+}
+
+export async function assertLessonStepCanEnter(
+  userId: string,
+  courseSlug: string,
+  lessonSlug: string,
+  currentStep: number
+) {
+  const lesson = await getPublishedLessonIdentity(courseSlug, lessonSlug);
+  await assertLessonRuntimeAccess(userId, courseSlug, lessonSlug);
+  const spec = getLessonSpec(courseSlug, lessonSlug);
+  if (!spec) return;
+
+  const plan = buildLessonRuntimePlan(spec);
+  const targetIndex = currentStep - 1;
+  const checkIndex = plan.steps.findIndex((step) => step.kind === "CHECK");
+  const practiceIndex = plan.steps.findIndex((step) => step.kind === "PRACTICE");
+
+  if (plan.requiresCheck && checkIndex >= 0 && targetIndex > checkIndex) {
+    const checkGate = await getRequiredCheckGateState(userId, lesson.lessonId);
+    if (!checkGate.passed) throw new Error("CHECK_REQUIRED");
+  }
+
+  if (plan.requiresPractice && practiceIndex >= 0 && targetIndex > practiceIndex) {
+    const practiceGate = await getRequiredPracticeGateState(userId, lesson.lessonId);
+    if (!practiceGate.passed) throw new Error("PRACTICE_REQUIRED");
+  }
+
+  if (plan.requiresRealAi && practiceIndex >= 0 && targetIndex > practiceIndex) {
+    const realAi = await getRealAiEvidenceState(
+      userId,
+      lesson.lessonId,
+      plan.realAiEvidence
+    );
+    if (!realAi.satisfied) throw new Error("REAL_AI_REQUIRED");
+  }
 }
 
 function validateReference(value: unknown, errorCode: string) {

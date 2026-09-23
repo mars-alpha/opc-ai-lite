@@ -17,7 +17,7 @@ Status: COMPLETE_DOCS_ALIGNED
 
 ## SHOULD_FIX findings
 
-- `FOUNDATION_CATALOG_METADATA_V1.md` 对 F1-01～F1-04 的说明仍停留在“进入 Human Review”，应明确 Human Review PASS 但尚未 Runtime Ready / AVAILABLE。
+- 当时发现旧 `FOUNDATION_CATALOG_METADATA_V1.md` 存在状态漂移；该旧 Catalog 现已被 Track 01 v2 owner 取代并删除，此条仅保留历史审计证据。
 - 旧失败 Batch Brief 文件虽然顶部已明确 RETIRED，但 Status 仍写 BRIEF_READY_V1，容易被自动读取误判，应改为 RETIRED_FAILED_REFERENCE。
 
 ## HISTORICAL_OK

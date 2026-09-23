@@ -20,7 +20,7 @@ export default function LearningPathPage() {
       <PageHero
         eyebrow="Learning Path"
         title={<>从看懂 AI，到把 AI 用进真实业务</>}
-        description="OPC 的学习主线分成五大板块。AI 基础认知已经按 6 个学习阶段、20 节核心课程重新对齐；当前 Phase 1 的前 5 节已经开放体验，后续按批次推进。"
+        description="OPC 的学习主线分成五大板块。AI 基础认知已完成 6 个学习阶段、20 节核心课程的正式 Runtime 接入，当前 20 节课程均可进入学习。"
         actions={<Link className="btn btn-primary" href="#foundation-catalog">查看基础课程目录</Link>}
         metrics={[
           { value: "5", label: "五大长期学习板块" },
@@ -31,11 +31,11 @@ export default function LearningPathPage() {
           <HeroVisual
             cards={[
               { title: "FOUNDATION", value: "6 个阶段", detail: "先协作，再理解机制与系统" },
-              { title: "CATALOG", value: "20 节", detail: "核心目录完整 · 内容分批开放" },
+              { title: "CATALOG", value: "20 节", detail: "20 节核心课程 · 已全部开放" },
               { title: "PATH", value: "5 大板块", detail: "工作 → 业务 → Workflow → FDE" }
             ]}
             eyebrow="OPC Learning"
-            caption="完整路径，分批开放"
+            caption="基础认知 20 节已开放"
           />
         }
       />
@@ -46,16 +46,18 @@ export default function LearningPathPage() {
             <div>
               <div className="eyebrow">Learning Map</div>
               <h2 className="section-title">学习地图</h2>
-              <p className="section-subtitle">五大长期学习板块按能力递进排列。当前先完成 AI 基础认知，其他板块会随着正式课程建设逐步开放。</p>
+              <p className="section-subtitle">五大长期学习板块按能力递进排列。AI 基础认知 20 节已完成正式课程接入，其他板块会随着后续课程建设逐步开放。</p>
             </div>
           </Reveal>
 
           <nav className="learning-block-nav" aria-label="五大长期学习板块">
             {stages.map(([index, en, title, detail], i) => (
               <div className={"learning-block-nav-item " + (i === 0 ? "is-active" : "is-coming")} key={index}>
-                <div className="learning-block-nav-index">{index}</div>
+                <div className="learning-block-nav-heading">
+                  <span className="learning-block-nav-index">{index}</span>
+                  <small className="learning-block-nav-track">{en}</small>
+                </div>
                 <div className="learning-block-nav-copy">
-                  <small>{en}</small>
                   <strong>{title}</strong>
                   <span>{detail}</span>
                 </div>
@@ -68,7 +70,7 @@ export default function LearningPathPage() {
             <div>
               <div className="eyebrow">AI Foundation</div>
               <h2 className="section-title">AI 基础认知</h2>
-              <p className="section-subtitle">先把最常用的 AI 协作方法练会，再逐步理解模型、知识、工具与现代 AI 能力。已开放课程可以直接进入学习，未开放课程不会进入空页面。</p>
+              <p className="section-subtitle">先把最常用的 AI 协作方法练会，再逐步理解模型、知识、工具与现代 AI 能力。当前 20 节基础核心课程均已开放，可以直接进入学习。</p>
             </div>
             <div className="foundation-catalog-summary">
               <strong>6</strong><span>学习阶段</span>

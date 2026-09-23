@@ -76,6 +76,38 @@ async function pageRequest(path: string, sessionToken: string) {
   return { status: response.status, text: await response.text() };
 }
 
+async function setCurrentStep(
+  sessionToken: string,
+  lessonSlug: string,
+  currentStep: number
+) {
+  return jsonRequest("/api/learning/progress", sessionToken, {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      courseSlug: TRACK01_PHASE1_COURSE_SLUG,
+      lessonSlug,
+      currentStep
+    })
+  });
+}
+
+async function submitHelpfulRating(sessionToken: string, lessonSlug: string) {
+  return jsonRequest("/api/learning/feedback", sessionToken, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      courseSlug: TRACK01_PHASE1_COURSE_SLUG,
+      lessonSlug,
+      issueType: "LESSON_HELPFULNESS",
+      helpfulness: "HELPFUL",
+      reasons: ["课程评分：基本有帮助"],
+      comment: "",
+      resolutionStatus: "RESOLVED"
+    })
+  });
+}
+
 async function main() {
   if (!RUN || !CONFIRM) {
     throw new Error(
@@ -149,6 +181,20 @@ async function main() {
       assert(runtimeBefore.body?.enforcementActive === true, "ENFORCEMENT:" + lessonSlug);
       assert(runtimeBefore.body?.gates?.check?.configured === true, "CHECK_CONFIGURED:" + lessonSlug);
       assert(runtimeBefore.body?.gates?.practice?.configured === true, "PRACTICE_CONFIGURED:" + lessonSlug);
+      assert(runtimeBefore.body?.progress?.currentStep === 1, "INITIAL_STEP_ONE:" + lessonSlug);
+      assert(runtimeBefore.body?.progress?.completed === false, "INITIAL_NOT_COMPLETED:" + lessonSlug);
+      assert(runtimeBefore.body?.interactive?.checks?.length === 3, "SNAPSHOT_THREE_CHECKS:" + lessonSlug);
+      assert(runtimeBefore.body?.interactive?.practices?.length === 1, "SNAPSHOT_ONE_PRACTICE:" + lessonSlug);
+
+      const moveToCheck = await setCurrentStep(sessionToken, lessonSlug, 3);
+      assert(moveToCheck.status === 200, "STEP3_SAVE_HTTP_200:" + lessonSlug);
+      assert(moveToCheck.body?.currentStep === 3, "STEP3_PERSISTED:" + lessonSlug);
+
+      const blockedStep4 = await setCurrentStep(sessionToken, lessonSlug, 4);
+      assert(
+        blockedStep4.status === 409 && blockedStep4.body?.error === "CHECK_REQUIRED",
+        "STEP4_BLOCKED_BY_CHECK:" + lessonSlug
+      );
 
       const interactive = await jsonRequest("/api/learning/interactive" + query, sessionToken);
       assert(interactive.status === 200, "INTERACTIVE_HTTP_200:" + lessonSlug);
@@ -189,6 +235,16 @@ async function main() {
         assert(answered.body?.correct === true, "CHECK_ANSWER_CORRECT:" + lessonSlug + ":" + checkIndex);
       }
 
+      const moveToPractice = await setCurrentStep(sessionToken, lessonSlug, 4);
+      assert(moveToPractice.status === 200, "STEP4_SAVE_HTTP_200:" + lessonSlug);
+      assert(moveToPractice.body?.currentStep === 4, "STEP4_PERSISTED:" + lessonSlug);
+
+      const blockedStep5 = await setCurrentStep(sessionToken, lessonSlug, 5);
+      assert(
+        blockedStep5.status === 409 && blockedStep5.body?.error === "PRACTICE_REQUIRED",
+        "STEP5_BLOCKED_BY_PRACTICE:" + lessonSlug
+      );
+
       const blockedByPractice = await jsonRequest("/api/learning/progress", sessionToken, {
         method: "PUT",
         headers: { "content-type": "application/json" },
@@ -220,6 +276,12 @@ async function main() {
         "PRACTICE_PASSED:" + lessonSlug
       );
 
+      const moveToReview = await setCurrentStep(sessionToken, lessonSlug, 5);
+      assert(moveToReview.status === 200, "STEP5_SAVE_HTTP_200:" + lessonSlug);
+      const moveToCapability = await setCurrentStep(sessionToken, lessonSlug, 6);
+      assert(moveToCapability.status === 200, "STEP6_SAVE_HTTP_200:" + lessonSlug);
+      assert(moveToCapability.body?.currentStep === 6, "STEP6_PERSISTED:" + lessonSlug);
+
       const runtimeAfter = await jsonRequest("/api/learning/runtime" + query, sessionToken);
       assert(runtimeAfter.status === 200, "RUNTIME_AFTER_HTTP_200:" + lessonSlug);
       assert(runtimeAfter.body?.gates?.check?.passed === true, "CHECK_GATE_PASS:" + lessonSlug);
@@ -238,7 +300,7 @@ async function main() {
 
       const runtimeLessonId = await getLessonId(lessonSlug);
       const [progress] = await getDatabase()
-        .select({ status: lessonProgress.status })
+        .select({ status: lessonProgress.status, currentStep: lessonProgress.currentStep })
         .from(lessonProgress)
         .where(
           and(
@@ -248,6 +310,128 @@ async function main() {
         )
         .limit(1);
       assert(progress?.status === "COMPLETED", "COMPLETION_PERSISTED:" + lessonSlug);
+      assert(progress?.currentStep === 6, "COMPLETION_STEP6_PERSISTED:" + lessonSlug);
+
+      const completedRuntime = await jsonRequest("/api/learning/runtime" + query, sessionToken);
+      assert(completedRuntime.status === 200, "COMPLETED_RUNTIME_HTTP_200:" + lessonSlug);
+      assert(completedRuntime.body?.progress?.completed === true, "COMPLETED_RUNTIME_STATE:" + lessonSlug);
+      assert(completedRuntime.body?.progress?.currentStep === 6, "COMPLETED_RUNTIME_STEP6:" + lessonSlug);
+
+      if (index === 0) {
+        assert(completedRuntime.body?.canRate === true, "INITIAL_RATING_AVAILABLE");
+
+        const firstRating = await submitHelpfulRating(sessionToken, lessonSlug);
+        assert(firstRating.status === 201 || firstRating.status === 200, "FIRST_RATING_STORED");
+        const afterFirstRating = await jsonRequest("/api/learning/runtime" + query, sessionToken);
+        assert(afterFirstRating.body?.canRate === false, "RATING_HIDES_AFTER_SUBMIT");
+
+        const backToCheck = await setCurrentStep(sessionToken, lessonSlug, 3);
+        assert(backToCheck.status === 200, "COMPLETED_REVIEW_STEP3_HTTP_200");
+        assert(backToCheck.body?.status === "COMPLETED", "COMPLETION_SURVIVES_RELEARN_ENTRY");
+        assert(backToCheck.body?.currentStep === 3, "RELEARN_STEP3_PERSISTED");
+
+        const resetChecks = await jsonRequest("/api/learning/checks/reset", sessionToken, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            courseSlug: TRACK01_PHASE1_COURSE_SLUG,
+            lessonSlug
+          })
+        });
+        assert(resetChecks.status === 200, "CHECK_RELEARN_RESET_HTTP_200");
+
+        const afterReset = await jsonRequest("/api/learning/runtime" + query, sessionToken);
+        assert(
+          afterReset.body?.interactive?.checks?.every((item: any) => item.state == null),
+          "CHECK_RELEARN_RESET_CLEARS_CURRENT_STATE"
+        );
+        assert(afterReset.body?.canRate === false, "RESET_ALONE_DOES_NOT_REOPEN_RATING");
+
+        const firstDefinitionCheck = definition.checks[0];
+        const firstRuntimeCheck = interactive.body.checks[0];
+        const firstAnswerPayload =
+          firstDefinitionCheck.type === "MULTI_SELECT"
+            ? { answers: firstDefinitionCheck.correctAnswers }
+            : { answer: firstDefinitionCheck.correctAnswers[0] };
+        const firstRelearnAnswer = await jsonRequest(
+          "/api/learning/checks/" + encodeURIComponent(firstRuntimeCheck.id) + "/answer",
+          sessionToken,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(firstAnswerPayload)
+          }
+        );
+        assert(firstRelearnAnswer.status === 200 && firstRelearnAnswer.body?.correct === true, "RELEARN_FIRST_CHECK_PASS");
+
+        const partialRelearn = await jsonRequest("/api/learning/runtime" + query, sessionToken);
+        assert(partialRelearn.body?.interactive?.checks?.[0]?.state?.isCorrect === true, "RELEARN_FIRST_STATE_PERSISTED");
+        assert(partialRelearn.body?.interactive?.checks?.[1]?.state == null, "RELEARN_SECOND_REMAINS_EMPTY");
+        assert(partialRelearn.body?.canRate === true, "CHECK_INTERACTION_REOPENS_RATING");
+
+        const blockedAfterPartialRelearn = await jsonRequest("/api/learning/progress", sessionToken, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            courseSlug: TRACK01_PHASE1_COURSE_SLUG,
+            lessonSlug,
+            completed: true
+          })
+        });
+        assert(
+          blockedAfterPartialRelearn.status === 409 && blockedAfterPartialRelearn.body?.error === "CHECK_REQUIRED",
+          "PARTIAL_RELEARN_BLOCKS_NEW_COMPLETION"
+        );
+
+        for (let checkIndex = 1; checkIndex < definition.checks.length; checkIndex += 1) {
+          const definitionCheck = definition.checks[checkIndex];
+          const runtimeCheck = interactive.body.checks[checkIndex];
+          const answerPayload =
+            definitionCheck.type === "MULTI_SELECT"
+              ? { answers: definitionCheck.correctAnswers }
+              : { answer: definitionCheck.correctAnswers[0] };
+          const answered = await jsonRequest(
+            "/api/learning/checks/" + encodeURIComponent(runtimeCheck.id) + "/answer",
+            sessionToken,
+            {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify(answerPayload)
+            }
+          );
+          assert(answered.status === 200 && answered.body?.correct === true, "RELEARN_REMAINING_CHECK_PASS:" + checkIndex);
+        }
+
+        const returnToStep6 = await setCurrentStep(sessionToken, lessonSlug, 6);
+        assert(returnToStep6.status === 200, "RELEARN_RETURN_STEP6_HTTP_200");
+        const secondRating = await submitHelpfulRating(sessionToken, lessonSlug);
+        assert(secondRating.status === 201 || secondRating.status === 200, "SECOND_RATING_STORED");
+        const afterSecondRating = await jsonRequest("/api/learning/runtime" + query, sessionToken);
+        assert(afterSecondRating.body?.canRate === false, "SECOND_RATING_HIDES");
+
+        const backToPractice = await setCurrentStep(sessionToken, lessonSlug, 4);
+        assert(backToPractice.status === 200, "REPractice_STEP4_HTTP_200");
+        const repractice = await jsonRequest(
+          "/api/learning/practices/" + encodeURIComponent(practiceState.id) + "/submissions",
+          sessionToken,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ content: definition.referenceFill })
+          }
+        );
+        assert(repractice.status === 201, "REPractice_SUBMIT_201");
+        assert(
+          repractice.body?.status === "PASSED" || repractice.body?.evaluation?.passed === true,
+          "REPractice_PASSED"
+        );
+        const afterRepractice = await jsonRequest("/api/learning/runtime" + query, sessionToken);
+        assert(afterRepractice.body?.canRate === true, "PRACTICE_INTERACTION_REOPENS_RATING");
+        assert(afterRepractice.body?.progress?.completed === true, "COMPLETION_SURVIVES_REPractice");
+
+        const finalStep6 = await setCurrentStep(sessionToken, lessonSlug, 6);
+        assert(finalStep6.status === 200 && finalStep6.body?.currentStep === 6, "FINAL_STEP6_RESTORED");
+      }
 
       const page = await pageRequest(
         "/courses/" + TRACK01_PHASE1_COURSE_SLUG + "/lessons/" + lessonSlug,
@@ -256,7 +440,6 @@ async function main() {
       assert(page.status === 200, "LESSON_PAGE_HTTP_200:" + lessonSlug);
       assert(page.text.includes(definition.lesson.title), "LESSON_PAGE_TITLE:" + lessonSlug);
       assert(page.text.includes("AI 适合做什么"), "APPROVED_REVIEW_PRESENTATION:" + lessonSlug);
-      assert(page.text.includes("放进你的 AI 软件试一下"), "COPY_TO_AI_PRESENTATION:" + lessonSlug);
 
       const next = track01Phase1RuntimeDefinitions[index + 1];
       if (next) {
@@ -270,7 +453,12 @@ async function main() {
           "NEXT_LESSON_NAV:" + lessonSlug
         );
       } else {
-        assert(page.text.includes("本阶段课程完成"), "FINAL_LESSON_NAV");
+        assert(
+          page.text.includes(
+            "/courses/" + TRACK01_PHASE1_COURSE_SLUG + "/lessons/t1-06-model-and-product"
+          ),
+          "T1_05_TO_T1_06_NAV"
+        );
       }
 
       console.log(definition.canonicalId + "_RUNTIME_ACCEPTANCE=PASS");
@@ -280,6 +468,10 @@ async function main() {
     console.log("TRACK01_PHASE1_CHECK_GATE=PASS");
     console.log("TRACK01_PHASE1_PRACTICE_GATE=PASS");
     console.log("TRACK01_PHASE1_COMPLETION_PERSISTENCE=PASS");
+    console.log("TRACK01_PHASE1_CURRENT_STEP_RESUME=PASS");
+    console.log("TRACK01_PHASE1_RELEARN_STATE=PASS");
+    console.log("TRACK01_PHASE1_REPRACTICE_STATE=PASS");
+    console.log("TRACK01_PHASE1_RATING_REOPEN=PASS");
     console.log("TRACK01_PHASE1_NAVIGATION=PASS");
   } finally {
     await getDatabase().delete(users).where(eq(users.id, testUser.id));

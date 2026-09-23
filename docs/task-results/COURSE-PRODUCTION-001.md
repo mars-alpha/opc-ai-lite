@@ -1,10 +1,10 @@
 # COURSE-PRODUCTION-001 — Foundation Batch A Real Lessons
 
-Status: TECHNICAL_ACCEPTANCE_PASS_HUMAN_REVIEW_PENDING
+Status: HISTORICAL_PEDAGOGY_REJECTED_ASSETS_REMOVED
 
-## Result
+## Historical result
 
-Foundation Batch A 的 4 节正式课程候选 Draft 已落盘并接入统一 Course Builder Preview：
+该批次曾有 4 节课程候选 Draft 接入 Course Builder Preview，随后 Human Review 判定教学失败：
 
 1. foundation-ai-ml-generative-ai
 2. foundation-llm-model-vs-product
@@ -21,14 +21,7 @@ Foundation Batch A 的 4 节正式课程候选 Draft 已落盘并接入统一 Co
 - Step 3 使用 SINGLE_CHOICE → TRUE_FALSE → MULTI_SELECT 三题 Mastery
 - Preview 不写正式 Progress / Completion / Production DB
 
-共享 Preview renderer：
-- components/FoundationConceptDraftPreview.tsx
-
-Draft fixture：
-- fixtures/course-builder/foundation-batch-a.ts
-
-Acceptance：
-- scripts/accept-foundation-batch-a.ts
+旧共享 Preview renderer、fixture 与 acceptance 均已删除，不再是可执行工程入口。
 
 ## Catalog
 
@@ -49,11 +42,6 @@ Human Review 未通过前不得切换 AVAILABLE。
 - npm run build: PASS
 - no DB / migration / provider / publish side effect
 
-## Human Review URLs
+## Final disposition
 
-- /course-builder/preview/foundation-ai-ml-generative-ai
-- /course-builder/preview/foundation-llm-model-vs-product
-- /course-builder/preview/foundation-training-inference
-- /course-builder/preview/foundation-generation-retrieval-rules
-
-下一步先做 Human Review。通过后再决定逐节修订并进入正式化/Runtime provisioning，不直接批量发布。
+对应 4 个旧 Preview URL 已删除。该批次不得继续 Human Review、Runtime Provisioning 或 AVAILABLE；不得通过本历史文档恢复旧实现。若主题重新进入正式课程，必须从当前 Curriculum / Formal Brief / Course Builder 重新生产。

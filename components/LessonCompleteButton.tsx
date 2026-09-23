@@ -7,11 +7,15 @@ import { useProgress } from "./ProgressProvider";
 export function LessonCompleteButton({
   courseSlug,
   lessonId,
-  requiresPractice = false
+  requiresPractice = false,
+  inline = false,
+  disabled = false
 }: {
   courseSlug: string;
   lessonId: string;
   requiresPractice?: boolean;
+  inline?: boolean;
+  disabled?: boolean;
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -57,23 +61,21 @@ export function LessonCompleteButton({
   }
 
   return (
-    <div className="lesson-complete-control">
+    <div className={inline ? "lesson-complete-control is-inline" : "lesson-complete-control"}>
     <button
       type="button"
       className={"btn lesson-complete " + (done ? "is-complete" : "btn-primary")}
       onClick={handleToggle}
       aria-pressed={done}
-      disabled={!ready || saving}
+      disabled={!ready || saving || disabled || (inline && done)}
     >
       {saving
-        ? "正在保存…"
+        ? "正在确认学习结果…"
         : !authenticated
           ? "加入学习后标记完成"
           : done
-            ? "✓ 已完成 · 点击撤销"
-            : requiresPractice
-              ? "实操通过后，完成本课"
-              : "标记本课完成"}
+            ? "✓ 本课已完成"
+            : "完成本课"}
     </button>
     {error && <p className="lesson-complete-error">{error}</p>}
     </div>

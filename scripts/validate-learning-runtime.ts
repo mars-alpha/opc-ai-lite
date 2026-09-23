@@ -47,6 +47,18 @@ const structuredEvaluation = await rulePracticeEvaluator({
 });
 assert(structuredEvaluation.passed, "STRUCTURED_EVALUATION");
 
+const camelCaseSchema = parsePracticeSubmissionSchema({
+  kind: "STRUCTURED_TEXT_V1",
+  fields: [
+    { key: "mustKnow", label: "这次提供给 AI 的必要信息", minLength: 1, maxLength: 3000 }
+  ]
+});
+assert(camelCaseSchema.kind === "STRUCTURED_TEXT_V1", "STRUCTURED_CAMEL_CASE_SCHEMA");
+const camelCaseContent = validatePracticeSubmission(camelCaseSchema, {
+  mustKnow: "只提供会直接影响当前任务结果的必要信息。"
+});
+assert(Boolean(camelCaseContent.mustKnow), "STRUCTURED_CAMEL_CASE_CONTENT");
+
 let rejectedMissingField = false;
 try {
   validatePracticeSubmission(taskDecompositionRuntimeFixture.schema, {
@@ -105,6 +117,7 @@ assert(
 
 console.log("TASK_BRIEF_V1=PASS score=" + taskBriefEvaluation.score);
 console.log("STRUCTURED_TEXT_V1=PASS score=" + structuredEvaluation.score);
+console.log("STRUCTURED_TEXT_CAMEL_CASE=PASS");
 console.log("MISSING_FIELD_REJECTED=PASS");
 console.log("MEMORY_RAG_PLAN=PASS");
 console.log("TASK_DECOMPOSITION_PLAN=PASS");

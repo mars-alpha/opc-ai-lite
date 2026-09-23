@@ -43,14 +43,14 @@ export type CourseBuilderSixStepResponsibilities = Record<
 
 export const COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES: CourseBuilderSixStepResponsibilities = {
   EXPLAIN: {
-    purpose: "建立核心直觉：这是什么、为什么重要、解决什么问题，以及最重要的判断原则。",
-    include: "核心问题、价值、核心结论，必要时一个最常见的错误直觉。",
-    avoid: "只给定义却没有重要性，或一次堆入多个新概念和长篇说明。"
+    purpose: "让学习者快速建立核心直觉：当前是什么问题、为什么值得学、本课最重要的判断是什么。",
+    include: "一个无需复杂背景即可理解的入口、核心问题与核心判断，以及理解它所需的最少解释。",
+    avoid: "只给定义却没有学习价值；把完整业务案例提前塞进第一步；同时加入多个事实、条件、数字、角色或边界；一次堆入多个新概念和长篇说明。"
   },
   EXAMPLE: {
     purpose: "通过真实案例把方法、边界、易混淆点和常见错误讲透，为后续实操做准备。",
-    include: "前后对比、为什么有效、什么时候用或不用、容易和什么混淆，以及常见错误。",
-    avoid: "只重复 EXPLAIN，或展示案例却不解释判断依据和边界。"
+    include: "一个能让核心规律变得可见的真实案例；按课题需要使用结果对比、边界、错误与正确做法或其他自然结构，并解释判断依据。",
+    avoid: "只重复 EXPLAIN；展示案例却不解释判断依据和边界；或把某一种前后对比格式机械复制到所有课程。"
   },
   CHECK: {
     purpose: "完成概念理解闭环：用单选、判断或多选验证学习者是否真正理解，并纠正常见误区。",
@@ -58,19 +58,19 @@ export const COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES: CourseBuilderSixStepRespo
     avoid: "把 CHECK 变成猜题，或在题目里突然加入前两步没有教过的新核心理论。"
   },
   PRACTICE: {
-    purpose: "把前 3 步已经理解透的知识转成能亲手完成的能力，并提供逐层辅助。",
-    include: "清晰任务、字段或步骤提示、Hints、必要时参考答案；进阶提示只能作为选做支持。",
-    avoid: "在 Step 4 才首次教授新的核心概念，或为了丰富体验增加无意义点击和新的强制 Gate。"
+    purpose: "把前 3 步已经理解透的知识转成能亲手完成的能力；需要使用 AI 时，学习者填写的内容应能组合成一份可直接执行并产生可观察结果的完整任务。",
+    include: "清晰任务、按本课需要拆分的字段或步骤提示、Hints、必要时参考答案；字段数量由任务完整性决定，参考答案应是完整可运行正文。",
+    avoid: "在 Step 4 才首次教授新的核心概念；把字段数固定成模板；让参考答案变成字段解释而不是可执行任务；或为了丰富体验增加无意义点击和新的强制 Gate。"
   },
   REVIEW: {
-    purpose: "把零散知识收束成以后可复用的判断或诊断框架。",
-    include: "常见误区、判断顺序、遇到问题时可以复用的检查框架。",
-    avoid: "只把前面内容原样重复一遍，或再次堆一组孤立知识卡片。"
+    purpose: "把本课收束成以后真正能调用的判断框架。",
+    include: "上方主卡片固定围绕‘AI适合做什么 / AI不应该替你做什么’两个核心方向，给出本课具体回答；卡片数量不固定。主卡片下方保留按‘明确命题 + 回答/解释’组织的说明层，用于进一步解释为什么、边界、使用条件或易混淆判断；说明数量同样由课题决定。",
+    avoid: "删除两个固定复盘方向；把主卡片改成自由命题；只留标题而删掉具体回答；写成‘AI可以辅助你 / AI不能替你决定’等泛化口号；删除主卡片后的说明层；把主卡片或说明固定成某个条数；为了版式凑数；让上下两层或误区机械重复。"
   },
   CAPABILITY: {
-    purpose: "明确学习者现在会什么、马上能用在哪里，以及下一步学什么。",
-    include: "已获得能力、真实应用场景和下一步学习方向。",
-    avoid: "只写抽象鼓励、重复课程标题，或引入新的核心理论。"
+    purpose: "明确学习者现在会什么、如何自证、遇到什么情况应该想到这项能力，以及下一步学什么。",
+    include: "已获得能力、自我判断证据、未来真实会触发本课能力的具体情境和下一步学习方向。",
+    avoid: "只写抽象鼓励、重复课程标题、用课程依赖/编排说明代替真实触发情境，或引入新的核心理论。"
   }
 };
 
@@ -199,7 +199,7 @@ export type CourseBuilderOutput =
   | CourseBuilderImproveProposal;
 
 export type CourseBuilderReviewPacket = {
-  skill: { id: "course-builder"; version: "0.1.0" | "0.2.0" };
+  skill: { id: "course-builder"; version: "0.1.0" | "0.2.0" | "1.0.0" };
   mode: CourseBuilderMode;
   status: CourseBuilderReviewStatus;
   validatedAt: string;
@@ -673,14 +673,8 @@ export function validateBeginnerQualityDraft(draft: CourseBuilderBuildDraft) {
   if (draft.pedagogy.audience !== "BEGINNER") {
     throw new Error("BEGINNER_QUALITY_PROFILE_REQUIRES_BEGINNER_AUDIENCE");
   }
-  if (draft.review.length > 4) {
-    throw new Error("BEGINNER_QUALITY_REVIEW_BUDGET_EXCEEDED");
-  }
-  if (draft.lessonSpec.reviewEnabled && draft.review.length < 2) {
-    throw new Error("BEGINNER_QUALITY_REVIEW_MINIMUM_NOT_MET");
-  }
-  if (draft.content.example.before === undefined || draft.content.example.after === undefined) {
-    throw new Error("BEGINNER_QUALITY_BEFORE_AFTER_REQUIRED");
+  if (draft.lessonSpec.reviewEnabled && draft.review.length < 1) {
+    throw new Error("BEGINNER_QUALITY_REVIEW_REQUIRED");
   }
   if (draft.lessonSpec.capabilityGain.some((item) => item.includes("理解了"))) {
     throw new Error("BEGINNER_QUALITY_CAPABILITY_MUST_BE_ACTIONABLE");
@@ -719,7 +713,9 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
       throw new Error("BUILD_UNEXPECTED_CHECK");
     }
     if (lessonSpec.practiceMode !== "NONE" && !practice) throw new Error("BUILD_REQUIRED_PRACTICE_MISSING");
-    if (lessonSpec.practiceMode === "NONE" && practice) throw new Error("BUILD_UNEXPECTED_PRACTICE");
+    if (lessonSpec.practiceMode === "NONE" && practice && lessonSpec.lessonType !== "CONCEPT") {
+      throw new Error("BUILD_UNEXPECTED_PRACTICE");
+    }
     if (lessonSpec.lessonType === "CONCEPT" && !pedagogy.participation) {
       throw new Error("CONCEPT_PARTICIPATION_REQUIRED");
     }
@@ -769,11 +765,11 @@ export function validateCourseBuilderOutput(input: unknown): CourseBuilderOutput
 export function createCourseBuilderReviewPacket(
   input: unknown,
   now = new Date(),
-  skillVersion: "0.1.0" | "0.2.0" = "0.1.0"
+  skillVersion: "0.1.0" | "0.2.0" | "1.0.0" = "0.1.0"
 ): CourseBuilderReviewPacket {
   const output = validateCourseBuilderOutput(input);
   if (
-    skillVersion === "0.2.0" &&
+    (skillVersion === "0.2.0" || skillVersion === "1.0.0") &&
     output.mode === "BUILD" &&
     output.pedagogy.audience === "BEGINNER" &&
     !output.pedagogy.qualityProfile
