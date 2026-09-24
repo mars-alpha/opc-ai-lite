@@ -1,6 +1,6 @@
 # Track 02 Catalog & Course Context v1
 
-Status: **DIRECTORY_APPROVED_V1 / BATCH_A_BRIEF_READY_V1**
+Status: **DIRECTORY_APPROVED_V1 / BATCH_A_AVAILABLE / BATCH_B_AVAILABLE_RUNTIME_ACCEPTANCE_PASS**
 Task: **TRACK02-CURRICULUM-CONTEXT-001 — Track 02 Capability, Knowledge & Course Context Freeze**
 
 ## 1. Authority
@@ -29,6 +29,7 @@ Track 02 关联文件只允许按以下职责读取，禁止多文件共同拥�
 | `docs/learning/DEFERRED_KNOWLEDGE_LEDGER_V1.md` | Deferred / Supporting 输入及后续归属记录 | NO |
 | `docs/learning/COURSE_BUILD_START_HERE.md` + Course Production Workflow | 课程生产入口、Context 解析与生产 Gate | NO |
 | `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md` | 当前 T2-01～T2-03 Formal Brief Batch owner | NO — lesson boundary only |
+| `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md` | 当前 T2-04～T2-06 Formal Brief Batch owner；三节已正式上线 | NO — lesson boundary only |
 | `docs/CURRENT_SYSTEM_FACTS.md` | 当前事实与阶段状态 | NO |
 | `PROJECT_STATUS.md` / `TASKS.md` | 当前阶段 / 任务状态 | NO |
 
@@ -273,7 +274,7 @@ EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY
 
 - `/learning-path` 继续作为唯一学习地图；T1 / T2 使用 `?track=foundation-ai` / `?track=ai-work` 切换，不复制第二套学习路径页面；
 - 最近一次主动选择的 T1 / T2 使用轻量 Track preference 记忆；再次从全站入口进入 `/learning-path` 时恢复该板块，显式 query 仍优先；
-- T2 学习地图始终展示批准的 15 节完整 Curriculum；Delivery State 独立显示。当前 T2-01～T2-03 已通过 Runtime Acceptance 并显示为 AVAILABLE；T2-04～T2-15 仍显示“即将开放”，不得因目录已批准而伪造 Runtime；
+- T2 学习地图始终展示批准的 15 节完整 Curriculum；Delivery State 独立显示。当前 T2-01～T2-06 已通过 Runtime Acceptance 并显示为 AVAILABLE；T2-07～T2-15 仍显示“即将开放”，不得因目录已批准而伪造 Runtime；
 - 每个 Track 独立统计正式已开放课程的 Progress；未开放课不制造假进度；
 - 学习顺序与访问权限分离：T1 是 T2 的推荐基础，不是 OPC_MEMBER 的硬性 Access prerequisite；
 - `ai-work` 的正式 Runtime 访问由 Membership / Entitlement 决定；完成 T1 不会自动获得 T2 权益，未完成 T1 也不会阻止有效会员进入 T2；

@@ -49,6 +49,9 @@ const courseBuildEntry = fs.readFileSync(
   "docs/learning/COURSE_BUILD_START_HERE.md",
   "utf8"
 );
+const outputContract = fs.readFileSync("docs/learning/LESSON_OUTPUT_CONTRACT_V1.md", "utf8");
+const formalRegistryCheck = fs.readFileSync("scripts/validate-formal-lesson-runtime-registry.ts", "utf8");
+const tasks = fs.readFileSync("TASKS.md", "utf8");
 const formalCurriculum = fs.readFileSync(
   "docs/learning/FORMAL_CURRICULUM_V1.md",
   "utf8"
@@ -76,6 +79,19 @@ assert(
   courseBuildEntry.includes("当前 Formal Brief / Formal Brief Batch owner"),
   "COURSE_BUILD_ENTRY_CURRENT_BRIEF_RESOLUTION_MISSING"
 );
+assert(
+  ["learningRecommendation", "navigationDescription", "bottomDetails"].every((field) =>
+    outputContract.includes(field)
+  ),
+  "OUTPUT_CONTRACT_PRESENTATION_RULES_MISSING"
+);
+assert(
+  formalRegistryCheck.includes("formalLessonSpecs") &&
+    formalRegistryCheck.includes("FORMAL_NAVIGATION_MISSING") &&
+    formalRegistryCheck.includes("FORMAL_LEARNING_ADVICE_MISSING"),
+  "FORMAL_PRESENTATION_GATE_MISSING"
+);
+assert(!tasks.includes("进度卡片由 Unified Lesson Shell 使用固定短描述"), "TASKS_OLD_NAVIGATION_RULE_PRESENT");
 
 assert(
   COURSE_PRODUCTION_WORKFLOW_V1.ruleSourcePolicy === "READ_LATEST_AT_RUN_START",
@@ -182,6 +198,7 @@ console.log("COURSE_PRODUCTION_RULE_SOURCE_SYNC=PASS");
 console.log("COURSE_PRODUCTION_GLOBAL_RULE_SOURCES=PASS");
 console.log("COURSE_PRODUCTION_CONTEXT_POLICY=PASS");
 console.log("COURSE_PRODUCTION_ACTIVE_RULE_DRIFT_GUARD=PASS");
+console.log("COURSE_PRODUCTION_PRESENTATION_RULES_SHARED=PASS");
 console.log("COURSE_PRODUCTION_ORCHESTRATOR_GATES=PASS");
 console.log("COURSE_PRODUCTION_HUMAN_REVIEW_GATE=PASS");
 console.log("COURSE_BUILDER_SKILL_V1_CURRENT=PASS");

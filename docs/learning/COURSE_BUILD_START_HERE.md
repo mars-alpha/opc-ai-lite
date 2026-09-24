@@ -97,9 +97,10 @@
 - Track 01：`docs/learning/TRACK01_CATALOG_METADATA_V2.md`
 - Track 02：`docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
 
-Track 02 当前已批准的首批 Formal Brief：
+Track 02 当前 Formal Brief 批次：
 
-- `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md`
+- `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md`（已开放）
+- `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`（Draft 待人工审阅）
 
 这些路径只是“当前事实示例”，不是 Workflow 的硬编码 Rule Sources。切换 Track / Batch 时必须从 Current Facts 重新解析 current owner。
 
@@ -262,23 +263,13 @@ UI / Shell 规则以：
 
 ---
 
-## 7. 当前必须长期保持的构建原则
+## 7. 统一输出与验收入口
 
-这些原则用于启动判断，不取代 Contract 正文：
+第 1～5 板块共用同一条 Course Production Workflow。每次构建先从当前板块的目录、知识边界、Formal Brief 和 Grounding 决定本课要教什么，再由 Course Builder 输出 Draft；不得从历史课程文案或 UI 数据形状反推教学内容。
 
-- Topic first, responsibility fixed, representation flexible。
-- Step 1 只建立问题直觉、学习价值和一句核心判断；Step 2 用具体案例、对比、结果与判断依据讲透方法，两步不得复用同一案例正文造成重复。
-- Step 3 只检查 Step 1–2 已经教过的内容。
-- 六步顶部 objective 只保留一句简洁说明，正常桌面宽度不超过两行；知识内容放进对应 Step 正文。
-- 涉及市场分析而 Brief 未明确地区时，默认以中国市场为分析范围。
-- Step 4 是最小真实动作；字段数量由当前任务决定。只要提供“复制到 AI / 一键填充参考答案”，字段值按顺序组合后就必须是一份可直接交给 AI 执行并得到课程目标输出的完整任务；不能只是字段说明或零散短句。
-- Step 5 上方主卡片固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心复盘方向回答；不能删除这两个方向。主卡片数量不固定，每张都必须有本课具体回答正文。主卡片下方保留按“明确命题 + 回答/解释”组织的说明层，数量同样不固定，用于解释原因、边界、使用条件和易混淆判断；上下两层不得机械重复。
-- Step 6 必须把“现实触发场景”和“下一步为什么继续”分开：触发场景写学员未来会遇到的具体问题，不得用“下一课继续……”替代。
-- 初学课程先建立直觉，再解释概念，不堆专业术语。
-- 学员可见 AI / 技术术语首次出现默认使用 **中文（English）**；RAG、API、MCP 等行业常用技术缩写使用“中文解释（缩写）”。只有已经成为本课核心、行业通用的 AI / 技术术语才保留英文或缩写；`Beginner`、`Schema`、`Goal / Observe / Decide / Act / Stop` 等普通说明词或内部表达默认直接翻成自然中文。
-- 标题、Step 标题、学习路径课程名和阶段说明同样遵守该规则：普通术语使用中文（English），行业常用技术缩写使用“中文解释（缩写）”。
-- 新课程不能从上一课 UI 数据形状反推内容；先确定知识点，再适配统一 Shell。
-- 已确认的课程 UI 是冻结资产；普通课程内容任务不得重新设计 Shell。
+六步教学、学习建议、进度卡片和 Step 1 底部说明统一按 `LESSON_OUTPUT_CONTRACT_V1.md` 生产；零基础课另按 `BEGINNER_LESSON_QUALITY_STANDARD_V1.md` 控制认知负担；Shell 的展示位置与交互按 `UNIFIED_LESSON_SHELL_V1.md`。进入正式 Runtime 前通过 Deterministic Validators 和 Human Review，规则变化由 Workflow 下次运行读取最新 owner 文件，不复制一份规则到本入口。
+
+已确认的课程前端界面与交互冻结；后续第 3～5 板块的普通内容任务不新增 UI、不调整 CSS。
 
 ---
 

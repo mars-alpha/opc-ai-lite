@@ -29,8 +29,10 @@ export function FormalGuidedLessonView({
   previous: LessonLink;
   next: LessonLink;
   lockedLessonIds: string[];
-  learningRecommendation?: { title: string; href: string; concepts: string } | null;
+  learningRecommendation?: string | null;
 }) {
+  const lessonGoal = lesson.whyItMatters || lesson.summary;
+
   return (
     <section className="lesson-page">
       <div className="container lesson-shell guided-learning-shell">
@@ -49,16 +51,14 @@ export function FormalGuidedLessonView({
           <div className="guided-lesson-hero">
             <div className="kicker">OPC 引导式课程 · {plan.lessonType}</div>
             <h1>{lesson.title}</h1>
-            <p>{lesson.summary}</p>
+            <p>{lessonGoal}</p>
             <div className="guided-lesson-outcome">
               <span>完成后你会获得</span>
               <strong>{plan.capabilityGain[0]}</strong>
             </div>
             {learningRecommendation ? (
               <div className="guided-runtime-read-note">
-                学习建议：如果你对{learningRecommendation.concepts}还不熟，可以先回到{" "}
-                <Link href={learningRecommendation.href}>{learningRecommendation.title}</Link>{" "}
-                补基础；这不会影响你继续学习当前课程。
+                <span>学习建议：{learningRecommendation}</span>
               </div>
             ) : null}
           </div>

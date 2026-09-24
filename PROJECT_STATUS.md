@@ -12,6 +12,7 @@ Course Production Workflow               STABLE / CURRENT SKILL VIA REGISTRY
 Track 01 Formal Curriculum               T1-01～T1-20 AVAILABLE / FORMAL_RUNTIME
 Track 02 Directory                       T2-01～T2-15 DIRECTORY_APPROVED_V1 / 15 KEEP
 Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME
+Track 02 Batch B                         T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
 CURRENT                                  FRONTEND / ACCESS BASELINE FROZEN / READY_FOR_NEXT_PLAN
 ```
@@ -32,6 +33,7 @@ Course six-step content responsibility   FROZEN / EXPERIENCE_REVIEW_PASS
 Track 02 current owners / context         PASS
 Track 02 Learning Map / Access           FROZEN / IMPLEMENTATION PASS
 Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS
+Track 02 Batch B Runtime                 PROVISIONED / ACCEPTANCE PASS
 Membership / Follow benefit model        FROZEN / CURRENT
 Frontend information architecture        FROZEN / CURRENT
 Frontend UI/CSS freeze for course work   ACTIVE
@@ -65,9 +67,9 @@ RUNTIME-INFRA-PERF-003
 
 ## 下一步
 
-T2-01～T2-03 已完成 Course Production、Human Review、LessonSpec Registration、Runtime Provisioning 与 Runtime Acceptance，当前均为 `AVAILABLE / FORMAL_RUNTIME`。T2-04～T2-15 仍保持批准目录但未进入生产 / Runtime。
+T2-01～T2-06 已开放。T2-04～T2-06 已通过人工确认、数据库 Provision 和 Runtime Acceptance，正式答题、练习、完成进度与目录均可用。T2-07～T2-15 仍为批准目录，待分批构建。
 
-当前下一课程生产入口为后续小批次 Formal Brief；在新批次明确前，不扩大 Runtime 范围，也不重新设计已冻结的 Learning Map / Access / Lesson Shell。
+本批的明确入口是 `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`、`fixtures/course-builder/track02-batch-b.ts` 与 `scripts/run-track02-batch-b-workflow.ts`。继续复用已冻结的 Learning Map / Access / Lesson Shell。
 
 AI Daily 等后续产品能力继续遵循：
 

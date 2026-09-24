@@ -80,6 +80,8 @@ Workflow 不复制课程规则正文。
 
 换到 Track 02～05 或未来新板块时，只替换 Context references，不复制或改写 Workflow，也不创建 Track-specific Course Builder Skill。Track 02 当前就是该规则的第一条非 Track 01 正式验证路径。
 
+第 3～5 板块进入生产时，仍按本 Workflow 依次使用 current Course Builder、正式课程展示文案校验、内容校验和 Human Review。学习建议、六步进度卡片、Step 1 底部说明的质量标准从最新 `LESSON_OUTPUT_CONTRACT_V1.md` 读取；正式 LessonSpec 在 Registry 校验中检查六步文案与学习建议。若本课使用 intro comparison，Preview / Human Review 核对底部说明已实际显示。此要求不增加 Workflow Stage，不改变现有前端 UI、交互或 CSS。
+
 固定原则：
 
 > **Rule owner changes are synchronized by reference + read-latest, not by duplicated text.**

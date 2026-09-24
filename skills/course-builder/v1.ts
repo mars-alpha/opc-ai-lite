@@ -31,7 +31,7 @@ export const COURSE_BUILDER_SKILL_V1 = {
     "BUILD 输出必须符合稳定 Course Builder Contract，并保持 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY 六步教学责任。",
     "课程内容先由当前课题决定，再选择表现形式；不得复制上一课、reference lesson 或某一种卡片/字段模板。",
     "初学课程一节只解决一个主问题；学员可见文案中文优先。只有本课必须掌握、行业通用的 AI / 技术术语才保留英文或缩写；普通说明词直接使用自然中文。",
-    "六步顶部 objective 使用统一的简洁说明，目标是单句、正常桌面宽度不超过两行；课程知识不要塞进顶部 objective，而要放在对应 Step 正文中。",
+    "按最新 Lesson Output Contract 输出本课专属的学习建议、六步 navigationDescription 与 Step 1 底部说明；这些文案必须服务本课具体知识和学习动作，不从上一课或 Shell 固定短句复制，且符合 Contract 的桌面端长度和 Human Review 要求。不要更改既定课程 UI / CSS / 交互。",
     "Step 1 只负责建立问题直觉、学习价值和一句核心判断；Step 2 必须换成具体案例把方法、边界和结果讲透，禁止复用同一段案例或同一组前后对比造成重复。",
     "当课程任务涉及市场分析、市场规模、竞争、用户、价格、渠道或本地化市场判断，若 Formal Brief 未明确其他地区，默认以中国市场为分析范围；需要其他国家或地区时必须显式说明。",
     "行业常用技术缩写使用中文解释（缩写），例如检索增强生成（RAG）、应用程序编程接口（API）、模型上下文协议（MCP），不展开英文全称。",

@@ -1,5 +1,5 @@
 import { track01Phase1Course } from "./learning/track01-phase1-runtime";
-import { track02BatchACourse } from "./learning/track02-batch-a-runtime";
+import { track02CourseWithBatchB } from "./learning/track02-batch-b-runtime";
 
 export type LessonGuideBlock = {
   type: "prompt" | "template" | "steps" | "checklist" | "example";
@@ -30,7 +30,7 @@ export type Course = { slug:string; title:string; stage:string; stageLabel:strin
 
 export const courses: Course[] = [
   track01Phase1Course,
-  track02BatchACourse,
+  track02CourseWithBatchB,
   {
     slug:"ai-literacy", title:"AI 入门：从 0 到 1 认识生成式 AI", stage:"AI Literacy", stageLabel:"Stage 1 · 看懂 AI", level:"入门", duration:"1.5 小时",
     summary:"建立生成式 AI 的基础世界模型，理解模型、上下文、Token、Memory、RAG、API 与 Agent 的基本关系。",

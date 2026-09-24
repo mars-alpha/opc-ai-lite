@@ -138,9 +138,9 @@ Track 02 当前课程上下文唯一 owner：
 
 T2-01～T2-15 已通过 `TRACK02-SIX-STEP-AUDIT-001`，结果为 **15 KEEP / 0 MERGE / 0 SPLIT / 0 DEFER / 0 REMOVE**。18→15 Knowledge Mapping、Artifact Thread、跨 Track Anti-repeat / Deferred Boundary 与“严格复用现有 Unified Lesson Shell、不新增 UI、不调整 CSS”的约束均由 Track 02 owner 维护。本文件不复制第二份 Lesson Directory。
 
-当前首批生产范围为 T2-01～T2-03「会找答案」，Formal Brief owner：
+T2-01～T2-03「会找答案」已开放，Formal Brief owner 为 `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md`。
 
-- `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md` — **BRIEF_READY_V1 / COURSE_BUILDER_PENDING**
+T2-04～T2-06「会做成品」已有待人工审阅 Draft，Formal Brief owner 为 `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`。T2-07～T2-15 仍只在批准目录中。
 
 课程生产状态仍以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。
 

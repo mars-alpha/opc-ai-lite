@@ -10,6 +10,7 @@ export type LessonStepSpec = {
   kind: LessonStepKind;
   title: string;
   objective: string;
+  navigationDescription?: string;
 };
 
 export type LessonSpec = {
@@ -21,6 +22,7 @@ export type LessonSpec = {
   learningObjectives: string[];
   knowledgePoints: string[];
   prerequisites: string[];
+  learningRecommendation?: string;
   requiresExample: boolean;
   requiresCheck: boolean;
   practiceMode: PracticeMode;
@@ -79,6 +81,21 @@ export function validateLessonSpec(spec: LessonSpec): LessonSpecIssue[] {
   for (const step of spec.steps) {
     if (ids.has(step.id)) error("DUPLICATE_STEP_ID", "Step id 必须唯一：" + step.id);
     ids.add(step.id);
+    if (step.navigationDescription !== undefined) {
+      const lines = step.navigationDescription.split("\n");
+      if (lines.length !== 2 || lines.some((line) => !line.trim() || line.length > 9)) {
+        error("STEP_NAVIGATION_DESCRIPTION_INVALID", "进度卡片须写本课独立的两行描述，每行不超过 9 字。");
+      }
+    }
+  }
+  if (spec.learningRecommendation !== undefined) {
+    const advice = spec.learningRecommendation.trim();
+    if (advice.length > 52) {
+      error("LEARNING_RECOMMENDATION_TOO_LONG", "学习建议须在桌面端两行内完整显示。");
+    }
+    if (!advice.endsWith("。") || advice.split("。").length !== 2 || advice.includes("\n")) {
+      error("LEARNING_RECOMMENDATION_NOT_ONE_SENTENCE", "学习建议须是一句完整的话。");
+    }
   }
 
   for (let index = 1; index < spec.steps.length; index += 1) {

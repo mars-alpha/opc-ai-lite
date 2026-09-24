@@ -1,7 +1,4 @@
-import {
-  COURSE_BUILDER_STEP_OBJECTIVE_COPY,
-  createCourseBuilderReviewPacket
-} from "../lib/learning/course-builder";
+import { createCourseBuilderReviewPacket } from "../lib/learning/course-builder";
 import { CURRENT_COURSE_BUILDER_SKILL } from "../skills/course-builder";
 import {
   track02BatchADrafts,
@@ -48,12 +45,18 @@ for (const packet of packets) {
     "CHECK_PRACTICE_GATES_REQUIRED:" + draft.lessonSpec.lessonId
   );
   assert(draft.lessonSpec.steps.length === 6, "SIX_STEPS_REQUIRED:" + draft.lessonSpec.lessonId);
+  const advice = draft.lessonSpec.learningRecommendation ?? "";
+  assert(
+    advice.endsWith("。") && advice.split("。").length === 2 && advice.length <= 52,
+    "ONE_SHORT_LEARNING_RECOMMENDATION_REQUIRED:" + draft.lessonSpec.lessonId
+  );
   for (const step of draft.lessonSpec.steps) {
     assert(
-      step.objective === COURSE_BUILDER_STEP_OBJECTIVE_COPY[step.kind],
-      "STEP_OBJECTIVE_COPY_DRIFT:" + draft.lessonSpec.lessonId + ":" + step.kind
+      step.title.length <= 30 && step.objective.length >= 20 && step.objective.length <= 80 &&
+        step.navigationDescription?.split("\n").length === 2 &&
+        step.navigationDescription.split("\n").every((line) => line.length <= 9),
+      "STEP_GUIDANCE_OR_NAV_INVALID:" + draft.lessonSpec.lessonId + ":" + step.kind
     );
-    assert(step.objective.length <= 28, "STEP_OBJECTIVE_TOO_LONG:" + draft.lessonSpec.lessonId + ":" + step.kind);
   }
   assert(draft.checkSequence?.length === 3, "THREE_CHECKS_REQUIRED:" + draft.lessonSpec.lessonId);
   assert(draft.practice !== null, "PRACTICE_REQUIRED:" + draft.lessonSpec.lessonId);
@@ -109,6 +112,11 @@ for (const packet of packets) {
       draft.lessonSpec.lessonId as keyof typeof track02BatchAIntroComparisons
     ];
   assert(Boolean(intro), "STEP1_INTRO_REQUIRED:" + draft.lessonSpec.lessonId);
+  assert(
+    intro.bottomDetails.length === 2 &&
+      intro.bottomDetails.every((item) => item.title.trim() && item.text.trim()),
+    "STEP1_BOTTOM_EXPLANATION_REQUIRED:" + draft.lessonSpec.lessonId
+  );
   assert(intro.title !== draft.content.example.title, "STEP1_STEP2_TITLE_OVERLAP:" + draft.lessonSpec.lessonId);
   assert(intro.situation !== draft.content.example.situation, "STEP1_STEP2_SITUATION_OVERLAP:" + draft.lessonSpec.lessonId);
   assert(
@@ -159,7 +167,6 @@ console.log("TRACK02_BATCH_A_SIX_STEP_APPLICATION=PASS");
 console.log("TRACK02_BATCH_A_COPY_READY_REFERENCE=PASS");
 console.log("TRACK02_BATCH_A_CHINESE_FIRST=PASS");
 console.log("TRACK02_BATCH_A_ANTI_REPEAT=PASS");
-console.log("TRACK02_BATCH_A_STEP_OBJECTIVES_CONCISE=PASS");
 console.log("TRACK02_BATCH_A_STEP1_STEP2_SEPARATED=PASS");
 console.log("TRACK02_BATCH_A_CHINA_MARKET_SCOPE=PASS");
 console.log("TRACK02_BATCH_A_DETERMINISTIC_VALIDATION=PASS");

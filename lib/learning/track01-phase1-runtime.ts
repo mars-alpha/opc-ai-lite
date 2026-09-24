@@ -2,6 +2,7 @@ import {
   courseBuilderCheckSequenceToRuntimeSeeds,
   type CourseBuilderBuildDraft
 } from "./course-builder";
+import { withTrack01StepNavigation } from "./track01-step-navigation";
 import {
   track01T101Draft,
   track01T101Intro,
@@ -132,7 +133,7 @@ export const TRACK01_PHASE1_COURSE_SLUG = "foundation-ai";
 
 export const track01Phase1Course = {
   slug: TRACK01_PHASE1_COURSE_SLUG,
-  title: "AI 基础认知：先学会和 AI 协作",
+  title: "先学会和 AI 协作",
   stage: "AI Foundation",
   stageLabel: "Track 01 · AI 基础认知",
   level: "入门",
@@ -211,7 +212,7 @@ export const track01FormalLessonSpecs = [
   track01T109Spec,
   track01T110Spec,
   ...track01T111T120Specs
-];
+].map(withTrack01StepNavigation);
 
 export type Track01Phase1RuntimePresentation = {
   activity: ApprovedDraft["pedagogy"]["participation"];

@@ -2,6 +2,17 @@
 
 > NOW / NEXT / BACKLOG + 必要历史任务摘要。完成任务不再默认生成或永久保留独立 `docs/task-results/*`；只有当前 Runtime、Validator、可执行复现或唯一验收证据仍依赖时才保留。Current state 必须读取 `PROJECT_STATUS.md` / `docs/CURRENT_SYSTEM_FACTS.md` / current owner，不从旧任务条目恢复。
 
+# NOW — TRACK02-NEXT-BATCH-PLANNING
+
+Status: T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
+
+- T2-04 同样的信息，怎样讲给不同的人听：接收者与沟通目的。
+- T2-05 一堆资料，怎么变成能交付的成品：有依据的交付物。
+- T2-06 AI 已经写出来了，但“不好”，到底怎么改：诊断和定向修订。
+- Formal Brief：`docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`；BUILD Draft：`fixtures/course-builder/track02-batch-b.ts`。
+- Workflow / 校验：`scripts/run-track02-batch-b-workflow.ts`、`scripts/validate-track02-batch-b-drafts.ts`。三课 LessonSpec 与正式课程展示映射已注册；学员已确认正式课程，远端数据库 Provision、Runtime Acceptance 与公开目录均已完成。
+- T2-07～T2-15 仍是批准目录；后续按「会处理复杂资料」T2-07～09、「会看数据」T2-10～12、「会积累知识」T2-13～14、「会复用方法」T2-15 分批准备 Brief，沿用同一 Workflow。不提前标为课件已输出。
+
 # COMPLETED
 
 ## MVP-007 — Content / Knowledge 基础模型与读取
@@ -1187,19 +1198,13 @@ Next：Batch A 生命周期 COMPLETE。后续课程生产从下一小批次 Form
 Status: COMPLETE / FROZEN_CURRENT
 Priority: P0
 
-来源：实际体验 T2-01～T2-03 后发现学习建议上移重叠、前置能力指代模糊、Step objective 过长、Step 1 与 Step 2 内容重复，以及市场分析地区范围漂移。
+来源：实际体验 T2-01～T2-03 后发现学习建议上移重叠、前置能力指代模糊、六步顶部进度卡片错误地直接渲染课程 step title 导致长文案、Step 1 与 Step 2 内容重复，以及市场分析地区范围漂移。后续复查又确认左侧课程标题重复带入 Track 名称前缀。
 
-Frontend：学习建议在课程 Hero 中下移到“完成后你会获得”之后的独立空白区域；前置建议明确为“提示词、上下文、结果核验和知识来源这些基础能力”。没有新增课程 UI 或 Renderer。
-
-Six-step baseline：Step 1 = 问题直觉 + 学习价值 + 一句核心判断；Step 2 = 具体案例 + 对比 + 结果 + 判断依据 / 边界；Step 3 = 最佳判断 + 常见误区 + 边界条件；Step 4 = 最小真实动作 + 必要输入 / 提示 + 可检查结果；Step 5 = AI 适合做什么 / AI 不应该替你做什么 + 原因 / 边界 / 条件 / 易错点；Step 6 = 会做什么 + 如何自证 + 现实触发 + 下一步价值。顶部 objective 使用统一短句，不承担正文教学。
-
-Market scope：涉及市场分析而 Formal Brief 未明确地区时，默认使用中国市场；其他国家 / 地区必须显式指定。T2-01～T2-03 当前市场与用户研究样例已同步为中国市场。
-
-Implementation：T2 Step 1 不再从 Step 2 `lesson.example` 反推；新增独立 intro presentation。Draft Validator 固定检查短 objective、Step1/Step2 非重复、中国市场范围。规则同步至 Lesson Output Contract、Beginner Quality Standard、Course Builder Skill、COURSE_BUILD_START_HERE。
+结论：T2-01～T2-03 的 Step 1 与 Step 2 内容已区分；学习建议、六步进度卡片和 Step 1 底部说明按课题补齐。T1-01～T1-20 的进度卡片采用逐课描述，课程教学正文不受此次文案调整影响。当前实现事实见 `docs/CURRENT_SYSTEM_FACTS.md`；后续第 3～5 板块的输出规则与验收以 `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md` 和 `docs/learning/COURSE_PRODUCTION_WORKFLOW_V1.md` 为准。
 
 Runtime：T2-01～T2-03 已重新幂等 Provision；真实 Access / 9 Check / 3 Practice / Completion Runtime Acceptance 全部 PASS。
 
-Workflow：Stable Course Production Workflow、Orchestrator Gate、Skill Registry 解耦关系保持不变，只更新 Required Rule Sources 的最新规则正文。
+Workflow：第 1～5 板块共用现行 Course Builder Skill、Workflow、Validators 与 Human Review；切换板块只替换 Context，不复制规则或新建前端。
 
 # BACKLOG
 

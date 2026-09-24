@@ -39,7 +39,13 @@ Curriculum 决定学什么和顺序；Formal Brief 决定知识边界；Course B
 
 总原则：**Topic first, responsibility fixed, representation flexible.** 先由课题决定需要教什么，再决定每一步怎样表达；六步负责防止知识没教会，不负责把所有课程做成同一种版式。
 
-学员可见的每一步顶部 objective 只负责一句话说明“这一页要做什么”，默认使用统一简洁表达，正常桌面宽度不超过两行；课程知识、案例、边界和操作要求必须放在本步正文，不得把 objective 写成长段。
+学员可见的每一步顶部 objective 只负责一句话说明“这一页要做什么”，课程知识、案例、边界和操作要求必须放在本步正文，不得把 objective 写成长段。**六步顶部进度卡片从本课 step.navigationDescription 读取独立描述，逐步准确说清该课当前要学、要判断或要做什么；每张卡片显式两行，每行不超过 9 字，正常桌面宽度下显示不超过两行。不得复用整套通用句，也不得截取课程 step title / objective 代替。**
+
+正式课程输出还须同时准备以下学员入口文案；这些是课程内容数据，由统一 Shell 展示，不增设页面或交互：
+
+- **学习建议**：`learningRecommendation` 用一句话说明本课会解决什么问题，以及学员开始前可以做的具体准备或补足哪项知识。只在本课确实依赖旧知识时建议回看相应内容，不默认写“复习上一课”。一句话以句号收束，总长不超过 52 字；桌面端须完整显示在两行内，不能靠省略号隐藏必要信息。
+- **进度卡片**：六步分别依据本课教学动作写独立的 `navigationDescription`，每条显式换行两行、每行不超过 9 字。六条应分别说明对应步骤的具体任务，不能给不同课复用一组六句通用文案；缺失、空行、超长或重复的描述不得进入正式 Runtime。Step title / objective 与进度卡片各有用途，不互相替代。
+- **Step 1 底部说明**：当课程使用当前 Shell 的 intro comparison 呈现时，在 takeaway 之后给出本课自己的 `bottomDetails`，补上学员理解核心判断所需的原因或区分点，不直接重复 takeaway，也不提前讲 Step 2 的完整案例。条数按知识需要决定；零基础课程最多两条。课程 Preview 与 Human Review 必须实际查看底部是否出现、内容是否帮助理解。
 
 ### Learner-facing language rule
 
@@ -57,6 +63,8 @@ Curriculum 决定学什么和顺序；Formal Brief 决定知识边界；Course B
 禁止：先堆定义；一开始就展开完整案例；为了“真实”而加入不影响核心疑问的业务细节；同时让学员处理现象、事实边界、方法和结论多层判断；为了后续 Artifact 反推不自然开场；一次塞入多个后续知识。
 
 固定输出责任：**问题直觉 + 学习价值 + 一句核心判断**。不输出完整方法步骤，不展开 Step 2 的业务案例。
+
+若采用 intro comparison，第一步底部说明承担核心判断的简短解释；不能只有场景、两张做法卡和一句 takeaway 就结束，也不能把第二步的案例搬回来凑说明。
 
 ### Step 2 — EXAMPLE
 
@@ -131,9 +139,9 @@ Artifact 必须自然产生：Natural Learning Action → Natural Learner Output
 
 ## 5. Deterministic validation vs Human Review
 
-Code Validation 可以判断：六步顺序完整；Review 在启用时存在有效内容；Hint 不含手写编号；Mastery Sequence 完整；deferredTerms 不泄漏；Capability 不能只写“理解了”；Schema / Completion Gate / authority boundary 正确。Review 数量、表达是否完整清楚属于 Human Review，不由固定数量规则决定。
+Code Validation 可以判断：六步顺序完整；正式课六步 `navigationDescription` 存在且每条两行、每行长度合规；学习建议为一句话且满足长度要求；intro comparison 的底部说明存在；Review 在启用时存在有效内容；Hint 不含手写编号；Mastery Sequence 完整；deferredTerms 不泄漏；Capability 不能只写“理解了”；Schema / Completion Gate / authority boundary 正确。Review 数量、表达是否完整清楚属于 Human Review，不由固定数量规则决定。
 
-Human Review 必须判断：Step 1 是否真实自然且只解决当前主问题；Step 2 是否真正让核心规律变得可见，而不是机械套案例模板；Step 3 是否像理解判断；Step 4 是否完成真实学习动作、字段是否只为任务完整性服务、COPY_TO_AI / Reference 是否形成完整可运行任务；Artifact 是否被强行制造；Step 5 卡片 / 描述 / pitfalls 是否互补；Step 6 是否形成可执行能力并给出具体触发情境；学员可见正文是否混入课程编排或生产说明；整节课是否愿意继续学。
+Human Review 必须判断：学习建议能否讲清本课和具体准备、完整显示为两行；六张进度卡片是否逐课逐步准确；Step 1 底部说明是否出现并帮助理解且不重复 takeaway；Step 1 是否真实自然且只解决当前主问题；Step 2 是否真正让核心规律变得可见，而不是机械套案例模板；Step 3 是否像理解判断；Step 4 是否完成真实学习动作、字段是否只为任务完整性服务、COPY_TO_AI / Reference 是否形成完整可运行任务；Artifact 是否被强行制造；Step 5 卡片 / 描述 / pitfalls 是否互补；Step 6 是否形成可执行能力并给出具体触发情境；学员可见正文是否混入课程编排或生产说明；整节课是否愿意继续学。
 
 技术 PASS 永远不等于教学 PASS。
 
@@ -141,4 +149,4 @@ Human Review 必须判断：Step 1 是否真实自然且只解决当前主问题
 
 T1-01 `AI 能帮什么，不能帮什么` 是 Lesson Output Contract v1 的首个 Human Review reference candidate。
 
-后续 T1-02～T1-20 生产必须继承本 Contract；若需要改变 Contract，先讨论并版本化，不在单节课里静默漂移。
+第 1～5 板块的正式课程统一继承本 Contract；切换板块只替换当前目录、Formal Brief、知识边界和 Grounding，继续复用同一个 Course Builder Skill、Workflow、校验与 Human Review。改变输出契约时先更新本 owner 及必要校验，不在单节课里静默漂移。

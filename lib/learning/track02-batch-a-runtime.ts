@@ -11,7 +11,7 @@ import {
 
 type ApprovedDraft = CourseBuilderBuildDraft;
 
-function lessonFromDraft(draft: ApprovedDraft, duration: string) {
+export function lessonFromDraft(draft: ApprovedDraft, duration: string) {
   return {
     id: draft.lessonSpec.lessonId,
     title: draft.lessonSpec.title,
@@ -33,8 +33,8 @@ function lessonFromDraft(draft: ApprovedDraft, duration: string) {
   };
 }
 
-function practiceSeedFor(draft: ApprovedDraft) {
-  if (!draft.practice) throw new Error("TRACK02_BATCH_A_PRACTICE_REQUIRED:" + draft.lessonSpec.lessonId);
+export function practiceSeedFor(draft: ApprovedDraft) {
+  if (!draft.practice) throw new Error("TRACK02_PRACTICE_REQUIRED:" + draft.lessonSpec.lessonId);
   return {
     id: "practice_ai_work_" + draft.lessonSpec.lessonId.replace(/-/g, "_"),
     title: draft.practice.title,
@@ -57,7 +57,7 @@ function practiceSeedFor(draft: ApprovedDraft) {
   };
 }
 
-function referenceFillFor(draft: ApprovedDraft) {
+export function referenceFillFor(draft: ApprovedDraft) {
   if (!draft.practice) return {};
   return Object.fromEntries(
     draft.practice.instructions.map((instruction, index) => [
@@ -89,7 +89,7 @@ export const track02BatchARuntimeDefinitions = track02BatchADrafts.map((sourceDr
 
 export const track02BatchACourse = {
   slug: TRACK02_RUNTIME_COURSE_SLUG,
-  title: "AI 工作应用：把 AI 用进真实工作",
+  title: "把 AI 用进真实工作",
   stage: "AI Work",
   stageLabel: "Track 02 · AI 工作应用",
   level: "入门实战",

@@ -26,11 +26,11 @@ for (const definition of track02BatchARuntimeDefinitions) {
 
 const course = getCourse("ai-work");
 assert(Boolean(course), "COURSE_EXISTS");
-assert(course ? getAllLessons(course).length === 3 : false, "ONLY_BATCH_A_RUNTIME");
+assert(course ? getAllLessons(course).slice(0, 3).every((lesson, index) => lesson.id === track02BatchARuntimeDefinitions[index]?.lesson.id) : false, "BATCH_A_FORMAL_RUNTIME_UNCHANGED");
 
 const catalogLessons = track02Catalog.flatMap((stage) => stage.lessons);
 assert(catalogLessons.slice(0, 3).every((lesson) => lesson.availability === "AVAILABLE" && lesson.runtimeCourseSlug === "ai-work"), "BATCH_A_CATALOG_AVAILABLE");
-assert(catalogLessons.slice(3).every((lesson) => lesson.availability === "COMING_SOON" && !lesson.runtimeCourseSlug), "T204_T215_NOT_PROVISIONED");
+assert(catalogLessons.slice(3, 6).every((lesson) => lesson.availability === "AVAILABLE" && lesson.runtimeCourseSlug === "ai-work") && catalogLessons.slice(6).every((lesson) => lesson.availability === "COMING_SOON" && !lesson.runtimeCourseSlug), "T204_T206_AVAILABLE_T207_T215_NOT_PUBLISHED");
 
 const foundation = getCourse("foundation-ai");
 const t120 = foundation ? getAllLessons(foundation).at(-1) : null;
@@ -41,5 +41,5 @@ console.log("TRACK02_RUNTIME_DEFINITIONS=PASS");
 console.log("TRACK02_RUNTIME_FORMAL_BOUNDARY=PASS");
 console.log("TRACK02_RUNTIME_PRESENTATIONS=PASS");
 console.log("TRACK02_RUNTIME_CATALOG_DELIVERY=PASS");
-console.log("TRACK02_RUNTIME_SCOPE_T201_T203_ONLY=PASS");
+console.log("TRACK02_RUNTIME_BATCH_A_FIRST_THREE=PASS");
 console.log("TRACK02_RUNTIME_T120_CONTINUE=PASS");

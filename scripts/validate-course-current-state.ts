@@ -16,8 +16,8 @@ assert(
   "T11_T20_CURRENT_STATE_MISSING"
 );
 assert(
-  facts.includes("Next Gate                       Track 01 Runtime complete → next approved Track / course planning"),
-  "T11_T20_NEXT_GATE_MISSING"
+  facts.includes("Next Gate                       Track 02 T2-07～T2-09 Formal Brief / Course Production"),
+  "TRACK02_NEXT_BATCH_GATE_MISSING"
 );
 assert(!facts.includes("T1-11～T1-20 继续保持冻结目录规划状态"), "STALE_T11_T20_FROZEN_STATE_PRESENT");
 assert(
@@ -31,6 +31,12 @@ assert(
 assert(
   facts.includes("Track 02 Context                 BATCH_A_AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),
   "TRACK02_CURRENT_STATE_MISSING"
+);
+assert(
+  facts.includes("T2-01～T2-06                    AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS") &&
+    facts.includes("Track 02 Batch B                 T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS") &&
+    !facts.includes("T2-04～T2-06 SPEC_REGISTERED / PREVIEW_READY / HUMAN_REVIEW_PENDING"),
+  "TRACK02_BATCH_B_CURRENT_STATE_MISSING"
 );
 assert(
   projectStatus.includes("Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME") &&
@@ -56,4 +62,5 @@ console.log("COURSE_CURRENT_STATE_T11_T20=PASS");
 console.log("COURSE_CURRENT_STATE_T11_T20_AVAILABLE=PASS");
 console.log("COURSE_CURRENT_STATE_TRACK01_RUNTIME_COMPLETE=PASS");
 console.log("COURSE_CURRENT_STATE_TRACK02_CONTEXT=PASS");
+console.log("COURSE_CURRENT_STATE_TRACK02_BATCH_B_AVAILABLE=PASS");
 console.log("COURSE_CURRENT_STATE_NO_HISTORICAL_RESULT_DEPENDENCY=PASS");

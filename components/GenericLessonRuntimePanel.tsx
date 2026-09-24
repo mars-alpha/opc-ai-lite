@@ -15,7 +15,11 @@ import {
   isThreeQuestionMasterySequence
 } from "../lib/learning/check-evaluator";
 import { buildPracticeCopyText } from "../lib/learning/practice-copy";
-import { unifiedLessonStepLabel } from "../lib/learning/unified-lesson-shell";
+import {
+  lessonStepNavigationDescription,
+  unifiedLessonStepLabel,
+  unifiedLessonStepNavDescription
+} from "../lib/learning/unified-lesson-shell";
 import { useProgress } from "./ProgressProvider";
 
 type InteractiveData = {
@@ -952,7 +956,7 @@ export function GenericLessonRuntimePanel({
             }}
           >
             <span>{index + 1}</span>
-            <small>{item.title}</small>
+            <small>{lessonStepNavigationDescription(item)}</small>
           </button>
         ))}
       </div>
@@ -1488,7 +1492,7 @@ export function GenericLessonRuntimePanel({
         }} disabled={interactionLocked || currentStep === 0}>← 上一步</button>
         <div className="guided-step-nav-center">
           <span>{unifiedLessonStepLabel(step.kind)}</span>
-          <small>{currentStep + 1} / {plan.steps.length}</small>
+          <small>{courseSlug === "foundation-ai" || courseSlug === "ai-work" ? "" : `${unifiedLessonStepNavDescription(step.kind)} · `}{currentStep + 1} / {plan.steps.length}</small>
         </div>
         <div className="guided-step-nav-actions">
           <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>

@@ -64,9 +64,9 @@ export const track02Catalog: TrackCatalogStage[] = [
     promise: "把已经查清的信息，变成适合真实对象和用途的可交付结果。",
     order: 2,
     lessons: [
-      plannedLesson("t2-04-audience-purpose", "同样的信息，怎么针对不同人表达", "根据对象、目的和预期行动调整表达。", 1, ["T2-03"]),
-      plannedLesson("t2-05-source-to-deliverable", "一堆资料，怎么变成能交付的成品", "把来源、结构、草稿和交付结果连起来。", 2, ["T2-04"]),
-      plannedLesson("t2-06-editorial-revision", "AI 已经写出来了，但“不好”，到底怎么改", "先诊断问题层级，再做有目标的修改。", 3, ["T2-05"])
+      { ...plannedLesson("t2-04-audience-purpose", "同样的信息，怎么针对不同人表达", "根据对象、目的和预期行动调整表达。", 1, ["T2-03"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-04-audience-purpose", badge: "已上线" },
+      { ...plannedLesson("t2-05-source-to-deliverable", "一堆资料，怎么变成能交付的成品", "把来源、结构、草稿和交付结果连起来。", 2, ["T2-04"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-05-source-to-deliverable", badge: "已上线" },
+      { ...plannedLesson("t2-06-editorial-revision", "AI 已经写出来了，但“不好”，到底怎么改", "先诊断问题层级，再做有目标的修改。", 3, ["T2-05"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-06-editorial-revision", badge: "已上线" }
     ]
   },
   {

@@ -12,13 +12,14 @@ import { getLessonSpec } from "../../../../../lib/learning/lesson-spec-registry"
 import { buildLessonRuntimePlan } from "../../../../../lib/learning/lesson-runtime";
 import { getTrack01Phase1RuntimePresentation } from "../../../../../lib/learning/track01-phase1-runtime";
 import { getTrack02BatchARuntimePresentation } from "../../../../../lib/learning/track02-batch-a-runtime";
+import { getTrack02BatchBRuntimePresentation } from "../../../../../lib/learning/track02-batch-b-runtime";
+import { track02Catalog } from "../../../../../lib/learning/track-catalog";
 import {
   getCrossTrackNextLesson,
   learningPathHrefForCourse
 } from "../../../../../lib/learning/track-navigation";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
-import { getLearningPrerequisiteRecommendation } from "../../../../../lib/server/entitlements/service";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,13 @@ export default async function LessonPage({
   const { slug, lessonId } = await params;
   const course = getCourse(slug);
   if (!course) notFound();
+  // Registered lesson content is reviewable before publication; the formal runtime stays closed.
+  if (
+    course.slug === "ai-work" &&
+    track02Catalog.some((stage) =>
+      stage.lessons.some((item) => item.lessonId === lessonId && item.availability !== "AVAILABLE")
+    )
+  ) notFound();
 
   const staticLesson = getLesson(course, lessonId);
   if (!staticLesson) notFound();
@@ -89,14 +97,11 @@ export default async function LessonPage({
   }
 
   if (formalRuntimeCourse) {
-    const prerequisiteRecommendation =
-      course.slug === "ai-work"
-        ? await getLearningPrerequisiteRecommendation(user.id, course.slug)
-        : { satisfied: true as const };
     const registeredSpec = getLessonSpec(course.slug, lesson.id);
     const approvedPresentation =
       getTrack01Phase1RuntimePresentation(course.slug, lesson.id) ??
-      getTrack02BatchARuntimePresentation(course.slug, lesson.id);
+      getTrack02BatchARuntimePresentation(course.slug, lesson.id) ??
+      getTrack02BatchBRuntimePresentation(course.slug, lesson.id);
 
     if (!registeredSpec) {
       throw new Error("FORMAL_LESSON_SPEC_NOT_REGISTERED:" + course.slug + "/" + lesson.id);
@@ -117,13 +122,9 @@ export default async function LessonPage({
         next={next}
         lockedLessonIds={lockedLessonIds}
         learningRecommendation={
-          prerequisiteRecommendation.satisfied
-            ? null
-            : {
-                title: "AI 基础认知",
-                href: "/learning-path?track=foundation-ai#foundation-catalog",
-                concepts: "提示词、上下文、结果核验和知识来源这些基础能力"
-              }
+          course.slug === "ai-work" && index < 6
+            ? registeredSpec.learningRecommendation ?? null
+            : null
         }
       />
     );

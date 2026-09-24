@@ -24,6 +24,9 @@
     "learning:track02-context:check": "tsx scripts/validate-track02-curriculum-context.ts",
     "learning:track02-batch-a:draft-check": "tsx scripts/validate-track02-batch-a-drafts.ts",
     "learning:track02-batch-a:workflow": "tsx scripts/run-track02-batch-a-workflow.ts",
+    "learning:track02-batch-b:draft-check": "tsx scripts/validate-track02-batch-b-drafts.ts",
+    "learning:track02-batch-b:workflow": "tsx scripts/run-track02-batch-b-workflow.ts",
+    "learning:track02-batch-b:registration-check": "tsx scripts/validate-track02-batch-b-registration.ts",
     "learning:track02-batch-a:lessonspec-check": "tsx scripts/validate-track02-batch-a-lessonspec-registration.ts",
     "learning:track02-path-access:check": "tsx scripts/validate-track02-learning-path-access.ts",
     "access:membership-policy:check": "tsx scripts/validate-membership-benefit-policy.ts",
@@ -58,7 +61,9 @@
     "learning:runtime:accept:track01-t11-t20": "tsx scripts/accept-track01-t11-t20-runtime.ts --run --confirm=TRACK01-T11-T20-RUNTIME-002 --base-url=http://127.0.0.1:3110",
     "learning:track02-batch-a:runtime-check": "tsx scripts/validate-track02-batch-a-runtime.ts",
     "learning:runtime:track02-batch-a": "tsx scripts/provision-track02-batch-a-runtime.ts --apply --confirm=TRACK02-BATCH-A-RUNTIME-001",
-    "learning:runtime:accept:track02-batch-a": "node --conditions=react-server --import tsx scripts/accept-track02-batch-a-runtime.ts"
+    "learning:runtime:accept:track02-batch-a": "node --conditions=react-server --import tsx scripts/accept-track02-batch-a-runtime.ts",
+    "learning:runtime:track02-batch-b": "tsx scripts/provision-track02-batch-b-runtime.ts --apply --confirm=TRACK02-BATCH-B-RUNTIME-001",
+    "learning:runtime:accept:track02-batch-b": "node --conditions=react-server --import tsx scripts/accept-track02-batch-b-runtime.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

@@ -28,6 +28,10 @@ const BASE_URL =
     .find((item) => item.startsWith("--base-url="))
     ?.slice("--base-url=".length) || "http://127.0.0.1:3001";
 
+function trace(message: string) {
+  console.log("[LEARNING-RUNTIME-001-A] " + message);
+}
+
 function assert(condition: unknown, code: string): asserts condition {
   if (!condition) throw new Error("ACCEPTANCE_FAILED:" + code);
 }
@@ -105,7 +109,8 @@ async function jsonRequest(
   return { status: response.status, body, text };
 }
 
-async function main() {
+async function main() {  trace("start");
+
   if (!RUN || !CONFIRM) {
     throw new Error(
       "CONFIRMATION_REQUIRED: use --run --confirm=LEARNING-RUNTIME-001-A"
@@ -121,6 +126,8 @@ async function main() {
     .values({ displayName: "__LEARNING_RUNTIME_001_A_ACCEPTANCE__" })
     .returning({ id: users.id });
 
+  trace("test user created");
+
   assert(testUser?.id, "TEST_USER_CREATE");
 
   try {
@@ -130,16 +137,21 @@ async function main() {
       providerUserId: identity
     });
 
+    trace("identity created");
+
     await getDatabase().insert(sessions).values({
       userId: testUser.id,
       tokenHash,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000)
     });
 
+    trace("session created, requesting memory runtime");
+
     const memoryBefore = await jsonRequest(
       "/api/learning/runtime?courseSlug=ai-literacy&lessonSlug=memory-rag",
       sessionToken
     );
+    trace("memory runtime response received");
     assert(memoryBefore.status === 200, "MEMORY_RUNTIME_HTTP_200");
     assert(memoryBefore.body?.registered === true, "MEMORY_REGISTERED");
     assert(memoryBefore.body?.configurationReady === true, "MEMORY_CONFIGURATION_READY");

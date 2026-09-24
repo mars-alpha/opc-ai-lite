@@ -1,5 +1,4 @@
 import {
-  COURSE_BUILDER_STEP_OBJECTIVE_COPY,
   COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES,
   type CourseBuilderBuildDraft
 } from "../../lib/learning/course-builder";
@@ -10,11 +9,35 @@ const accessPresentation = {
   inlineConversionCta: false
 } as const;
 
-type LessonConfig = {
+export type LessonConfig = {
   id: string;
-  canonicalId: "T2-01" | "T2-02" | "T2-03";
+  canonicalId: "T2-01" | "T2-02" | "T2-03" | "T2-04" | "T2-05" | "T2-06";
+  formalBriefSource?: string;
   title: string;
   prerequisites: string[];
+  learningRecommendation: string;
+  stepCopy: {
+    explainTitle: string;
+    exampleTitle: string;
+    checkTitle: string;
+    practiceTitle: string;
+    reviewTitle: string;
+    capabilityTitle: string;
+    explainGuide: string;
+    exampleGuide: string;
+    checkGuide: string;
+    practiceGuide: string;
+    reviewGuide: string;
+    capabilityGuide: string;
+  };
+  navigation: {
+    explain: string;
+    example: string;
+    check: string;
+    practice: string;
+    review: string;
+    capability: string;
+  };
   mainQuestion: string;
   mainConcept: string;
   summary: string;
@@ -56,7 +79,7 @@ type LessonConfig = {
   next: string;
 };
 
-function makeDraft(config: LessonConfig): CourseBuilderBuildDraft {
+export function makeDraft(config: LessonConfig): CourseBuilderBuildDraft {
   const referenceValues = config.practice.fields.map((field) => field.example);
   const practice = {
     id: config.id.replace(/-/g, "_") + "_practice",
@@ -82,7 +105,7 @@ function makeDraft(config: LessonConfig): CourseBuilderBuildDraft {
       sourceLabels: [
         "TRACK02_CATALOG_CONTEXT_V1.md",
         "TRACK02_SIX_STEP_AUDIT_V1.md",
-        "TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md",
+        config.formalBriefSource ?? "TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md",
         "FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md",
         "DEFERRED_KNOWLEDGE_LEDGER_V1.md",
         "LESSON_OUTPUT_CONTRACT_V1.md"
@@ -125,6 +148,7 @@ function makeDraft(config: LessonConfig): CourseBuilderBuildDraft {
       ],
       knowledgePoints: config.points,
       prerequisites: config.prerequisites,
+      learningRecommendation: config.learningRecommendation,
       requiresExample: true,
       requiresCheck: true,
       practiceMode: "GUIDED",
@@ -136,12 +160,12 @@ function makeDraft(config: LessonConfig): CourseBuilderBuildDraft {
       courseFeedbackEnabled: true,
       completionGates: ["CHECK", "PRACTICE"],
       steps: [
-        { id: "explain", kind: "EXPLAIN", title: config.mainQuestion, objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.EXPLAIN },
-        { id: "example", kind: "EXAMPLE", title: config.example.title, objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.EXAMPLE },
-        { id: "check", kind: "CHECK", title: "你能不能做出正确判断", objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.CHECK },
-        { id: "practice", kind: "PRACTICE", title: config.practice.title, objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.PRACTICE },
-        { id: "review", kind: "REVIEW", title: "以后遇到类似任务，记住这些边界", objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.REVIEW },
-        { id: "capability", kind: "CAPABILITY", title: "你已经能把这项能力用到真实工作里", objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.CAPABILITY }
+        { id: "explain", kind: "EXPLAIN", title: config.stepCopy.explainTitle, objective: config.stepCopy.explainGuide, navigationDescription: config.navigation.explain },
+        { id: "example", kind: "EXAMPLE", title: config.stepCopy.exampleTitle, objective: config.stepCopy.exampleGuide, navigationDescription: config.navigation.example },
+        { id: "check", kind: "CHECK", title: config.stepCopy.checkTitle, objective: config.stepCopy.checkGuide, navigationDescription: config.navigation.check },
+        { id: "practice", kind: "PRACTICE", title: config.stepCopy.practiceTitle, objective: config.stepCopy.practiceGuide, navigationDescription: config.navigation.practice },
+        { id: "review", kind: "REVIEW", title: config.stepCopy.reviewTitle, objective: config.stepCopy.reviewGuide, navigationDescription: config.navigation.review },
+        { id: "capability", kind: "CAPABILITY", title: config.stepCopy.capabilityTitle, objective: config.stepCopy.capabilityGuide, navigationDescription: config.navigation.capability }
       ],
       capabilityGain: [config.capability],
       nextLessonValue: config.next,
@@ -218,6 +242,29 @@ export const track02T201Draft = makeDraft({
   canonicalId: "T2-01",
   title: "问题太大？先把它变成真正能查清楚的问题",
   prerequisites: ["T1-02", "T1-03", "T1-05"],
+  learningRecommendation: "本课把大主题变成可研究的问题；先说清要支持的决定、对象和范围，再让 AI 查资料。",
+  stepCopy: {
+    explainTitle: "为什么资料很多，仍回答不了问题？",
+    exampleTitle: "把大主题改成可回答的问题",
+    checkTitle: "研究问题是否已经清楚？",
+    practiceTitle: "定义一份可执行的研究任务",
+    reviewTitle: "研究范围该怎样确定？",
+    capabilityTitle: "你能独立定义研究任务了吗？",
+    explainGuide: "先看清模糊主题为什么无法支持决定，再确定研究必须回答什么。",
+    exampleGuide: "对照改写前后的任务，看目的、对象、范围和证据要求怎样收拢资料。",
+    checkGuide: "判断一个问题能否开始研究，还是仍缺目的、范围或证据要求。",
+    practiceGuide: "写出自己的研究目的、范围和核心问题，再检查 AI 能否照此执行。",
+    reviewGuide: "用真实目的决定研究边界，避免范围太大或为了具体而缩错对象。",
+    capabilityGuide: "确认别人拿到你的研究任务后，也知道该查什么、怎样核验。"
+  },
+  navigation: {
+    explain: "看问题为何太大\n找到研究目的",
+    example: "对比改写前后\n收窄对象范围",
+    check: "判断问题能否查\n补齐证据要求",
+    practice: "定义研究任务\n让 AI 能执行",
+    review: "校准目的与范围\n防止问题跑偏",
+    capability: "自查任务是否清楚\n让别人也能执行"
+  },
   mainQuestion: "为什么让 AI“全面研究一下”经常得到很多资料，却还是不能帮助你做决定？",
   mainConcept: "开始查资料前，先把研究目的、对象、范围、时间和要回答的问题说清楚，让证据有明确的寻找边界。",
   summary: "你会把一个模糊的工作主题整理成真正可以查、可以回答、可以判断是否完成的研究任务。",
@@ -326,6 +373,29 @@ export const track02T202Draft = makeDraft({
   canonicalId: "T2-02",
   title: "AI 给了来源，怎么判断这些证据真的靠得住",
   prerequisites: ["T2-01", "T1-05", "T1-09", "T1-10"],
+  learningRecommendation: "本课判断来源能否支撑结论；先写下要核验的说法，再检查资料的日期、对象和原始依据。",
+  stepCopy: {
+    explainTitle: "有链接，为什么仍不能直接相信？",
+    exampleTitle: "同一结论，来源能证明到哪一步？",
+    checkTitle: "这份资料能支持当前结论吗？",
+    practiceTitle: "审查来源与结论的对应关系",
+    reviewTitle: "来源可靠就代表结论可靠吗？",
+    capabilityTitle: "你能说清证据的适用范围吗？",
+    explainGuide: "先区分“给出来源”和“证据支持结论”，不要只看链接或机构名称。",
+    exampleGuide: "逐项核对发布日期、研究对象和原始依据，看来源实际支持哪句话。",
+    checkGuide: "判断来源是否适用于当前对象、时间与说法，并指出证据缺口。",
+    practiceGuide: "对照待判断的说法审查候选资料，标出可用部分和待核验部分。",
+    reviewGuide: "把来源可信度与证据适用性分开，避免把权威当成万能证明。",
+    capabilityGuide: "确认自己能解释一个来源能证明什么，以及下一步还须核验什么。"
+  },
+  navigation: {
+    explain: "看链接为何不够\n区分来源与证据",
+    example: "核对日期与对象\n看原文支持什么",
+    check: "判断能证明什么\n找出证据缺口",
+    practice: "审查候选来源\n标出待核验处",
+    review: "分开来源可信度\n与证据适用性",
+    capability: "说清结论依据\n知道还须查什么"
+  },
   mainQuestion: "有链接、有机构名称，为什么仍然不能直接说明一个结论是真的？",
   mainConcept: "判断证据不能只看来源名气，还要检查发布时间、适用对象、是否为原始依据，以及它实际能支持哪一句结论。",
   summary: "你会判断一个来源到底能证明什么、适用于谁、是否仍然有效，以及什么时候必须继续追到原始依据。",
@@ -434,6 +504,29 @@ export const track02T203Draft = makeDraft({
   canonicalId: "T2-03",
   title: "几个来源说法不一样，怎么判断差异到底在哪里",
   prerequisites: ["T2-01", "T2-02"],
+  learningRecommendation: "本课解释多个来源为何结论不同；先看每份资料能证明什么，再对齐定义、对象和时间，保留无法解释的分歧。",
+  stepCopy: {
+    explainTitle: "数字不同，究竟是哪里不同？",
+    exampleTitle: "对齐口径后，差异还存在吗？",
+    checkTitle: "这是口径差异还是真正冲突？",
+    practiceTitle: "对齐三份资料并整理分歧",
+    reviewTitle: "怎样得出不过度的综合结论？",
+    capabilityTitle: "你能解释来源之间的差异吗？",
+    explainGuide: "先看定义、对象、时间和方法是否相同，再决定数字能否比较。",
+    exampleGuide: "对照两个使用率指标，找出看似冲突的数字背后各自的统计范围。",
+    checkGuide: "判断差异能否解释；证据不足时，明确保留真正的冲突与未知。",
+    practiceGuide: "让 AI 逐项对齐三份资料，再分出共识、可解释差异和待查问题。",
+    reviewGuide: "不投票、不平均不可比数字，让最终判断与证据强度相匹配。",
+    capabilityGuide: "确认自己能说明差异来源，并在证据不足时写出有条件的结论。"
+  },
+  navigation: {
+    explain: "先看数字能否比\n核对对象与时间",
+    example: "对齐统计口径\n解释表面差异",
+    check: "区分可解释差异\n与真正冲突",
+    practice: "对齐三份资料\n保留未知问题",
+    review: "按证据写结论\n不平均不可比数",
+    capability: "解释来源差异\n写出条件与未知"
+  },
   mainQuestion: "两个看起来都靠谱的来源给出不同数字时，为什么不能直接选最新的、最权威的或最多人说的那个？",
   mainConcept: "先对齐定义、对象、时间和方法，区分表面差异与真正冲突，再决定当前证据最多能支持到什么程度。",
   summary: "你会把多个不一致来源整理成共识、可解释差异、真正冲突和仍不确定四类，而不是强行选一个答案。",
@@ -555,7 +648,11 @@ export const track02BatchAIntroComparisons = {
     ],
     comparison: [],
     comparisonPlacement: "BOTTOM" as const,
-    takeaway: "先把真正要解决的问题和必要边界说清，后面的资料才会围绕同一个决定收敛。"
+    takeaway: "先把真正要解决的问题和必要边界说清，后面的资料才会围绕同一个决定收敛。",
+    bottomDetails: [
+      { title: "主题不是研究问题", text: "“AI 培训市场”只是一个大主题；要不要为中国职场用户开设入门课，才是这次研究要支持的具体决定。" },
+      { title: "先圈定必要范围", text: "明确研究对象、地区和要回答的问题，才能判断后续资料是否与这次决定有关。" }
+    ]
   },
   "t2-02-source-evidence-judgment": {
     title: "有链接，不等于这句话已经被证明",
@@ -566,7 +663,11 @@ export const track02BatchAIntroComparisons = {
     ],
     comparison: [],
     comparisonPlacement: "BOTTOM" as const,
-    takeaway: "来源只是线索；能不能使用，要看证据和当前结论是否真正匹配。"
+    takeaway: "来源只是线索；能不能使用，要看证据和当前结论是否真正匹配。",
+    bottomDetails: [
+      { title: "有来源不等于有证据", text: "链接只能告诉你到哪里查，不能自动证明报告里的这句话；需要回到资料中确认原话和数据。" },
+      { title: "证据要对准当前说法", text: "即使资料可信，也要核对发布时间、研究对象和适用范围，避免把别人的结论直接搬到当前问题上。" }
+    ]
   },
   "t2-03-multi-source-synthesis": {
     title: "数字不一样，不一定是谁错了",
@@ -577,7 +678,11 @@ export const track02BatchAIntroComparisons = {
     ],
     comparison: [],
     comparisonPlacement: "BOTTOM" as const,
-    takeaway: "遇到冲突先判断是否在比较同一件事，再决定差异意味着什么。"
+    takeaway: "遇到冲突先判断是否在比较同一件事，再决定差异意味着什么。",
+    bottomDetails: [
+      { title: "数字不同先别急着选", text: "一份报告统计所有职场用户，另一份只统计特定行业时，两个数字不同并不直接构成冲突。" },
+      { title: "先让口径能够比较", text: "确认“使用”如何定义、调查了谁、发生在何时，再区分范围差异和真正无法解释的分歧。" }
+    ]
   }
 } as const;
 

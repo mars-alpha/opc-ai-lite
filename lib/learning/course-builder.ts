@@ -392,7 +392,12 @@ function parseLessonSpec(input: unknown): LessonSpec {
       id: requiredText(step.id, "INVALID_STEP_ID", 120),
       kind: enumValue(step.kind, stepKinds, "INVALID_STEP_KIND"),
       title: requiredText(step.title, "INVALID_STEP_TITLE", 300),
-      objective: requiredText(step.objective, "INVALID_STEP_OBJECTIVE", 1000)
+      objective: requiredText(step.objective, "INVALID_STEP_OBJECTIVE", 1000),
+      navigationDescription: optionalText(
+        step.navigationDescription,
+        "INVALID_STEP_NAVIGATION_DESCRIPTION",
+        120
+      )
     };
   });
 
@@ -416,6 +421,11 @@ function parseLessonSpec(input: unknown): LessonSpec {
     learningObjectives: textArray(input.learningObjectives, "INVALID_LEARNING_OBJECTIVES"),
     knowledgePoints: textArray(input.knowledgePoints, "INVALID_KNOWLEDGE_POINTS"),
     prerequisites: textArray(input.prerequisites ?? [], "INVALID_PREREQUISITES", true),
+    learningRecommendation: optionalText(
+      input.learningRecommendation,
+      "INVALID_LEARNING_RECOMMENDATION",
+      300
+    ),
     requiresExample: input.requiresExample === true,
     requiresCheck: input.requiresCheck === true,
     practiceMode: enumValue(input.practiceMode, practiceModes, "INVALID_PRACTICE_MODE"),

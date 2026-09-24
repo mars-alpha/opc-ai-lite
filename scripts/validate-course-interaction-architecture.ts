@@ -37,7 +37,7 @@ assert(asyncShell.includes("<GenericLessonRuntimePanel"), "GENERIC_RUNTIME_PANEL
 assert(panel.includes("const currentCheckLocked = currentCheckCorrect"), "CHECK_CORRECT_LOCK_STATE_MISSING");
 assert(panel.includes("disabled={currentCheckLocked || busy === \"check\"}"), "CHECK_CORRECT_OPTION_LOCK_MISSING");
 assert(panel.includes("if (currentCheckLocked || !check"), "CHECK_CORRECT_RESUBMIT_GUARD_MISSING");
-assert(panel.includes("currentCheckLocked &&\n            currentCheckIndex < checkSequence.length - 1"), "CHECK_NEXT_QUESTION_ENTRY_MISSING");
+assert(/currentCheckLocked\s*&&\s*currentCheckIndex\s*<\s*checkSequence\.length\s*-\s*1/.test(panel), "CHECK_NEXT_QUESTION_ENTRY_MISSING");
 assert(!panel.includes("onChange={(event) => {\n                    if (currentCheckCorrect) return;\n                    setContent"), "CHECK_LOCK_MUST_NOT_LEAK_TO_PRACTICE");
 assert(asyncShell.includes("<LessonCompleteButton"), "FORMAL_COMPLETION_CONTROL_MISSING");
 assert(asyncShell.includes("<LessonFeedbackPrompt"), "FORMAL_FEEDBACK_NAV_MISSING");

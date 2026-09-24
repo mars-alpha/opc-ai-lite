@@ -193,6 +193,7 @@ Human Review 关注：
 Human Review 前还必须完成 **Six-step Content Integrity Review**：
 
 - 六步每一步都必须与当前 Formal Brief / Draft Version 一致；
+- 根据 `LESSON_OUTPUT_CONTRACT_V1.md` 检查学习建议是否说清本课与准备、六张进度卡片是否逐课逐步准确；使用 intro comparison 的课程须在 Step 1 takeaway 下方显示能帮助理解本课判断的说明。不得只检查字符串长度而忽略教学含义；
 - CHECK 题组必须属于当前课程版本，不得沿用已被 supersede 的旧题；
 - Step 4 必须有真实学习动作；CONCEPT 可不设 Practice Gate，但不能出现“有 PRACTICE Step、无可操作内容”；
 - Review / Capability 必须收束当前版本，而不是旧稿残留；

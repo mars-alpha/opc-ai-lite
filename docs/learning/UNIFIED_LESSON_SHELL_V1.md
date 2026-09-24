@@ -38,6 +38,7 @@ Draft Preview 必须复用 `GenericLessonRuntimePanel`。Preview 只用于 Human
 | 6 | CAPABILITY | 能力获得 | 明确学员获得什么能力、可用在哪里、下一步学什么 |
 
 正文保留每节课自己的 Step 标题。底部导航只显示固定四字教学标签 + 页码。
+顶部六张进度卡片读取当前课各 Step 的 `navigationDescription`；Hero 读取该课 `learningRecommendation`；Step 1 的 intro comparison 在 takeaway 后展示 `bottomDetails`。展示位置与结构保持不变；文案生产及验收规则统一见 `LESSON_OUTPUT_CONTRACT_V1.md`。
 
 ## 3. Step 3 — Three-Question Mastery
 

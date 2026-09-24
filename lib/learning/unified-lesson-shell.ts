@@ -16,6 +16,15 @@ export const UNIFIED_LESSON_STEP_ORDER = [
   "CAPABILITY"
 ] as const satisfies readonly LessonStepKind[];
 
+export const UNIFIED_LESSON_STEP_NAV_DESCRIPTIONS: Readonly<Record<LessonStepKind, string>> = {
+  EXPLAIN: "从真实问题出发\n抓住核心判断",
+  EXAMPLE: "跟着案例看\n方法怎样起作用",
+  CHECK: "做题检验理解\n找出判断误区",
+  PRACTICE: "亲手完成任务\n检查实际结果",
+  REVIEW: "整理判断框架\n记住适用边界",
+  CAPABILITY: "确认自己会做\n知道何时使用"
+};
+
 export const UNIFIED_LESSON_STEP_LABELS: Readonly<Record<LessonStepKind, string>> = {
   EXPLAIN: "建立直觉",
   EXAMPLE: "讲透方法",
@@ -36,4 +45,13 @@ export const UNIFIED_LESSON_MASTERY_SEQUENCE = [
 
 export function unifiedLessonStepLabel(kind: LessonStepKind) {
   return UNIFIED_LESSON_STEP_LABELS[kind];
+}
+
+export function unifiedLessonStepNavDescription(kind: LessonStepKind) {
+  return UNIFIED_LESSON_STEP_NAV_DESCRIPTIONS[kind];
+}
+
+export function lessonStepNavigationDescription(step: { kind: LessonStepKind; objective: string; navigationDescription?: string }) {
+  if (step.navigationDescription) return step.navigationDescription;
+  return step.objective;
 }

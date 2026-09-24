@@ -32,7 +32,7 @@ const status = fs.readFileSync(statusPath, "utf8");
 assert(owner.includes("当前唯一的课程上下文 owner"), "CURRENT_OWNER_MARKER_MISSING");
 assert(owner.includes("Related-file authority map"), "RELATED_FILE_AUTHORITY_MAP_MISSING");
 assert(
-  owner.includes("DIRECTORY_APPROVED_V1 / BATCH_A_BRIEF_READY_V1"),
+  owner.includes("DIRECTORY_APPROVED_V1 / BATCH_A_AVAILABLE / BATCH_B_AVAILABLE_RUNTIME_ACCEPTANCE_PASS"),
   "OWNER_STATUS_DRIFT"
 );
 
