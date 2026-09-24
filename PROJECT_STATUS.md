@@ -28,6 +28,7 @@ Check / Practice server authority        PASS
 Completion / Rating / Resume             PASS
 Course Production Workflow               PASS
 Current Course Builder Skill registry    PASS
+Course six-step content responsibility   FROZEN / EXPERIENCE_REVIEW_PASS
 Track 02 current owners / context         PASS
 Track 02 Learning Map / Access           FROZEN / IMPLEMENTATION PASS
 Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS

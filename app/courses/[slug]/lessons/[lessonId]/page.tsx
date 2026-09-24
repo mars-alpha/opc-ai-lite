@@ -121,7 +121,8 @@ export default async function LessonPage({
             ? null
             : {
                 title: "AI 基础认知",
-                href: "/learning-path?track=foundation-ai#foundation-catalog"
+                href: "/learning-path?track=foundation-ai#foundation-catalog",
+                concepts: "提示词、上下文、结果核验和知识来源这些基础能力"
               }
         }
       />

@@ -1182,6 +1182,25 @@ Files：lib/learning/track02-batch-a-runtime.ts、scripts/provision-track02-batc
 
 Next：Batch A 生命周期 COMPLETE。后续课程生产从下一小批次 Formal Brief 开始；不得把 T2-04～T2-15 直接 Provision 成 Runtime。
 
+### COURSE-UX-QUALITY-001 — Six-step Responsibility & T2 Experience Correction
+
+Status: COMPLETE / FROZEN_CURRENT
+Priority: P0
+
+来源：实际体验 T2-01～T2-03 后发现学习建议上移重叠、前置能力指代模糊、Step objective 过长、Step 1 与 Step 2 内容重复，以及市场分析地区范围漂移。
+
+Frontend：学习建议在课程 Hero 中下移到“完成后你会获得”之后的独立空白区域；前置建议明确为“提示词、上下文、结果核验和知识来源这些基础能力”。没有新增课程 UI 或 Renderer。
+
+Six-step baseline：Step 1 = 问题直觉 + 学习价值 + 一句核心判断；Step 2 = 具体案例 + 对比 + 结果 + 判断依据 / 边界；Step 3 = 最佳判断 + 常见误区 + 边界条件；Step 4 = 最小真实动作 + 必要输入 / 提示 + 可检查结果；Step 5 = AI 适合做什么 / AI 不应该替你做什么 + 原因 / 边界 / 条件 / 易错点；Step 6 = 会做什么 + 如何自证 + 现实触发 + 下一步价值。顶部 objective 使用统一短句，不承担正文教学。
+
+Market scope：涉及市场分析而 Formal Brief 未明确地区时，默认使用中国市场；其他国家 / 地区必须显式指定。T2-01～T2-03 当前市场与用户研究样例已同步为中国市场。
+
+Implementation：T2 Step 1 不再从 Step 2 `lesson.example` 反推；新增独立 intro presentation。Draft Validator 固定检查短 objective、Step1/Step2 非重复、中国市场范围。规则同步至 Lesson Output Contract、Beginner Quality Standard、Course Builder Skill、COURSE_BUILD_START_HERE。
+
+Runtime：T2-01～T2-03 已重新幂等 Provision；真实 Access / 9 Check / 3 Practice / Completion Runtime Acceptance 全部 PASS。
+
+Workflow：Stable Course Production Workflow、Orchestrator Gate、Skill Registry 解耦关系保持不变，只更新 Required Rule Sources 的最新规则正文。
+
 # BACKLOG
 
 ```text

@@ -29,7 +29,7 @@ export function FormalGuidedLessonView({
   previous: LessonLink;
   next: LessonLink;
   lockedLessonIds: string[];
-  learningRecommendation?: { title: string; href: string } | null;
+  learningRecommendation?: { title: string; href: string; concepts: string } | null;
 }) {
   return (
     <section className="lesson-page">
@@ -56,7 +56,7 @@ export function FormalGuidedLessonView({
             </div>
             {learningRecommendation ? (
               <div className="guided-runtime-read-note">
-                学习建议：如果这些基础概念还不熟，可以先回到{" "}
+                学习建议：如果你对{learningRecommendation.concepts}还不熟，可以先回到{" "}
                 <Link href={learningRecommendation.href}>{learningRecommendation.title}</Link>{" "}
                 补基础；这不会影响你继续学习当前课程。
               </div>

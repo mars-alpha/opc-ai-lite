@@ -1,7 +1,11 @@
-import { createCourseBuilderReviewPacket } from "../lib/learning/course-builder";
+import {
+  COURSE_BUILDER_STEP_OBJECTIVE_COPY,
+  createCourseBuilderReviewPacket
+} from "../lib/learning/course-builder";
 import { CURRENT_COURSE_BUILDER_SKILL } from "../skills/course-builder";
 import {
   track02BatchADrafts,
+  track02BatchAIntroComparisons,
   track02BatchAKnowledgeDepth,
   track02BatchATriggerScenarios
 } from "../fixtures/course-builder/track02-batch-a";
@@ -44,6 +48,13 @@ for (const packet of packets) {
     "CHECK_PRACTICE_GATES_REQUIRED:" + draft.lessonSpec.lessonId
   );
   assert(draft.lessonSpec.steps.length === 6, "SIX_STEPS_REQUIRED:" + draft.lessonSpec.lessonId);
+  for (const step of draft.lessonSpec.steps) {
+    assert(
+      step.objective === COURSE_BUILDER_STEP_OBJECTIVE_COPY[step.kind],
+      "STEP_OBJECTIVE_COPY_DRIFT:" + draft.lessonSpec.lessonId + ":" + step.kind
+    );
+    assert(step.objective.length <= 28, "STEP_OBJECTIVE_TOO_LONG:" + draft.lessonSpec.lessonId + ":" + step.kind);
+  }
   assert(draft.checkSequence?.length === 3, "THREE_CHECKS_REQUIRED:" + draft.lessonSpec.lessonId);
   assert(draft.practice !== null, "PRACTICE_REQUIRED:" + draft.lessonSpec.lessonId);
   assert(draft.referenceAnswer?.trim(), "REFERENCE_ANSWER_REQUIRED:" + draft.lessonSpec.lessonId);
@@ -92,6 +103,20 @@ for (const packet of packets) {
   const trigger = track02BatchATriggerScenarios[draft.lessonSpec.lessonId as keyof typeof track02BatchATriggerScenarios];
   assert(Boolean(trigger?.trim()), "TRIGGER_REQUIRED:" + draft.lessonSpec.lessonId);
   assert(!trigger.includes("下一课"), "TRIGGER_NEXT_LESSON_CONFLATION:" + draft.lessonSpec.lessonId);
+
+  const intro =
+    track02BatchAIntroComparisons[
+      draft.lessonSpec.lessonId as keyof typeof track02BatchAIntroComparisons
+    ];
+  assert(Boolean(intro), "STEP1_INTRO_REQUIRED:" + draft.lessonSpec.lessonId);
+  assert(intro.title !== draft.content.example.title, "STEP1_STEP2_TITLE_OVERLAP:" + draft.lessonSpec.lessonId);
+  assert(intro.situation !== draft.content.example.situation, "STEP1_STEP2_SITUATION_OVERLAP:" + draft.lessonSpec.lessonId);
+  assert(
+    !intro.approaches.some(
+      (item) => item.text === draft.content.example.before || item.text === draft.content.example.after
+    ),
+    "STEP1_STEP2_BODY_OVERLAP:" + draft.lessonSpec.lessonId
+  );
 }
 
 const t201 = packets[0].output;
@@ -104,6 +129,7 @@ if (t201.mode !== "BUILD" || t202.mode !== "BUILD" || t203.mode !== "BUILD") {
 const t201Visible = JSON.stringify(t201);
 assert(t201Visible.includes("研究目的") && t201Visible.includes("对象和范围"), "T201_SCOPE_METHOD_MISSING");
 assert(!t201.lessonSpec.title.includes("提示词"), "T201_MUST_NOT_RETEACH_PROMPT");
+assert(t201Visible.includes("中国市场"), "T201_CHINA_MARKET_SCOPE_REQUIRED");
 assert(
   t201.referenceAnswer?.includes("不要替我搜索或补充外部事实"),
   "T201_NO_FAKE_SEARCH_BOUNDARY_MISSING"
@@ -116,6 +142,7 @@ assert(
 const t202Visible = JSON.stringify(t202);
 assert(t202Visible.includes("能支持什么") && t202Visible.includes("原始"), "T202_EVIDENCE_JUDGMENT_MISSING");
 assert(!t202.lessonSpec.title.includes("核验哪些内容"), "T202_MUST_NOT_REPEAT_T105");
+assert(t202Visible.includes("中国市场") || t202Visible.includes("中国职场用户"), "T202_CHINA_MARKET_SCOPE_REQUIRED");
 
 const t203Visible = JSON.stringify(t203);
 assert(
@@ -123,6 +150,8 @@ assert(
   "T203_ALIGNMENT_DIMENSIONS_MISSING"
 );
 assert(t203Visible.includes("不要投票") || t203Visible.includes("多数票"), "T203_NO_MAJORITY_VOTE_BOUNDARY_MISSING");
+assert(t203Visible.includes("中国市场") || t203Visible.includes("中国职场用户"), "T203_CHINA_MARKET_SCOPE_REQUIRED");
+assert(!JSON.stringify(track02BatchADrafts).includes("新加坡"), "TRACK02_NON_CHINA_MARKET_SCOPE_DRIFT");
 
 console.log("TRACK02_BATCH_A_THREE_DRAFTS=PASS");
 console.log("TRACK02_BATCH_A_CURRENT_COURSE_BUILDER=PASS");
@@ -130,5 +159,8 @@ console.log("TRACK02_BATCH_A_SIX_STEP_APPLICATION=PASS");
 console.log("TRACK02_BATCH_A_COPY_READY_REFERENCE=PASS");
 console.log("TRACK02_BATCH_A_CHINESE_FIRST=PASS");
 console.log("TRACK02_BATCH_A_ANTI_REPEAT=PASS");
+console.log("TRACK02_BATCH_A_STEP_OBJECTIVES_CONCISE=PASS");
+console.log("TRACK02_BATCH_A_STEP1_STEP2_SEPARATED=PASS");
+console.log("TRACK02_BATCH_A_CHINA_MARKET_SCOPE=PASS");
 console.log("TRACK02_BATCH_A_DETERMINISTIC_VALIDATION=PASS");
 console.log("TRACK02_BATCH_A_STOPPED_AT_HUMAN_REVIEW=PASS");

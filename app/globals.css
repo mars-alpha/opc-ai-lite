@@ -3364,6 +3364,10 @@ img { display: block; max-width: 100%; }
   border-radius:50%;
   background:rgba(42,104,255,.55);
 }
+.guided-lesson-hero > .guided-runtime-read-note {
+  margin:18px 2px 0;
+  align-items:flex-start;
+}
 .guided-lesson { margin-top:0; }
 .guided-lesson-top { display:flex; justify-content:space-between; gap:24px; align-items:flex-start; }
 .guided-lesson-top h2 { margin:6px 0 10px; max-width:760px; font-size:30px; letter-spacing:-.04em; }

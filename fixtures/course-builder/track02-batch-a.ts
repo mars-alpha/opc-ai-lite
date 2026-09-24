@@ -1,4 +1,5 @@
 import {
+  COURSE_BUILDER_STEP_OBJECTIVE_COPY,
   COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES,
   type CourseBuilderBuildDraft
 } from "../../lib/learning/course-builder";
@@ -135,12 +136,12 @@ function makeDraft(config: LessonConfig): CourseBuilderBuildDraft {
       courseFeedbackEnabled: true,
       completionGates: ["CHECK", "PRACTICE"],
       steps: [
-        { id: "explain", kind: "EXPLAIN", title: config.mainQuestion, objective: "先把工作中真正卡住的问题讲清楚，再给出本课唯一主方法。" },
-        { id: "example", kind: "EXAMPLE", title: config.example.title, objective: "通过前后对比看懂方法为什么有效，以及不这样做会出现什么问题。" },
-        { id: "check", kind: "CHECK", title: "你能不能做出正确判断", objective: "只检查已经教过的判断，不考英文术语，也不提前教授下一课内容。" },
-        { id: "practice", kind: "PRACTICE", title: config.practice.title, objective: config.practice.goal },
-        { id: "review", kind: "REVIEW", title: "以后遇到类似任务，记住这些边界", objective: "明确 AI 适合帮助什么，以及哪些判断仍不能交给 AI 代替。" },
-        { id: "capability", kind: "CAPABILITY", title: "你已经能把这项能力用到真实工作里", objective: "确认会做什么、如何自证、什么时候会用，以及下一步怎样复用。" }
+        { id: "explain", kind: "EXPLAIN", title: config.mainQuestion, objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.EXPLAIN },
+        { id: "example", kind: "EXAMPLE", title: config.example.title, objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.EXAMPLE },
+        { id: "check", kind: "CHECK", title: "你能不能做出正确判断", objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.CHECK },
+        { id: "practice", kind: "PRACTICE", title: config.practice.title, objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.PRACTICE },
+        { id: "review", kind: "REVIEW", title: "以后遇到类似任务，记住这些边界", objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.REVIEW },
+        { id: "capability", kind: "CAPABILITY", title: "你已经能把这项能力用到真实工作里", objective: COURSE_BUILDER_STEP_OBJECTIVE_COPY.CAPABILITY }
       ],
       capabilityGain: [config.capability],
       nextLessonValue: config.next,
@@ -240,7 +241,7 @@ export const track02T201Draft = makeDraft({
     situation: "团队想判断是否值得为没有技术背景的职场用户增加一门 AI 入门训练课程。",
     before: "直接问：请全面研究 AI 培训市场。AI 返回市场规模、公司名单、趋势、工具和大量观点，却没有回答团队真正要做的决定。",
     after:
-      "先说明：研究目的是判断新加坡非技术职场用户是否存在“从零开始学会把 AI 用到日常工作”的需求；关注近 12 个月公开资料；重点回答常见学习困难、已有课程主要承诺、用户真正需要的结果，并要求关键事实注明来源与日期。",
+      "先说明：研究目的是判断中国市场中非技术职场用户是否存在“从零开始学会把 AI 用到日常工作”的需求；关注近 12 个月公开资料；重点回答常见学习困难、已有课程主要承诺、用户真正需要的结果，并要求关键事实注明来源与日期。",
     result: "资料开始围绕同一个决策问题收敛，后续也能判断哪些来源真正有用。"
   },
   mistakes: [
@@ -263,7 +264,7 @@ export const track02T201Draft = makeDraft({
         key: "scope",
         label: "对象和范围",
         prompt: "写清要研究谁或什么，以及必要的地区、场景和时间边界。",
-        example: "研究对象是新加坡没有技术背景、希望把 AI 用到日常工作的职场用户；优先看近 12 个月公开资料。"
+        example: "研究对象是中国市场中没有技术背景、希望把 AI 用到日常工作的职场用户；优先看近 12 个月公开资料。"
       },
       {
         key: "questions",
@@ -291,7 +292,7 @@ export const track02T201Draft = makeDraft({
       question: "你想判断“要不要为新手增加一门 AI 入门课”。下面哪一个最像已经可以开始研究的问题？",
       options: [
         "请全面研究 AI 教育行业。",
-        "请研究近 12 个月新加坡非技术职场用户学习 AI 的主要困难，并说明哪些证据能帮助判断是否需要一门工作应用型入门课。",
+        "请研究近 12 个月中国市场中非技术职场用户学习 AI 的主要困难，并说明哪些证据能帮助判断是否需要一门工作应用型入门课。",
         "请证明 AI 入门课程一定会越来越受欢迎。"
       ],
       answer: "B",
@@ -365,7 +366,7 @@ export const track02T202Draft = makeDraft({
         key: "claim",
         label: "当前要判断的说法",
         prompt: "写清这次到底要验证哪一句话，以及它会影响什么决定。",
-        example: "我要判断的说法是：“近一年，新加坡非技术职场用户更希望学习能直接用于日常工作的 AI 课程。”这个判断会影响我们是否增加工作应用型入门课程。"
+        example: "我要判断的说法是：“近一年，中国市场中非技术职场用户更希望学习能直接用于日常工作的 AI 课程。”这个判断会影响我们是否增加工作应用型入门课程。"
       },
       {
         key: "sources",
@@ -396,10 +397,10 @@ export const track02T202Draft = makeDraft({
   },
   checks: {
     best: {
-      question: "要判断“本地职场用户更需要 AI 工作应用培训”，下面哪种证据用法更稳妥？",
+      question: "要判断“中国职场用户更需要 AI 工作应用培训”，下面哪种证据用法更稳妥？",
       options: [
         "看到三个网站都转述同一个百分比，就当成三份独立证据。",
-        "优先检查近期本地调查的样本和原始报告，再说明它具体能支持哪一部分结论。",
+        "优先检查近期中国市场调查的样本和原始报告，再说明它具体能支持哪一部分结论。",
         "只要是知名机构发布的数据，就不需要再看年份和研究对象。"
       ],
       answer: "B",
@@ -453,7 +454,7 @@ export const track02T203Draft = makeDraft({
   ],
   example: {
     title: "都是“AI 工具使用率”，为什么一个是 62%，另一个只有 34%",
-    situation: "团队在判断本地职场用户使用生成式 AI 的普及程度，找到两个近期报告却数字差距很大。",
+    situation: "团队在判断中国职场用户使用生成式 AI 的普及程度，找到两个近期报告却数字差距很大。",
     before: "直接选择数字更高的报告，因为发布机构更知名，或者把两个百分比取平均数。",
     after:
       "先发现报告A统计的是“过去一个月使用过至少一次”，报告B统计的是“每周在工作中使用”；两者对象和行为定义不同，因此不是同一指标。再分别保留它们支持的结论，而不是合成一个数字。",
@@ -474,13 +475,13 @@ export const track02T203Draft = makeDraft({
         key: "question",
         label: "当前问题",
         prompt: "先写清你最终想回答什么，避免比较过程中换问题。",
-        example: "我要判断：新加坡非技术职场用户在日常工作中使用生成式 AI 的普及程度，目前公开资料最多能支持到什么结论？"
+        example: "我要判断：中国市场中非技术职场用户在日常工作中使用生成式 AI 的普及程度，目前公开资料最多能支持到什么结论？"
       },
       {
         key: "evidence",
         label: "三份资料",
         prompt: "把每份资料的数字、定义、对象和时间一起给 AI。",
-        example: "资料A：2026年本地行业调查，62%受访者表示“过去一个月在工作中至少用过一次生成式 AI”；资料B：2026年企业员工调查，34%表示“每周至少三天使用生成式 AI 工作”；资料C：2025年区域报告，48%受访者表示“曾在任何场景使用生成式 AI”，样本覆盖多个东南亚国家。"
+        example: "资料A：2026年中国市场行业调查，62%受访者表示“过去一个月在工作中至少用过一次生成式 AI”；资料B：2026年中国企业员工调查，34%表示“每周至少三天使用生成式 AI 工作”；资料C：2025年亚太区域报告，48%受访者表示“曾在任何场景使用生成式 AI”，样本覆盖多个国家和地区。"
       },
       {
         key: "alignment",
@@ -542,6 +543,43 @@ export const track02BatchADrafts = [
   track02T202Draft,
   track02T203Draft
 ] as const;
+
+
+export const track02BatchAIntroComparisons = {
+  "t2-01-research-question-scope": {
+    title: "为什么‘全面研究一下’常常帮不了你做决定",
+    situation: "你想判断是否要面向中国职场用户增加一门 AI 工作应用入门课，却只给 AI 一句‘研究一下 AI 培训市场’。",
+    approaches: [
+      { label: "表面上信息很多", text: "AI 可能给你市场规模、趋势、公司和工具，但这些内容未必对应你真正要做的决定。" },
+      { label: "真正卡住的地方", text: "如果研究目的和必要边界没有说清，AI 只能自己猜哪些信息重要。" }
+    ],
+    comparison: [],
+    comparisonPlacement: "BOTTOM" as const,
+    takeaway: "先把真正要解决的问题和必要边界说清，后面的资料才会围绕同一个决定收敛。"
+  },
+  "t2-02-source-evidence-judgment": {
+    title: "有链接，不等于这句话已经被证明",
+    situation: "AI 给你一个看起来很专业的数字、机构名称和链接，你准备把它写进一份中国市场的工作汇报。",
+    approaches: [
+      { label: "看起来很可信", text: "有知名机构、有数字、有链接，很容易让人下意识觉得这句话已经可以直接使用。" },
+      { label: "真正要确认的事", text: "关键不是‘有没有来源’，而是这份资料是否真的适用于当前对象，并支持你准备写下的这句话。" }
+    ],
+    comparison: [],
+    comparisonPlacement: "BOTTOM" as const,
+    takeaway: "来源只是线索；能不能使用，要看证据和当前结论是否真正匹配。"
+  },
+  "t2-03-multi-source-synthesis": {
+    title: "数字不一样，不一定是谁错了",
+    situation: "两份关于中国职场用户使用生成式 AI 的报告给出不同数字，团队马上想选一个‘更可信’的答案。",
+    approaches: [
+      { label: "直接二选一", text: "只看机构名气、发布时间或数字高低，很容易把不同口径的数据当成同一件事比较。" },
+      { label: "先确认是否可比", text: "两个来源可能统计的是不同对象、不同时间或不同‘使用’定义，差异本身还不能说明谁错。" }
+    ],
+    comparison: [],
+    comparisonPlacement: "BOTTOM" as const,
+    takeaway: "遇到冲突先判断是否在比较同一件事，再决定差异意味着什么。"
+  }
+} as const;
 
 export const track02BatchATriggerScenarios = {
   "t2-01-research-question-scope": "当研究问题太大、AI 回答很泛或资料很多却不能支持决定时，先重新定义研究范围。",

@@ -123,7 +123,7 @@ assert(
 );
 assert(
   status.includes("T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME") &&
-    status.includes("T2-01～T2-03 Runtime Acceptance PASS"),
+    status.includes("Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS"),
   "PROJECT_STATUS_NEXT_TASK_DRIFT"
 );
 

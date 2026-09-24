@@ -570,6 +570,14 @@ RUNTIME-INFRA-PERF-003            PROPOSED / NOT_STARTED
 
 当前 Course Builder Current Skill = v1.0.0，由 `skills/course-builder/index.ts` registry 解析；旧版本不作为 current input。Course Builder / Lesson Output Contract 只负责“怎样把一节课教会与输出成 Draft”；Auth / Access / Progress / Completion / Resume 继续属于 Runtime / Entitlement，不进入 Course Builder authority。未来 Web / H5 / 小程序继续复用同一 Backend/API。
 
+2026-09-24 T2-01～T2-03 实际体验后，课程质量基线进一步冻结：
+- 六步顶部 objective 只使用一句简洁动作说明，正常桌面宽度不超过两行；知识内容全部留在对应 Step 正文。
+- Step 1 固定输出“问题直觉 + 学习价值 + 一句核心判断”；Step 2 固定输出“具体案例 + 对比 + 结果 + 判断依据 / 边界”。Step 1 不得复用 Step 2 的案例正文或前后对比。
+- Step 3 固定验证“最佳判断 → 常见误区 → 边界条件”；Step 4 固定完成“最小真实动作 + 必要输入 / 提示 + 可检查结果”；Step 5 固定留下“AI 适合做什么 / AI 不应该替你做什么 + 原因 / 边界 / 条件 / 易错点”；Step 6 固定回答“会做什么 + 如何自证 + 现实触发 + 下一步价值”。
+- 涉及市场分析、市场规模、竞争、用户、价格、渠道或本地化市场判断时，若 Formal Brief 没有明确其他地区，默认以**中国市场**为范围。
+- Track 02 的学习建议必须明确具体前置能力，不再使用“这些基础概念”等模糊指代；当前提示为“提示词、上下文、结果核验和知识来源这些基础能力”。
+- 上述规则已进入 Lesson Output Contract、Beginner Quality Standard、Course Builder Skill 与 Track02 Draft Validator；Stable Course Production Workflow / Gate 顺序未改变。
+
 当前产品工程顺序固定为：
 
 ```text

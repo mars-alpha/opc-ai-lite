@@ -74,6 +74,15 @@ export const COURSE_BUILDER_SIX_STEP_RESPONSIBILITIES: CourseBuilderSixStepRespo
   }
 };
 
+export const COURSE_BUILDER_STEP_OBJECTIVE_COPY: Readonly<Record<LessonStepKind, string>> = {
+  EXPLAIN: "先看清问题，并抓住本课最重要的判断。",
+  EXAMPLE: "用一个真实案例看懂方法如何改变结果。",
+  CHECK: "用三道判断题确认自己真的会判断。",
+  PRACTICE: "亲手完成一个最小真实动作，并检查结果。",
+  REVIEW: "把本课最重要的判断和边界整理成框架。",
+  CAPABILITY: "确认自己会做什么、何时使用，并能自我验证。"
+};
+
 export type CourseBuilderPedagogy = {
   audience: "BEGINNER" | "GENERAL" | "ADVANCED";
   languagePolicy: "TERM_READABILITY";

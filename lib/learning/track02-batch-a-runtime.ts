@@ -4,6 +4,7 @@ import {
 } from "./course-builder";
 import {
   track02BatchADrafts,
+  track02BatchAIntroComparisons,
   track02BatchAKnowledgeDepth,
   track02BatchATriggerScenarios
 } from "../../fixtures/course-builder/track02-batch-a";
@@ -66,23 +67,6 @@ function referenceFillFor(draft: ApprovedDraft) {
   );
 }
 
-function introFromDraft(draft: ApprovedDraft) {
-  return {
-    title: draft.content.example.title,
-    situation: draft.content.example.situation,
-    approaches: [
-      { label: "容易出错的做法", text: draft.content.example.before ?? "直接让 AI 自己猜重点。" },
-      { label: "更稳妥的做法", text: draft.content.example.after ?? draft.content.example.result }
-    ],
-    comparison: [
-      { term: "先判断", meaning: draft.content.points[0] ?? draft.content.plainExplanation },
-      { term: "再处理", meaning: draft.content.points[1] ?? draft.content.whyItMatters }
-    ],
-    comparisonPlacement: "BOTTOM" as const,
-    takeaway: draft.content.example.result
-  };
-}
-
 export const TRACK02_RUNTIME_COURSE_SLUG = "ai-work";
 
 export const track02BatchARuntimeDefinitions = track02BatchADrafts.map((sourceDraft, index) => {
@@ -131,7 +115,10 @@ export function getTrack02BatchARuntimePresentation(courseSlug: string, lessonSl
       ...draft.pedagogy.participation,
       fields: draft.practice?.instructions ?? []
     },
-    introComparison: introFromDraft(draft),
+    introComparison:
+      track02BatchAIntroComparisons[
+        lessonSlug as keyof typeof track02BatchAIntroComparisons
+      ],
     referenceAnswer: draft.referenceAnswer,
     referenceFill: referenceFillFor(draft),
     knowledgeDepth:

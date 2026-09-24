@@ -34,7 +34,7 @@ assert(
 );
 assert(
   projectStatus.includes("Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME") &&
-    projectStatus.includes("T2-01～T2-03 Runtime Acceptance PASS"),
+    projectStatus.includes("Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS"),
   "PROJECT_STATUS_TRACK02_BATCH_A_MISSING"
 );
 assert(
