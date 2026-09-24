@@ -220,4 +220,4 @@ T1-07 再正式教学 Token / Probability Generation / non-deterministic output 
 - [x] Step 6 形成可执行的产品判断能力；
 - [x] T1-07 的 Token / Probability 边界保持完整。
 
-Human Review decision: **PASS**. T1-06 Formal Brief 可以进入 Course Builder v0.2；本结论不代表 Draft / Runtime 已完成。
+Human Review decision: **PASS**. T1-06 Formal Brief 已具备进入 Current Course Builder Skill 的条件；当前 Runtime 状态以 Current Facts 为准。

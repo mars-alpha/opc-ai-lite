@@ -1,6 +1,6 @@
 # TASKS.md
 
-> NOW / NEXT / BACKLOG。完成结果进入 `docs/task-results/`。
+> NOW / NEXT / BACKLOG + 必要历史任务摘要。完成任务不再默认生成或永久保留独立 `docs/task-results/*`；只有当前 Runtime、Validator、可执行复现或唯一验收证据仍依赖时才保留。Current state 必须读取 `PROJECT_STATUS.md` / `docs/CURRENT_SYSTEM_FACTS.md` / current owner，不从旧任务条目恢复。
 
 # COMPLETED
 
@@ -995,11 +995,11 @@ Validation：learning:course-production-workflow:check PASS；learning:course-bu
 Status: COMPLETE_DETERMINISTIC_PASS
 Priority: P0
 
-已由 Course Production Workflow 一次性生成 T1-11～T1-20 共 10 个 Course Builder Skill v1 Draft；全部通过 Deterministic Validation，并统一停在 Human Review Gate。严格沿用 Unified Lesson Shell，不新增 UI / Renderer，不调整 CSS。生成过程中当前基础课不应展开的知识统一进入 DEFERRED_KNOWLEDGE_LEDGER_V1，并规划到 Track 02～05；Ledger 已进入 COURSE_PRODUCTION_RULE_SOURCES，后续变化由 Workflow read-latest 自动消费。
+已由 Course Production Workflow 一次性生成 T1-11～T1-20 共 10 个 Course Builder Skill v1 Draft；全部通过 Deterministic Validation，并统一停在 Human Review Gate。严格沿用 Unified Lesson Shell，不新增 UI / Renderer，不调整 CSS。生成过程中当前基础课不应展开的知识统一进入 DEFERRED_KNOWLEDGE_LEDGER_V1；现行架构中 Ledger 属于 Track-specific run Context，不属于 Global Rule Sources。
 
 Human Review 已由 `TRACK01-T11-T20-HUMAN-REVIEW-001` 完成；Runtime Gate 不绕过。
 
-结果：docs/task-results/TRACK01-T11-T20-WORKFLOW-BATCH-001.md；旧 TRACK01-T11-T20-BATCH-START-001 仅保留 HISTORICAL_ONLY。
+历史结果已收敛到本任务摘要与 Current Facts，不再保留独立 Workflow Batch result 文件。
 
 ### TRACK01-T11-T20-HUMAN-REVIEW-001 — T1-11～T1-20 Batch Human Review
 
@@ -1012,7 +1012,7 @@ Result：10 课全部 HUMAN_REVIEW_PASS。Human Review 补齐 Step 6 的现实�
 
 Next Gate：LessonSpec Registry → Runtime Provisioning → Runtime Acceptance。Human Review PASS 不等于 AVAILABLE。
 
-Result：`docs/task-results/TRACK01-T11-T20-HUMAN-REVIEW-001.md`。
+历史 Human Review 结果已收敛到本任务摘要；当前是否 AVAILABLE 以 Current Facts / Runtime registry 为准。
 
 ### TRACK01-T11-T20-RUNTIME-001 — T1-11～T1-20 Batch Runtime Provisioning & Acceptance
 
@@ -1023,7 +1023,7 @@ Result：T1-11～T1-20 已批次接入现有 `foundation-ai` 正式主链：Less
 
 Validation：`T1_11_RUNTIME_ACCEPTANCE=PASS` ～ `T1_20_RUNTIME_ACCEPTANCE=PASS`；`T1_11_T1_20_LESSON_SPEC_REGISTRY=PASS`；`T1_11_T1_20_RUNTIME_PROVISIONED=PASS`；`T1_11_T1_20_CHECK_PRACTICE_GATES=PASS`；`T1_11_T1_20_PAGE_RENDERING=PASS`；测试数据清理 PASS。
 
-Result evidence：`docs/task-results/TRACK01-T11-T20-RUNTIME-001.md`。
+当前 Runtime 事实直接由 Current Facts、Catalog runtime mapping、Runtime registry 与 acceptance script 校验，不再依赖独立 task-result。
 
 ### TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001 — T1-11～T1-20 Post-runtime Learning Experience Rework
 
@@ -1036,7 +1036,7 @@ Rule Sync：已同步 COURSE_BUILD_START_HERE、LESSON_OUTPUT_CONTRACT、BEGINNE
 
 Validation：Chinese-first / Copy-ready Reference Answer / Review Density Variation / Trigger Scenarios 四项新增质量门全部 PASS；重新 Provision 后 T1-11～T1-20 10/10 authenticated Runtime Acceptance PASS；无 UI / Renderer / CSS 改动。
 
-Result：`docs/task-results/TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001.md`。
+质量规则已进入当前 Contract / Skill / Validator；不再保留独立 Learning Experience Rework result 文件。
 
 ### COURSE-WORKFLOW-GLOBAL-001 — Universal Course Production Baseline & Workspace Reconciliation
 
@@ -1047,6 +1047,68 @@ Result：课程生产标准已从 Track 01 局部经验提升为所有正式板�
 Drift Cleanup：现行 owner 已移除 Track01 专属 Rule Source 绑定、固定 2–4 Review 数量、旧 Step 5 反向规则和 Current Facts 中的旧 Human Review 状态；历史设计文档仅保留历史角色并标记 superseded，不再声明 Current Next Task / Current Skill。
 
 Workspace：执行 Git 工作区基线清场；保留当前正式 Runtime、课程数据、迁移、治理、验收与已确认前端基线，正式记录已淘汰旧 Preview / 旧组件 / 旧 Catalog / 旧 fixture 删除，不使用 reset/clean 回退当前成果。
+
+### TRACK02-CURRICULUM-CONTEXT-001 — Track 02 Capability, Knowledge & Course Context Freeze
+
+Status: COMPLETE_CONTEXT_FROZEN / SUPERSEDED_BY_DIRECTORY_APPROVED_V1
+Priority: P0
+
+Result：新建 `docs/learning/TRACK02_CATALOG_CONTEXT_V1.md` 作为 Track 02 当前唯一课程上下文 owner。冻结 Exit Capability、6 个结果型 Phase（会找答案 → 会做成品 → 会处理复杂资料 → 会看数据 → 会积累知识 → 会复用方法）、15 个 Core Baseline Candidate、18→15 Knowledge Mapping、Artifact Thread、Track 01/03/04/05 的知识归属与 Anti-repeat Boundary。
+
+UI Boundary：Track 02 Core 继续严格复用 Unified Lesson Shell v1；不新增 Renderer / 课程专属 Component / UI / interaction type，不调整 CSS。文件、表格、知识库、多模态等真实工作场景使用 Sample Input / Practice Context / COPY_TO_AI 表达，不把产品功能当成课程学习目标。
+
+Deferred Resolution：OCR / ASR / TTS 在 Track 02 仅作为应用场景，不把 pipeline 工程升级为 Core Lesson；Workflow / Agent / API/MCP engineering、权限与可靠执行继续归后续 Track / Advanced Technical。T2-15 只到 Template / Checklist / SOP-lite，不提前教学 Workflow Design。
+
+后续 TRACK02-SIX-STEP-AUDIT-001 已完成并批准 15 KEEP；本条只保留 Context Freeze 的历史阶段说明。
+
+Drift Guard：已对 CURRICULUM-001、CURRICULUM-CONTINUITY-001、LEARNING-CATALOG-001 增加 Historical scope notice；Track 02 owner 增加 Related-file authority map 与固定恢复顺序；新增 learning:track02-context:check，并同步旧 Track 01 baseline validator 的 current fact 断言，防止旧 Module 2.1～2.6、历史状态或 UI 扩张重新成为 current input。
+
+### TRACK02-SIX-STEP-AUDIT-001 — Track 02 Fifteen-Lesson Knowledge Point Audit
+
+Status: COMPLETE_PASS / 15_KEEP / DIRECTORY_APPROVED_V1
+Priority: P0
+
+Result：T2-01～T2-15 全部通过 Six-step Knowledge Point Gate；每节均具备独立现实问题、不可替代核心规律、可判定 CHECK、现有 Unified Lesson Shell 内可完成的最小真实 PRACTICE、明确 AI fit / boundary，以及可自证的 Capability / Trigger / Next Reuse。
+
+Disposition：KEEP=15；MERGE=0；SPLIT=0；DEFER=0；REMOVE=0。Visualization / Numerical Verification 继续作为 T2-12 supporting；Knowledge Organization + Maintenance 共同归 T2-14；Reusable Method Extraction + Template / Checklist / SOP-lite 共同归 T2-15。
+
+Boundary：不生成 Lesson Body、不接 Runtime、不改前端。文件上传器、Spreadsheet / chart editor、Knowledge Base UI 继续不进入 Track 02 Core；Workflow / Automation / HITL architecture 留 Track 04，业务 Funnel / Lead / CRM / Sales / Service 留 Track 03，Problem → Solution → Pilot → Adoption 留 Track 05。
+
+Evidence：docs/learning/TRACK02_SIX_STEP_AUDIT_V1.md。
+
+Next：先做 T2-01～T2-03「会找答案」Formal Brief，再进入 Course Production Workflow；不一次性生成 15 节 Lesson Draft。
+
+### TRACK02-BATCH-A-BRIEF-001 — T2-01～T2-03 Formal Brief & Continuity Design
+
+Status: COMPLETE_BRIEF_READY_V1 / COURSE_BUILDER_PENDING
+Priority: P0
+
+Result：完成 T2-01～T2-03「会找答案」Formal Brief。T2-01 固定为 Research Question / Scope，不重教 Prompt；T2-02 固定为 Source Quality / Evidence Judgment，不重复 T1-05“哪些必须核验”；T2-03 固定为 Multi-source Synthesis / Conflict Handling，不退化成来源权威度比较。
+
+Continuity：Research Brief → Evidence Pack → Evidence Synthesis。三课均可单独完成 Practice；上一课 Artifact 只做自然复用，不作为下一课理解前提。
+
+Practice Boundary：三课 Step 4 均必须形成完整 COPY_TO_AI 任务；无实时联网能力时使用 Sample Input 仍可完成；不新增 Search、citation、browser、upload、Renderer、UI 或 CSS。
+
+Evidence：docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md。
+
+Next：只将 T2-01～T2-03 送入通用 Course Production Workflow / Current Course Builder Skill；不得扩大生产范围到 T2-04～T2-15。
+
+### COURSE-PRODUCTION-WORKFLOW-TRACK02-ALIGN-001 — Track 02 Workflow Context Alignment & Drift Cleanup
+
+Status: COMPLETE_GOVERNANCE_ALIGNED
+Priority: P0
+
+Result：Course Production Workflow 已按 Track 02 真实生产上下文重新对齐，但未新建 Skill。COURSE_BUILD_START_HERE 不再默认从 Track 01 恢复；每次运行必须从 Current Facts 解析 current Track/Board owner、current directory status、previous→current→next continuity、current Formal Brief/Batch、Deferred/Supporting Boundary 与 Grounding。Track switch = Context switch，不复制 Workflow、不 fork Skill。
+
+Current owner cleanup：FORMAL_CURRICULUM 已从旧 Track 01 7 Stage 改为当前 20 节/6 Phase，并同步 Track 02 DIRECTORY_APPROVED + Batch A Brief Ready；FIVE_TRACK_CAPABILITY_CONTINUITY 删除旧 v0.2/v0.3 / CONTINUITY_REWORK_REQUIRED current 决策；TRACK01_CATALOG_METADATA_V2 的生产方式改为通用 Workflow + Current Course Builder Skill。
+
+Historical cleanup：CURRICULUM-SIX-STEP-AUDIT-001 的 Track 02=8 能力明确为历史 superseded；TRACK01-T11-T20-WORKFLOW-BATCH-001 中 Deferred Ledger=Required Rule Source 的旧说法纠正为历史行为，现行 Deferred Ledger 为 Track-specific run Context。
+
+Drift guard：validate-course-production-workflow.ts 新增 Track 02 / Formal Brief 不得进入 Global Rule Sources、Track switch 不得 fork Workflow/Skill、旧 7 Stage / Track 02 pending / old continuity current decision 不得重新出现等检查；validate-track02-curriculum-context.ts 同步当前 owner 状态。
+
+Boundary：未新增 Skill，未修改前端/UI/CSS，未改变稳定 Workflow lifecycle/version。
+
+Next：T2-01～T2-03 可直接进入通用 Course Production Workflow / Current Course Builder Skill。
 
 # BACKLOG
 

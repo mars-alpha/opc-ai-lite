@@ -84,6 +84,18 @@ Track 02～05 规划时必须：
 5. 能形成独立能力闭环才升级为正式 Lesson；
 6. 仍不适合时继续保持 Deferred，不强行清空 Ledger。
 
+## 5.1 Track 02 planning resolution — TRACK02-CURRICULUM-CONTEXT-001
+
+Track 02 Context Freeze 已重新评估与其能力目标有关的 Deferred 项：
+
+- `OCR / ASR / TTS pipelines`：Track 02 可使用“把图片/音频/视频转成可处理信息”作为文件/资料工作的应用场景，但 pipeline、模型选型、工程串联不是 Track 02 Primary Knowledge Home，也不独立成 Core Lesson；
+- Formula / SQL / Python：可以作为 AI 辅助产生的工作结果或 supporting example，但普通路径不要求学习语言本身；
+- Media preprocessing / frame sampling / compression：继续留给 Track 03 内容生产或 Advanced Technical；
+- Skill packaging / versioning / registry、Workflow / Agent engineering、API / MCP engineering、Browser automation、可靠执行与权限架构：不进入 Track 02，继续按后续 Track / Advanced Technical 重新评估；
+- Track 02 不因为真实文件、表格或知识库场景而新增上传器、Spreadsheet、图表编辑器或 Knowledge Base UI；这些场景使用现有 Unified Lesson Shell 的 Sample Input / Practice Context / COPY_TO_AI 表达。
+
+因此，当前 Ledger 没有任何条目因登记为 Deferred 而自动升级成 Track 02 第 16 节或新增 Primary Knowledge Home。
+
 ## 6. Workflow generation findings — T1-11～T1-20
 
 实际生成 10 节 Draft 后确认，以下知识如果强行塞进当前课，会明显破坏“一个主问题 + Beginner 最小动作”的教学边界：

@@ -7,33 +7,8 @@ function assert(condition: unknown, code: string): asserts condition {
 const facts = fs.readFileSync("docs/CURRENT_SYSTEM_FACTS.md", "utf8");
 const entry = fs.readFileSync("docs/learning/COURSE_BUILD_START_HERE.md", "utf8");
 const projectStatus = fs.readFileSync("PROJECT_STATUS.md", "utf8");
-const tasks = fs.readFileSync("TASKS.md", "utf8");
-const historicalBatchStart = fs.readFileSync(
-  "docs/task-results/TRACK01-T11-T20-BATCH-START-001.md",
-  "utf8"
-);
-const workflowBatch = fs.readFileSync(
-  "docs/task-results/TRACK01-T11-T20-WORKFLOW-BATCH-001.md",
-  "utf8"
-);
-const humanReview = fs.readFileSync(
-  "docs/task-results/TRACK01-T11-T20-HUMAN-REVIEW-001.md",
-  "utf8"
-);
-const runtimeResult = fs.readFileSync(
-  "docs/task-results/TRACK01-T11-T20-RUNTIME-001.md",
-  "utf8"
-);
-const learningExperienceRework = fs.readFileSync(
-  "docs/task-results/TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001.md",
-  "utf8"
-);
-const workflowBatchJson = JSON.parse(
-  fs.readFileSync(
-    "docs/task-results/TRACK01-T11-T20-WORKFLOW-BATCH-001.json",
-    "utf8"
-  )
-) as { result: Array<{ status: string; nextGate: string }> };
+const catalog = fs.readFileSync("lib/learning/foundation-catalog.ts", "utf8");
+const runtime = fs.readFileSync("lib/learning/track01-phase1-runtime.ts", "utf8");
 
 assert(facts.includes("## 0. Current Course Production Snapshot"), "CURRENT_SNAPSHOT_MISSING");
 assert(
@@ -50,60 +25,34 @@ assert(
   "STALE_T11_T20_BRIEF_READY_STATE_PRESENT"
 );
 assert(
-  projectStatus.includes("TRACK01-T11-T20-RUNTIME-001 T1-11～T1-20 Batch Runtime Provisioning & Acceptance COMPLETE_RUNTIME_ACCEPTANCE_PASS_AVAILABLE"),
+  projectStatus.includes("Track 01 Formal Curriculum               T1-01～T1-20 AVAILABLE / FORMAL_RUNTIME"),
   "PROJECT_STATUS_RUNTIME_AVAILABLE_MISSING"
 );
-assert(tasks.includes("Status: COMPLETE_RUNTIME_ACCEPTANCE_PASS / AVAILABLE"), "TASKS_RUNTIME_AVAILABLE_STATUS_MISSING");
 assert(
-  historicalBatchStart.includes("HISTORICAL_ONLY") &&
-    historicalBatchStart.includes("SUPERSEDED_BY_TRACK01-T11-T20-WORKFLOW-BATCH-001"),
-  "HISTORICAL_BATCH_START_NOT_SUPERSEDED"
-);
-assert(workflowBatch.includes("DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING"), "WORKFLOW_BATCH_CURRENT_STATUS_MISSING");
-assert(humanReview.includes("Status: **HUMAN_REVIEW_PASS**"), "HUMAN_REVIEW_RESULT_MISSING");
-assert(humanReview.includes("10 / 10"), "HUMAN_REVIEW_TEN_LESSONS_REQUIRED");
-assert(runtimeResult.includes("Status: **COMPLETE_RUNTIME_ACCEPTANCE_PASS / AVAILABLE**"), "RUNTIME_RESULT_MISSING");
-assert(runtimeResult.includes("T1_11_T1_20_RUNTIME_ACCEPTANCE=PASS"), "RUNTIME_ACCEPTANCE_EVIDENCE_MISSING");
-assert(
-  learningExperienceRework.includes("Status: **COMPLETE_QUALITY_REWORK_PASS / RUNTIME_ACCEPTANCE_PASS**"),
-  "LEARNING_EXPERIENCE_REWORK_RESULT_MISSING"
+  facts.includes("Track 02 Context                 BATCH_A_BRIEF_READY_V1 / COURSE_BUILDER_PENDING"),
+  "TRACK02_CURRENT_STATE_MISSING"
 );
 assert(
-  learningExperienceRework.includes("TRACK01_T11_T20_CHINESE_FIRST_LEARNER_COPY=PASS") &&
-    learningExperienceRework.includes("TRACK01_T11_T20_COPY_READY_REFERENCE_ANSWER=PASS") &&
-    learningExperienceRework.includes("TRACK01_T11_T20_REVIEW_DENSITY_VARIATION=PASS") &&
-    learningExperienceRework.includes("TRACK01_T11_T20_TRIGGER_SCENARIOS=PASS"),
-  "LEARNING_EXPERIENCE_REWORK_QUALITY_GATES_MISSING"
+  projectStatus.includes("Track 02 Batch A                         T2-01～T2-03 BRIEF_READY_V1 / COURSE_BUILDER_PENDING"),
+  "PROJECT_STATUS_TRACK02_BATCH_A_MISSING"
 );
 assert(
-  learningExperienceRework.includes("T1_11_T1_20_RUNTIME_ACCEPTANCE=PASS"),
-  "LEARNING_EXPERIENCE_REWORK_RUNTIME_ACCEPTANCE_MISSING"
+  (catalog.match(/\.\.\.runtimeAvailable\("t1-[^"]+"\)/g) ?? []).length === 20,
+  "TRACK01_TWENTY_RUNTIME_MAPPINGS_REQUIRED"
 );
 assert(
-  projectStatus.includes("TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001"),
-  "PROJECT_STATUS_LEARNING_EXPERIENCE_REWORK_MISSING"
+  runtime.includes("track01FormalLessonSpecs"),
+  "TRACK01_FORMAL_RUNTIME_REGISTRY_MISSING"
 );
 assert(
-  tasks.includes("TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001"),
-  "TASKS_LEARNING_EXPERIENCE_REWORK_MISSING"
-);
-assert(
-  facts.includes("Learning Experience Rework Runtime Acceptance PASS"),
-  "FACTS_LEARNING_EXPERIENCE_REWORK_MISSING"
-);
-assert(workflowBatchJson.result.length === 10, "WORKFLOW_BATCH_TEN_DRAFTS_REQUIRED");
-assert(
-  workflowBatchJson.result.every(
-    (item) => item.status === "PENDING_REVIEW" && item.nextGate === "HUMAN_REVIEW_GATE"
-  ),
-  "WORKFLOW_BATCH_GATE_DRIFT"
+  facts.includes("Step 5 上方固定围绕“AI适合做什么 / AI不应该替你做什么”"),
+  "CURRENT_SIX_STEP_REVIEW_RULE_MISSING"
 );
 assert(entry.includes("历史 task-result / legacy fixture / 旧测试课程"), "ENTRY_HISTORY_PRIORITY_RULE_MISSING");
 
 console.log("COURSE_CURRENT_STATE_SNAPSHOT=PASS");
 console.log("COURSE_CURRENT_STATE_T11_T20=PASS");
-console.log("COURSE_CURRENT_STATE_HISTORY_SUPERSEDED=PASS");
-console.log("COURSE_CURRENT_STATE_HUMAN_REVIEW_PASS=PASS");
 console.log("COURSE_CURRENT_STATE_T11_T20_AVAILABLE=PASS");
 console.log("COURSE_CURRENT_STATE_TRACK01_RUNTIME_COMPLETE=PASS");
-console.log("COURSE_CURRENT_STATE_T11_T20_LEARNING_EXPERIENCE_REWORK=PASS");
+console.log("COURSE_CURRENT_STATE_TRACK02_CONTEXT=PASS");
+console.log("COURSE_CURRENT_STATE_NO_HISTORICAL_RESULT_DEPENDENCY=PASS");

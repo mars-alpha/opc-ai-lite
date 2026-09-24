@@ -67,19 +67,24 @@ Workflow 不复制课程规则正文。
 
 因此这些 owner 文件后续发生变化时，Workflow 下一次运行自动消费最新规则，不需要把规则正文再次复制到 Workflow 文件。全局 Rule Sources 只能放跨板块长期规则，不得写死 Track 01 或任何单一板块的 Catalog、Formal Brief、Batch、Fixture 或 Deferred Ledger。
 
-每次运行还必须解析当前课程 Context，但这些 Context 不属于全局 Rule Sources：
+每次运行还必须解析当前课程 Context，但这些 Context 不属于全局 Rule Sources。Context 必须按“current owner reference + read-latest”解析，而不是把某个 Track 文本复制进 Workflow：
 
-- 当前 Track / 板块的 Catalog 或课程目录 owner；
+- 当前 Track / Board 的唯一 Catalog / Context owner + current directory status；
 - 上一课 → 本课 → 下一课连续性；
-- 当前 Lesson Formal Brief / Knowledge Boundary；
-- 当前板块 Deferred Knowledge Boundary；
-- 当前课程必要的 Grounding / Research Packet。
+- 当前 Lesson Formal Brief / Formal Brief Batch owner + brief status；
+- 当前 Track 的 Deferred / Supporting Knowledge Boundary；
+- 当前课程必要的 Grounding / Research Packet；
+- 进入 Runtime 后需要的当前 Track runtime / provisioning / validator references。
 
-这些 Context 在 `PREPARE_GROUNDING` / `PREPARE_FORMAL_BRIEF` 阶段解析，并由 `CourseProductionSnapshot.courseContextReady` 形成硬 Gate；`courseContextReady=false` 时 Orchestrator 必须停在 `PREPARE_FORMAL_BRIEF`，禁止进入 Course Builder。换到 Track 02～05 或未来新板块时，只替换 Context，不复制或改写 Workflow。
+这些 Context 在 `PREPARE_GROUNDING` / `PREPARE_FORMAL_BRIEF` 阶段解析，并由 `CourseProductionSnapshot.courseContextReady` 形成硬 Gate。只有 current Track owner、current continuity、current Formal Brief、Deferred Boundary 与所需 Grounding 都已解析，才允许 `courseContextReady=true`；否则 Orchestrator 必须停在 `PREPARE_FORMAL_BRIEF`，禁止进入 Course Builder。
+
+换到 Track 02～05 或未来新板块时，只替换 Context references，不复制或改写 Workflow，也不创建 Track-specific Course Builder Skill。Track 02 当前就是该规则的第一条非 Track 01 正式验证路径。
 
 固定原则：
 
 > **Rule owner changes are synchronized by reference + read-latest, not by duplicated text.**
+
+> **Track switch = Context switch, not Workflow fork and not Skill fork.**
 
 ## 4. Component update boundary
 

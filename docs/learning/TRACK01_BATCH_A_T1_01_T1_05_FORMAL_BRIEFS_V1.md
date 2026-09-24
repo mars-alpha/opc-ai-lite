@@ -3,7 +3,7 @@
 Status: **BRIEF_READY_V1 / HUMAN_REVIEW_PASS_BRIEF_LEVEL**
 Task: **CURRICULUM-AUDIT-REALIGN-001-R1**  
 Canonical IDs: **T1-01～T1-05**  
-Course Builder target: **course-builder@0.2.0 + BEGINNER_QUALITY_V1**
+Course Builder target: **Current Course Builder Skill via registry + current quality rules**
 
 ## 1. Batch continuity
 
@@ -301,4 +301,4 @@ REVIEWED_KNOWLEDGE + high-freshness examples where current facts are used.
 5. T1-05 不进入 T1-20 的 HITL / Permissions / Approval，也不进入 Track 04 Evaluation Engineering；
 6. 旧 Trial 只作为 reference，不把旧 Check / Practice / Review 静默继承进新 Draft。
 
-Formal Brief 层 Human Review = **PASS**。Production Batch 固定为 T1-01～T1-05；一次 generation attempt 使用单一 `course-builder@0.2.0`。
+Formal Brief 层 Human Review = **PASS**。Production Batch 固定为 T1-01～T1-05；若未来重建，只使用当时 registry 解析出的 Current Course Builder Skill。

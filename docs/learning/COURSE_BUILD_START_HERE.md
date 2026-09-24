@@ -78,18 +78,30 @@
 - Course Production Contract：确定 Skill / Orchestrator / Validator / Human Review Gate 的稳定接口；
 - Current Course Builder Skill Registry：解析当前 Course Builder Skill，不在 Workflow 中写死具体版本。
 
-### C. 当前 Track / 当前课程代码事实
+### C. 当前 Track / 当前课程 Context
 
-根据当前课程读取：
+必须先从 `docs/CURRENT_SYSTEM_FACTS.md` 与 `FORMAL_CURRICULUM_V1.md` 解析“当前正在生产哪个 Track / Batch”，再读取该 Track 自己的 current owner；不得默认从 Track 01 恢复。
 
-- `docs/learning/TRACK01_CATALOG_METADATA_V2.md`（当前 Track 01 唯一目录 owner）
-- `docs/learning/DEFERRED_KNOWLEDGE_LEDGER_V1.md`（当前课不展开但后续 Track 需重新规划的知识）
-- `lib/learning/course-runtime-boundaries.ts`（先确认 Formal / Legacy 边界）
-- `lib/learning/track01-phase1-runtime.ts`
-- `lib/learning/lesson-spec-registry.ts`
-- 当前上一节正式课程 fixture；
-- 当前课程 Formal Brief（若已经存在）；
-- 当前课程 validator / provisioning script（若已经存在）。
+当前 Context 至少包括：
+
+- 当前 Track / Board 的唯一目录或课程上下文 owner；
+- 当前已批准目录 / Phase / Primary Knowledge Home 状态；
+- `FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md` 中与当前课有关的上一课 → 本课 → 下一课连续性；
+- 当前 Formal Brief / Formal Brief Batch owner；
+- `DEFERRED_KNOWLEDGE_LEDGER_V1.md` 中与当前 Track 有关的 Deferred / Supporting Boundary；
+- 当前课需要的 Grounding / Research Packet；
+- 进入 Runtime 阶段后，再读取 `lib/learning/course-runtime-boundaries.ts`、`lib/learning/lesson-spec-registry.ts` 与当前 Track 对应的 runtime / provisioning / validator 文件。
+
+当前 owner 示例：
+
+- Track 01：`docs/learning/TRACK01_CATALOG_METADATA_V2.md`
+- Track 02：`docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
+
+Track 02 当前已批准的首批 Formal Brief：
+
+- `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md`
+
+这些路径只是“当前事实示例”，不是 Workflow 的硬编码 Rule Sources。切换 Track / Batch 时必须从 Current Facts 重新解析 current owner。
 
 **只读取与当前课程连续性和实现有关的文件，不默认加载所有历史课程与全部 task-result。**
 
@@ -108,13 +120,17 @@ COURSE_BUILD_START_HERE.md（只决定启动与读取顺序）
 ↓
 FORMAL_CURRICULUM_V1.md
 ↓
+当前 Track / Board 唯一 Catalog / Context Owner
+↓
+FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md
+↓
+当前 Formal Brief / Formal Brief Batch
+↓
 LESSON_OUTPUT_CONTRACT_V1.md
 ↓
 UNIFIED_LESSON_SHELL_V1.md
 ↓
 Course Builder Skill 当前版本
-↓
-当前课程 Formal Brief
 ↓
 历史 task-result / legacy fixture / 旧测试课程
 ↓
@@ -309,11 +325,11 @@ Course Builder Draft
 
 以后新开对话只需要给出：
 
- > 读取 `docs/learning/COURSE_BUILD_START_HERE.md`，先以 `docs/CURRENT_SYSTEM_FACTS.md` 的 Current Course Production Snapshot 恢复最新状态，并运行 `npm run learning:course-current-state:check`；按照当前正式课程构建基线开始 **T1-XX「课程名称」**。先完成“上一课 → 本课 → 下一课”、Primary Knowledge Point、Main Learner Question 与 Deferred Boundaries；不要从 legacy / historical task-result 恢复旧阶段，不修改已确认 Unified Lesson Shell。我确认课程方向后再进入 Draft 与 Runtime 构建。
+ > 读取 `docs/learning/COURSE_BUILD_START_HERE.md`，先以 `docs/CURRENT_SYSTEM_FACTS.md` 恢复当前 Track / Batch 状态，解析当前 Track owner、continuity、Formal Brief、Deferred Boundary 与 Grounding，并运行 `npm run learning:course-current-state:check`；按照当前正式课程构建基线继续 **当前 Lesson / Batch**。不要从 legacy / historical task-result 恢复旧阶段，不修改已确认 Unified Lesson Shell。
 
 如果当前课程方向已经在同一对话确认，也可以直接说：
 
-> 读取 `docs/learning/COURSE_BUILD_START_HERE.md`，按当前基线继续构建 **T1-XX**。
+> 读取 `docs/learning/COURSE_BUILD_START_HERE.md`，按 Current Facts 解析当前 Track / Batch Context，继续构建当前已批准 Lesson / Batch。
 
 ---
 

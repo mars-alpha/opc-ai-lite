@@ -24,7 +24,9 @@ function assert(condition: unknown, code: string): asserts condition {
 for (const source of COURSE_PRODUCTION_RULE_SOURCES) {
   assert(fs.existsSync(source), "RULE_SOURCE_MISSING:" + source);
   assert(!source.includes("TRACK01_"), "GLOBAL_RULE_SOURCE_BINDS_TRACK01:" + source);
+  assert(!source.includes("TRACK02_"), "GLOBAL_RULE_SOURCE_BINDS_TRACK02:" + source);
   assert(!source.includes("DEFERRED_KNOWLEDGE_LEDGER"), "GLOBAL_RULE_SOURCE_BINDS_TRACK_DEFERRED_LEDGER:" + source);
+  assert(!source.includes("FORMAL_BRIEF"), "GLOBAL_RULE_SOURCE_BINDS_TRACK_FORMAL_BRIEF:" + source);
 }
 
 const ruleBundle = loadCourseProductionRuleSources((source) =>
@@ -39,9 +41,41 @@ const workflowSource = fs.readFileSync(
   "lib/learning/course-production-workflow.ts",
   "utf8"
 );
+const workflowDoc = fs.readFileSync(
+  "docs/learning/COURSE_PRODUCTION_WORKFLOW_V1.md",
+  "utf8"
+);
+const courseBuildEntry = fs.readFileSync(
+  "docs/learning/COURSE_BUILD_START_HERE.md",
+  "utf8"
+);
+const formalCurriculum = fs.readFileSync(
+  "docs/learning/FORMAL_CURRICULUM_V1.md",
+  "utf8"
+);
+const continuity = fs.readFileSync(
+  "docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md",
+  "utf8"
+);
 assert(!workflowSource.includes("skills/course-builder/v1"), "WORKFLOW_BINDS_SKILL_V1");
 assert(!workflowSource.includes("skills/course-builder/v0.2"), "WORKFLOW_BINDS_SKILL_V02");
 assert(!workflowSource.includes('"1.0.0-track'), "WORKFLOW_BINDS_DRAFT_VERSION");
+assert(
+  workflowSource.includes("Switching Track/board changes context references only"),
+  "WORKFLOW_TRACK_SWITCH_CONTEXT_ONLY_RULE_MISSING"
+);
+assert(
+  workflowDoc.includes("Track switch = Context switch, not Workflow fork and not Skill fork."),
+  "WORKFLOW_DOC_TRACK_SWITCH_RULE_MISSING"
+);
+assert(
+  courseBuildEntry.includes("不得默认从 Track 01 恢复"),
+  "COURSE_BUILD_ENTRY_TRACK01_DEFAULT_DRIFT"
+);
+assert(
+  courseBuildEntry.includes("当前 Formal Brief / Formal Brief Batch owner"),
+  "COURSE_BUILD_ENTRY_CURRENT_BRIEF_RESOLUTION_MISSING"
+);
 
 assert(
   COURSE_PRODUCTION_WORKFLOW_V1.ruleSourcePolicy === "READ_LATEST_AT_RUN_START",
@@ -83,6 +117,24 @@ assert(
 assert(
   !activeRuleText.includes("2–4"),
   "STEP5_FIXED_CARD_COUNT_RANGE_PRESENT"
+);
+assert(
+  !formalCurriculum.includes("7 个学习阶段"),
+  "FORMAL_CURRICULUM_OLD_TRACK01_SEVEN_STAGE_DRIFT"
+);
+assert(
+  !formalCurriculum.includes("FROZEN_CONTEXT_V1 / SIX_STEP_AUDIT_PENDING"),
+  "FORMAL_CURRICULUM_OLD_TRACK02_STATUS_DRIFT"
+);
+assert(
+  !continuity.includes("本任务决定：course-builder@0.2.0") &&
+    !continuity.includes("两批当前课程生产状态统一解释为：CONTINUITY_REWORK_REQUIRED"),
+  "CONTINUITY_OLD_CURRENT_PRODUCTION_DECISION_PRESENT"
+);
+assert(
+  continuity.includes("切换到 Track 02～05") &&
+    continuity.includes("不新建 Track-specific Course Builder Skill"),
+  "CONTINUITY_TRACK_SWITCH_WITHOUT_SKILL_FORK_RULE_MISSING"
 );
 
 const base = {

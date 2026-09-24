@@ -416,29 +416,15 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 `CURRICULUM-001` 已将正式课程主线锁定为：AI 基础认知 → AI 工作应用 → AI 推广运营与业务增长 → AI Workflow 与自动化 → FDE / AI 解决方案落地。Track 01 当前唯一目录 owner 为 `docs/learning/TRACK01_CATALOG_METADATA_V2.md`，冻结基线为 T1-01～T1-20 / 6 Phases；旧 7 Stage / 28 Lesson F-ID 目录已删除，不再作为当前课程输入。完整目录与内容生产批次继续分离；每个核心概念只设一个 Primary Knowledge Home。
 
-`CURRICULUM-002` 的产品级课程基线仍是 28 个 AI 基础认知 Lesson candidates。仓库中后来额外保留的 4 个测试/冗余课程资产不属于正式 Curriculum，不得因为代码或文档中仍可见就纳入课程数量。该旧 Map 继续保留 Primary Knowledge Home、前置依赖、Lesson Type、Planning Gate、Grounding freshness、Anti-overlap 与资产迁移记录，并作为 pre-audit candidate map 使用。工程实现类内容继续属于 Advanced Technical Track。
-
-`CURRICULUM-003` 的 pre-reframe F1-01～F1-04 Brief 已在课程清场中删除；`docs/learning/FOUNDATION_BATCH_A_BRIEFS_V1.md` 不再存在，不得恢复为 Course Builder 输入。历史结论只保留在 `CURRICULUM-003` / `COURSE-PRODUCTION-001` 任务记录与 Beginner Reframe 决策中。当前 Stage 1 以 Beginner Reframe / current fixtures 为准；Stage 2 正式 Brief 为 `docs/learning/FOUNDATION_STAGE2_BRIEFS_V1.md`。
-
-`FOUNDATION_CATALOG_METADATA_V1.md` 及其旧 7 Stage / 28 Lesson F-ID 结构已删除。当前 Catalog 身份、顺序、Phase、Primary Knowledge Point 与 prerequisite 只以 `TRACK01_CATALOG_METADATA_V2.md` 为准。
-
-`LEARNING-CATALOG-001` 当前由 `lib/learning/foundation-catalog.ts` 提供 Track 01 的 20 Lesson / 6 Phase typed planning bridge，并与 `TRACK01_CATALOG_METADATA_V2.md` 对齐。Catalog 的 curriculumStatus 与 availability 分离：已有正式 Runtime 的课可以进入 Runtime Preview；未完成 Runtime 的课保持 COMING_SOON。
-
-`LEARNING-CATALOG-001-A` 保留五大长期学习板块作为一级课程导航；Track 01 课程目录现按 6 Phase / 20 Lesson 展示。进度只统计已绑定正式 Runtime 的可学习课时，PLANNED / COMING_SOON 不制造假进度。
-
-`COURSE-PRODUCTION-001` 是历史失败批次：四节旧 CONCEPT Draft 虽曾技术验收 PASS，但后续 Human Review 判定教学失败。对应 `FoundationConceptDraftPreview`、旧 fixture、acceptance、4 个 Preview route 与 pre-reframe Brief 已从工程删除；不得通过历史 task-result、旧 lessonId 或旧 URL 重建。正式课程只能从当前 Curriculum / Formal Brief / Course Builder 基线重新生产。
-
-`CURRICULUM-005` 已根据 Human Review 重构 Foundation 新手开场。COURSE-PRODUCTION-001 四个旧 Draft 虽技术 PASS，但教学状态改为 `PEDAGOGY_REJECTED / RETIRE_AS_FAILED_DRAFT_REFERENCE`，不得继续正式化或 AVAILABLE。Foundation 前三阶段现固定为：Stage 1“先认识 AI 怎么用” → Stage 2“学会和 AI 基本协作” → Stage 3“再理解 AI 背后的基本机制”。新前 8 节先解决 AI 能做什么、结果为什么变化、为什么会错、AI 软件能力地图、Prompt、Task Context、Iteration、基础结果检查；Model / Training-Inference / Token / Context Window 后移 Stage 3。新手课固定“示例先于定义、一节一个主问题、每节最多 1–2 个新核心术语”。
-
-`COURSE-PRODUCTION-002` 已按 Beginner-first 规则重新生产新 F1-01～F1-04：`beginner-ai-use-cases`、`beginner-ai-result-quality`、`beginner-ai-can-be-wrong`、`beginner-ai-product-map`。前两节为 APPLICATION，正式 Gate 为 CHECK + PRACTICE；后两节为 CONCEPT，正式 Gate 为 CHECK，Step 4 仅做非 Gate 轻量参与。四节均通过 Beginner Batch 专项验收、Course Builder Contract、Unified Lesson Shell、typecheck 与 build。Catalog 状态现为 IN_PRODUCTION + COMING_SOON；Human Review 通过前不得 AVAILABLE。旧 COURSE-PRODUCTION-001 四个失败 Draft 的可执行代码与 Preview 已删除；仅保留历史结论，不再作为当前生产候选，也不得恢复其旧入口。
-
-课程生产历史中的 Beginner Batch、Continuity Trial、Course Builder v0.2、固定 Review 数量等记录均属于历史演进证据，不再作为当前恢复上下文。当前课程规则只从 `COURSE_BUILD_START_HERE.md` → Course Production Workflow → 当前 Rule Sources 恢复；历史 task-results / pre-audit 文档不得覆盖现行 Contract。
+早期 Foundation F-ID、7 Stage / 28 Lesson candidate map、Beginner Reframe、Stage 1/2 Trial、v0.2 production provenance 与旧 Preview 只属于已完成的历史演进，相关重复文档已清理。当前 Track 01 身份、顺序、Phase、Primary Knowledge Home 与 prerequisite 只以 `TRACK01_CATALOG_METADATA_V2.md` 为准；为什么 28 candidates 收敛为 20 课的唯一保留审计依据为 `TRACK01_28_CANDIDATE_SIX_STEP_AUDIT_V1.md`。当前课程规则只从 `COURSE_BUILD_START_HERE.md` → Course Production Workflow → current owners / Rule Sources / Context 恢复，不从旧 task-result 或旧 F-ID 文档恢复。
 
 Track 01 当前 T1-01～T1-20 已全部完成正式课程生产、Human Review、LessonSpec Registry、Runtime Provisioning 与 Runtime Acceptance，并全部进入 AVAILABLE。T1-11～T1-20 的早期 Workflow Batch / Human Review Gate 状态只属于当时阶段，不再是当前状态。现有 Unified Lesson Shell 为冻结前端边界；后续 Track 02～05 与未来板块课程默认复用，不因课程内容新增 UI 或调整 CSS。
 
+Track 02 当前课程上下文唯一 owner 为 docs/learning/TRACK02_CATALOG_CONTEXT_V1.md；目录状态为 DIRECTORY_APPROVED_V1。TRACK02-BATCH-A-BRIEF-001 已完成，T2-01～T2-03「会找答案」Formal Brief owner 为 docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md，当前批次状态 BATCH_A_BRIEF_READY_V1 / COURSE_BUILDER_PENDING。Batch A 固定边界：T2-01=Research Question / Scope，不重教 Prompt；T2-02=Source Quality / Evidence Judgment，不重复 T1-05 Reliability；T2-03=Multi-source Synthesis / Conflict Handling，不退化成来源权威比较。下一步只允许该批次进入通用 Course Production Workflow，不扩大到 T2-04～T2-15，不新增 UI 或调整 CSS。
+
 `COURSE-BUILDER-SKILL-V1-WORKFLOW-001` 当前稳定课程生产基线适用于所有正式课程板块，不仅 Track 01。架构固定为 `Course Production Contract → Orchestrator → Current Course Builder Skill → Deterministic Validators → Human Review Gate → LessonSpec Registry → Runtime Provisioning → Runtime Acceptance → AVAILABLE`。Workflow 生命周期不绑定具体 Skill version。
 
-全局 Rule Sources 只包含跨板块长期规则：Course Build Entry、Current System Facts、Formal Curriculum、Lesson Output Contract、Beginner Quality、Course Production Governance、Unified Lesson Shell；不得写死任何 Track-specific Catalog、Formal Brief、Batch、Fixture 或 Deferred Ledger。每次运行在 PREPARE_GROUNDING / PREPARE_FORMAL_BRIEF 阶段解析当前 Track / 板块 Catalog、上一课→本课→下一课连续性、当前 Formal Brief、当前板块 Deferred Knowledge Boundary 与必要 Research / Grounding，再交给 Current Course Builder Skill。切换 Track 02～05 或未来新板块时只替换运行 Context，不复制 Workflow。
+Course Production Workflow 当前已按 Track 02 验证为真正跨 Track 通用：Global Rule Sources 只保留跨板块长期规则；每次运行必须从 Current Facts 解析 current Track/Board owner + directory status、previous→current→next continuity、current Formal Brief/Batch + brief status、Deferred/Supporting Boundary 与 Grounding/Research Packet。Track 切换只替换 Context references，不复制 Workflow，也不新建 Track-specific Course Builder Skill。COURSE_BUILD_START_HERE 已取消默认 Track 01 恢复；FORMAL_CURRICULUM 已对齐 Track 01 20节/6 Phase 与 Track 02 15节批准目录；FIVE_TRACK_CAPABILITY_CONTINUITY 只维护当前跨 Track 连续性，不再保存旧生产阶段或 Skill 版本决策。
 
 现行六步固定教学责任：EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY；表现形式由课题决定。Step 4 的字段数量不固定，Reference Fill / Reference Answer 必须形成可直接交给 AI 执行并得到本课目标结果的完整任务。Step 5 上方固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向给出本课具体回答；主卡片数量不固定；下方 `knowledgeDepth.review` 使用“明确命题 + 回答/解释”讲清原因、边界、使用条件或易混淆判断，说明数量同样不固定；上下两层不得机械重复、不为版式凑数量。Step 6 必须分开表达可执行能力、自证证据、现实触发情境与下一步价值。学员可见文案中文优先；只有本课真正需要的行业通用 AI / 技术术语保留英文或缩写。
 
@@ -550,12 +536,12 @@ TRACK01-RUNTIME-PERF-002          COMPLETE_BROWSER_ACCEPTANCE_PASS_WITH_INFRA_LI
 Tencent Cloud staging            AUTH / COURSE GUARD VERIFIED
 Course Builder v1.0              CURRENT COURSE PRODUCTION BASELINE
 Lesson Output Contract v1        CURRENT APPROVED OUTPUT CONTRACT
-T1-01～T1-10                     AVAILABLE / FORMAL_RUNTIME
-T1-11～T1-20                     WORKFLOW_BATCH_DRAFT_PASS / HUMAN_REVIEW_PENDING
+T1-01～T1-20                     AVAILABLE / FORMAL_RUNTIME
+Track 02 Context                 BATCH_A_BRIEF_READY_V1 / COURSE_BUILDER_PENDING
 RUNTIME-INFRA-PERF-003            PROPOSED / NOT_STARTED
 ```
 
-当前 Course Builder Current Skill = v1.0.0；v0.1 / v0.2 保留历史 provenance。Course Builder / Lesson Output Contract 只负责“怎样把一节课教会与输出成 Draft”；Auth / Access / Progress / Completion / Resume 继续属于 Runtime / Entitlement，不进入 Course Builder authority。未来 Web / H5 / 小程序继续复用同一 Backend/API。
+当前 Course Builder Current Skill = v1.0.0，由 `skills/course-builder/index.ts` registry 解析；旧版本不作为 current input。Course Builder / Lesson Output Contract 只负责“怎样把一节课教会与输出成 Draft”；Auth / Access / Progress / Completion / Resume 继续属于 Runtime / Entitlement，不进入 Course Builder authority。未来 Web / H5 / 小程序继续复用同一 Backend/API。
 
 当前产品工程顺序固定为：
 

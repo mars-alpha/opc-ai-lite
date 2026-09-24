@@ -90,15 +90,14 @@ Lesson Type 只表达学习目标：
 
 目标：真正把 AI 讲明白，让学习者形成完整 AI 世界模型，而不是只记住 Prompt、RAG、Agent 等名词。
 
-基础课内部固定按 **7 个学习阶段** 组织。这里的“阶段”用于组织认知，不代表每一个知识点都必须独立成一节课：
+Track 01 当前按 **20 节 / 6 个 Phase** 组织，Phase 只承担能力分组，完整顺序与知识归属以 Track 01 owner 为准：
 
-1. **先认识 AI 怎么用**：从真实工作场景理解 AI 能帮什么、为什么结果会变化、为什么会出错，以及 AI 软件的基本能力地图。
-2. **学会和 AI 基本协作**：Prompt、Task Context、Iteration、Clarification 与基础结果检查。
-3. **再理解 AI 背后的基本机制**：LLM / Model、Training 与 Inference、Token / 概率生成、Context Window。
-4. **理解 AI 的记忆与知识**：Conversation History、Memory、Knowledge Base、Search、RAG、Source of Truth、Embedding / Vector Search 的直觉。
-5. **理解 AI 如何连接外部世界**：API、Structured Output、Function Calling、Tool、MCP、Schema 与权限边界。
-6. **理解 AI 的复用与执行方式**：Prompt / Skill / Workflow / Automation / Agent、State、Stop Rule、Failure Handling、Human-in-the-loop。
-7. **理解现代 AI 能力与边界**：Multimodal、图像/语音/视频、Coding、Browser/Research、Computer Use、隐私、安全、Evaluation 基础与高风险动作边界。
+1. **先真正会用 AI**：任务适配 → Prompt → Context → Iteration → Reliability。
+2. **理解 AI 为什么这样工作**：Model vs Product、Token / Probability Generation；Training / Inference 与 Context Window 只做 supporting。
+3. **理解 AI 的记忆与知识**：Conversation History / Memory、Knowledge Base / Source of Truth、Search / RAG。
+4. **理解 AI 如何连接外部世界**：API、Structured Output / Schema、Function Calling / Tool Use、MCP。
+5. **理解 AI 的复用与执行**：Skill、Workflow / Automation、Agent。
+6. **理解现代 AI 能力与安全边界**：Multimodal、Coding / Browser / Computer Use、Privacy / Permissions / HITL。
 
 基础课不要求编程。SDK、MCP Server、Agent Runtime、Vector DB 调优等工程实现进入 Advanced / Optional Track。
 
@@ -120,74 +119,32 @@ Track 01 当前课程目录唯一 owner：
 
 ## Stage 2 — AI 工作应用｜必修
 
-目标：把 Stage 1 的概念变成每天可以直接使用的工作能力。这里不重新解释 Prompt、RAG、Skill、Workflow 的定义，而是直接应用。
+目标：把 Track 01 已掌握的 AI 协作与世界观转成每天可以直接调用的真实工作能力。这里不重新解释 Prompt、Context、RAG、Structured Output、Skill、Workflow、Agent 等定义，而是让学习者形成“知道怎么用，也知道工作遇到问题时该怎么问、怎么检查、怎么继续”的稳定工作习惯。
 
-### Module 2.1 — 搜索、研究与信息判断
+Track 02 当前课程上下文唯一 owner：
 
-课程方向：
-- AI 搜索与可验证问题
-- 行业 / 市场 / 竞品研究
-- 来源、日期与适用范围
-- 事实 / 分析 / 推断
-- 多来源比较与冲突处理
-- 从答案到证据
+- `docs/learning/TRACK02_CATALOG_CONTEXT_V1.md` — **DIRECTORY_APPROVED_V1**
 
-### Module 2.2 — 写作与内容工作
+当前一级能力结构：
 
-课程方向：
-- 邮件与沟通
-- 方案 / 报告 / 汇报
-- 内容改写与风格转换
-- 长内容压缩与结构化
-- 从资料到成品，而不是让 AI 凭空补事实
+```text
+会找答案
+→ 会做成品
+→ 会处理复杂资料
+→ 会看数据
+→ 会积累知识
+→ 会复用方法
+```
 
-### Module 2.3 — 文件与办公
+T2-01～T2-15 已通过 `TRACK02-SIX-STEP-AUDIT-001`，结果为 **15 KEEP / 0 MERGE / 0 SPLIT / 0 DEFER / 0 REMOVE**。18→15 Knowledge Mapping、Artifact Thread、跨 Track Anti-repeat / Deferred Boundary 与“严格复用现有 Unified Lesson Shell、不新增 UI、不调整 CSS”的约束均由 Track 02 owner 维护。本文件不复制第二份 Lesson Directory。
 
-课程方向：
-- PDF / 长文档阅读
-- 多文件比较
-- 会议记录
-- 决策 / Action / Owner / Deadline
-- 报告 / 合同结构化提取
-- PPT 内容规划
+当前首批生产范围为 T2-01～T2-03「会找答案」，Formal Brief owner：
 
-当前 `meeting-action-list` acceptance fixture 可作为这一模块的 PRACTICE 候选，但仍需正式 Course Builder + Human Review。
+- `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md` — **BRIEF_READY_V1 / COURSE_BUILDER_PENDING**
 
-### Module 2.4 — 数据与表格
+课程生产状态仍以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。
 
-课程方向：
-- 字段与指标口径
-- Excel / Spreadsheet 辅助
-- 数据清洗思路
-- 公式 / SQL / Python 的辅助生成
-- 图表与解释
-- 关键数字复核
-
-普通路径不要求先会编程。
-
-### Module 2.5 — 个人知识与信息管理
-
-课程方向：
-- 资料分类
-- AI 笔记
-- Knowledge Base
-- 个人知识问答
-- Source of Truth
-- 从临时聊天到长期知识资产
-
-### Module 2.6 — 重复工作优化
-
-课程方向：
-- 找出重复任务
-- 把 Prompt 变成模板
-- 把稳定方法沉淀成 Skill
-- 判断什么时候需要 Workflow
-- 从个人方法变成团队可复用方法
-
-代表性 PRACTICE：
-- 把会议记录整理成可执行行动清单
-- 把一个重复任务沉淀成 Skill
-- 把复杂任务拆成最小 Workflow
+早期 Module 2.1～2.6 只是本次重构的历史输入，不再在 Current Curriculum 中保留第二套 Track 02 课程方向，避免后续 Course Builder / Brief 从旧模块反推目录。
 
 ---
 

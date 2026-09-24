@@ -344,12 +344,14 @@ Acceptance
 课程生产固定链路：
 
 ```text
-Curriculum / Knowledge Map
-→ Formal Lesson Brief
-→ Course Builder
-→ Code Validation
-→ Draft Preview
-→ Human Review
+Current Facts / Rule Sources
+→ Current Track / Board Context
+→ Formal Lesson Brief / Brief Batch
+→ Course Production Workflow
+→ Current Course Builder Skill
+→ Deterministic Validators
+→ Human Review Gate
+→ LessonSpec Registry
 → Runtime Provisioning
 → Runtime Acceptance
 → AVAILABLE
@@ -362,8 +364,9 @@ Curriculum / Knowledge Map
 - Human Review PASS 不等于 Runtime Ready；
 - Runtime Ready 不等于自动发布；
 - 只有 Human Review PASS + Runtime Acceptance PASS 后，才允许进入正式发布动作；
-- 一次 generation attempt 只能使用一个明确 Skill Version，不允许 v0.1 + v0.2 复合使用；
-- 当前新 Beginner 课程默认使用 `course-builder@0.2.0`，v0.1 只保留历史 provenance / legacy compatibility；
+- 一次 generation attempt 只能使用当前 registry 解析出的一个 Course Builder Skill，不允许混用多个版本；
+- Current Course Builder 统一从 `skills/course-builder/index.ts` 解析；不得在 Track / Lesson 文件中硬编码旧 Skill 版本作为当前默认；
+- 切换 Track 只替换 Workflow Context，不复制 Workflow、不新建 Track-specific Course Builder Skill；
 - Human Review FAIL 回到 IN_PRODUCTION 重做，canonical lesson identity 不变；
 - Skill 本身的问题单独升级 Skill Version，不在课程任务中静默改 Prompt；
 - Runtime / Shell / Schema 不支持时另开工程任务，不允许 Course Skill 自行扩架构。

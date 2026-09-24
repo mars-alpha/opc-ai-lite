@@ -313,4 +313,4 @@ T1-08 再正式教学 Conversation History / Memory。
 - [x] Step 5 能形成可迁移判断；
 - [x] Step 6 能形成真实可用能力。
 
-Human Review decision: **PASS**. T1-07 Formal Brief 可以进入 Course Builder v0.2 Draft Production；本结论不代表 Draft / Runtime 已完成。
+Human Review decision: **PASS**. T1-07 Formal Brief 已具备进入 Current Course Builder Skill 的条件；当前 Runtime 状态以 Current Facts 为准。

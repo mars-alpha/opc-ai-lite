@@ -151,16 +151,19 @@ Lesson Type 只改变 Step 4 深度与 Completion Gate，不改变六步结构�
 ```text
 Frozen Curriculum
 → Small Formal-Brief Batch
-→ Human Review
-→ Course Builder v0.2
-→ Lesson Output Contract v1
+→ Course Production Workflow
+→ Current Course Builder Skill
+→ Deterministic Validators
+→ Human Review Gate
+→ LessonSpec Registry
 → Runtime Provisioning
 → Runtime Acceptance
+→ AVAILABLE
 ```
 
 当前已完成生产链的课程事实不在本文件维护；以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。
 
-T1-06～T1-20 后续必须按小批次 Formal Brief 推进，禁止直接批量生成正文。
+当前 Track 01 已全部 AVAILABLE；本节只保留通用生产方式，不维护历史 Batch Next Task。未来新增/重构 Lesson 继续按小批次 Formal Brief → 通用 Workflow 进入生产。
 
 ## 6. Historical / supporting sources
 

@@ -205,21 +205,23 @@ Stage 3+：
 
 ## 7. Track 02 continuity
 
-Track 02 不重新教学 Prompt / Context / Iteration。
+Track 02 是五轨中的“使用能力转换层”：Track 01 已经解决“AI 是什么、怎样正确协作”，Track 02 负责把这些能力转成稳定日常工作能力。
 
 统一入口：
 
-> 你已经会和 AI 协作，现在把这套方法用到更多真实工作。
+> 你已经知道怎么和 AI 协作；现在要做到工作遇到问题时，知道怎么问、怎么做、怎么检查、怎么继续。
 
-依次扩展：
-- Research / Search
-- Writing / Content
-- Files / Office
-- Data / Spreadsheet
-- Knowledge
-- Repetitive Work
+当前唯一 Track 02 Context Owner：`docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`。
 
-每个模块输出可被 Track 03 使用的真实业务资产。
+内部能力域依次扩展为 Research / Evidence、Writing / Communication、Document / File Work、Data / Spreadsheet Work、Knowledge Work、Reusable Work Method；对学习者则统一使用 Track 02 owner 中的结果型 Phase 表达。
+
+当前结果型能力结构固定为：
+
+```text
+会找答案 → 会做成品 → 会处理复杂资料 → 会看数据 → 会积累知识 → 会复用方法
+```
+
+Track 01 的 Prompt / Context / Reliability / Search / RAG / Structured Output / Multimodal / Skill / Workflow / Agent / HITL 在 Track 02 只被调用，不重新从定义教学。Track 02 产生的 Research、Deliverable、Document Findings、Action、Data Insight、Knowledge Pack、Reusable Method 由 Track 03 转成业务结果；Workflow Design / Automation / Reliability / HITL / Evaluation 留给 Track 04；完整 Problem → Solution → Pilot → Adoption 留给 Track 05。
 
 ## 8. Track 03 continuity
 
@@ -289,29 +291,19 @@ Curriculum defines continuity.
 Course Builder preserves continuity inside one lesson.
 Workflow controls production sequence.
 ```
-## 12. Course Builder v0.2 capability gap review
+## 12. Current Course Builder / Workflow boundary
 
-当前 v0.2 已经能控制 Beginner Quality、Cognitive Load、Primary / Deferred Terms、六步教学、Three-Question Mastery、Lesson Type、Practice / Hint / Reference 和 Human Review boundary。
+Current Course Builder 由 `skills/course-builder/index.ts` registry 解析；当前版本与生产状态以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。本文件不保存 Skill 版本迁移历史。
 
-它目前擅长的是：把一节课做清楚、做得可学、可验收。
+连续性能力已经通过现行 Formal Brief + Course Production Workflow Context 解决。每次运行必须提供：
 
-但当前 Contract 没有显式表达：
-- inheritedCapabilities；
-- inheritedArtifact；
-- currentLearnerJob；
-- newCapability；
-- artifactAction / artifactOutput；
-- nextReuse；
-- doNotReteach / antiRepeat；
-- caseThread / businessContext；
-- learner / track profile；
-- media / visual brief need。
+- current Track / Board owner；
+- previous → current → next continuity；
+- current Formal Brief / Formal Brief Batch；
+- Deferred / Supporting Boundary；
+- Grounding / Research Packet。
 
-因此单课技术 PASS 仍可能出现重复前课、每课重新开案例、Artifact 不承接、Capability 与长期业务链脱节。
-
-本任务决定：course-builder@0.2.0 保持当前已实现版本，不在本任务升级。
-
-未来 course-builder@0.3.0 — Capability Continuity Alignment 有明确候选价值，但必须先把本 Continuity Contract 落到 Stage 1 / Stage 2 新 Formal Brief，并用真实 3–5 节课程验证 v0.2。只有仍存在系统性连续性问题时，才批准独立 COURSE-BUILDER-SKILL-006。
+因此切换到 Track 02～05 **只替换 Context，不复制 Workflow，不新建 Track-specific Course Builder Skill**。只有出现新的、跨课程稳定语义职责且现有 Course Builder 无法通过 Context / Contract / Validator 表达时，才评估独立 Skill。
 
 ## 13. Future advanced course / media boundary
 
@@ -327,22 +319,8 @@ Course Builder = Instructional Design Intelligence
 Media Skill = Media Production Intelligence
 Workflow = Orchestration
 
-## 14. Current rework decision
+## 14. Current production status boundary
 
-当前 Stage 1 与 Stage 2 的代码、Preview 和历史验收证据继续保留，但不进入 Runtime Provisioning。
+本 Continuity 文件只维护跨 Track 能力承接，不再维护某批次是否 Draft / Review / Runtime Ready，也不声明 Next Task。
 
-两批当前课程生产状态统一解释为：CONTINUITY_REWORK_REQUIRED。
-
-后续必须先执行 FOUNDATION-CONTINUITY-REWORK-001：
-- 重新定义 Stage 1 / Stage 2 的贯穿 Case Thread；
-- 重新定义 Inherited / New Capability；
-- 重新定义 Artifact Thread；
-- 删除跨课重复教学；
-- 形成新的 Formal Brief。
-
-完成后再判断：
-1. v0.2 是否足够生产新 Brief；
-2. 是否需要 COURSE-BUILDER-SKILL-006 / v0.3；
-3. 再进入新的 Course Production Rework。
-
-禁止在 Continuity Baseline 尚未落实到 Formal Brief 前继续批量生产 Stage 3+。
+当前事实统一从 `docs/CURRENT_SYSTEM_FACTS.md` 恢复；当前 Track owner 与 Formal Brief 负责各自目录和单批教学边界。历史生产阶段、旧 Skill 版本与旧 Next Task 不属于本文件职责，不得用于恢复现行生产阶段。

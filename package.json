@@ -21,6 +21,7 @@
     "learning:t109:check": "tsx scripts/validate-track01-t109-draft.ts",
     "learning:t110:check": "tsx scripts/validate-track01-t110-draft.ts",
     "learning:track01-baseline:check": "tsx scripts/validate-track01-current-baseline.ts",
+    "learning:track02-context:check": "tsx scripts/validate-track02-curriculum-context.ts",
     "learning:course-interaction:check": "tsx scripts/validate-course-interaction-architecture.ts",
     "learning:course-build-entry:check": "tsx scripts/validate-course-build-entry.ts",
     "learning:course-production-workflow:check": "tsx scripts/validate-course-production-workflow.ts",
