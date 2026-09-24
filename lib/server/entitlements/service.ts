@@ -19,6 +19,7 @@ export type LessonAccess = {
   reason:
     | "PUBLIC"
     | "ENTITLED"
+    | "MEMBERSHIP_REQUIRED"
     | "OFFICIAL_ACCOUNT_FOLLOW_REQUIRED"
     | "PREREQUISITE_STAGE_REQUIRED";
   unlockType?: "OFFICIAL_ACCOUNT_FOLLOW";
@@ -73,6 +74,7 @@ export async function getStageAccess(
   userId: string | null,
   courseSlug: string
 ): Promise<{ allowed: boolean; requiredCourseSlug?: string }> {
+  if (courseSlug === "ai-work") return { allowed: true };
   if (courseSlug === "foundation-ai") return { allowed: true };
   const currentIndex = courses.findIndex((course) => course.slug === courseSlug);
   if (currentIndex <= 0) return { allowed: true };
@@ -115,6 +117,37 @@ export async function getStageAccess(
   return { allowed: true };
 }
 
+export async function getLearningPrerequisiteRecommendation(
+  userId: string | null,
+  courseSlug: string
+): Promise<{ recommendedCourseSlug?: string; satisfied: boolean }> {
+  if (courseSlug !== "ai-work") return { satisfied: true };
+  const foundation = getCourse("foundation-ai");
+  if (!foundation || !userId) {
+    return { satisfied: false, recommendedCourseSlug: "foundation-ai" };
+  }
+
+  const requiredLessons = getAllLessons(foundation);
+  const completedRows = await getDatabase()
+    .select({ lessonSlug: lessons.slug })
+    .from(lessonProgress)
+    .innerJoin(lessons, eq(lessonProgress.lessonId, lessons.id))
+    .innerJoin(modules, eq(lessons.moduleId, modules.id))
+    .innerJoin(stages, eq(modules.stageId, stages.id))
+    .where(
+      and(
+        eq(lessonProgress.userId, userId),
+        eq(lessonProgress.status, "COMPLETED"),
+        eq(stages.slug, "foundation-ai")
+      )
+    );
+  const completed = new Set(completedRows.map((row) => row.lessonSlug));
+  const satisfied = requiredLessons.every((lesson) => completed.has(lesson.id));
+  return satisfied
+    ? { satisfied: true }
+    : { satisfied: false, recommendedCourseSlug: "foundation-ai" };
+}
+
 export async function getLessonAccess(
   userId: string | null,
   courseSlug: string,
@@ -123,6 +156,12 @@ export async function getLessonAccess(
   const course = getCourse(courseSlug);
   if (!course) {
     return { allowed: true, reason: "PUBLIC" };
+  }
+
+  if (courseSlug === "ai-work") {
+    return (await hasActiveMembership(userId))
+      ? { allowed: true, reason: "ENTITLED" }
+      : { allowed: false, reason: "MEMBERSHIP_REQUIRED" };
   }
 
   const stageAccess = await getStageAccess(userId, courseSlug);
@@ -178,6 +217,12 @@ export async function getLockedLessonIds(
   if (!course) return [];
 
   const courseLessons = course.modules.flatMap((module) => module.lessons);
+  if (courseSlug === "ai-work") {
+    return (await hasActiveMembership(userId))
+      ? []
+      : courseLessons.map((lesson) => lesson.id);
+  }
+
   const stageAccess = await getStageAccess(userId, courseSlug);
   if (!stageAccess.allowed) return courseLessons.map((lesson) => lesson.id);
   if (courseSlug !== OFFICIAL_FOLLOW_UNLOCK.courseSlug) return [];
@@ -215,6 +260,16 @@ export async function getLessonPageAccess(
   }
 
   const courseLessons = course.modules.flatMap((module) => module.lessons);
+  if (courseSlug === "ai-work") {
+    const entitled = await hasActiveMembership(userId);
+    return {
+      access: entitled
+        ? { allowed: true, reason: "ENTITLED" }
+        : { allowed: false, reason: "MEMBERSHIP_REQUIRED" },
+      lockedLessonIds: entitled ? [] : courseLessons.map((lesson) => lesson.id)
+    };
+  }
+
   const stageAccess = await getStageAccess(userId, courseSlug);
 
   if (!stageAccess.allowed) {

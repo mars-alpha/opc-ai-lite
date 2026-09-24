@@ -235,14 +235,29 @@ Priority: P0
 
 ## UI-IA-001 — Learning / Practice Navigation Refinement
 
-Status: COMPLETE
+Status: COMPLETE / HISTORICAL_ONLY / SUPERSEDED_BY_UI_IA_002
 Priority: P0
 
 结果：`docs/task-results/UI-IA-001.md`。
 
-已完成前端信息架构修正：学习路径“实操项目 → 查看更多”进入独立 `/projects`；进阶练习“最新技术实操 → 查看更多”进入独立 `/practice/latest`；新增 `/practice/latest/[id]` 文稿详情；最新技术卡片有关联课程时右下角显示“查看课程”，无课程时进入独立文稿。
+该任务记录的是当时真实历史实现，但其中“学习路径承载实操项目”“最新技术实操进入独立 `/practice/latest` 卡片列表页”的产品 IA 已被 UI-IA-002 替代，不得作为当前前端恢复依据。历史 task-result 仅保留追溯价值。
 
-后续产品导航规则：`查看更多` 优先进入当前内容类型自己的完整列表页；单条知识内容需要独立理解时建立详情页；不要用语义相近但业务不同的已有页面代替正确路由。
+## UI-IA-002 — Current Frontend Information Architecture Freeze
+
+Status: COMPLETE / FROZEN_CURRENT
+Priority: P0
+
+当前基线：学习路径只承载 Track 学习地图与课程入口；实操项目已移入进阶练习，作为多能力综合应用层；原“最新技术实操”前台概念废止，其数据能力合并到“AI 热点能力练习”。
+
+AI 热点能力练习沿用原“一次只练一个能力”的纵向 `practice-list / practice-row` UI，不新增卡片式列表。来源边界为“AI 日报 / 热点采集 → 初步完整知识点 → 单项能力练习”，具体自动采集、整理、审核与生成流程留待后续 Content / Knowledge / Skill 任务。
+
+列表交互固定：默认 3 条；“查看更多”位于底部居中、纯文字、当前页每次追加 3 条；测试阶段不足真实内容时由 fallback 补足至 7 条验证 3 → 6 → 7；全部展示后显示“— 已展示全部内容 —”；重新进入恢复 3 条。
+
+清理：删除已被替代的 `app/practice/latest/page.tsx` 与仅服务该页面的 `LatestPracticeCard.tsx`；保留 `/practice/latest/[id]` 单条详情与正式 Practice Runtime，详情返回 `/practice#tasks`。
+
+Membership / Follow：会员权益前台固定为 AI 基础认知课程、AI 日报、进阶练习、实操项目、进阶内容；公众号是解锁基础课程全章节 / 完整 AI 日报与学习助手推送入口，推送不等于会员资源 Access。
+
+Validation：`practice:ia:check` 与 `access:membership-policy:check` 固化当前 IA / 权益；Course Production Workflow 与 Course Builder rule sources 不因本任务变化。
 
 ## MVP-011-B — Content → Knowledge Routing
 
@@ -1109,6 +1124,63 @@ Drift guard：validate-course-production-workflow.ts 新增 Track 02 / Formal Br
 Boundary：未新增 Skill，未修改前端/UI/CSS，未改变稳定 Workflow lifecycle/version。
 
 Next：T2-01～T2-03 可直接进入通用 Course Production Workflow / Current Course Builder Skill。
+
+### TRACK02-BATCH-A-PRODUCTION-001 — T2-01～T2-03 Course Production Workflow
+
+Status: AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS
+Priority: P0
+
+Result：T2-01～T2-03 已通过通用 Course Production Workflow 解析当前 Track 02 owner、Formal Brief、Continuity、Deferred/Supporting Boundary 与 Grounding，并由 Current Course Builder Skill v1.0.0 生成 3 个 APPLICATION Draft。
+
+Drafts：T2-01「问题太大？先把它变成真正能查清楚的问题」；T2-02「AI 给了来源，怎么判断这些证据真的靠得住」；T2-03「几个来源说法不一样，怎么判断差异到底在哪里」。
+
+Validation：三课均通过 Course Builder schema / rules、六步结构、CHECK + PRACTICE Gate、三题 Mastery、中文优先、COPY_TO_AI Reference Answer、Track 01 Anti-repeat 与 Batch continuity 检查；TypeScript PASS。
+
+Boundary：未新建 Skill，未调整课程六步 UI/CSS，未扩展生产范围到 T2-04～T2-15。当前 T2-01～T2-03 已完成 Runtime Provisioning 与 Acceptance；ai-work 正式 Runtime 只包含这 3 节。
+
+Production files：`fixtures/course-builder/track02-batch-a.ts`、`scripts/run-track02-batch-a-workflow.ts`、`scripts/validate-track02-batch-a-drafts.ts`。
+
+Human Review：PASS。T2-01 修正 Step 4 无联网边界，Reference Answer 只生成可执行研究任务说明，不假装已搜索；T2-01～T2-03 全部补齐 Step 5 主卡片下方 knowledgeDepth.review 解释层。三课 Step 1–3、Step 4、Step 5、Step 6 与 Batch continuity 均通过人工教学审查。
+
+LessonSpec Registration：PASS。T2-01～T2-03 已进入正式 LessonSpec Registry；T2-04 仍未注册。后续 Runtime 已按独立 Gate 完成 Provisioning 与 Acceptance。
+
+Next：Batch A 已完成至 AVAILABLE。后续只从新的小批次 Formal Brief 继续，不扩大当前 Runtime 到 T2-04～T2-15。
+
+### TRACK02-LEARNING-PATH-ACCESS-001 — Multi-Track Learning Map, Navigation & Access Interaction Freeze
+
+Status: COMPLETE_INTERACTION_FREEZE_PASS
+Priority: P0
+
+Result：学习地图已从 T1 专用视图升级为同页 Multi-Track 切换；T2 学习地图展示批准的 6 个能力分组 / 15 节完整目录。当前 T2-01～T2-03 已由真实 Runtime 切为 AVAILABLE，T2-04～T2-15 继续“即将开放”。
+
+Navigation：从 T2 课程返回学习地图时自动回到 T2；T2-01 上一项固定为 ← 学习地图；由于 ai-work Runtime 已真实存在，T1-20 完成后的跨 Track Continue 当前真实指向 T2-01。Sidebar 继续只显示当前 Course / Track。
+
+Access：学习顺序与 Entitlement 分离。`ai-work` Runtime 访问预设为 OPC Membership；有效会员不要求先完成 T1。T1 未完成只产生可选学习建议，不阻断 T2；完成 T1 也不会自动获得 T2 会员权限。
+
+Implementation：新增通用 `track-catalog.ts`、`TrackCatalog.tsx`、`track-navigation.ts` 与专项 validator；复用现有学习地图、Sidebar、正式 Lesson Shell 与 CSS class，没有新增课程专属 Renderer，也没有修改 CSS。
+
+Validation：学习地图、15 节目录、T2-01～03 Runtime Delivery、T2-04～15 Coming Soon、Membership/T1 prerequisite 分离、T2-01 返回地图、T1-20→T2-01 Continue 与 Sidebar 当前 Track-only 均由专项 validator 固化。
+
+Next：该交互冻结继续作为后续 Track 02 Batch 的共享基线；不为新 Batch 重做学习地图或 Access。
+
+### TRACK02-BATCH-A-RUNTIME-001 — T2-01～T2-03 Runtime Provisioning & Acceptance
+
+Status: AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS
+Priority: P0
+
+Provisioning：ai-work 已进入 Formal Runtime，当前只包含 T2-01～T2-03；开发数据库写入 1 个 Published Stage、1 个 Published Research Module、3 个 Published Lesson。每课均 Provision 3 道 required Published Check（SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT）与 1 个 required Published STRUCTURED_TEXT_V1 Practice。
+
+Runtime Acceptance：使用一次性测试用户真实验证 Access → Check → Practice → Completion。未完成 T1 不形成 Stage hard gate；非会员被 MEMBERSHIP_REQUIRED 拦截；授予 OPC_MEMBER 后可直接进入 T2。三课共 9 道 Check 全部正确写入、3 个 Practice 均真实 PASSED，Check Gate / Practice Gate / Completion 全部 PASS；测试用户及级联测试数据已清理。
+
+Delivery：T2-01～T2-03 已切为 AVAILABLE / FORMAL_RUNTIME；T2-04～T2-15 仍为 PLANNED / COMING_SOON。T1-20 完成后的跨 Track Continue 现真实指向 T2-01；T2-01 上一项仍为学习地图；T2-03 结束后回 T2 学习地图，不暴露 T2-04。
+
+Implementation：复用现有 FormalGuidedLessonView + AsyncLessonRuntimeShell + GenericLessonRuntimePanel、LessonSpec Registry、Check/Practice/Progress/Completion/Entitlement Core；没有新增课程专属 Renderer、CSS、Schema 或 Migration。
+
+Validation：Provisioning PASS；Runtime Acceptance PASS；static Runtime validator PASS；Learning Path / Access validator PASS；LessonSpec validator PASS；TypeScript PASS。
+
+Files：lib/learning/track02-batch-a-runtime.ts、scripts/provision-track02-batch-a-runtime.ts、scripts/accept-track02-batch-a-runtime.ts、scripts/validate-track02-batch-a-runtime.ts。
+
+Next：Batch A 生命周期 COMPLETE。后续课程生产从下一小批次 Formal Brief 开始；不得把 T2-04～T2-15 直接 Provision 成 Runtime。
 
 # BACKLOG
 

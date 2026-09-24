@@ -11,8 +11,9 @@ import {
 } from "./GenericLessonRuntimePanel";
 import { LessonCompleteButton } from "./LessonCompleteButton";
 import { LessonFeedbackPrompt } from "./LessonFeedbackPrompt";
+import { learningPathHrefForCourse } from "../lib/learning/track-navigation";
 
-type LessonLink = { id: string; title: string } | null;
+type LessonLink = { id: string; title: string; href?: string; label?: string } | null;
 
 export function AsyncLessonRuntimeShell({
   courseSlug,
@@ -64,8 +65,8 @@ export function AsyncLessonRuntimeShell({
       {runtime && (
         <nav className="lesson-nav lesson-nav-with-rating" aria-label="课时导航">
         {previous ? (
-          <Link href={"/courses/" + courseSlug + "/lessons/" + previous.id}>
-            <small>上一课</small>
+          <Link href={previous.href ?? ("/courses/" + courseSlug + "/lessons/" + previous.id)}>
+            <small>{previous.label ?? "上一课"}</small>
             <strong>← {previous.title}</strong>
           </Link>
         ) : (
@@ -74,9 +75,9 @@ export function AsyncLessonRuntimeShell({
         <LessonFeedbackPrompt
           courseSlug={courseSlug}
           lessonSlug={lesson.id}
-          nextHref={next ? "/courses/" + courseSlug + "/lessons/" + next.id : "/learning-path#progress"}
+          nextHref={next ? (next.href ?? ("/courses/" + courseSlug + "/lessons/" + next.id)) : learningPathHrefForCourse(courseSlug)}
           nextTitle={next ? next.title : "返回学习路径"}
-          nextLabel={next ? "继续下一课" : "本阶段课程完成"}
+          nextLabel={next ? (next.label ?? "继续下一课") : "本阶段课程完成"}
           showRating={runtime?.progress?.currentStep === 6}
           canRate={runtime?.canRate === true}
         />

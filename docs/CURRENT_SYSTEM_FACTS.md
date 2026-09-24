@@ -187,26 +187,51 @@ OPC_MEMBER
 
 当前代码已有 `getMembershipStatus()`、`resolveMembershipFeatureAccess()`，并由 ACCESS-001 新增统一资源级 `resolveResourceAccess()`。
 
-当前真实用户 Access 已实现：
+当前面向用户的权益模型已收敛为：
 
 ```text
 Anonymous Course Runtime       DENY → /auth
-基础 AI 课程                    FREE / FOLLOWER / OPC_MEMBER
-Stage 1 指定章节                FOLLOWER OR OPC_MEMBER
-AI Daily Top3                  FREE / FOLLOWER / OPC_MEMBER
-AI Daily 全部                  FOLLOWER OR OPC_MEMBER
-Knowledge 正文                 OPC_MEMBER
-Feishu Deep Resource           OPC_MEMBER
-Latest Practice 卡片           PUBLIC VISIBLE
-Latest Practice 详情 / 正式实操 OPC_MEMBER
-由进阶内容进入的正式课程入口     OPC_MEMBER
+AI 基础认知课程全章节           FOLLOWER OR OPC_MEMBER
+AI 日报部分内容                 FREE
+AI 日报完整内容                 FOLLOWER OR OPC_MEMBER
+进阶练习                       OPC_MEMBER
+实操项目                       OPC_MEMBER
+进阶内容                       OPC_MEMBER
 ```
 
-公众号关注不等价于 Membership。FOLLOWER = FREE + OFFICIAL_ACCOUNT_FOLLOW entitlement：额外解锁指定 Stage 1 章节与完整 AI Daily；不获得 Knowledge 正文、Deep Resource、Latest Practice 正式实操、进阶课程入口或未来会员 AI / Skill 应用。未登录用户可浏览公开页面，但所有正式课程 / 课时 Runtime 必须先登录；`middleware.ts` 对 `/courses/:path*` 提供入口级 Cookie 门禁，课程页 / 课时页同时保留服务端 Session 校验。
+AI 基础认知课程前三章节继续保持现有免费开放功能，但不作为会员权益表的独立展示项。
 
-公开 Latest Practice Reader 只读取卡片 / Preview 安全字段；Knowledge body、Deep Resource URL、Practice / Course 关联只在 MEMBER Access 通过后读取，避免 Next RSC payload 泄露会员数据。
+公众号关注不等价于 Membership。FOLLOWER = FREE + OFFICIAL_ACCOUNT_FOLLOW entitlement：用于解锁 AI 基础认知课程全章节与完整 AI 日报；未来公众号同时承担“学习助手”角色，推送新更新的实操项目、进阶练习等学习内容。消息推送权与内容使用权必须分离：FOLLOWER 可以收到会员内容更新通知，但进阶练习、实操项目、进阶内容仍必须按实时 OPC Membership / Resource Access 判断；非会员点击此类推送时进入价值预览 / 订阅引导，不得因已关注公众号直接放行。真实微信关注验证尚未接入，因此当前不提供手动“我已关注”确认，也不伪造 FOLLOWER 状态。
 
-ACCESS-UX-001 已固定转化原则：受限内容保持可发现，Access 仍受控。AI Daily 第 4 条及之后继续展示公开标题 / 摘要并标记锁定，Follow / Membership CTA 明确；Knowledge / Latest Practice 等会员内容显示公开摘要与会员 CTA，但不读取受限正文或链接。
+会员权益表只展示长期稳定的用户价值，不再把 Knowledge 正文、Feishu Deep Resource、Latest Practice 等内部内容模型当作独立权益。现有 Knowledge / Deep Resource / Latest Practice 数据与 Reader 仍可作为内容生产、实操项目和进阶练习的内部来源；其底层 Access 继续由统一 `resolveResourceAccess()` / Practice Access 控制，避免敏感正文或链接在未授权时进入 RSC payload。
+
+ACCESS-UX-001 原则继续有效：受限内容可以保持可发现，但内部 Access 规则不直接暴露给普通用户；页面优先解释“可以继续获得什么”。
+
+### 当前前端信息架构
+
+当前已确认前端基线如下，属于产品展示与 Access UX，不进入 Course Builder / Course Production Workflow authority：
+
+```text
+学习路径
+→ Track 01 / Track 02 学习地图与正式课程入口
+→ 不再承载“实操项目”
+
+进阶练习
+→ 实操项目：多个能力的综合应用层
+→ AI 热点能力练习：AI 日报 / 热点采集 → 初步完整知识点 → 单项能力练习
+
+AI 热点能力练习列表
+→ 继续复用原 practice-list / practice-row 展示
+→ 默认展示 3 条
+→ “查看更多”在当前页底部居中，以纯文字形式每次追加 3 条
+→ 当前测试数据补足 7 条，用于验证 3 → 6 → 7 交互
+→ 展示完后显示“— 已展示全部内容 —”
+→ 每次重新进入页面恢复默认 3 条
+```
+
+旧 `/practice/latest` 独立列表页与 `LatestPracticeCard` 已删除；不再维护第二套卡片列表 UI。单条 `/practice/latest/[id]` 详情继续保留，因为它仍承载公开预览、会员 Access、正式 Practice Submission / Evaluation 与关联资料；详情返回统一回到 `/practice#tasks`。
+
+`Latest Practice`、Knowledge、Deep Resource 等名称继续可以作为内部数据模型 / Reader / Bridge 名称，不再作为前台信息架构名称。真实 AI 日报热点如何生成、审核、整理并进入“AI 热点能力练习”的自动化流程尚未实现；当前仅固定产品归属与交互边界。
 
 ### Content
 
@@ -420,7 +445,9 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 Track 01 当前 T1-01～T1-20 已全部完成正式课程生产、Human Review、LessonSpec Registry、Runtime Provisioning 与 Runtime Acceptance，并全部进入 AVAILABLE。T1-11～T1-20 的早期 Workflow Batch / Human Review Gate 状态只属于当时阶段，不再是当前状态。现有 Unified Lesson Shell 为冻结前端边界；后续 Track 02～05 与未来板块课程默认复用，不因课程内容新增 UI 或调整 CSS。
 
-Track 02 当前课程上下文唯一 owner 为 docs/learning/TRACK02_CATALOG_CONTEXT_V1.md；目录状态为 DIRECTORY_APPROVED_V1。TRACK02-BATCH-A-BRIEF-001 已完成，T2-01～T2-03「会找答案」Formal Brief owner 为 docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md，当前批次状态 BATCH_A_BRIEF_READY_V1 / COURSE_BUILDER_PENDING。Batch A 固定边界：T2-01=Research Question / Scope，不重教 Prompt；T2-02=Source Quality / Evidence Judgment，不重复 T1-05 Reliability；T2-03=Multi-source Synthesis / Conflict Handling，不退化成来源权威比较。下一步只允许该批次进入通用 Course Production Workflow，不扩大到 T2-04～T2-15，不新增 UI 或调整 CSS。
+Track 02 当前课程上下文唯一 owner 为 docs/learning/TRACK02_CATALOG_CONTEXT_V1.md；目录状态为 DIRECTORY_APPROVED_V1。T2-01～T2-03「会找答案」当前批次状态为 AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS。Batch A 已完成通用 Course Production Workflow、Deterministic Validation、Human Review、LessonSpec Registration、Runtime Provisioning 与 Runtime Acceptance；`ai-work` 已进入正式 courses / Formal Runtime，但只包含 T2-01～T2-03。数据库中三课均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice。T2-04～T2-15 仍未注册 LessonSpec、未 Provision Runtime、未 AVAILABLE；本次没有新增 UI、Renderer、Schema 或 CSS。
+
+`TRACK02-LEARNING-PATH-ACCESS-001` 继续作为冻结交互基线：`/learning-path` 使用 `?track=foundation-ai|ai-work` 切换 T1/T2；T2 完整展示 15 节批准目录，当前 T2-01～T2-03 已切为真实 AVAILABLE Runtime，T2-04～T2-15 保持“即将开放”。Track Progress 只统计真实已开放课程。Access 与 Learning Prerequisite 分离：`ai-work` 正式访问由有效 OPC Membership 决定，T1 完成度不是会员进入 T2 的硬 Gate；未完成 T1 只生成非阻断学习建议。T2-01 上一项固定为“学习地图”；T1-20 完成后的跨 Track Continue 当前真实指向 T2-01；Sidebar 继续只显示当前 Course/Track。
 
 `COURSE-BUILDER-SKILL-V1-WORKFLOW-001` 当前稳定课程生产基线适用于所有正式课程板块，不仅 Track 01。架构固定为 `Course Production Contract → Orchestrator → Current Course Builder Skill → Deterministic Validators → Human Review Gate → LessonSpec Registry → Runtime Provisioning → Runtime Acceptance → AVAILABLE`。Workflow 生命周期不绑定具体 Skill version。
 
@@ -537,7 +564,7 @@ Tencent Cloud staging            AUTH / COURSE GUARD VERIFIED
 Course Builder v1.0              CURRENT COURSE PRODUCTION BASELINE
 Lesson Output Contract v1        CURRENT APPROVED OUTPUT CONTRACT
 T1-01～T1-20                     AVAILABLE / FORMAL_RUNTIME
-Track 02 Context                 BATCH_A_BRIEF_READY_V1 / COURSE_BUILDER_PENDING
+Track 02 Context                 BATCH_A_AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 RUNTIME-INFRA-PERF-003            PROPOSED / NOT_STARTED
 ```
 

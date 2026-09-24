@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Course } from "../lib/courses";
 import { useProgress } from "./ProgressProvider";
+import { learningPathHrefForCourse } from "../lib/learning/track-navigation";
 
 const SIDEBAR_COLLAPSE_STORAGE_PREFIX = "opc:lesson-sidebar:collapsed:";
 
@@ -98,7 +99,7 @@ export function LessonCourseSidebar({
         id="lesson-course-directory"
         className={"lesson-sidebar-details " + (open ? "is-open" : "")}
       >
-        <Link className="lesson-logo" href="/learning-path#progress">
+        <Link className="lesson-logo" href={learningPathHrefForCourse(course.slug)}>
           <img src="/opc-logo.png" alt="OPC AI" />
           <span>OPC AI</span>
         </Link>

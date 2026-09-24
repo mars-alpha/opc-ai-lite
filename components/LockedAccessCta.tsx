@@ -13,12 +13,12 @@ export function LockedAccessCta({ kind, loginHref, compact = false }: LockedAcce
     <div className={"locked-access-cta" + (compact ? " is-compact" : "")}>
       <div className="locked-access-icon" aria-hidden="true">⌁</div>
       <div className="locked-access-copy">
-        <span>{isFollow ? "公众号权益" : "OPC Membership"}</span>
-        <strong>{isFollow ? "关注公众号，解锁完整 AI Daily" : "OPC 会员专享 · 解锁完整内容"}</strong>
+        <span>{isFollow ? "公众号权益" : "OPC 会员权益"}</span>
+        <strong>{isFollow ? "关注公众号，解锁完整 AI 日报" : "继续学习更多 AI 实用内容"}</strong>
         <p>
           {isFollow
-            ? "Top 3 免费查看。关注公众号后，系统确认权益即可查看完整 AI Daily；OPC 会员同样可访问。"
-            : "标题与摘要保持公开；正文、Deep Resource、正式实操与进阶课程需要有效 OPC Membership。"}
+            ? "可先体验基础课程前三章节与部分 AI 日报；关注公众号后，可继续解锁基础课程全章节与完整 AI 日报。"
+            : "解锁 AI 工作应用、完整 AI 日报、进阶练习、实操项目与后续进阶内容。"}
         </p>
       </div>
       <div className="locked-access-actions">

@@ -70,7 +70,7 @@ assert(
   "TRACK01_AVAILABLE_FACT_DRIFT"
 );
 assert(
-  facts.includes("Track 02 Context                 BATCH_A_BRIEF_READY_V1 / COURSE_BUILDER_PENDING"),
+  facts.includes("Track 02 Context                 BATCH_A_AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),
   "TRACK02_CURRENT_FACT_MISSING"
 );
 assert(
@@ -122,7 +122,8 @@ assert(
   "TRACK02_BATCH_A_UI_FREEZE_DRIFT"
 );
 assert(
-  status.includes("T2-01～T2-03 BRIEF_READY_V1 / COURSE_BUILDER_PENDING"),
+  status.includes("T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME") &&
+    status.includes("T2-01～T2-03 Runtime Acceptance PASS"),
   "PROJECT_STATUS_NEXT_TASK_DRIFT"
 );
 

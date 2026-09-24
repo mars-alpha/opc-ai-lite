@@ -7,9 +7,9 @@ export function MembershipBenefits() {
       <div className="container">
         <Reveal className="membership-shell">
           <div className="membership-intro">
-            <div className="eyebrow">OPC Membership</div>
+            <div className="eyebrow">OPC 会员权益</div>
             <h2 className="section-title small-title">OPC 订阅会员</h2>
-            <p>会员权益按当前真实 Access Policy 展示；支付尚未接入，不会伪造订阅状态。</p>
+            <p>持续学习更多 AI 实用课程、完整 AI 日报、进阶练习、实操项目与进阶内容。</p>
           </div>
 
           <div className="membership-plans">
@@ -32,10 +32,10 @@ export function MembershipBenefits() {
 
           <div className="membership-benefits-head">
             <div>
-              <div className="eyebrow">Benefits</div>
+              <div className="eyebrow">会员权益</div>
               <h3>会员权益对照</h3>
             </div>
-            <span>✓ = 当前已开放；公众号权益与 OPC Membership 是两套独立权限</span>
+            <span>✓ = 当前已开放；具体权益以页面实际开放内容为准</span>
           </div>
 
           <div className="membership-table-wrap">
@@ -44,7 +44,7 @@ export function MembershipBenefits() {
                 <tr>
                   <th>权益</th>
                   <th>免费用户</th>
-                  <th>OPC 订阅用户</th>
+                  <th>OPC 订阅会员</th>
                 </tr>
               </thead>
               <tbody>

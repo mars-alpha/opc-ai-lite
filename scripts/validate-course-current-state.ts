@@ -29,11 +29,12 @@ assert(
   "PROJECT_STATUS_RUNTIME_AVAILABLE_MISSING"
 );
 assert(
-  facts.includes("Track 02 Context                 BATCH_A_BRIEF_READY_V1 / COURSE_BUILDER_PENDING"),
+  facts.includes("Track 02 Context                 BATCH_A_AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),
   "TRACK02_CURRENT_STATE_MISSING"
 );
 assert(
-  projectStatus.includes("Track 02 Batch A                         T2-01～T2-03 BRIEF_READY_V1 / COURSE_BUILDER_PENDING"),
+  projectStatus.includes("Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME") &&
+    projectStatus.includes("T2-01～T2-03 Runtime Acceptance PASS"),
   "PROJECT_STATUS_TRACK02_BATCH_A_MISSING"
 );
 assert(

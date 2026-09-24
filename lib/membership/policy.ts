@@ -30,22 +30,13 @@ export const OPC_MEMBERSHIP_PLANS = [
 ] as const;
 
 export type MembershipFeature =
-  | "COURSE_CONTENT"
   | "PRACTICE"
-  | "STAGE_PROJECT"
-  | "AI_DAILY_FULL"
-  | "DEEP_RESOURCE";
+  | "STAGE_PROJECT";
 
 export const MEMBERSHIP_BENEFIT_MATRIX = [
-  ["基础 AI 课程", "✓", "✓"],
-  ["Stage 1 指定章节", "关注公众号后解锁", "✓"],
-  ["基础 / 自主 Practice", "✓", "✓"],
-  ["AI Daily Top 3", "✓", "✓"],
-  ["完整 AI Daily", "关注公众号后解锁", "✓"],
-  ["Knowledge 正文", "—", "✓"],
-  ["Latest Practice 卡片", "✓", "✓"],
-  ["Latest Practice 详情 / 正式实操", "—", "✓"],
-  ["进阶内容关联课程入口", "—", "✓"],
-  ["飞书 Deep Resource", "—", "✓"],
-  ["公众号重要更新通知", "✓", "✓"]
+  ["AI 基础认知课程", "关注公众号后解锁全章节", "✓"],
+  ["AI 日报", "关注公众号后完整查看", "✓"],
+  ["进阶练习", "—", "✓"],
+  ["实操项目", "—", "✓"],
+  ["进阶内容", "—", "✓"]
 ] as const;

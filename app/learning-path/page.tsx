@@ -1,41 +1,53 @@
 import Link from "next/link";
-import { FoundationCatalog } from "../../components/FoundationCatalog";
-import { LearningBlockProgress } from "../../components/LearningBlockProgress";
+import { cookies } from "next/headers";
 import { HeroVisual } from "../../components/HeroVisual";
+import { LearningBlockProgress } from "../../components/LearningBlockProgress";
+import { LearningTrackPreference } from "../../components/LearningTrackPreference";
 import { PageHero } from "../../components/PageHero";
 import { Reveal } from "../../components/Reveal";
-import { stageProjects } from "../../lib/stageProjects";
+import { TrackCatalog } from "../../components/TrackCatalog";
+import { getLearningTrack } from "../../lib/learning/track-catalog";
 
 const stages = [
-  ["01", "AI Foundation", "AI 基础认知", "真正看懂 AI、模型、Prompt、RAG、Tool、Agent 与现代 AI 能力边界"],
-  ["02", "AI Work", "AI 工作应用", "把 AI 用进研究、写作、文件、数据、知识和重复工作"],
-  ["03", "AI Growth", "AI 推广运营与业务增长", "把 AI 放进内容、获客、销售、客服与运营流程"],
-  ["04", "AI Workflow", "AI Workflow 与自动化", "设计可控、可重复、可评估的 AI 工作系统"],
-  ["05", "FDE", "FDE / AI 解决方案落地", "从真实业务问题出发，完成发现、设计、试点、评估与落地"]
-];
+  ["01", "foundation-ai", "AI Foundation", "AI 基础认知", "真正看懂 AI、模型、Prompt、RAG、Tool、Agent 与现代 AI 能力边界"],
+  ["02", "ai-work", "AI Work", "AI 工作应用", "把 AI 用进研究、写作、文件、数据、知识和重复工作"],
+  ["03", "", "AI Growth", "AI 推广运营与业务增长", "把 AI 放进内容、获客、销售、客服与运营流程"],
+  ["04", "", "AI Workflow", "AI Workflow 与自动化", "设计可控、可重复、可评估的 AI 工作系统"],
+  ["05", "", "FDE", "FDE / AI 解决方案落地", "从真实业务问题出发，完成发现、设计、试点、评估与落地"]
+] as const;
 
-export default function LearningPathPage() {
+export default async function LearningPathPage({
+  searchParams
+}: {
+  searchParams: Promise<{ track?: string }>;
+}) {
+  const { track: requestedTrack } = await searchParams;
+  const cookieStore = await cookies();
+  const rememberedTrack = cookieStore.get("opc_learning_track")?.value;
+  const track = getLearningTrack(requestedTrack ?? rememberedTrack);
+
   return (
     <>
+      <LearningTrackPreference track={track.slug} />
       <PageHero
         eyebrow="Learning Path"
         title={<>从看懂 AI，到把 AI 用进真实业务</>}
-        description="OPC 的学习主线分成五大板块。AI 基础认知已完成 6 个学习阶段、20 节核心课程的正式 Runtime 接入，当前 20 节课程均可进入学习。"
-        actions={<Link className="btn btn-primary" href="#foundation-catalog">查看基础课程目录</Link>}
+        description="OPC 的学习主线分成五大板块。学习顺序是推荐路径，不等于访问权限；会员可以按自己的需要直接进入已开放的学习板块。"
+        actions={<Link className="btn btn-primary" href="#foundation-catalog">查看当前课程目录</Link>}
         metrics={[
           { value: "5", label: "五大长期学习板块" },
-          { value: "6", label: "基础认知学习阶段" },
-          { value: "20", label: "基础核心课程" }
+          { value: track.stageLabel.split(" ")[0], label: track.slug === "ai-work" ? "当前能力分组" : "当前学习阶段" },
+          { value: String(track.stages.flatMap((stage) => stage.lessons).length), label: "当前核心课程" }
         ]}
         visual={
           <HeroVisual
             cards={[
-              { title: "FOUNDATION", value: "6 个阶段", detail: "先协作，再理解机制与系统" },
-              { title: "CATALOG", value: "20 节", detail: "20 节核心课程 · 已全部开放" },
-              { title: "PATH", value: "5 大板块", detail: "工作 → 业务 → Workflow → FDE" }
+              { title: "CURRENT", value: track.title, detail: track.description },
+              { title: "CATALOG", value: track.stages.flatMap((stage) => stage.lessons).length + " 节", detail: "目录与 Runtime 开放状态分离" },
+              { title: "PATH", value: "5 大板块", detail: "基础 → 工作 → 业务 → Workflow → FDE" }
             ]}
             eyebrow="OPC Learning"
-            caption="基础认知 20 节已开放"
+            caption={"当前： " + track.title}
           />
         }
       />
@@ -46,13 +58,14 @@ export default function LearningPathPage() {
             <div>
               <div className="eyebrow">Learning Map</div>
               <h2 className="section-title">学习地图</h2>
-              <p className="section-subtitle">五大长期学习板块按能力递进排列。AI 基础认知 20 节已完成正式课程接入，其他板块会随着后续课程建设逐步开放。</p>
+              <p className="section-subtitle">在学习地图中切换板块。前置课程只作为学习建议，不作为会员进入后续板块的硬性门槛。</p>
             </div>
           </Reveal>
 
           <nav className="learning-block-nav" aria-label="五大长期学习板块">
-            {stages.map(([index, en, title, detail], i) => (
-              <div className={"learning-block-nav-item " + (i === 0 ? "is-active" : "is-coming")} key={index}>
+            {stages.map(([index, slug, en, title, detail]) => {
+              const active = slug === track.slug;
+              const inner = <>
                 <div className="learning-block-nav-heading">
                   <span className="learning-block-nav-index">{index}</span>
                   <small className="learning-block-nav-track">{en}</small>
@@ -61,54 +74,42 @@ export default function LearningPathPage() {
                   <strong>{title}</strong>
                   <span>{detail}</span>
                 </div>
-                <em>{i === 0 ? "当前" : "后续开放"}</em>
-              </div>
-            ))}
+                <em>{active ? "当前" : slug ? "切换" : "后续开放"}</em>
+              </>;
+              return slug ? (
+                <Link
+                  className={"learning-block-nav-item " + (active ? "is-active" : "")}
+                  key={index}
+                  href={"/learning-path?track=" + slug + "#foundation-catalog"}
+                  scroll
+                >
+                  {inner}
+                </Link>
+              ) : (
+                <div className="learning-block-nav-item is-coming" key={index}>{inner}</div>
+              );
+            })}
           </nav>
 
           <Reveal className="section-head foundation-catalog-heading">
             <div>
-              <div className="eyebrow">AI Foundation</div>
-              <h2 className="section-title">AI 基础认知</h2>
-              <p className="section-subtitle">先把最常用的 AI 协作方法练会，再逐步理解模型、知识、工具与现代 AI 能力。当前 20 节基础核心课程均已开放，可以直接进入学习。</p>
+              <div className="eyebrow">{track.eyebrow}</div>
+              <h2 className="section-title">{track.title}</h2>
+              <p className="section-subtitle">{track.description}</p>
             </div>
             <div className="foundation-catalog-summary">
-              <strong>6</strong><span>学习阶段</span>
-              <strong>20</strong><span>核心课程</span>
+              <strong>{track.stages.length}</strong><span>学习分组</span>
+              <strong>{track.stages.flatMap((stage) => stage.lessons).length}</strong><span>核心课程</span>
             </div>
           </Reveal>
 
           <div className="foundation-learning-layout">
-            <LearningBlockProgress />
-            <FoundationCatalog />
+            <LearningBlockProgress track={track} />
+            <TrackCatalog track={track} />
           </div>
         </div>
       </section>
 
-      <section className="section compact" id="projects">
-        <div className="container">
-          <Reveal className="section-head">
-            <div>
-              <div className="eyebrow">Practice Projects</div>
-              <h2 className="section-title">实操项目</h2>
-              <p className="section-subtitle">课程学完之后，用真实项目把多个知识点组合起来，验证是否真正能用。</p>
-            </div>
-            <Link className="btn btn-secondary" href="/projects">查看更多</Link>
-          </Reveal>
-          <div className="project-link-grid">
-            {stageProjects.map((project) => (
-              <Link className="project-link-card" key={project.slug} href={"/projects/" + project.slug}>
-                <div>
-                  <span>{project.stages}</span>
-                  <h3>{project.title}</h3>
-                  <p>{project.summary}</p>
-                </div>
-                <strong>→</strong>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
     </>
   );
 }

@@ -716,29 +716,33 @@ DEPRECATED
 
 本地缓存不成为唯一事实源。
 
-ACCESS-001 已将当前产品权限正式接入统一 Deterministic Core Access Resolver：
+ACCESS-001 已将产品权限接入统一 Deterministic Core Access Resolver。面向用户的稳定权益边界固定为：
 
 ```text
-AI Daily Top3
+AI 基础认知课程全章节
+→ FOLLOWER OR MEMBER
+
+AI 日报部分内容
 → FREE
 
-AI Daily 全部条目
-→ 已关注公众号可解锁；会员同样可访问
+AI 日报完整内容
+→ FOLLOWER OR MEMBER
 
-Knowledge 正文
+进阶练习
 → MEMBER
 
-Feishu Deep Resource
+实操项目
 → MEMBER
 
-Latest Practice 卡片
-→ PUBLIC VISIBLE
-
-Latest Practice 详情 / 正式实操 / 由进阶内容进入的正式课程
+进阶内容
 → MEMBER
 ```
 
-公众号关注只负责解锁完整 AI Daily，不等价于 Membership，也不能顺带解锁 Knowledge、Deep Resource、Course 或 Practice。
+基础认知课程前三章节继续保持 FREE，但不作为会员权益表独立产品项。
+
+公众号关注不等价于 Membership。FOLLOWER 负责解锁基础认知课程全章节与完整 AI 日报；未来公众号同时作为学习助手承担新实操项目、进阶练习等更新推送。消息推送与资源 Access 必须严格解耦：收到实操项目 / 进阶练习通知只表示“可发现”，不代表有权读取会员内容；打开目标时必须重新调用统一 Access Resolver，非会员返回会员订阅引导，MEMBER 才能进入正式内容。真实关注状态必须由微信渠道验证，不允许前端手动伪造。
+
+Knowledge、Feishu Deep Resource、Latest Practice 等名称属于内部内容模型 / 数据来源，不再作为会员权益表的独立产品项。它们可以继续支撑实操项目、进阶练习与内容生产，但不能反向决定前台产品信息架构。
 
 正式实现使用 `resolveResourceAccess()` + Membership / Entitlement / Practice Access；不允许在各页面散落 `isMember` / `hasFollowed` 判断。公开 Reader 必须只查询 Preview 安全字段，不能先读取会员正文再依赖 JSX 隐藏；会员内容只有在 Access ALLOW 后才能读取。
 
@@ -765,6 +769,26 @@ Access Core 仍决定真实数据是否读取 / 返回
 ```
 
 禁止为了转化而把受限正文、Deep Resource URL、正式 Practice 内容或会员 Course 数据提前下发到客户端；Conversion UX 只能展示 Preview 安全字段。
+
+### Frontend Information Architecture
+
+当前前端信息架构固定为三层职责：
+
+```text
+Course / Learning Path
+→ 系统课程学习与 Track 切换
+
+AI 热点能力练习
+→ 来自 AI 日报 / 热点采集整理出的知识点
+→ 一次只训练一个明确能力
+
+实操项目
+→ 将多个单项能力组合成真实任务与交付结果
+```
+
+“实操项目”归属 `/practice` 进阶练习，不再归属学习路径。AI 热点能力练习继续使用原纵向 `practice-list / practice-row` UI；列表默认 3 条，每次在当前页追加 3 条，不建立第二套卡片式完整列表页。单条详情 route 可以保留内部 `latest` 命名，但前台不得重新恢复“最新技术实操 / Latest Practice”作为产品导航名称。
+
+AI 日报、Knowledge、Practice 的生产链与前台 IA 解耦：未来热点采集、AI 整理或 Skill 只能产生候选知识 / 练习 Draft；正式发布、Access、Practice Runtime 与状态变化仍由 Core System 决定。此边界不改变 Course Production Workflow。
 
 ### Guided Learning 固定原则
 

@@ -37,7 +37,7 @@ export default async function LatestPracticeDetailPage({ params }: { params: Pro
   return (
     <main className="latest-article-page">
       <div className="container latest-article-shell">
-        <Link className="back-link" href="/practice/latest">← 返回最新技术实操</Link>
+        <Link className="back-link" href="/practice#tasks">← 返回 AI 热点能力练习</Link>
 
         <header className="latest-article-head">
           <div className="eyebrow">{item.stageLabel} · {item.category}</div>
@@ -56,9 +56,9 @@ export default async function LatestPracticeDetailPage({ params }: { params: Pro
               <LockedAccessCta kind="MEMBER" loginHref={!user ? loginHref : undefined} />
             </article>
             <aside className="latest-article-aside">
-              <div className="kicker">Member preview</div>
+              <div className="kicker">会员内容预览</div>
               <h2>内容已锁定，但价值保持可见</h2>
-              <p>公众号关注只解锁完整 AI Daily；会员内容需要 OPC Membership。加入会员后可继续阅读正文、使用 Deep Resource、提交正式实操并进入关联进阶课程。</p>
+              <p>关注公众号可解锁基础课程全章节与完整 AI 日报；当前能力练习、实操项目与进阶内容仍按 OPC 会员权益开放。订阅会员后可继续阅读完整内容、使用深度学习资料并提交正式练习。</p>
             </aside>
           </div>
         ) : (
@@ -67,7 +67,7 @@ export default async function LatestPracticeDetailPage({ params }: { params: Pro
               {(item.body ?? [item.summary]).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
               {deepResources.length > 0 ? (
                 <section className="lesson-related">
-                  <div className="kicker">Deep Resource</div>
+                  <div className="kicker">深度学习资料</div>
                   <h2>会员深度资料</h2>
                   <ul>
                     {deepResources.map((resource) => (
@@ -82,14 +82,14 @@ export default async function LatestPracticeDetailPage({ params }: { params: Pro
             </article>
 
             <aside className="latest-article-aside">
-              <div className="kicker">Next step</div>
+              <div className="kicker">下一步</div>
               <h2>{item.practiceId ? "把知识变成实操" : courseHref ? "继续进入课程" : "继续理解这次变化"}</h2>
               <p>
                 {item.practiceId
-                  ? "这条 Knowledge 已经形成正式 Latest Practice。完成文稿阅读后，可以直接进入提交与评价。"
+                  ? "这个知识点已经形成正式能力练习。完成内容阅读后，可以直接进入练习提交与评价。"
                   : courseHref
                     ? "这条最新内容已经有关联课程。会员可以继续进入课程理解完整知识与操作方法。"
-                    : "当前没有对应课程或正式 Practice，这篇会员文稿就是主要学习入口。"}
+                    : "当前没有对应课程或正式能力练习，这篇内容就是主要学习入口。"}
               </p>
               {courseHref ? <Link className="btn btn-secondary full-btn" href={courseHref}>查看课程 →</Link> : null}
               {item.practiceId ? <PracticeSubmissionPanel practiceId={item.practiceId} compact /> : null}

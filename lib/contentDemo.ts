@@ -57,6 +57,54 @@ export const knowledgeItems: KnowledgeItem[] = [
     lessonId: "evaluation",
     readingTime: "6 分钟",
     practiceId: "practice_latest_evaluation_workflow"
+  },
+  {
+    id: "agent-tool-selection",
+    title: "示例：Agent 什么时候应该调用工具？",
+    category: "Agent",
+    summary: "练习判断什么时候只靠模型推理就够了，什么时候必须调用搜索、文件、数据库或其他外部工具。",
+    body: ["Agent 的关键并不是工具越多越好，而是能在正确的节点判断是否需要调用外部能力。", "当答案依赖实时信息、用户文件或外部系统状态时，工具调用通常比模型猜测更可靠。", "这个练习关注的是工具调用边界，而不是某一个具体 Agent 框架。"],
+    destination: "PRACTICE_CANDIDATE",
+    impactLabel: "值得做实操",
+    stage: "AI Agent",
+    stageLabel: "热点知识 · Agent",
+    readingTime: "5 分钟"
+  },
+  {
+    id: "structured-output-check",
+    title: "示例：为什么 AI 输出最好先固定结构？",
+    category: "结构化输出",
+    summary: "练习把模糊回答要求改成明确字段，让结果更容易检查、复用和进入下一步流程。",
+    body: ["当 AI 输出要继续进入表格、自动化或业务流程时，自由文本往往很难稳定复用。", "先定义字段、格式和缺失信息处理方式，可以显著降低后续人工整理成本。", "重点不是学习某一种 JSON 写法，而是理解结构化输出为什么有助于验证和复用。"],
+    destination: "PRACTICE_CANDIDATE",
+    impactLabel: "值得做实操",
+    stage: "AI Work",
+    stageLabel: "热点知识 · 工作应用",
+    readingTime: "4 分钟"
+  },
+  {
+    id: "rag-source-boundary",
+    title: "示例：RAG 找到资料后，答案就一定可靠吗？",
+    category: "RAG",
+    summary: "练习区分“检索到了资料”和“资料真的支持结论”，避免把检索结果直接当成可靠答案。",
+    body: ["RAG 能帮助模型找到相关资料，但相关不等于足以证明结论。", "仍然需要检查资料来源、时间、对象范围，以及模型是否超出了原文能支持的边界。", "这个练习把 RAG 从一个技术名词转成可以实际判断的证据问题。"],
+    destination: "PRACTICE_CANDIDATE",
+    impactLabel: "值得做实操",
+    stage: "RAG",
+    stageLabel: "热点知识 · RAG",
+    readingTime: "5 分钟"
+  },
+  {
+    id: "multimodal-brief",
+    title: "示例：图片、文字一起交给 AI 时，任务怎么说清楚？",
+    category: "多模态",
+    summary: "练习把图片里的观察对象、任务目标和输出要求说清楚，而不是只上传图片后让 AI 自己猜。",
+    body: ["多模态能力让 AI 可以同时理解图片和文字，但输入更多信息并不代表任务自然会变清楚。", "更有效的做法是明确告诉 AI 要观察什么、忽略什么、最终输出什么。", "这个练习关注多模态任务说明，而不是具体模型或图片工具。"],
+    destination: "PRACTICE_CANDIDATE",
+    impactLabel: "值得做实操",
+    stage: "Multimodal",
+    stageLabel: "热点知识 · 多模态",
+    readingTime: "4 分钟"
   }
 ];
 

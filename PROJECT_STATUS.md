@@ -11,9 +11,9 @@ Unified Lesson Shell v1                  FROZEN / ACCEPTANCE PASS
 Course Production Workflow               STABLE / CURRENT SKILL VIA REGISTRY
 Track 01 Formal Curriculum               T1-01～T1-20 AVAILABLE / FORMAL_RUNTIME
 Track 02 Directory                       T2-01～T2-15 DIRECTORY_APPROVED_V1 / 15 KEEP
-Track 02 Batch A                         T2-01～T2-03 BRIEF_READY_V1 / COURSE_BUILDER_PENDING
+Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
-CURRENT                                  T2-01～T2-03 ready for universal Course Production Workflow
+CURRENT                                  FRONTEND / ACCESS BASELINE FROZEN / READY_FOR_NEXT_PLAN
 ```
 
 ## 当前系统健康
@@ -29,6 +29,10 @@ Completion / Rating / Resume             PASS
 Course Production Workflow               PASS
 Current Course Builder Skill registry    PASS
 Track 02 current owners / context         PASS
+Track 02 Learning Map / Access           FROZEN / IMPLEMENTATION PASS
+Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS
+Membership / Follow benefit model        FROZEN / CURRENT
+Frontend information architecture        FROZEN / CURRENT
 Frontend UI/CSS freeze for course work   ACTIVE
 ```
 
@@ -60,16 +64,9 @@ RUNTIME-INFRA-PERF-003
 
 ## 下一步
 
-T2-01～T2-03 已完成 Formal Brief，可直接进入：
+T2-01～T2-03 已完成 Course Production、Human Review、LessonSpec Registration、Runtime Provisioning 与 Runtime Acceptance，当前均为 `AVAILABLE / FORMAL_RUNTIME`。T2-04～T2-15 仍保持批准目录但未进入生产 / Runtime。
 
-```text
-Course Production Workflow
-→ Current Course Builder Skill
-→ Deterministic Validators
-→ Human Review Gate
-```
-
-生产范围继续锁定 T2-01～T2-03，不扩大到 T2-04～T2-15。
+当前下一课程生产入口为后续小批次 Formal Brief；在新批次明确前，不扩大 Runtime 范围，也不重新设计已冻结的 Learning Map / Access / Lesson Shell。
 
 AI Daily 等后续产品能力继续遵循：
 

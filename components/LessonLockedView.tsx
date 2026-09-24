@@ -2,10 +2,12 @@ import Link from "next/link";
 import type { Course, Lesson } from "../lib/courses";
 import { LessonCourseSidebar } from "./LessonCourseSidebar";
 import { LockedAccessCta } from "./LockedAccessCta";
+import { learningPathHrefForCourse } from "../lib/learning/track-navigation";
 
 type AccessReason =
   | "PUBLIC"
   | "ENTITLED"
+  | "MEMBERSHIP_REQUIRED"
   | "OFFICIAL_ACCOUNT_FOLLOW_REQUIRED"
   | "PREREQUISITE_STAGE_REQUIRED";
 
@@ -35,7 +37,7 @@ export function LessonLockedView({
 
         <article className="lesson-content lesson-locked-content">
           <div className="lesson-topbar">
-            <Link className="back-link" href="/learning-path#progress">← 返回学习路径</Link>
+            <Link className="back-link" href={learningPathHrefForCourse(course.slug)}>← 返回学习路径</Link>
             <span>{index + 1} / {lessonsLength} · 已锁定</span>
           </div>
 
@@ -52,8 +54,15 @@ export function LessonLockedView({
                   <small>直接访问课程链接或加入学习也不能绕过服务端学习顺序。</small>
                 </div>
                 <div className="lesson-lock-actions">
-                  <Link className="btn btn-primary" href="/learning-path#progress">返回学习路径 →</Link>
+                  <Link className="btn btn-primary" href={learningPathHrefForCourse(course.slug)}>返回学习路径 →</Link>
                 </div>
+              </>
+            ) : accessReason === "MEMBERSHIP_REQUIRED" ? (
+              <>
+                <div className="kicker">OPC 会员权益</div>
+                <h1>继续把 AI 用进真实工作</h1>
+                <p>解锁更多实用课程，继续学习如何用 AI 完成研究、写作、资料处理、数据分析与知识沉淀，把已经学会的基础能力真正用到工作中。</p>
+                <LockedAccessCta kind="MEMBER" compact />
               </>
             ) : (
               <>

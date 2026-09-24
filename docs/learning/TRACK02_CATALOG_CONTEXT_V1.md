@@ -267,6 +267,23 @@ EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY
 
 真实文件、表格、知识、图片、音频等在课程中优先作为 Sample Input / Practice Context / COPY_TO_AI 场景表达。若某候选知识只有新增 UI 才能成立，必须先回到 Curriculum 判断其 Primary Knowledge Home、范围或 Track 归属，而不是先扩前端。
 
+### 11.1 Multi-Track Learning Map / Access interaction baseline
+
+`TRACK02-LEARNING-PATH-ACCESS-001` 已冻结并实现以下产品交互；这些规则属于 Track 02 Runtime 接入前置边界，不改变六步 Lesson Shell：
+
+- `/learning-path` 继续作为唯一学习地图；T1 / T2 使用 `?track=foundation-ai` / `?track=ai-work` 切换，不复制第二套学习路径页面；
+- 最近一次主动选择的 T1 / T2 使用轻量 Track preference 记忆；再次从全站入口进入 `/learning-path` 时恢复该板块，显式 query 仍优先；
+- T2 学习地图始终展示批准的 15 节完整 Curriculum；Delivery State 独立显示。当前 T2-01～T2-03 已通过 Runtime Acceptance 并显示为 AVAILABLE；T2-04～T2-15 仍显示“即将开放”，不得因目录已批准而伪造 Runtime；
+- 每个 Track 独立统计正式已开放课程的 Progress；未开放课不制造假进度；
+- 学习顺序与访问权限分离：T1 是 T2 的推荐基础，不是 OPC_MEMBER 的硬性 Access prerequisite；
+- `ai-work` 的正式 Runtime 访问由 Membership / Entitlement 决定；完成 T1 不会自动获得 T2 权益，未完成 T1 也不会阻止有效会员进入 T2；
+- prerequisite 只产生学习建议，不阻断有效会员继续学习当前 T2 课程；
+- 从 T2 课程返回学习地图必须回到 `?track=ai-work`；
+- T2-01 的上一项固定为 `← 学习地图`，不得反向连接 T1-20；
+- T1-20 完成后的跨 Track Continue 只有在 `ai-work` 真实 Runtime 已存在时才显示；当前已真实指向 T2-01，且仍受“完成本课后继续”的 Completion 行为约束；
+- Lesson Sidebar 只显示当前 Track / Course，不把 T1 与 T2 目录堆在同一 Sidebar；
+- 复用现有组件与 CSS class，不新增课程专属 Renderer，不调整六步 Lesson Shell。
+
 ## 12. Six-step audit entry criteria
 
 `TRACK02-SIX-STEP-AUDIT-001` 已完成逐课审计，详细证据见 `docs/learning/TRACK02_SIX_STEP_AUDIT_V1.md`。后续 Formal Brief 必须继续回答：
@@ -278,7 +295,7 @@ EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY
 - Step 5：AI 适合做什么 / AI 不应该替你做什么，以及需要保留的具体边界；
 - Step 6：获得什么能力、如何自证、什么现实情况会触发调用、下一步如何复用。
 
-15 个 Primary Knowledge Home 已全部通过 Six-step Audit；下一步进入 Formal Brief，不允许在 Brief 阶段未经 Curriculum Audit 改变 Primary Knowledge Home 或新增第 16 课。
+15 个 Primary Knowledge Home 已全部通过 Six-step Audit；Batch A（T2-01～T2-03）现已完成至 AVAILABLE。后续新 Batch 进入 Formal Brief 时，仍不允许未经 Curriculum Audit 改变 Primary Knowledge Home 或新增第 16 课。
 
 ## 13. Production boundary
 
@@ -293,9 +310,10 @@ TRACK02_CATALOG_CONTEXT_V1
 → Current Course Builder Skill
 → Deterministic Validators
 → Human Review Gate
+→ LessonSpec Registry
 → Runtime Provisioning
 → Runtime Acceptance
 → AVAILABLE
 ```
 
-本任务不生成 Lesson Draft、不 Provision Runtime、不修改正式前端。
+本 owner 的原始 Context Freeze 不负责生成 Lesson Draft 或 Provision Runtime。后续经批准的 Learning Path / Access 交互统一以上述 11.1 基线为准；课程正文仍不得借此新增专属 UI / CSS。

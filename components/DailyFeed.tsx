@@ -45,15 +45,15 @@ export function DailyFeed({
   return (
     <div className="daily-feed">
       <div className="demo-note">
-        <span>OPC AI Daily</span>
+        <span>OPC AI 日报</span>
         <p>
           {fullAccess?.allowed
             ? fullAccess.reason === "MEMBERSHIP"
-              ? "当前 OPC 会员权益已生效，可查看全部已发布 AI Daily。"
-              : "当前公众号关注权益已生效，可查看全部已发布 AI Daily。"
+              ? "当前 OPC 会员权益已生效，可查看全部已发布 AI 日报。"
+              : "当前公众号关注权益已生效，可查看全部已发布 AI 日报。"
             : lockedIds.size > 0
-              ? "Top 3 免费阅读全文；后续内容继续展示标题与摘要，关注公众号或加入 OPC 会员后解锁完整内容。"
-              : "当前展示已发布 AI Daily。"}
+              ? "部分内容可免费阅读全文；其余内容继续展示标题与摘要，关注公众号或加入 OPC 会员后可查看完整日报。"
+              : "当前展示已发布 AI 日报。"}
         </p>
       </div>
 
@@ -75,7 +75,7 @@ export function DailyFeed({
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索变化、课程或 Stage"
+            placeholder="搜索变化、课程或学习阶段"
             aria-label="搜索日报内容"
           />
         </label>

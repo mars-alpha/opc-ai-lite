@@ -10,8 +10,8 @@ export default function ProjectsPage() {
       <PageHero
         eyebrow="Practice Projects"
         title={<>全部实操项目</>}
-        description="这里集中展示学习路径中的综合实操项目。每个项目都对应明确阶段、交付要求与验收标准，用来把多个知识点真正组合起来。"
-        actions={<Link className="btn btn-secondary" href="/learning-path#projects">返回学习路径</Link>}
+        description="这里集中展示进阶练习中的综合实操项目。每个项目都对应明确阶段、交付要求与验收标准，用来把多个已经掌握的能力真正组合起来。"
+        actions={<Link className="btn btn-secondary" href="/practice#projects">返回进阶练习</Link>}
         metrics={[
           { value: String(stageProjects.length), label: "当前实操项目" },
           { value: "Stage 1–6", label: "覆盖完整学习路径" },
@@ -36,7 +36,7 @@ export default function ProjectsPage() {
             <div>
               <div className="eyebrow">All projects</div>
               <h2 className="section-title">选择一个项目继续</h2>
-              <p className="section-subtitle">项目不是进阶练习的替代入口，而是学习路径中的独立综合应用层。</p>
+              <p className="section-subtitle">实操项目是进阶练习中的综合应用层，用来把多个单项能力组合成真实任务与交付结果。</p>
             </div>
           </Reveal>
 

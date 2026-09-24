@@ -11,8 +11,14 @@ import {
 import { getLessonSpec } from "../../../../../lib/learning/lesson-spec-registry";
 import { buildLessonRuntimePlan } from "../../../../../lib/learning/lesson-runtime";
 import { getTrack01Phase1RuntimePresentation } from "../../../../../lib/learning/track01-phase1-runtime";
+import { getTrack02BatchARuntimePresentation } from "../../../../../lib/learning/track02-batch-a-runtime";
+import {
+  getCrossTrackNextLesson,
+  learningPathHrefForCourse
+} from "../../../../../lib/learning/track-navigation";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
+import { getLearningPrerequisiteRecommendation } from "../../../../../lib/server/entitlements/service";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +52,23 @@ export default async function LessonPage({
 
   const lessons = getAllLessons(course);
   const index = lessons.findIndex((item) => item.id === lesson.id);
-  const previous = index > 0 ? lessons[index - 1] : null;
-  const next = index < lessons.length - 1 ? lessons[index + 1] : null;
+  const previousLesson = index > 0 ? lessons[index - 1] : null;
+  const nextLesson = index < lessons.length - 1 ? lessons[index + 1] : null;
+  const previous =
+    previousLesson
+      ? { id: previousLesson.id, title: previousLesson.title }
+      : course.slug === "ai-work"
+        ? {
+            id: "learning-map",
+            title: "学习地图",
+            href: learningPathHrefForCourse(course.slug),
+            label: "上一项"
+          }
+        : null;
+  const next =
+    nextLesson
+      ? { id: nextLesson.id, title: nextLesson.title }
+      : getCrossTrackNextLesson(course.slug, lesson.id);
   const currentPath = "/courses/" + course.slug + "/lessons/" + lesson.id;
 
   if (!user) {
@@ -68,8 +89,14 @@ export default async function LessonPage({
   }
 
   if (formalRuntimeCourse) {
+    const prerequisiteRecommendation =
+      course.slug === "ai-work"
+        ? await getLearningPrerequisiteRecommendation(user.id, course.slug)
+        : { satisfied: true as const };
     const registeredSpec = getLessonSpec(course.slug, lesson.id);
-    const approvedPresentation = getTrack01Phase1RuntimePresentation(course.slug, lesson.id);
+    const approvedPresentation =
+      getTrack01Phase1RuntimePresentation(course.slug, lesson.id) ??
+      getTrack02BatchARuntimePresentation(course.slug, lesson.id);
 
     if (!registeredSpec) {
       throw new Error("FORMAL_LESSON_SPEC_NOT_REGISTERED:" + course.slug + "/" + lesson.id);
@@ -86,9 +113,17 @@ export default async function LessonPage({
         approvedPresentation={approvedPresentation}
         index={index}
         lessonsLength={lessons.length}
-        previous={previous ? { id: previous.id, title: previous.title } : null}
-        next={next ? { id: next.id, title: next.title } : null}
+        previous={previous}
+        next={next}
         lockedLessonIds={lockedLessonIds}
+        learningRecommendation={
+          prerequisiteRecommendation.satisfied
+            ? null
+            : {
+                title: "AI 基础认知",
+                href: "/learning-path?track=foundation-ai#foundation-catalog"
+              }
+        }
       />
     );
   }
@@ -103,8 +138,8 @@ export default async function LessonPage({
       lesson={lesson}
       lessons={lessons}
       index={index}
-      previous={previous}
-      next={next}
+      previous={previousLesson}
+      next={nextLesson}
       lockedLessonIds={lockedLessonIds}
       authenticated
     />

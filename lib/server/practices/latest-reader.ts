@@ -107,7 +107,12 @@ const listPublishedLatestPracticeItemsCached = unstable_cache(
 export async function listPublishedLatestPracticeItemsWithFallback(): Promise<KnowledgeItem[]> {
   try {
     const items = await listPublishedLatestPracticeItemsCached();
-    return items.length > 0 ? items : fallbackItems.map(toPublicFallback);
+    if (items.length >= 7) return items;
+    const existingIds = new Set(items.map((item) => item.id));
+    const fallback = fallbackItems
+      .filter((item) => !existingIds.has(item.id))
+      .map(toPublicFallback);
+    return [...items, ...fallback].slice(0, 7);
   } catch (error) {
     console.warn("[OPC AI] Latest Practice read failed; using static public fallback.", error);
     return fallbackItems.map(toPublicFallback);

@@ -22,6 +22,12 @@
     "learning:t110:check": "tsx scripts/validate-track01-t110-draft.ts",
     "learning:track01-baseline:check": "tsx scripts/validate-track01-current-baseline.ts",
     "learning:track02-context:check": "tsx scripts/validate-track02-curriculum-context.ts",
+    "learning:track02-batch-a:draft-check": "tsx scripts/validate-track02-batch-a-drafts.ts",
+    "learning:track02-batch-a:workflow": "tsx scripts/run-track02-batch-a-workflow.ts",
+    "learning:track02-batch-a:lessonspec-check": "tsx scripts/validate-track02-batch-a-lessonspec-registration.ts",
+    "learning:track02-path-access:check": "tsx scripts/validate-track02-learning-path-access.ts",
+    "access:membership-policy:check": "tsx scripts/validate-membership-benefit-policy.ts",
+    "practice:ia:check": "tsx scripts/validate-practice-information-architecture.ts",
     "learning:course-interaction:check": "tsx scripts/validate-course-interaction-architecture.ts",
     "learning:course-build-entry:check": "tsx scripts/validate-course-build-entry.ts",
     "learning:course-production-workflow:check": "tsx scripts/validate-course-production-workflow.ts",
@@ -49,7 +55,10 @@
     "learning:runtime:accept:t109": "tsx scripts/accept-track01-t109-runtime.ts --run --confirm=TRACK01-PHASE3-T1-09-002 --base-url=http://127.0.0.1:3001",
     "learning:runtime:accept:t110": "tsx scripts/accept-track01-t110-runtime.ts --run --confirm=TRACK01-PHASE3-T1-10-002 --base-url=http://127.0.0.1:3110",
     "learning:runtime:track01-t11-t20": "tsx scripts/provision-track01-t11-t20-runtime.ts --apply --confirm=TRACK01-T11-T20-RUNTIME-001",
-    "learning:runtime:accept:track01-t11-t20": "tsx scripts/accept-track01-t11-t20-runtime.ts --run --confirm=TRACK01-T11-T20-RUNTIME-002 --base-url=http://127.0.0.1:3110"
+    "learning:runtime:accept:track01-t11-t20": "tsx scripts/accept-track01-t11-t20-runtime.ts --run --confirm=TRACK01-T11-T20-RUNTIME-002 --base-url=http://127.0.0.1:3110",
+    "learning:track02-batch-a:runtime-check": "tsx scripts/validate-track02-batch-a-runtime.ts",
+    "learning:runtime:track02-batch-a": "tsx scripts/provision-track02-batch-a-runtime.ts --apply --confirm=TRACK02-BATCH-A-RUNTIME-001",
+    "learning:runtime:accept:track02-batch-a": "node --conditions=react-server --import tsx scripts/accept-track02-batch-a-runtime.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
