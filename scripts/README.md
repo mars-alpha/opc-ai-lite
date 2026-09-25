@@ -22,11 +22,7 @@ Status: **ACTIVE / GOVERNED**
 - `npm run learning:formal-registry:check`
 - `npm run scripts:current:check`
 
-当前 Track 02 Batch C：
-
-- `npm run learning:track02-batch-c:draft-check`
-- `npm run learning:track02-batch-c:workflow`
-- `npm run learning:track02-batch-c:review-check`
+当前课程生产 Gate：Track 02 Batch D（T2-10～T2-15）Human Review。当前入口：`learning:track02-batch-d:draft-check`、`learning:track02-batch-d:workflow`、`learning:track02-batch-d:review-check`。
 
 正式 Runtime / UI 架构回归：
 
@@ -41,7 +37,7 @@ Provision / Acceptance 命令具有数据库或真实 Runtime 副作用，只能
 
 ## 历史脚本
 
-`scripts/_historical-*` 包含两类历史资产：T1-06～T1-10 逐课建设时期留下的单课 provision / acceptance / draft validator，以及已正式 AVAILABLE 的 Track 01 T11～T20、Track 02 Batch A/B 旧 Draft / Workflow / Registration 生产脚本。
+`scripts/_historical-*` 包含两类历史资产：T1-06～T1-10 逐课建设时期留下的单课 provision / acceptance / draft validator，以及已正式 AVAILABLE 的 Track 01 T11～T20、Track 02 Batch A/B/C 旧 Draft / Workflow / Review / Registration 生产脚本。
 
 它们：
 - 不属于当前 Workflow；

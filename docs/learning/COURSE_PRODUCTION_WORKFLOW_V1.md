@@ -57,17 +57,17 @@ Skill 文案质量提升、Orchestrator 内部判断优化、Validator 增减规
 
 Workflow 不复制课程规则正文。
 
-每次运行开始必须读取 `COURSE_PRODUCTION_RULE_SOURCES` 当前内容：
+每次运行开始必须先读取 Bootstrap Sources：`COURSE_BUILD_START_HERE.md` 与 `CURRENT_SYSTEM_FACTS.md`，用于恢复入口顺序、当前 Track / Batch / Gate 与运行时事实；它们**不是课程规则正文 owner**。
 
-- `docs/learning/COURSE_BUILD_START_HERE.md`
-- `docs/CURRENT_SYSTEM_FACTS.md`
+随后读取 `COURSE_PRODUCTION_RULE_SOURCES` 当前内容：
+
 - `docs/learning/FORMAL_CURRICULUM_V1.md`
 - `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`
 - `docs/learning/BEGINNER_LESSON_QUALITY_STANDARD_V1.md`
 - `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md`
 - `docs/learning/UNIFIED_LESSON_SHELL_V1.md`
 
-因此这些 owner 文件后续发生变化时，Workflow 下一次运行自动消费最新规则，不需要把规则正文再次复制到 Workflow 文件。全局 Rule Sources 只能放跨板块长期规则，不得写死 Track 01 或任何单一板块的 Catalog、Formal Brief、Batch、Fixture 或 Deferred Ledger。
+因此真正的规范 owner 后续发生变化时，Workflow 下一次运行自动消费最新规则，不需要把规则正文再次复制到 Workflow、Current Facts 或 Start Here。全局 Rule Sources 只能放跨板块长期规范，不得写死 Track 01 或任何单一板块的 Catalog、Formal Brief、Batch、Fixture 或 Deferred Ledger。
 
 历史 acceptance / fixture / task-result 可以保留用于解释或回归当时资产，但不属于 Rule Sources。它们内部若保留某批课程的固定数量、旧 handoff 或旧 Capability 文案，不得被 Orchestrator、Current Skill 或新课程 validator 继承为通用规则。
 
@@ -120,13 +120,9 @@ Workflow 只依赖：
 - 标准 Gate 状态
 - Required Rule Sources
 
-Workflow **不得直接 import**：
+Workflow **不得直接 import 任意具体 Course Builder Skill version 文件**。
 
-- `skills/course-builder/v1.ts`
-- `skills/course-builder/v0.2.ts`
-- 任意具体 Course Builder Skill version。
-
-当前 Skill 通过 `skills/course-builder/index.ts` registry 选择。
+当前 Skill 只能通过 `skills/course-builder/index.ts` registry 选择；历史 Skill version 只保留 provenance，不进入 current Workflow。
 
 ## 6. Human Review Gate
 
@@ -153,6 +149,8 @@ FAIL + issues[]
 ```
 
 Workflow 不关心 validator 数量和具体实现。
+
+当前课程类 Deterministic Validators 至少要覆盖两类长期防漂移检查：1）`STEP_1_2_OVERLAP_FAIL`，防止 Step 1 直接复用或由 Step 2 example 自动派生；2）Step 5 先检查主卡片不少于 2 张，再用 `STEP5_KNOWLEDGE_COVERAGE_FAIL` 按 current Formal Brief 的 must-retain judgments 检查是否讲完整。两张是最低要求，上限不固定；超过两张只为提升当前课程知识清晰度，不按固定范围验收。语义自然度仍由 Human Review 最终确认，但明显字段复用、主卡片不足、缺失判断和旧模板自动派生必须在 Code Validation 阶段直接 FAIL。
 
 ## 8. Current implementation
 

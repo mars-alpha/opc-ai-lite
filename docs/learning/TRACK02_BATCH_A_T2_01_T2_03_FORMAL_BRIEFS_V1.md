@@ -1,10 +1,11 @@
 # Track 02 Batch A — T2-01～T2-03 Formal Briefs v1
 
-Status: BRIEF_READY_V1 / COURSE_BUILDER_PENDING
+Status: **AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS**
 Task: TRACK02-BATCH-A-BRIEF-001 — T2-01～T2-03 Formal Brief & Continuity Design
 Canonical IDs: T2-01～T2-03
 Track Owner: docs/learning/TRACK02_CATALOG_CONTEXT_V1.md
 Audit Source: docs/learning/TRACK02_SIX_STEP_AUDIT_V1.md
+Historical production evidence: `scripts/_historical-run-track02-batch-a-workflow.ts`, `scripts/_historical-validate-track02-batch-a-drafts.ts`, `scripts/_historical-validate-track02-batch-a-lessonspec-registration.ts`. Current Runtime recovery uses the current provision / acceptance scripts, not these historical production validators.
 
 ## 1. Batch purpose
 

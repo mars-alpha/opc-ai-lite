@@ -3,12 +3,14 @@ import type { LessonSpec } from "./lesson-spec";
 import { track01FormalLessonSpecs } from "./track01-phase1-runtime";
 import { track02BatchALessonSpecs } from "./track02-batch-a-specs";
 import { track02BatchBLessonSpecs } from "./track02-batch-b-specs";
+import { track02BatchCLessonSpecs } from "./track02-batch-c-specs";
 
 // Register new Tracks here so the shared formal presentation gate covers them.
 export const formalLessonSpecs: readonly LessonSpec[] = [
   ...track01FormalLessonSpecs,
   ...track02BatchALessonSpecs,
-  ...track02BatchBLessonSpecs
+  ...track02BatchBLessonSpecs,
+  ...track02BatchCLessonSpecs
 ];
 
 const registeredLessonSpecKeys = new Set([

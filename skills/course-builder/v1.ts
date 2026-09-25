@@ -32,11 +32,11 @@ export const COURSE_BUILDER_SKILL_V1 = {
     "课程内容先由当前课题决定，再选择表现形式；不得复制上一课、reference lesson 或某一种卡片/字段模板。",
     "初学课程一节只解决一个主问题；学员可见文案中文优先。只有本课必须掌握、行业通用的 AI / 技术术语才保留英文或缩写；普通说明词直接使用自然中文。",
     "按最新 Lesson Output Contract 输出本课专属的学习建议、六步 navigationDescription 与 Step 1 底部说明；这些文案必须服务本课具体知识和学习动作，不从上一课或 Shell 固定短句复制，且符合 Contract 的桌面端长度和 Human Review 要求。不要更改既定课程 UI / CSS / 交互。",
-    "Step 1 只负责建立问题直觉、学习价值和一句核心判断；Step 2 必须换成具体案例把方法、边界和结果讲透，禁止复用同一段案例或同一组前后对比造成重复。",
+    "Step 1 只负责建立问题直觉、学习价值和一句核心判断；Step 2 必须换成具体案例把方法、边界和结果讲透。禁止复用同一段案例或同一组前后对比，禁止从 Step 2 的 example.situation / before / after / result 自动派生 Step 1 intro comparison；出现主要字段复用即视为 STEP_1_2_OVERLAP_FAIL。",
     "当课程任务涉及市场分析、市场规模、竞争、用户、价格、渠道或本地化市场判断，若 Formal Brief 未明确其他地区，默认以中国市场为分析范围；需要其他国家或地区时必须显式说明。",
     "行业常用技术缩写使用中文解释（缩写），例如检索增强生成（RAG）、应用程序编程接口（API）、模型上下文协议（MCP），不展开英文全称。",
     "CHECK 只验证已经教过的内容；PRACTICE 不首次教授核心知识；COPY_TO_AI / Reference Fill 的字段值组合后必须形成可直接交给 AI 执行并得到本课目标输出的完整任务；若缺少真实输入材料，必须把示例材料作为字段补齐。",
-    "REVIEW 上方主卡片固定围绕 AI适合做什么 / AI不应该替你做什么 两个核心方向回答，不能删除或改成自由命题；卡片数量不固定，也不得预设两张、2–4 张或其他数量范围，每张必须写出当前课程独有、可直接调用的具体回答，禁止泛化口号。主卡片下方的 knowledgeDepth.review 使用‘明确命题 + 回答/解释’继续说明为什么、边界、使用条件和易混淆判断；说明数量同样不固定。上下两层不能机械重复，也不能为版式凑数。",
+    "REVIEW 上方主卡片固定围绕 AI适合做什么 / AI不应该替你做什么 两个核心方向回答，不能删除或改成自由命题；主卡片至少 2 张，上限不固定。两张只是最低要求，超过两张只在能让本课知识更清晰时增加，不为版式凑数。Formal Brief 必须先给出本课 must-retain judgments，Draft 必须用主卡片 + knowledgeDepth.review 把这些判断完整讲清；缺任何关键判断都视为 STEP5_KNOWLEDGE_COVERAGE_FAIL。mistakes 只做纠错，禁止自动转换成 Review 主体或说明层。上下两层不能机械重复。",
     "CAPABILITY 必须把会做什么、自证、‘遇到什么情况我应该想到这节课’、下一步价值分开表达；触发说明必须总结‘什么现实情况 + 本课能力为什么适用/能解决什么’，不能写成下一课预告，也不能用 Next Lesson Value 代替。学员端可以显示 07/08/09 等正常课程序号，但课程标题/卡片标题不得拼接 T2-07、Track、Batch、内部 Lesson ID 等生产身份。",
     "输出必须先经过 Deterministic Validators，再进入 Human Review Gate。技术 PASS 不等于教学 PASS。"
   ].join("\n")

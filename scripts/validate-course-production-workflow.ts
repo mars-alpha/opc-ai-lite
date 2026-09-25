@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import {
+  COURSE_PRODUCTION_BOOTSTRAP_SOURCES,
   COURSE_PRODUCTION_RULE_SOURCES
 } from "../lib/learning/course-production-contract";
 import {
@@ -36,6 +37,16 @@ assert(
   Object.keys(ruleBundle).length === COURSE_PRODUCTION_RULE_SOURCES.length,
   "READ_LATEST_RULE_BUNDLE_INCOMPLETE"
 );
+assert(
+  !COURSE_PRODUCTION_RULE_SOURCES.includes("docs/CURRENT_SYSTEM_FACTS.md" as never) &&
+    !COURSE_PRODUCTION_RULE_SOURCES.includes("docs/learning/COURSE_BUILD_START_HERE.md" as never),
+  "BOOTSTRAP_SOURCES_MUST_NOT_BE_NORMATIVE_RULE_SOURCES"
+);
+assert(
+  JSON.stringify(COURSE_PRODUCTION_BOOTSTRAP_SOURCES) ===
+    JSON.stringify(["docs/learning/COURSE_BUILD_START_HERE.md", "docs/CURRENT_SYSTEM_FACTS.md"]),
+  "BOOTSTRAP_SOURCE_SET_DRIFT"
+);
 
 const workflowSource = fs.readFileSync(
   "lib/learning/course-production-workflow.ts",
@@ -62,8 +73,7 @@ const continuity = fs.readFileSync(
 );
 const governanceValidator = fs.readFileSync("scripts/validate-course-governance.ts", "utf8");
 const scriptEntrypointValidator = fs.readFileSync("scripts/validate-script-entrypoints.ts", "utf8");
-assert(!workflowSource.includes("skills/course-builder/v1"), "WORKFLOW_BINDS_SKILL_V1");
-assert(!workflowSource.includes("skills/course-builder/v0.2"), "WORKFLOW_BINDS_SKILL_V02");
+assert(!workflowSource.includes("skills/course-builder/"), "WORKFLOW_BINDS_CONCRETE_SKILL_VERSION");
 assert(!workflowSource.includes('"1.0.0-track'), "WORKFLOW_BINDS_DRAFT_VERSION");
 assert(
   workflowSource.includes("Switching Track/board changes context references only"),
@@ -75,7 +85,7 @@ assert(
 );
 assert(
   workflowDoc.includes("learning:course-governance:check") &&
-    governanceValidator.includes("COURSE_GOVERNANCE_STEP5_FLEXIBLE_COUNT=PASS"),
+    governanceValidator.includes("COURSE_GOVERNANCE_STEP5_MIN_TWO_FLEXIBLE_MAX=PASS"),
   "COURSE_GOVERNANCE_GATE_MISSING"
 );
 assert(
@@ -126,6 +136,10 @@ assert(
   "WORKFLOW_RULE_SOURCE_DRIFT"
 );
 assert(
+  COURSE_PRODUCTION_WORKFLOW_V1.bootstrapSources === COURSE_PRODUCTION_BOOTSTRAP_SOURCES,
+  "WORKFLOW_BOOTSTRAP_SOURCE_DRIFT"
+);
+assert(
   COURSE_PRODUCTION_WORKFLOW_V1.contextPolicy ===
     "RESOLVE_CURRENT_COURSE_CONTEXT_BEFORE_BUILD",
   "WORKFLOW_CONTEXT_POLICY_DRIFT"
@@ -142,12 +156,9 @@ for (const kind of [
   );
 }
 
-const activeRuleText = [
-  "docs/learning/COURSE_BUILD_START_HERE.md",
-  "docs/learning/LESSON_OUTPUT_CONTRACT_V1.md",
-  "docs/learning/BEGINNER_LESSON_QUALITY_STANDARD_V1.md",
-  "docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md"
-].map((path) => fs.readFileSync(path, "utf8")).join("\n");
+const activeRuleText = COURSE_PRODUCTION_RULE_SOURCES
+  .map((path) => fs.readFileSync(path, "utf8"))
+  .join("\n");
 
 assert(
   !activeRuleText.includes("禁止把“AI适合做什么 / AI不应该替你做什么”"),
@@ -158,8 +169,8 @@ assert(
   "STEP5_FIXED_CARD_COUNT_RANGE_PRESENT"
 );
 assert(
-  activeRuleText.includes("不得预设“两张即可”") || activeRuleText.includes("不得预设“两张即可”或任何固定数量"),
-  "STEP5_NO_PRESET_TWO_CARD_RULE_MISSING"
+  activeRuleText.includes("至少 2 张") && activeRuleText.includes("上限不固定"),
+  "STEP5_MIN_TWO_FLEXIBLE_MAX_RULE_MISSING"
 );
 assert(
   activeRuleText.includes("正常课程序号") &&

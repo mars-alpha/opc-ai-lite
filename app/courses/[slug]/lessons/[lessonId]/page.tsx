@@ -13,6 +13,7 @@ import { buildLessonRuntimePlan } from "../../../../../lib/learning/lesson-runti
 import { getTrack01Phase1RuntimePresentation } from "../../../../../lib/learning/track01-phase1-runtime";
 import { getTrack02BatchARuntimePresentation } from "../../../../../lib/learning/track02-batch-a-runtime";
 import { getTrack02BatchBRuntimePresentation } from "../../../../../lib/learning/track02-batch-b-runtime";
+import { getTrack02BatchCRuntimePresentation } from "../../../../../lib/learning/track02-batch-c-runtime";
 import { track02Catalog } from "../../../../../lib/learning/track-catalog";
 import {
   getCrossTrackNextLesson,
@@ -101,7 +102,8 @@ export default async function LessonPage({
     const approvedPresentation =
       getTrack01Phase1RuntimePresentation(course.slug, lesson.id) ??
       getTrack02BatchARuntimePresentation(course.slug, lesson.id) ??
-      getTrack02BatchBRuntimePresentation(course.slug, lesson.id);
+      getTrack02BatchBRuntimePresentation(course.slug, lesson.id) ??
+      getTrack02BatchCRuntimePresentation(course.slug, lesson.id);
 
     if (!registeredSpec) {
       throw new Error("FORMAL_LESSON_SPEC_NOT_REGISTERED:" + course.slug + "/" + lesson.id);

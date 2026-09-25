@@ -97,14 +97,9 @@
 - Track 01：`docs/learning/TRACK01_CATALOG_METADATA_V2.md`
 - Track 02：`docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
 
-Track 02 当前 Formal Brief 批次：
+当前 Formal Brief / Batch **不在本入口维护状态清单**。必须从 `docs/CURRENT_SYSTEM_FACTS.md` + current Track owner 解析当前 Brief 路径与 Gate，再读取该 Brief。
 
-- `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md`（已开放）
-- `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`（已开放）
-- `docs/learning/TRACK02_BATCH_C_T2_07_T2_09_FORMAL_BRIEFS_V1.md`（Human Review Pending）
-
-这些路径只是“当前事实示例”，不是 Workflow 的硬编码 Rule Sources。切换 Track / Batch 时必须从 Current Facts 重新解析 current owner。
-若本节示例状态与 `docs/CURRENT_SYSTEM_FACTS.md` 冲突，以 Current Facts 为准，并应立即修正本节示例，不能让入口文件长期保留已过期 Batch 状态。
+旧单课 / 旧 Batch Formal Brief 可以保留为历史课程证据，但除非 Current Facts / current Track owner 明确把它指定为当前 Brief，否则不得从其中的旧 Step 写法、卡片数量、`固定回答` 等措辞推导新课程规则。新课程只读 current Formal Brief + Required Rule Sources。
 
 **只读取与当前课程连续性和实现有关的文件，不默认加载所有历史课程与全部 task-result。**
 
@@ -164,7 +159,7 @@ LEGACY_STATIC：ai-literacy / chatgpt-worker / ai-workflow 只允许进入 compo
 
 正式/legacy slug 的唯一边界文件是 `lib/learning/course-runtime-boundaries.ts`。新正式课程不能通过增加 fallback 进入页面，必须显式进入 Formal Runtime 主链。
 
-当前 `foundation-ai` 正式课程只允许：
+所有被 `lib/learning/course-runtime-boundaries.ts` 标记为 `FORMAL_RUNTIME` 的课程都只允许：
 
 ```text
 Course Builder Draft
@@ -249,7 +244,7 @@ EXPLAIN
 → CAPABILITY
 ```
 
-六步固定的是**教学责任**，不是固定卡片数量、固定句式或固定字段数量。
+六步固定的是**教学责任**，不是固定版式、固定句式或固定字段形状；若某一步存在明确最低结构要求（例如 Step 5 主 Review 至少 2 张），只以 `LESSON_OUTPUT_CONTRACT_V1.md` 为准。
 
 具体规则以：
 
@@ -288,6 +283,7 @@ UI / Shell 规则以：
 - 历史聊天里已经被当前 Contract / Curriculum 覆盖的旧规则；
 - 旧 fallback / compatibility 实现；
 - 已删除的旧 pilot / `course-builder:accept:*` / foundation trial 脚本不得恢复；`scripts/_historical-*` 只保留旧单课增量脚本与已经 AVAILABLE 批次的历史生产/恢复证据，不得作为当前 Workflow 入口。
+- `skills/course-builder/_historical-*` 只保留旧 Skill provenance；当前课程生产只能从 `skills/course-builder/index.ts` 解析 current Skill。
 
 如历史资料与当前事实源冲突，按第 3 节优先级处理。
 

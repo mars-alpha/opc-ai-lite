@@ -492,10 +492,10 @@ Priority: P0
 
 ## COURSE-BUILDER-SKILL-001 — OPC Course Builder Skill v0.1
 
-Status: CONTRACT_COMPLETE_RUNTIME_PENDING
+Status: HISTORICAL_ONLY / SUPERSEDED_BY_COURSE_BUILDER_V1
 Priority: P0
 
-v0.1 最小契约已完成：skills/course-builder/v0.1.ts 固定 BUILD / IMPROVE Prompt 边界；lib/learning/course-builder.ts 提供 Structured Output parser + Code Validation；只有校验通过的结果才能形成 PENDING_REVIEW Review Packet。当前不接 Provider、不落 Draft 表、不实现自动 Publish，也不改 Access / Progress / Completion。
+历史记录：v0.1 最小契约当时已完成；现文件归档为 `skills/course-builder/_historical-v0.1.ts`。当时由 lib/learning/course-builder.ts 提供 Structured Output parser + Code Validation；只有校验通过的结果才能形成 PENDING_REVIEW Review Packet。当前不接 Provider、不落 Draft 表、不实现自动 Publish，也不改 Access / Progress / Completion。
 
 下一步：COURSE-BUILDER-SKILL-001-A — Real Lesson Draft Acceptance。选一个真实 Lesson Topic，用 v0.1 生成 BUILD Draft，人工审阅内容质量、Step 结构、Check / Practice 与 Unified Lesson Shell 适配；通过真实样本后再决定 Provider 接入、Draft persistence 与 Admin Review UI。
 
@@ -675,9 +675,9 @@ Status: COMPLETE_QUALITY_BASELINE_V1
 
 ### COURSE-BUILDER-SKILL-005 — Beginner Quality Alignment
 
-Status: COMPLETE_V02_QUALITY_ALIGNED
+Status: HISTORICAL_ONLY / SUPERSEDED_BY_COURSE_BUILDER_V1
 
-新增 `skills/course-builder/v0.2.ts`，保留 v0.1 历史兼容。v0.2 将 Beginner Quality Standard 写入生成 Prompt，并通过 `BEGINNER_QUALITY_V1` profile 下沉到 Code Validation：mainLearnerQuestion、mainConcept、allowedCoreTerms、deferredTerms。v0.2 Beginner BUILD 缺 profile 会拒绝；allowedCoreTerms 最多 2 个、主 Review 最多 3 条、Example 必须 Before/After、Capability 必须表达可执行能力，deferredTerms 不得在用户可见内容中提前泄漏。当前课 Primary Knowledge Home 的术语可通过 allowedCoreTerms 显式放行，因此 Stage 3 可合法教授 Token / Training，不受 Stage 1 禁词误杀。新增 `course-builder:accept:beginner-quality`，已验证 profile required / review budget / deferred term / allowed term / v0.1 compatibility 全部 PASS；typecheck/build PASS。下一步：Stage 2 新课程默认走 Course Builder Skill v0.2。
+历史记录：当时新增的 v0.2 现归档为 `skills/course-builder/_historical-v0.2.ts`，仅保留 provenance；其后续规则已经由 Course Builder v1 + current Rule Sources 取代。v0.2 当时将 Beginner Quality Standard 写入生成 Prompt，并通过 `BEGINNER_QUALITY_V1` profile 下沉到 Code Validation：mainLearnerQuestion、mainConcept、allowedCoreTerms、deferredTerms。v0.2 Beginner BUILD 缺 profile 会拒绝；allowedCoreTerms 最多 2 个、主 Review 最多 3 条、Example 必须 Before/After、Capability 必须表达可执行能力，deferredTerms 不得在用户可见内容中提前泄漏。当前课 Primary Knowledge Home 的术语可通过 allowedCoreTerms 显式放行，因此 Stage 3 可合法教授 Token / Training，不受 Stage 1 禁词误杀。新增 `course-builder:accept:beginner-quality`，已验证 profile required / review budget / deferred term / allowed term / v0.1 compatibility 全部 PASS；typecheck/build PASS。下一步：Stage 2 新课程默认走 Course Builder Skill v0.2。
 
 ### SKILL-GOV-001 — Skill Responsibility & Orchestration Baseline
 
@@ -689,7 +689,7 @@ Status: COMPLETE_GOVERNANCE_BASELINE_V1
 
 Status: COMPLETE_GOVERNANCE_BASELINE_V1
 
-新增 `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md` 与 `COURSE_PRODUCTION_PROVENANCE_TEMPLATE.md`，并把 Course Production Gate 接入 `AGENTS.md`。正式课程固定走 Curriculum/Knowledge Map → Formal Brief → Course Builder → Code Validation → Draft Preview → Human Review → Runtime Provisioning → Runtime Acceptance → AVAILABLE。现有 `curriculumStatus` / `availability` enum 不扩展；Human Review PASS 与 Runtime Ready 只作为治理 Gate。每个 generation attempt 只能选择一个明确 Skill Version；当前新 Beginner 默认 `course-builder@0.2.0`，v0.1 仅保留历史追溯。Human Review FAIL 回到 IN_PRODUCTION，新 Draft version 继续沿用 canonical lesson identity；Preview 不写正式 Progress/Completion；Skill 问题单独升级 Skill，架构问题另开工程任务。继续沿用 Foundation 3–5 节 Production Batch 规则，Stage 2 四节可作为一个完整 Batch。下一步：Foundation Stage 2 F2-01～F2-04 课程生产。
+新增 `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md` 与 `COURSE_PRODUCTION_PROVENANCE_TEMPLATE.md`，并把 Course Production Gate 接入 `AGENTS.md`。正式课程固定走 Curriculum/Knowledge Map → Formal Brief → Course Builder → Code Validation → Draft Preview → Human Review → Runtime Provisioning → Runtime Acceptance → AVAILABLE。现有 `curriculumStatus` / `availability` enum 不扩展；Human Review PASS 与 Runtime Ready 只作为治理 Gate。每个 generation attempt 只能选择一个明确 Skill Version；该段为历史阶段记录；当前 Course Builder 只由 `skills/course-builder/index.ts` 解析 `CURRENT_DEFAULT`，v0.1/v0.2 均仅保留历史追溯。Human Review FAIL 回到 IN_PRODUCTION，新 Draft version 继续沿用 canonical lesson identity；Preview 不写正式 Progress/Completion；Skill 问题单独升级 Skill，架构问题另开工程任务。继续沿用 Foundation 3–5 节 Production Batch 规则，Stage 2 四节可作为一个完整 Batch。下一步：Foundation Stage 2 F2-01～F2-04 课程生产。
 
 ### FACT-DRIFT-AUDIT-001 — Current Fact Drift Audit
 
@@ -1208,22 +1208,41 @@ Workflow：第 1～5 板块共用现行 Course Builder Skill、Workflow、Valida
 
 ## TRACK02-BATCH-C-T2-07-T2-09 — Formal Brief → Workflow Draft
 
-Status: HUMAN_REVIEW_PENDING
+Status: COMPLETE / AVAILABLE / RUNTIME_ACCEPTANCE_PASS
 Priority: P0
 
-Goal：按 Stable Course Production Workflow 构建 Track 02 Phase 3「会处理复杂资料」的 T2-07～T2-09，并在 Human Review 前停止，不提前注册或 Provision Runtime。
+Goal：按 Stable Course Production Workflow 完成 Track 02 Phase 3「会处理复杂资料」的 T2-07～T2-09，并在 Human Review PASS 后完成正式 Registry / Runtime / Acceptance。
 
 Scope：T2-07 Targeted Document Reading → T2-08 Cross-document Comparison → T2-09 Information-to-Action Extraction。课程继续复用现有 Unified Lesson Shell / Course Builder Skill v1；文件能力只通过课程内 Sample Input / 外部 AI Practice Context 表达，不新增上传器、文件浏览器、Renderer、interaction type 或 CSS。
 
-Result：`docs/learning/TRACK02_BATCH_C_T2_07_T2_09_FORMAL_BRIEFS_V1.md`、`fixtures/course-builder/track02-batch-c.ts`、`scripts/run-track02-batch-c-workflow.ts`、`scripts/validate-track02-batch-c-drafts.ts` 已建立。三个 BUILD Draft 均产生 PENDING_REVIEW packet，Deterministic Validation PASS，Workflow Next Stage = HUMAN_REVIEW_GATE。Human Review Preview 已通过独立 `lib/learning/track02-batch-c-review.ts` 与 `/course-builder/preview/track02-batch-c/[lessonId]` 接入现有 Generic Lesson Runtime Panel；只使用 previewMode，不写正式学习进度，也未注册正式 LessonSpec。
+Result：三个 BUILD Draft 完成 Deterministic Validation 与 Human Review；随后已注册正式 LessonSpec、接入 `lib/learning/track02-batch-c-runtime.ts` Presentation、扩展 `ai-work` 为 9 节正式课程，并将 T2-07～T2-09 写入正式数据库 Runtime。每课 3 道 required Published Check + 1 个 required Published STRUCTURED_TEXT_V1 Practice。原 Draft / Workflow / Review / Registration 脚本已归档为 `_historical-*`。
 
-Validation：`npm run learning:track02-batch-c:draft-check` PASS；`npm run learning:track02-batch-c:workflow` PASS；`npm run learning:track02-batch-c:review-check` PASS；`npm run typecheck` PASS；`npm run build` PASS。
+Validation：Human Review PASS；Formal Registration PASS；Runtime Provisioning PASS；会员 Access / 9 Check / 3 Practice / Completion Runtime Acceptance PASS；正式 Registry / Learning Path / TypeScript / Build 继续作为上线后回归 Gate。
 
-Boundary：T2-07～T2-09 当前未 LessonSpec Registry、未 Runtime Provisioning、未 Runtime Acceptance、未 AVAILABLE。只有 Human Review PASS 后才允许进入正式 Registry / Runtime。
+Boundary：T2-07～T2-09 已 AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS；T2-10～T2-15 仍未注册 LessonSpec、未 Provision Runtime、保持 COMING_SOON。
 
-Next：人工体验并审阅 T2-07～T2-09；若 PASS，再进入 LessonSpec Registration → Runtime Provisioning → Runtime Acceptance。
+Next：进入 T2-10～T2-12 Formal Brief / Workflow 构建。
 
-Human Review correction（2026-09-25）：T2-07～T2-09 按实际体验修正三项长期规则并同步全局生产基线。1）学员端保留正常课程序号 `07 / 08 / 09`，但标题不显示内部生产编号 `T2-07 / T2-08 / T2-09`；2）Step 5 只固定“AI适合做什么 / AI不应该替你做什么”两个判断方向，卡片数量不固定、不得预设两张；3）Step 6“遇到什么情况，我应该想到这节课？”必须显示本课适用场景与能力价值总结。已定位并修复 Preview Runtime 字段串位：previewMode 原先把 triggerScenario 置空并回退到 `lesson.related[0]`，所以错误显示 Next Lesson Value。现由独立 `previewTriggerScenario` 传入，Next Lesson Value 仍单独显示。对应 Draft、Preview、Lesson Output Contract、Beginner Quality、Governance 与 deterministic validators 已同步。
+Human Review correction（2026-09-25）：T2-07～T2-09 按实际体验修正长期规则并同步全局生产基线。1）学员端保留正常课程序号 `07 / 08 / 09`，但标题不显示内部生产编号 `T2-07 / T2-08 / T2-09`；2）Step 5 固定“AI适合做什么 / AI不应该替你做什么”两个判断方向；该数量规则后续已由 Batch D Human Review 更新为“主卡片至少 2 张、上限不固定，超过两张只为让知识更清晰”；3）Step 6“遇到什么情况，我应该想到这节课？”必须显示本课适用场景与能力价值总结。已定位并修复 Preview Runtime 字段串位：previewMode 原先把 triggerScenario 置空并回退到 `lesson.related[0]`，所以错误显示 Next Lesson Value。现由独立 `previewTriggerScenario` 传入，Next Lesson Value 仍单独显示。对应 Draft、Preview、Lesson Output Contract、Beginner Quality、Governance 与 deterministic validators 已同步。
+
+## TRACK02-BATCH-D-T2-10-T2-15 — Formal Brief → Workflow Draft
+
+Status: HUMAN_REVIEW_PENDING
+Priority: P0
+
+Goal：按 Stable Course Production Workflow 一次性构建 Track 02 剩余 T2-10～T2-15，并在 Human Review Gate 停止，不提前注册或 Provision Runtime。
+
+Scope：T2-10 Metric Definition → T2-11 Data Quality → T2-12 Data Analysis → T2-13 Knowledge Capture → T2-14 Knowledge Organization / Source Governance → T2-15 Reusable Method。继续复用 Unified Lesson Shell / Course Builder Skill v1，不新增 Spreadsheet Editor、Knowledge Base UI、Automation Builder、Renderer、interaction type 或 CSS。
+
+Result：已建立 `docs/learning/TRACK02_BATCH_D_T2_10_T2_15_FORMAL_BRIEFS_V1.md`、`fixtures/course-builder/track02-batch-d.ts`、`lib/learning/track02-batch-d-review.ts`、Batch D Preview Route、Workflow 与 deterministic validators。6 个 BUILD Draft 均通过结构校验并进入 PENDING_REVIEW；T2-15 明确保留在 reusable method / template / checklist / SOP-lite，不提前教授 Track 04 的 Trigger / Node / State / Retry / Automation / Agent Design。
+
+Validation：`learning:track02-batch-d:draft-check`、`learning:track02-batch-d:workflow`、`learning:track02-batch-d:review-check`、Current State、Course Governance、Course Production Workflow、Script Entrypoints、TypeScript、Production Build 全部 PASS。
+
+Boundary：T2-10～T2-15 当前未 LessonSpec Registry、未 Runtime Provisioning、未 Runtime Acceptance、未 AVAILABLE。T2-01～T2-09 保持正式 AVAILABLE，不受本批 Preview 影响。
+
+Next：人工体验并审阅 T2-10～T2-15；若 PASS，再进入 LessonSpec Registration → Runtime Provisioning → Runtime Acceptance。
+
+Human Review Rework（2026-09-25）：已定位并删除两类 Batch D 自动模板污染：Step 1 从 Step 2 example 自动派生、Step 5 从 mistakes 自动派生说明层。六课现逐课显式定义 Step 1 / Step 5；Formal Brief 提供 must-retain judgments，current validator 同时检查 Step 1/2 overlap、Step 5 最低结构与知识覆盖。具体通用规则只以 current Rule Sources 为准；T2-10～T2-15 当前主 Review 为 2/2/3/2/3/2。
 
 ## COURSE-RULE-GOVERNANCE-001 — Cross-project Course Production Anti-drift
 
@@ -1232,9 +1251,9 @@ Priority: P0
 
 Goal：对所有会影响正式课程生产的 Rule Owners、Workflow、Current Course Builder Skill、current validators、Preview/Runtime presentation 做统一治理，消除已确认规则与旧文件之间的冲突，避免后续 Track 03～05 再次从历史资产恢复旧规则。
 
-Result：当前唯一规则链为 `COURSE_PRODUCTION_RULE_SOURCES + Current Track Context + Current Formal Brief`。Step 5 只固定两个判断方向、不固定卡片数；Step 6 Trigger 是本课适用场景/能力价值总结并与 Next Lesson Value 分离；学员端允许正常课程序号但标题不拼接内部 T/Track/Batch/Lesson ID。`GenericLessonRuntimePanel` 已删除 `lesson.related[0]` Trigger fallback。当前 Batch C validator 使用内容/双方向验证，不使用固定 Review 数量；早期 Beginner/Stage2/Continuity acceptance 已在后续 scripts 治理中删除。
+Result：课程生产事实源已收敛为三层：Bootstrap（Start Here）→ Current Context（Current Facts + current Track / Brief）→ Normative Rule Sources（Formal Curriculum / Lesson Output Contract / Beginner Quality / Governance / Unified Shell）。Current Skill 只由 registry 解析 v1；v0.1/v0.2 已归档为 historical provenance。Batch D validator 负责当前内容防漂移，已完成 Batch 的旧 validators 只作 historical evidence。
 
-Validation：`learning:course-governance:check`、`learning:course-production-workflow:check`、`learning:course-build-entry:check`、`learning:course-current-state:check`、当前 Batch C Draft / Review、`typecheck`、`build` 全部 PASS。已完成 Batch 的旧 Draft / Workflow / Registration validator 后续归档为 `_historical-*`，不再作为 current gate。
+Validation：Course Governance / Production Workflow / Build Entry / Current State / Formal Registry / Track Baseline / Batch D Draft+Workflow+Review / Script Entrypoints / TypeScript / Build 作为当前统一 Gate。已完成 Batch 的旧 Draft / Workflow / Registration validator 归档为 `_historical-*`，不再作为 current gate。
 
 ## SCRIPT-ENTRYPOINT-GOVERNANCE-001 — Current Scripts Cleanup
 
@@ -1243,7 +1262,7 @@ Priority: P0
 
 Goal：减少 `scripts/` 中旧任务脚本对后续开发的误导，让“最新可运行脚本”只通过 `package.json` 暴露，并隔离仍有历史恢复价值的单课脚本。
 
-Result：删除 15 个已退役 pilot / sample validator / early Course Builder acceptance；累计移除 27 个过时、单课旧入口或已完成 Batch 的 package scripts；23 个仍有追溯/恢复价值的单课或已完成 Batch 生产脚本统一改名为 `_historical-*` 并取消当前入口。当前 scripts 中 32 个 current TypeScript 脚本全部有 package entrypoint，historical 暴露数为 0。新增 `scripts/README.md` 与 `scripts:current:check`。规则：普通根目录 `.ts` 必须有 package entrypoint；未暴露脚本只能是 `_historical-*`；已退役脚本重新出现即验证失败。
+Result：删除 15 个已退役 pilot / sample validator / early Course Builder acceptance；累计移除 27 个过时、单课旧入口或已完成 Batch 的 package scripts；27 个仍有追溯/恢复价值的单课或已完成 Batch 生产脚本统一归档为 `_historical-*` 并取消当前入口。当前 scripts 中 34 个 current TypeScript 脚本全部有 package entrypoint；27 个 historical TypeScript 脚本不暴露 package command，historical 暴露数为 0。新增 `scripts/README.md` 与 `scripts:current:check`。规则：普通根目录 `.ts` 必须有 package entrypoint；未暴露脚本只能是 `_historical-*`；已退役脚本重新出现即验证失败。
 
 Validation：`npm run scripts:current:check`、Course Governance、Course Production Workflow、Course Build Entry、Current State、Track 01 Baseline、Batch C Draft / Review、`typecheck`、`build` 全部 PASS。
 

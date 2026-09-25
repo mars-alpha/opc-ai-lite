@@ -11,8 +11,12 @@ const entry = read("docs/learning/COURSE_BUILD_START_HERE.md");
 const workflowDoc = read("docs/learning/COURSE_PRODUCTION_WORKFLOW_V1.md");
 const workflowCode = read("lib/learning/course-production-workflow.ts");
 const skill = read("skills/course-builder/v1.ts");
+const courseBuilderCore = read("lib/learning/course-builder.ts");
+const skillRegistry = read("skills/REGISTRY.md");
 const panel = read("components/GenericLessonRuntimePanel.tsx");
 const batchCPreview = read("app/course-builder/preview/track02-batch-c/[lessonId]/page.tsx");
+const batchDSource = read("fixtures/course-builder/track02-batch-d.ts");
+const batchDValidator = read("scripts/validate-track02-batch-d-drafts.ts");
 const formalRoute = read("app/courses/[slug]/lessons/[lessonId]/page.tsx");
 
 for (const phrase of [
@@ -26,9 +30,9 @@ for (const phrase of [
 }
 
 assert(
-  ruleText.includes("卡片数量不固定") &&
-    (ruleText.includes("不得预设“两张即可”") || ruleText.includes("不得预设两张")),
-  "ACTIVE_RULE_REVIEW_COUNT_FLEXIBILITY_MISSING"
+  ruleText.includes("至少 2 张") &&
+    ruleText.includes("上限不固定"),
+  "ACTIVE_RULE_REVIEW_MIN_TWO_FLEXIBLE_MAX_MISSING"
 );
 assert(
   ruleText.includes("本课能力适用场景与本课价值的总结说明") &&
@@ -42,9 +46,36 @@ assert(
 );
 
 assert(
-  skill.includes("卡片数量不固定") &&
-    skill.includes("不得预设两张、2–4 张或其他数量范围"),
-  "COURSE_BUILDER_FIXED_REVIEW_COUNT_DRIFT"
+  skill.includes("至少 2 张") &&
+    skill.includes("上限不固定"),
+  "COURSE_BUILDER_REVIEW_MIN_TWO_FLEXIBLE_MAX_DRIFT"
+);
+assert(
+  courseBuilderCore.includes("主卡片至少 2 张") &&
+    courseBuilderCore.includes("上限不固定"),
+  "COURSE_BUILDER_CORE_REVIEW_RULE_DRIFT"
+);
+assert(
+  ruleText.includes("STEP_1_2_OVERLAP_FAIL") &&
+    skill.includes("STEP_1_2_OVERLAP_FAIL"),
+  "STEP_1_2_OVERLAP_GUARD_MISSING"
+);
+assert(
+  ruleText.includes("STEP5_KNOWLEDGE_COVERAGE_FAIL") &&
+    skill.includes("STEP5_KNOWLEDGE_COVERAGE_FAIL"),
+  "STEP5_KNOWLEDGE_COVERAGE_GUARD_MISSING"
+);
+assert(
+  !batchDSource.includes("situation: lesson.example.situation") &&
+    !batchDSource.includes("text: lesson.example.before") &&
+    !batchDSource.includes("text: lesson.example.after") &&
+    !batchDSource.includes("lesson.mistakes.slice"),
+  "BATCH_D_TEMPLATE_DERIVATION_DRIFT"
+);
+assert(
+  batchDValidator.includes("STEP_1_2_OVERLAP") &&
+    batchDValidator.includes("STEP5_KNOWLEDGE_COVERAGE"),
+  "BATCH_D_CONTENT_INTEGRITY_VALIDATOR_MISSING"
 );
 assert(
   skill.includes("不能写成下一课预告") &&
@@ -69,14 +100,6 @@ assert(
   "FORMAL_ROUTE_INTERNAL_ID_PRESENTATION_DRIFT"
 );
 
-for (const path of [
-  "scripts/validate-track02-batch-c-drafts.ts"
-]) {
-  const source = read(path);
-  assert(!/review\.length\s*>=\s*[234]/.test(source), "TRACK02_VALIDATOR_FIXED_REVIEW_MIN:" + path);
-  assert(source.includes("REVIEW_TWO_DIRECTIONS"), "TRACK02_REVIEW_DIRECTION_CHECK_MISSING:" + path);
-}
-
 assert(
   entry.includes("_historical-*") &&
     entry.includes("不得作为当前 Workflow 入口"),
@@ -84,23 +107,38 @@ assert(
 );
 assert(read("package.json").includes('"scripts:current:check"'), "SCRIPT_ENTRYPOINT_GOVERNANCE_MISSING");
 assert(
-  !COURSE_PRODUCTION_RULE_SOURCES.some((path) => path.includes("task-results") || path.includes("fixture")),
-  "HISTORICAL_ASSET_REGISTERED_AS_RULE_SOURCE"
+  !COURSE_PRODUCTION_RULE_SOURCES.some((path) =>
+    path.includes("task-results") ||
+    path.includes("fixture") ||
+    path.includes("CURRENT_SYSTEM_FACTS") ||
+    path.includes("COURSE_BUILD_START_HERE")
+  ),
+  "NON_NORMATIVE_SOURCE_REGISTERED_AS_RULE_SOURCE"
 );
 assert(
-  workflowDoc.includes("每次运行开始必须读取 `COURSE_PRODUCTION_RULE_SOURCES` 当前内容") &&
+  skillRegistry.includes("_historical-v0.1.ts") &&
+    skillRegistry.includes("_historical-v0.2.ts") &&
+    skillRegistry.includes("不得被 Workflow、Orchestrator、validator 或新课程直接 import"),
+  "HISTORICAL_SKILL_ISOLATION_MISSING"
+);
+assert(
+  workflowDoc.includes("Bootstrap Sources") &&
+    workflowDoc.includes("它们**不是课程规则正文 owner**") &&
+    workflowDoc.includes("随后读取 `COURSE_PRODUCTION_RULE_SOURCES` 当前内容") &&
     workflowCode.includes('ruleSourcePolicy: "READ_LATEST_AT_RUN_START"') &&
     workflowCode.includes("Rule source content is read at workflow run start"),
   "WORKFLOW_READ_LATEST_POLICY_MISSING"
 );
 assert(
-  entry.includes("TRACK02_BATCH_C_T2_07_T2_09_FORMAL_BRIEFS_V1.md") &&
-    entry.includes("Human Review Pending"),
-  "COURSE_ENTRY_CURRENT_BATCH_STALE"
+  entry.includes("当前 Formal Brief / Batch **不在本入口维护状态清单**") &&
+    !entry.includes("TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md"),
+  "COURSE_ENTRY_MUST_NOT_DUPLICATE_CURRENT_BATCH_STATUS"
 );
 
 console.log("COURSE_GOVERNANCE_ACTIVE_RULE_OWNERS=PASS");
-console.log("COURSE_GOVERNANCE_STEP5_FLEXIBLE_COUNT=PASS");
+console.log("COURSE_GOVERNANCE_STEP1_STEP2_SEPARATION=PASS");
+console.log("COURSE_GOVERNANCE_STEP5_KNOWLEDGE_COVERAGE=PASS");
+console.log("COURSE_GOVERNANCE_STEP5_MIN_TWO_FLEXIBLE_MAX=PASS");
 console.log("COURSE_GOVERNANCE_STEP6_TRIGGER_SEPARATION=PASS");
 console.log("COURSE_GOVERNANCE_LEARNER_NUMBERING_BOUNDARY=PASS");
 console.log("COURSE_GOVERNANCE_HISTORICAL_ASSET_ISOLATION=PASS");

@@ -8,9 +8,11 @@ Status: **ACTIVE_REGISTRY_V1**
 
 | Skill ID | Version | Status | Single Responsibility | Primary Output | Human Review | Implementation |
 | --- | --- | --- | --- | --- | --- | --- |
-| course-builder | 0.1.0 | LEGACY_COMPATIBLE | 将受控课程上下文生成可校验的课程 Draft / Improvement Proposal | Structured Lesson Draft / Improvement Proposal | Required before production use | `skills/course-builder/v0.1.ts` |
-| course-builder | 0.2.0 | HISTORICAL_PROVENANCE | 在 v0.1 边界上生成符合 Beginner Quality Profile 的课程 Draft / Improvement Proposal | Quality-controlled Structured Lesson Draft / Improvement Proposal | Required before production use | `skills/course-builder/v0.2.ts` |
+| course-builder | 0.1.0 | HISTORICAL_PROVENANCE | 早期 Structured Draft / Improvement Proposal 契约 | Historical evidence only | N/A — not executable in current workflow | `skills/course-builder/_historical-v0.1.ts` |
+| course-builder | 0.2.0 | HISTORICAL_PROVENANCE | 早期 Beginner Quality 对齐版本 | Historical evidence only | N/A — not executable in current workflow | `skills/course-builder/_historical-v0.2.ts` |
 | course-builder | 1.0.0 | CURRENT_DEFAULT | 使用最新 Rule Sources 生成符合稳定 Course Builder Contract 的课程 Draft / Improvement Proposal | Quality-controlled Structured Lesson Draft / Improvement Proposal | Required before production use | `skills/course-builder/v1.ts` |
+
+只有 `CURRENT_DEFAULT` 可以被 `skills/course-builder/index.ts` 解析为当前生产 Skill；`HISTORICAL_PROVENANCE` 文件仅用于追溯，不得被 Workflow、Orchestrator、validator 或新课程直接 import。
 
 ## Registry Rules
 

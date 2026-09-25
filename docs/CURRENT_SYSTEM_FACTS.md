@@ -12,13 +12,12 @@
 Track 01 canonical path          T1-01～T1-20 / 6 Phases
 T1-01～T1-10                    AVAILABLE / FORMAL_RUNTIME
 T1-11～T1-20                    AVAILABLE / FORMAL_RUNTIME
-T2-01～T2-06                    AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
-T2-07～T2-09                    PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING
-T2-10～T2-15                    DIRECTORY_APPROVED / COMING_SOON
+T2-01～T2-09                    AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+T2-10～T2-15                    PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING
 Current Course Builder Skill    course-builder@1.0.0
 Frontend boundary               EXISTING UNIFIED LESSON SHELL / NO NEW UI / NO CSS CHANGE
 Deferred knowledge              DEFERRED_KNOWLEDGE_LEDGER_V1 → Track 02～05 planning input
-Next Gate                       Track 02 Batch C Human Review
+Next Gate                       Track 02 Batch D Human Review / T2-10～T2-15
 ```
 
 T1-11～T1-20 已完成 Stable Course Production Workflow 全链路：10 个结构化 Draft、Deterministic Validation、Human Review、LessonSpec Registry、Runtime Provisioning 与 authenticated Runtime Acceptance 全部 PASS。10 节课均已进入 `foundation-ai` Phase 4～6 正式 Runtime，并继续复用现有 Unified Lesson Shell；本批次没有新增 UI / Renderer / interaction type，也没有调整 CSS。未展开知识继续由 `DEFERRED_KNOWLEDGE_LEDGER_V1.md` 作为 Track 02～05 规划输入。
@@ -146,9 +145,9 @@ Lesson Resource
 Admin Lesson edit / publish
 ```
 
-正式课程交互当前只有一条主链：Lesson route → `FormalGuidedLessonView` → `AsyncLessonRuntimeShell` → `GenericLessonRuntimePanel` → Completion / Rating / 下一课。正式 Runtime course 与历史 static course 的边界统一由 `lib/learning/course-runtime-boundaries.ts` 管理；当前正式 course 仅 `foundation-ai`，历史 `ai-literacy / chatgpt-worker / ai-workflow` 因 Entitlement / DB seed / acceptance 依赖暂时保留，但只能进入 `components/legacy-learning/LegacyStaticLessonView`，不得作为新课程 fallback。正式课程缺少 LessonSpec、Presentation 或数据库 Runtime 时必须直接暴露配置错误。
+正式课程交互当前只有一条主链：Lesson route → `FormalGuidedLessonView` → `AsyncLessonRuntimeShell` → `GenericLessonRuntimePanel` → Completion / Rating / 下一课。正式 Runtime course 与历史 static course 的边界统一由 `lib/learning/course-runtime-boundaries.ts` 管理；当前 `foundation-ai` 与 `ai-work` 属于 FORMAL_RUNTIME，历史 `ai-literacy / chatgpt-worker / ai-workflow` 只能进入 `components/legacy-learning/LegacyStaticLessonView`，不得作为新课程 fallback。正式课程缺少 LessonSpec、Presentation 或数据库 Runtime 时必须直接暴露配置错误。
 
-当前主学习课程为 `foundation-ai`：T1-01～T1-20 已进入正式六步 Runtime。001-B 已完成核心状态流收敛：currentStep / Completion → Lesson Progress；Step 3 → `lesson_check_responses`；Step 4 → Practice Submission / Evaluation；Rating → `learning_feedback`。PostgreSQL / Server 是正式学习状态唯一事实源。当前课程体验基线补充固定：Step 3 单题答对后锁定当前选项与重复提交，直到学习者主动进入下一题；Step 5 上方主 Review 卡片固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向回答，卡片数量不固定且每张必须有本课具体正文；下方保留 `knowledgeDepth.review` 说明层，按“明确命题 + 回答/解释”继续讲清原因、边界、使用条件和易混淆判断，条数同样不固定，上下两层不得机械重复。
+`foundation-ai` T1-01～T1-20 与 `ai-work` T2-01～T2-09 已进入正式六步 Runtime。核心状态流统一为 currentStep / Completion → Lesson Progress；Step 3 → `lesson_check_responses`；Step 4 → Practice Submission / Evaluation；Rating → `learning_feedback`。PostgreSQL / Server 是正式学习状态唯一事实源。六步教学规则不在本文件复制，统一读取当前 `COURSE_PRODUCTION_RULE_SOURCES`。
 
 ### COURSE_RUNTIME_PERF-003 — Static Shell / Dynamic State Split
 
@@ -447,25 +446,19 @@ Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participatio
 
 Track 01 当前 T1-01～T1-20 已全部完成正式课程生产、Human Review、LessonSpec Registry、Runtime Provisioning 与 Runtime Acceptance，并全部进入 AVAILABLE。T1-11～T1-20 的早期 Workflow Batch / Human Review Gate 状态只属于当时阶段，不再是当前状态。现有 Unified Lesson Shell 为冻结前端边界；后续 Track 02～05 与未来板块课程默认复用，不因课程内容新增 UI 或调整 CSS。
 
-Track 02 当前课程上下文唯一 owner 为 docs/learning/TRACK02_CATALOG_CONTEXT_V1.md；目录状态为 DIRECTORY_APPROVED_V1。T2-01～T2-03「会找答案」当前批次状态为 AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS。Batch A 已完成通用 Course Production Workflow、Deterministic Validation、Human Review、LessonSpec Registration、Runtime Provisioning 与 Runtime Acceptance；`ai-work` 已进入正式 courses / Formal Runtime，且包含 T2-01～T2-06。数据库中三课均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice。T2-04～T2-06 已完成正式 Runtime：已注册 LessonSpec 与课程展示映射，数据库为 PUBLISHED，目录为 AVAILABLE；T2-07～T2-15 未注册 LessonSpec、未 Provision Runtime、未 AVAILABLE。
+Track 02 当前课程上下文唯一 owner 为 docs/learning/TRACK02_CATALOG_CONTEXT_V1.md；目录状态为 DIRECTORY_APPROVED_V1。T2-01～T2-09 当前均为 AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS，`ai-work` 正式课程包含 9 节。Batch A/B/C 均已完成 Course Production Workflow、Deterministic Validation、Human Review、LessonSpec Registration、Runtime Provisioning 与 Runtime Acceptance。数据库中 T2-01～T2-09 均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice。T2-10～T2-15 仍未注册 LessonSpec、未 Provision Runtime、保持 COMING_SOON。
 
-2026-09-24 启动 Batch B：T2-04～T2-06「会做成品」的独立 Formal Brief、Course Builder BUILD Draft 与逐课结构校验已经完成；三课分别训练接收对象/目的匹配、资料到交付物、成品诊断与定向修订。`scripts/run-track02-batch-b-workflow.ts` 读取当前规则与 Context，输出三个结构校验 PASS 的审阅 packet；学员确认正式课程后 Human Review PASS。`scripts/validate-track02-batch-b-drafts.ts` 核查六步、逐课一句学习建议与两行卡片、Step 1 底部说明、完整可复制参考填充和知识深度。T2-04～T2-06 已完成 LessonSpec Registry 和正式课程代码映射；使用现有 Generic Lesson Runtime Panel 的只读审阅入口 `/course-builder/preview/track02-batch-b/[lessonId]` 供人工体验，不写正式进度。Human Review 已通过，远端 Supabase 已 Provision 三课，各课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice，会员访问、答题、练习、完成进度的逐课 Runtime Acceptance PASS；T2-04～T2-06 为 AVAILABLE，T2-07～T2-15 仍仅为批准目录。
+Track 02 当前状态：T2-01～T2-09 为 AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS；T2-10～T2-15 为 PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING，尚未注册 LessonSpec、未 Provision Runtime、未 AVAILABLE。Batch D 当前 deterministic validators 已阻止 Step 1/2 自动互相派生、Step 5 少于 2 张主 Review、must-retain judgments 缺失，以及 `mistakes` 自动替代 Review 说明层。具体教学规范只由 current Rule Sources + current Formal Brief 定义，本文件不再复制规则正文或历史 Batch 过程。
 
-2026-09-25 启动 Batch C：T2-07～T2-09「会处理复杂资料」已完成独立 Formal Brief、Course Builder BUILD Draft、Deterministic Validation 与 Human Review Preview 接入。三课分别训练 Targeted Document Reading、Cross-document Comparison、Information-to-Action Extraction；继续复用统一六步 Shell 与现有 Course Builder Skill v1，不新增上传器、文件浏览器、Renderer、交互类型或 CSS。`scripts/run-track02-batch-c-workflow.ts` 已验证 Rule Sources、Track Context、Formal Brief、三个 review packet 与 Gate 顺序，当前稳定停在 HUMAN_REVIEW_GATE；`scripts/validate-track02-batch-c-drafts.ts` 已验证六步、逐课学习建议、两行进度卡片、Step 1 底部说明、可直接复制参考填充、知识深度与三课能力分离。Human Review 使用独立 `track02-batch-c-review` adapter 与 `/course-builder/preview/track02-batch-c/[lessonId]`，继续复用 Generic Lesson Runtime Panel 的 previewMode，不写正式学习进度。T2-07～T2-09 尚未 LessonSpec Registry、未 Provision Runtime、未 AVAILABLE；正式 `ai-work` 仍只有 T2-01～T2-06 六节 AVAILABLE 课程；T2-10～T2-15 继续保持批准目录 / 即将开放。
-
-2026-09-25 Batch C Human Review 修正规则：学员端可显示正常课程序号（例如 `07 / 08 / 09`），但课程标题/卡片标题不拼接内部生产身份 `T2-07`、Track、Batch 或 Lesson ID；Step 5 固定的是“AI适合做什么 / AI不应该替你做什么”两个判断方向，**卡片数量不固定，也不得预设两张**，由课题知识密度决定；Step 6“遇到什么情况，我应该想到这节课？”必须显示对本课适用场景与能力价值的总结说明。此次 Human Review 发现 Preview Runtime 曾把 `triggerScenario` 在 previewMode 下置空并回退到 `lesson.related[0]`，导致误显示“下一课……”文案；现已为 Generic Lesson Runtime Panel 增加独立 `previewTriggerScenario` 输入并由 Batch C Preview 显式传入，Next Lesson Value 继续独立显示。规则与 validator 已同步。
-
-`TRACK02-LEARNING-PATH-ACCESS-001` 继续作为冻结交互基线：`/learning-path` 使用 `?track=foundation-ai|ai-work` 切换 T1/T2；T2 完整展示 15 节批准目录，当前 T2-01～T2-06 已切为真实 AVAILABLE Runtime，T2-07～T2-15 保持“即将开放”。Track Progress 只统计真实已开放课程。Access 与 Learning Prerequisite 分离：`ai-work` 正式访问由有效 OPC Membership 决定，T1 完成度不是会员进入 T2 的硬 Gate；未完成 T1 只生成非阻断学习建议。T2-01 上一项固定为“学习地图”；T1-20 完成后的跨 Track Continue 当前真实指向 T2-01；Sidebar 继续只显示当前 Course/Track。
+`TRACK02-LEARNING-PATH-ACCESS-001` 继续作为冻结交互基线：`/learning-path` 使用 `?track=foundation-ai|ai-work` 切换 T1/T2；T2 完整展示 15 节批准目录，当前 T2-01～T2-09 已切为真实 AVAILABLE Runtime，T2-10～T2-15 保持“即将开放”。Track Progress 只统计真实已开放课程。Access 与 Learning Prerequisite 分离：`ai-work` 正式访问由有效 OPC Membership 决定，T1 完成度不是会员进入 T2 的硬 Gate；未完成 T1 只生成非阻断学习建议。T2-01 上一项固定为“学习地图”；T1-20 完成后的跨 Track Continue 当前真实指向 T2-01；Sidebar 继续只显示当前 Course/Track。
 
 `COURSE-BUILDER-SKILL-V1-WORKFLOW-001` 当前稳定课程生产基线适用于所有正式课程板块，不仅 Track 01。架构固定为 `Course Production Contract → Orchestrator → Current Course Builder Skill → Deterministic Validators → Human Review Gate → LessonSpec Registry → Runtime Provisioning → Runtime Acceptance → AVAILABLE`。Workflow 生命周期不绑定具体 Skill version。
 
 Course Production Workflow 当前已按 Track 02 验证为真正跨 Track 通用：Global Rule Sources 只保留跨板块长期规则；每次运行必须从 Current Facts 解析 current Track/Board owner + directory status、previous→current→next continuity、current Formal Brief/Batch + brief status、Deferred/Supporting Boundary 与 Grounding/Research Packet。Track 切换只替换 Context references，不复制 Workflow，也不新建 Track-specific Course Builder Skill。COURSE_BUILD_START_HERE 已取消默认 Track 01 恢复；FORMAL_CURRICULUM 已对齐 Track 01 20节/6 Phase 与 Track 02 15节批准目录；FIVE_TRACK_CAPABILITY_CONTINUITY 只维护当前跨 Track 连续性，不再保存旧生产阶段或 Skill 版本决策。
 
-2026-09-25 完成课程生产规则全项目治理：`COURSE_PRODUCTION_RULE_SOURCES` 继续作为唯一跨板块规则集合；`COURSE_BUILD_START_HERE.md` 已更新 Track 02 Batch A/B/C 当前状态，并明确历史 acceptance / fixture / task-result 只属于历史证据，不得定义当前规则；Course Builder Skill v1 已显式采用 Step 5 数量不预设、Step 6 Trigger 与 Next Lesson Value 分离、学员正常序号与内部生产身份分离三条规则。新增 `npm run learning:course-governance:check`，检查 Active Rule Owners、Skill、Track 01/02 当前 validators、Preview/Runtime Trigger 映射、正式课程编号边界与历史资产隔离。Generic Lesson Runtime Panel 已移除 Step 6 对 `lesson.related[0]` 的 fallback，未来即使遗漏 Trigger，也不会把“下一课……”文案误显示为本课触发总结。Track 01 T11～T20、Track 02 Batch A/B/C 当前 validators 已从固定 Review 数量约束改为内容/双方向校验；早期 Beginner/Stage2/Continuity acceptance 已在 scripts 入口治理中删除，不进入新 Workflow。
+课程生产规则治理当前边界：`COURSE_PRODUCTION_RULE_SOURCES` 只包含规范 owner（Formal Curriculum / Lesson Output Contract / Beginner Quality / Course Production Governance / Unified Lesson Shell）；`COURSE_BUILD_START_HERE.md` 是 Bootstrap Entry，`CURRENT_SYSTEM_FACTS.md` 是当前 Context，不再注册为规则正文。Current Course Builder 只由 `skills/course-builder/index.ts` 解析；v0.1/v0.2 已归档为 historical provenance。`learning:course-governance:check` 与 `learning:course-production-workflow:check` 负责阻止旧规则、历史 Skill 或重复规则重新进入 current Workflow。
 
-2026-09-25 完成 scripts 入口治理：删除 15 个已被现行 Formal Runtime / Stable Course Production Workflow 取代的旧 pilot、旧 LessonSpec/Runtime sample validator 与早期 Course Builder acceptance；从 `package.json` 共移除 27 个过时、单课旧入口或已完成 Batch 的生产入口。T1-06～T1-10 的逐课 provision / acceptance / draft validator，以及已 AVAILABLE 的 Track 01 T11～T1-20、Track 02 Batch A/B 的旧 Draft / Workflow / Registration 生产脚本，共 23 个统一改名为 `scripts/_historical-*`，且不暴露 package command。当前 scripts 根目录剩 32 个 current TypeScript 脚本，全部都有明确 package entrypoint；historical 暴露数为 0。新增 `scripts/README.md` 作为人工入口说明，新增 `npm run scripts:current:check` 强制：所有非 `_historical-*` 的根目录 TypeScript 脚本必须有 package entrypoint、历史脚本不得暴露、已退役脚本不得重新出现。Course Production Workflow preflight 已纳入该检查。
-
-现行六步固定教学责任：EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY；表现形式由课题决定。Step 4 的字段数量不固定，Reference Fill / Reference Answer 必须形成可直接交给 AI 执行并得到本课目标结果的完整任务。Step 5 上方固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向给出本课具体回答；主卡片数量不固定；下方 `knowledgeDepth.review` 使用“明确命题 + 回答/解释”讲清原因、边界、使用条件或易混淆判断，说明数量同样不固定；上下两层不得机械重复、不为版式凑数量。Step 6 必须分开表达可执行能力、自证证据、现实触发情境与下一步价值。学员可见文案中文优先；只有本课真正需要的行业通用 AI / 技术术语保留英文或缩写。
+Scripts 入口治理保持有效：current TypeScript 脚本必须有明确 package entrypoint；`scripts/_historical-*` 不得暴露为 current command，已退役 pilot / acceptance 不得恢复。
 
 Course Builder BUILD 的 `pedagogy` 当前还必须包含 `conceptMasteryBeforePractice=true`。四种 Lesson Type 均固定以前 3 步完成概念理解：EXPLAIN 讲清“是什么 / 为什么重要 / 解决什么问题”，EXAMPLE 展开方法 / 边界 / 易混淆点 / 常见错误，CHECK 验证是否真正理解；PRACTICE 原则上不得首次引入新的核心概念。
 
@@ -576,15 +569,16 @@ Tencent Cloud staging            AUTH / COURSE GUARD VERIFIED
 Course Builder v1.0              CURRENT COURSE PRODUCTION BASELINE
 Lesson Output Contract v1        CURRENT APPROVED OUTPUT CONTRACT
 T1-01～T1-20                     AVAILABLE / FORMAL_RUNTIME
-Track 02 Context                 BATCH_A_AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+Track 02 Context                 BATCH_C_AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 Track 02 Batch B                 T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+Track 02 Batch C                 T2-07～T2-09 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 RUNTIME-INFRA-PERF-003            PROPOSED / NOT_STARTED
 ```
 
 当前 Course Builder Current Skill = v1.0.0，由 `skills/course-builder/index.ts` registry 解析；旧版本不作为 current input。Course Builder / Lesson Output Contract 只负责“怎样把一节课教会与输出成 Draft”；Auth / Access / Progress / Completion / Resume 继续属于 Runtime / Entitlement，不进入 Course Builder authority。未来 Web / H5 / 小程序继续复用同一 Backend/API。
 
 2026-09-24 课程展示数据与生产规则已对齐：
-- T1-01～T1-20 和 T2-01～T2-06 的正式课进度卡片从各课 `navigationDescription` 读取，不使用统一短句；T2 前三课的学习建议各自说明本课目标与准备动作，第 1 步 takeaway 下方各有两条本课说明。课程正文和已确认的 UI / CSS / 交互没有因本轮规则收敛而改变。
+- T1-01～T1-20 和 T2-01～T2-09 的正式课进度卡片从各课 `navigationDescription` 读取，不使用统一短句；T2 前三课的学习建议各自说明本课目标与准备动作，第 1 步 takeaway 下方各有两条本课说明。课程正文和已确认的 UI / CSS / 交互没有因本轮规则收敛而改变。
 - `LESSON_OUTPUT_CONTRACT_V1.md` 维护跨板块输出规则；Workflow 在启动时读取最新 owner，Skill v1 按最新规则生成，LessonSpec 和正式 Registry 校验两行卡片、一句话学习建议；T2 Draft Validator 额外校验第 1 步底部说明。第 3～5 板块沿用相同 Workflow，仅替换当前板块 Context，尚未生产对应新课程。
 
 当前产品工程顺序固定为：

@@ -32,7 +32,12 @@ const status = fs.readFileSync(statusPath, "utf8");
 assert(owner.includes("当前唯一的课程上下文 owner"), "CURRENT_OWNER_MARKER_MISSING");
 assert(owner.includes("Related-file authority map"), "RELATED_FILE_AUTHORITY_MAP_MISSING");
 assert(
-  owner.includes("DIRECTORY_APPROVED_V1 / BATCH_A_AVAILABLE / BATCH_B_AVAILABLE_RUNTIME_ACCEPTANCE_PASS"),
+  owner.includes("**CURRENT FORMAL BRIEF**：T2-10～T2-15；Human Review Pending") &&
+    owner.includes("T2-01～T2-03 lesson-boundary owner；生产已完成 / AVAILABLE"),
+  "RELATED_FILE_CURRENT_BRIEF_AUTHORITY_DRIFT"
+);
+assert(
+  owner.includes("DIRECTORY_APPROVED_V1 / T2-01～T2-09 AVAILABLE / BATCH_D_T2-10～T2-15 HUMAN_REVIEW_PENDING"),
   "OWNER_STATUS_DRIFT"
 );
 
@@ -70,7 +75,8 @@ assert(
   "TRACK01_AVAILABLE_FACT_DRIFT"
 );
 assert(
-  facts.includes("Track 02 Context                 BATCH_A_AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),
+  facts.includes("T2-01～T2-09                    AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS") &&
+    facts.includes("T2-10～T2-15                    PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING"),
   "TRACK02_CURRENT_FACT_MISSING"
 );
 assert(
@@ -96,7 +102,8 @@ const batchABrief = fs.readFileSync(
   "utf8"
 );
 assert(
-  batchABrief.includes("BRIEF_READY_V1 / COURSE_BUILDER_PENDING"),
+  batchABrief.includes("AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS") &&
+    batchABrief.includes("_historical-run-track02-batch-a-workflow.ts"),
   "TRACK02_BATCH_A_BRIEF_STATUS_DRIFT"
 );
 assert(

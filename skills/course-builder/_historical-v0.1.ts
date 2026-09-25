@@ -1,3 +1,4 @@
+// HISTORICAL_PROVENANCE_ONLY — superseded by skills/course-builder/v1.ts; do not import into current course production.
 export const COURSE_BUILDER_SKILL_V0_1 = {
   id: "course-builder",
   version: "0.1.0",

@@ -2,10 +2,10 @@
 
 Status: **AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS**
 Drafts: `fixtures/course-builder/track02-batch-b.ts` (T2-04～T2-06)
-Workflow: `scripts/run-track02-batch-b-workflow.ts`; deterministic checks: `scripts/validate-track02-batch-b-drafts.ts`. LessonSpec and formal presentation mapping are registered for review. The existing preview renderer is available at `/course-builder/preview/track02-batch-b/[lessonId]`. The learner confirmed formal course publication; database Runtime provisioning and Runtime acceptance passed, and all three lessons are AVAILABLE.
+Historical production evidence: `scripts/_historical-run-track02-batch-b-workflow.ts`, `scripts/_historical-validate-track02-batch-b-drafts.ts`, `scripts/_historical-validate-track02-batch-b-registration.ts`. LessonSpec and formal presentation mapping are registered; database Runtime provisioning and Runtime acceptance passed, and all three lessons are AVAILABLE.
 Track Owner: `docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
 Audit: `docs/learning/TRACK02_SIX_STEP_AUDIT_V1.md`
-Scope: **会做成品**（T2-04～T2-06）；其余 T2-07～T2-15 仍为 DIRECTORY_APPROVED，不得据目录直接发布课程。
+Scope: **会做成品**（T2-04～T2-06）。本 Brief 只定义这三课的课程边界，不维护后续 Batch 的 current status；后续状态统一从 Current Facts / Track 02 owner 解析。
 
 ## 批次目标与输入
 

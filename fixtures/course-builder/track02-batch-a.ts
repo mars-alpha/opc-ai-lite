@@ -11,7 +11,7 @@ const accessPresentation = {
 
 export type LessonConfig = {
   id: string;
-  canonicalId: "T2-01" | "T2-02" | "T2-03" | "T2-04" | "T2-05" | "T2-06" | "T2-07" | "T2-08" | "T2-09";
+  canonicalId: "T2-01" | "T2-02" | "T2-03" | "T2-04" | "T2-05" | "T2-06" | "T2-07" | "T2-08" | "T2-09" | "T2-10" | "T2-11" | "T2-12" | "T2-13" | "T2-14" | "T2-15";
   formalBriefSource?: string;
   title: string;
   prerequisites: string[];

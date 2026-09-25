@@ -16,9 +16,6 @@
     "learning:sidebar-ux:check": "tsx scripts/validate-course-sidebar-ux.ts",
     "learning:track01-baseline:check": "tsx scripts/validate-track01-current-baseline.ts",
     "learning:track02-context:check": "tsx scripts/validate-track02-curriculum-context.ts",
-    "learning:track02-batch-c:draft-check": "tsx scripts/validate-track02-batch-c-drafts.ts",
-    "learning:track02-batch-c:workflow": "tsx scripts/run-track02-batch-c-workflow.ts",
-    "learning:track02-batch-c:review-check": "tsx scripts/validate-track02-batch-c-review.ts",
     "learning:track02-path-access:check": "tsx scripts/validate-track02-learning-path-access.ts",
     "access:membership-policy:check": "tsx scripts/validate-membership-benefit-policy.ts",
     "practice:ia:check": "tsx scripts/validate-practice-information-architecture.ts",
@@ -41,7 +38,12 @@
     "learning:runtime:track02-batch-a": "tsx scripts/provision-track02-batch-a-runtime.ts --apply --confirm=TRACK02-BATCH-A-RUNTIME-001",
     "learning:runtime:accept:track02-batch-a": "node --conditions=react-server --import tsx scripts/accept-track02-batch-a-runtime.ts",
     "learning:runtime:track02-batch-b": "tsx scripts/provision-track02-batch-b-runtime.ts --apply --confirm=TRACK02-BATCH-B-RUNTIME-001",
-    "learning:runtime:accept:track02-batch-b": "node --conditions=react-server --import tsx scripts/accept-track02-batch-b-runtime.ts"
+    "learning:runtime:accept:track02-batch-b": "node --conditions=react-server --import tsx scripts/accept-track02-batch-b-runtime.ts",
+    "learning:runtime:track02-batch-c": "tsx scripts/provision-track02-batch-c-runtime.ts --apply --confirm=TRACK02-BATCH-C-RUNTIME-001",
+    "learning:runtime:accept:track02-batch-c": "node --conditions=react-server --import tsx scripts/accept-track02-batch-c-runtime.ts",
+    "learning:track02-batch-d:draft-check": "tsx scripts/validate-track02-batch-d-drafts.ts",
+    "learning:track02-batch-d:workflow": "tsx scripts/run-track02-batch-d-workflow.ts",
+    "learning:track02-batch-d:review-check": "tsx scripts/validate-track02-batch-d-review.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

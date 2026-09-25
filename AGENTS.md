@@ -66,7 +66,7 @@ MVP 阶段特别禁止通过连续叠加以下内容来“修好一个点”：
 
 新开 Chat / Agent / Codex 对话恢复课程生产状态时，必须先读取 `docs/CURRENT_SYSTEM_FACTS.md` 的 **Current Course Production Snapshot**，并运行 `npm run learning:course-current-state:check`。如果该检查失败，必须先修复事实漂移；不得从历史 task-result、旧 Brief、旧 Batch 状态或聊天记录猜测当前 Gate。
 
-`COURSE_BUILD_START_HERE.md`、`LESSON_OUTPUT_CONTRACT_V1.md`、`BEGINNER_LESSON_QUALITY_STANDARD_V1.md`、`COURSE_PRODUCTION_GOVERNANCE_V1.md` 等规则 owner 文件后续发生变化时，不复制规则正文到 Workflow；Workflow 每次运行按 `COURSE_PRODUCTION_RULE_SOURCES` 读取最新内容。
+`COURSE_BUILD_START_HERE.md` 是 Bootstrap Entry，`CURRENT_SYSTEM_FACTS.md` 是当前 Context；二者不属于课程规则正文 owner。`LESSON_OUTPUT_CONTRACT_V1.md`、`BEGINNER_LESSON_QUALITY_STANDARD_V1.md`、`COURSE_PRODUCTION_GOVERNANCE_V1.md` 等规范 owner 后续发生变化时，不复制规则正文到 Workflow / Current Facts / Start Here；Workflow 每次运行按 `COURSE_PRODUCTION_RULE_SOURCES` 读取最新内容。
 
 
 先确认：

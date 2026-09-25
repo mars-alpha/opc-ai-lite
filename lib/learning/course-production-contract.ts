@@ -3,13 +3,16 @@ import type { CourseBuilderOutput } from "./course-builder";
 export const COURSE_PRODUCTION_CONTRACT_VERSION = "1.0.0" as const;
 
 export const COURSE_PRODUCTION_RULE_SOURCES = [
-  "docs/learning/COURSE_BUILD_START_HERE.md",
-  "docs/CURRENT_SYSTEM_FACTS.md",
   "docs/learning/FORMAL_CURRICULUM_V1.md",
   "docs/learning/LESSON_OUTPUT_CONTRACT_V1.md",
   "docs/learning/BEGINNER_LESSON_QUALITY_STANDARD_V1.md",
   "docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md",
   "docs/learning/UNIFIED_LESSON_SHELL_V1.md"
+] as const;
+
+export const COURSE_PRODUCTION_BOOTSTRAP_SOURCES = [
+  "docs/learning/COURSE_BUILD_START_HERE.md",
+  "docs/CURRENT_SYSTEM_FACTS.md"
 ] as const;
 
 export type CourseProductionRuleSource =

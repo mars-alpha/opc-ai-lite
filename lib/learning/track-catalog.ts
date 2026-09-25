@@ -75,9 +75,9 @@ export const track02Catalog: TrackCatalogStage[] = [
     promise: "文件多、内容长时，仍然知道怎样定位、比较，并把信息推进成行动。",
     order: 3,
     lessons: [
-      plannedLesson("t2-07-targeted-document-reading", "文件太长，怎么快速找到真正需要的信息", "围绕目标字段和问题做定向阅读。", 1, ["T2-06"]),
-      plannedLesson("t2-08-cross-document-comparison", "多份文件怎么比较，差异在哪里", "先定义比较维度，再抽取、对齐和解释差异。", 2, ["T2-07"]),
-      plannedLesson("t2-09-information-to-action", "看完资料以后，下一步到底该做什么", "把信息整理成决定、行动、负责人、时间和风险。", 3, ["T2-08"])
+      { ...plannedLesson("t2-07-targeted-document-reading", "文件太长，怎么快速找到真正需要的信息", "围绕目标字段和问题做定向阅读。", 1, ["T2-06"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-07-targeted-document-reading", badge: "已上线" },
+      { ...plannedLesson("t2-08-cross-document-comparison", "多份文件怎么比较，差异在哪里", "先定义比较维度，再抽取、对齐和解释差异。", 2, ["T2-07"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-08-cross-document-comparison", badge: "已上线" },
+      { ...plannedLesson("t2-09-information-to-action", "看完资料以后，下一步到底该做什么", "把信息整理成决定、行动、负责人、时间和风险。", 3, ["T2-08"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-09-information-to-action", badge: "已上线" }
     ]
   },
   {

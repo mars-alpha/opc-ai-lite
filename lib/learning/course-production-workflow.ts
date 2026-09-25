@@ -1,4 +1,5 @@
 import {
+  COURSE_PRODUCTION_BOOTSTRAP_SOURCES,
   COURSE_PRODUCTION_CONTRACT_VERSION,
   COURSE_PRODUCTION_RULE_SOURCES
 } from "./course-production-contract";
@@ -7,6 +8,7 @@ export const COURSE_PRODUCTION_WORKFLOW_V1 = {
   id: "course-production-workflow",
   version: "1.0.0",
   contractVersion: COURSE_PRODUCTION_CONTRACT_VERSION,
+  bootstrapSources: COURSE_PRODUCTION_BOOTSTRAP_SOURCES,
   ruleSourcePolicy: "READ_LATEST_AT_RUN_START",
   requiredRuleSources: COURSE_PRODUCTION_RULE_SOURCES,
   contextPolicy: "RESOLVE_CURRENT_COURSE_CONTEXT_BEFORE_BUILD",
@@ -31,8 +33,9 @@ export const COURSE_PRODUCTION_WORKFLOW_V1 = {
   invariants: [
     "Workflow depends on stable contracts and standard gate states, not a concrete Skill version.",
     "Rule source content is read at workflow run start; rule text is not copied into the workflow.",
+    "Bootstrap entry/current facts are context sources, not normative course-rule owners.",
     "Global rule sources must not bind a Track-specific catalog, lesson brief, batch file, or deferred ledger.",
-    "Historical acceptance scripts, legacy fixtures, and task-results are evidence only; they cannot define current course-production rules.",
+    "Historical Skill versions, acceptance scripts, legacy fixtures, and task-results are evidence only; they cannot define current course-production rules.",
     "Current Track/board owner and its current directory status are resolved from Current Facts before Course Builder.",
     "Previous-current-next continuity, current Formal Brief/batch, deferred boundaries, and required grounding are resolved as run context before Course Builder.",
     "Switching Track/board changes context references only; it must not fork the workflow or create a Track-specific Course Builder Skill.",

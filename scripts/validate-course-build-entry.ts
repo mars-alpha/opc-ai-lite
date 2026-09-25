@@ -48,6 +48,11 @@ assert(
 );
 
 assert(!entry.includes("RUNTIME_FALLBACK 作为允许"), "FALLBACK_MUST_NOT_BE_ALLOWED");
+assert(
+  entry.includes("当前 Formal Brief / Batch **不在本入口维护状态清单**") &&
+    !entry.includes("TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md"),
+  "ENTRY_MUST_NOT_DUPLICATE_CURRENT_BATCH_STATUS"
+);
 
 console.log("COURSE_BUILD_UNIQUE_ENTRY=PASS");
 console.log("COURSE_BUILD_ENTRY_REFERENCES=PASS");

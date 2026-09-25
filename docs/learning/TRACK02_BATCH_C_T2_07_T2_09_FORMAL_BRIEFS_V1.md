@@ -1,12 +1,12 @@
 # Track 02 Batch C — T2-07～T2-09 Formal Briefs v1
 
-Status: **PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING**
+Status: **AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS**
 Drafts: `fixtures/course-builder/track02-batch-c.ts` (T2-07～T2-09)
-Workflow: `scripts/run-track02-batch-c-workflow.ts`; deterministic checks: `scripts/validate-track02-batch-c-drafts.ts`.
-Human Review Preview: `/course-builder/preview/track02-batch-c/[lessonId]` via `lib/learning/track02-batch-c-review.ts`; previewMode only, no formal progress writes or LessonSpec registration.
+Historical Workflow: `scripts/_historical-run-track02-batch-c-workflow.ts`; historical deterministic checks: `scripts/_historical-validate-track02-batch-c-drafts.ts`.
+Human Review 已通过。正式课程由 `lib/learning/track02-batch-c-runtime.ts` + LessonSpec Registry + Formal Runtime 提供；原 Preview 仅保留历史审阅用途。
 Track Owner: `docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
 Audit: `docs/learning/TRACK02_SIX_STEP_AUDIT_V1.md`
-Scope: **会处理复杂资料**（T2-07～T2-09）；T2-10～T2-15 仍为 DIRECTORY_APPROVED，不得据目录直接发布课程。
+Scope: **会处理复杂资料**（T2-07～T2-09）。本 Brief 只定义这三课的课程边界，不维护后续 Batch 的 current status；后续状态统一从 Current Facts / Track 02 owner 解析。
 
 ## 批次目标与输入
 
