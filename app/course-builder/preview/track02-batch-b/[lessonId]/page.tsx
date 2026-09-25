@@ -42,7 +42,7 @@ export default async function Track02BatchBReviewPage({
           <div className="lesson-side-list">
             {track02BatchBRuntimeDefinitions.map(({ canonicalId, lesson: item }) => (
               <Link key={item.id} className={item.id === lessonId ? "active" : ""} href={"/course-builder/preview/track02-batch-b/" + item.id}>
-                <span>{canonicalId}</span>{item.title}
+                <span>{canonicalId.replace("T2-", "")}</span>{item.title}
               </Link>
             ))}
           </div>

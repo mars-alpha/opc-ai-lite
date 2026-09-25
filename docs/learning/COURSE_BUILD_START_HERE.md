@@ -100,9 +100,11 @@
 Track 02 当前 Formal Brief 批次：
 
 - `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md`（已开放）
-- `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`（Draft 待人工审阅）
+- `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`（已开放）
+- `docs/learning/TRACK02_BATCH_C_T2_07_T2_09_FORMAL_BRIEFS_V1.md`（Human Review Pending）
 
 这些路径只是“当前事实示例”，不是 Workflow 的硬编码 Rule Sources。切换 Track / Batch 时必须从 Current Facts 重新解析 current owner。
+若本节示例状态与 `docs/CURRENT_SYSTEM_FACTS.md` 冲突，以 Current Facts 为准，并应立即修正本节示例，不能让入口文件长期保留已过期 Batch 状态。
 
 **只读取与当前课程连续性和实现有关的文件，不默认加载所有历史课程与全部 task-result。**
 
@@ -284,9 +286,13 @@ UI / Shell 规则以：
 - `ai-workflow`
 - 已废止的 `memory-rag` 等旧测试课程；
 - 历史聊天里已经被当前 Contract / Curriculum 覆盖的旧规则；
-- 旧 fallback / compatibility 实现。
+- 旧 fallback / compatibility 实现；
+- 已删除的旧 pilot / `course-builder:accept:*` / foundation trial 脚本不得恢复；`scripts/_historical-*` 只保留旧单课增量脚本与已经 AVAILABLE 批次的历史生产/恢复证据，不得作为当前 Workflow 入口。
 
 如历史资料与当前事实源冲突，按第 3 节优先级处理。
+
+当前课程规则只允许由 `COURSE_PRODUCTION_RULE_SOURCES` 中的 owner 文件 + Current Track Context + 当前 Formal Brief 共同决定。历史 validator 若包含某批课程特定数量或结构，只能约束该历史资产，不能被新 Workflow 当成通用规则。
+脚本入口以 `scripts/README.md` 与 `package.json` 为准；正常开发不得直接从 scripts 目录猜测该运行哪个文件。
 
 ---
 
@@ -296,6 +302,8 @@ UI / Shell 规则以：
 
 ```bash
 npm run learning:course-current-state:check
+npm run learning:course-governance:check
+npm run scripts:current:check
 npm run learning:formal-registry:check
 npm run typecheck
 ```

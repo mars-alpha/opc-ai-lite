@@ -198,11 +198,12 @@ Human Review 前还必须完成 **Six-step Content Integrity Review**：
 - Step 4 必须有真实学习动作；CONCEPT 可不设 Practice Gate，但不能出现“有 PRACTICE Step、无可操作内容”；
 - Review / Capability 必须收束当前版本，而不是旧稿残留；
 - 仅修改标题、正文或 Case Thread，而未同步 Check / Practice / Participation，视为未完成 Rework。
-- Step 5 上方 Review 主体固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向回答；二者不能删除。主卡片数量由课题与知识密度决定、不固定，每张都必须有本课具体回答正文，禁止泛化口号；主卡片下方必须保留 `knowledgeDepth.review` 说明层，按“明确命题 + 回答/解释”继续讲清为什么、边界、使用条件和易混淆判断，数量同样不固定，且不得与主卡片机械重复。mistakes 只做辅助纠偏；
+- Step 5 上方 Review 主体固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向回答；二者不能删除。主卡片数量由课题与知识密度决定、不固定，不得预设“两张即可”或任何固定数量；每张都必须有本课具体回答正文，禁止泛化口号；主卡片下方必须保留 `knowledgeDepth.review` 说明层，按“明确命题 + 回答/解释”继续讲清为什么、边界、使用条件和易混淆判断，数量同样不固定，且不得与主卡片机械重复。mistakes 只做辅助纠偏；
 - Step 6 必须同时能回答“会做什么 / 怎么知道自己会了 / 遇到什么情况应该想到这节课 / 下一步为什么继续”；
 - Guided Step 4 若要求学习者输入或产出内容，Human Review 必须检查 Hint / Reference / Fill / Copy 等辅助是否足够，避免出现“能输入但不会做”的伪实操。
 - 若 Step 4 使用 COPY_TO_AI，Human Review 必须把学习者实际字段按顺序组合，验证它们无需额外解释即可成为完整、准确、可执行并能得到本课目标输出的 AI 任务；若缺真实输入材料必须补为字段。Reference Fill 与 Reference Answer 必须表达同一标准任务，Reference Answer 不带字段主标题。
-- Step 6 的触发情境必须描述学习者未来会真实遇到的具体场景，并与 Next Lesson Value 分开存放和展示；若内容只是“本课使用某知识 / 上一课已学某知识 / 下一课继续某知识”，视为 CAPABILITY_TRIGGER_FAIL。
+- Step 6 的“遇到什么情况，我应该想到这节课？”必须作为**本课总结说明**：描述学习者未来会真实遇到的具体场景，并说明本课能力为什么适用/能解决什么；不得退化成“我会先…… / 你应该先……”式操作引导。它与 Next Lesson Value 分开存放和展示；若内容只是“本课使用某知识 / 上一课已学某知识 / 下一课继续某知识”，视为 CAPABILITY_TRIGGER_FAIL。
+- Human Review 必须区分“正常课程序号”和“内部生产身份”：学员端可显示 `07 / 08 / 09` 这类正常课程序号，但课程标题与卡片标题不得拼接 `T2-07`、Track、Batch、内部 Lesson ID 等生产标识。
 - Human Review 必须检查是否出现模板漂移：把某一课的案例结构、字段数量、Review 数量或生产术语复制成其他课程的默认结构；Step 5 只有“AI适合做什么 / AI不应该替你做什么”两个核心复盘方向是固定的，主卡片数量、具体回答和下方说明数量都必须由课题决定；同时检查是否错误删除主卡片后的说明层、把说明固定成某个条数，或让上下两层机械重复；并检查 `Beginner`、`Schema`、过程英文标签等是否在没有教学必要时泄漏到学员端。
 
 Human Review FAIL：

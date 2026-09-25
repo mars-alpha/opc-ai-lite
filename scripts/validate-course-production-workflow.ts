@@ -60,6 +60,8 @@ const continuity = fs.readFileSync(
   "docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md",
   "utf8"
 );
+const governanceValidator = fs.readFileSync("scripts/validate-course-governance.ts", "utf8");
+const scriptEntrypointValidator = fs.readFileSync("scripts/validate-script-entrypoints.ts", "utf8");
 assert(!workflowSource.includes("skills/course-builder/v1"), "WORKFLOW_BINDS_SKILL_V1");
 assert(!workflowSource.includes("skills/course-builder/v0.2"), "WORKFLOW_BINDS_SKILL_V02");
 assert(!workflowSource.includes('"1.0.0-track'), "WORKFLOW_BINDS_DRAFT_VERSION");
@@ -70,6 +72,16 @@ assert(
 assert(
   workflowDoc.includes("Track switch = Context switch, not Workflow fork and not Skill fork."),
   "WORKFLOW_DOC_TRACK_SWITCH_RULE_MISSING"
+);
+assert(
+  workflowDoc.includes("learning:course-governance:check") &&
+    governanceValidator.includes("COURSE_GOVERNANCE_STEP5_FLEXIBLE_COUNT=PASS"),
+  "COURSE_GOVERNANCE_GATE_MISSING"
+);
+assert(
+  workflowDoc.includes("scripts:current:check") &&
+    scriptEntrypointValidator.includes("SCRIPT_ENTRYPOINTS_RETIRED_ABSENT=PASS"),
+  "SCRIPT_ENTRYPOINT_GOVERNANCE_GATE_MISSING"
 );
 assert(
   courseBuildEntry.includes("不得默认从 Track 01 恢复"),
@@ -84,6 +96,17 @@ assert(
     outputContract.includes(field)
   ),
   "OUTPUT_CONTRACT_PRESENTATION_RULES_MISSING"
+);
+assert(
+  outputContract.includes("Learner-visible course numbering rule") &&
+    outputContract.includes("正常课程序号") &&
+    outputContract.includes("`T2-07`"),
+  "OUTPUT_CONTRACT_INTERNAL_ID_VISIBILITY_RULE_MISSING"
+);
+assert(
+  outputContract.includes("本课能力适用场景与本课价值的总结说明") &&
+    outputContract.includes("不得写成“我会先…… / 接下来应该……”式操作引导"),
+  "OUTPUT_CONTRACT_STEP6_SUMMARY_RULE_MISSING"
 );
 assert(
   formalRegistryCheck.includes("formalLessonSpecs") &&
@@ -133,6 +156,15 @@ assert(
 assert(
   !activeRuleText.includes("2–4"),
   "STEP5_FIXED_CARD_COUNT_RANGE_PRESENT"
+);
+assert(
+  activeRuleText.includes("不得预设“两张即可”") || activeRuleText.includes("不得预设“两张即可”或任何固定数量"),
+  "STEP5_NO_PRESET_TWO_CARD_RULE_MISSING"
+);
+assert(
+  activeRuleText.includes("正常课程序号") &&
+    activeRuleText.includes("内部 Lesson ID"),
+  "LEARNER_CARD_INTERNAL_ID_RULE_MISSING"
 );
 assert(
   !formalCurriculum.includes("7 个学习阶段"),

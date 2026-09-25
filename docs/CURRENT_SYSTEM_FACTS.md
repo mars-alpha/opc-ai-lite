@@ -13,11 +13,12 @@ Track 01 canonical path          T1-01～T1-20 / 6 Phases
 T1-01～T1-10                    AVAILABLE / FORMAL_RUNTIME
 T1-11～T1-20                    AVAILABLE / FORMAL_RUNTIME
 T2-01～T2-06                    AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
-T2-07～T2-15                    DIRECTORY_APPROVED / COMING_SOON
+T2-07～T2-09                    PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING
+T2-10～T2-15                    DIRECTORY_APPROVED / COMING_SOON
 Current Course Builder Skill    course-builder@1.0.0
 Frontend boundary               EXISTING UNIFIED LESSON SHELL / NO NEW UI / NO CSS CHANGE
 Deferred knowledge              DEFERRED_KNOWLEDGE_LEDGER_V1 → Track 02～05 planning input
-Next Gate                       Track 02 T2-07～T2-09 Formal Brief / Course Production
+Next Gate                       Track 02 Batch C Human Review
 ```
 
 T1-11～T1-20 已完成 Stable Course Production Workflow 全链路：10 个结构化 Draft、Deterministic Validation、Human Review、LessonSpec Registry、Runtime Provisioning 与 authenticated Runtime Acceptance 全部 PASS。10 节课均已进入 `foundation-ai` Phase 4～6 正式 Runtime，并继续复用现有 Unified Lesson Shell；本批次没有新增 UI / Renderer / interaction type，也没有调整 CSS。未展开知识继续由 `DEFERRED_KNOWLEDGE_LEDGER_V1.md` 作为 Track 02～05 规划输入。
@@ -450,11 +451,19 @@ Track 02 当前课程上下文唯一 owner 为 docs/learning/TRACK02_CATALOG_CON
 
 2026-09-24 启动 Batch B：T2-04～T2-06「会做成品」的独立 Formal Brief、Course Builder BUILD Draft 与逐课结构校验已经完成；三课分别训练接收对象/目的匹配、资料到交付物、成品诊断与定向修订。`scripts/run-track02-batch-b-workflow.ts` 读取当前规则与 Context，输出三个结构校验 PASS 的审阅 packet；学员确认正式课程后 Human Review PASS。`scripts/validate-track02-batch-b-drafts.ts` 核查六步、逐课一句学习建议与两行卡片、Step 1 底部说明、完整可复制参考填充和知识深度。T2-04～T2-06 已完成 LessonSpec Registry 和正式课程代码映射；使用现有 Generic Lesson Runtime Panel 的只读审阅入口 `/course-builder/preview/track02-batch-b/[lessonId]` 供人工体验，不写正式进度。Human Review 已通过，远端 Supabase 已 Provision 三课，各课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice，会员访问、答题、练习、完成进度的逐课 Runtime Acceptance PASS；T2-04～T2-06 为 AVAILABLE，T2-07～T2-15 仍仅为批准目录。
 
+2026-09-25 启动 Batch C：T2-07～T2-09「会处理复杂资料」已完成独立 Formal Brief、Course Builder BUILD Draft、Deterministic Validation 与 Human Review Preview 接入。三课分别训练 Targeted Document Reading、Cross-document Comparison、Information-to-Action Extraction；继续复用统一六步 Shell 与现有 Course Builder Skill v1，不新增上传器、文件浏览器、Renderer、交互类型或 CSS。`scripts/run-track02-batch-c-workflow.ts` 已验证 Rule Sources、Track Context、Formal Brief、三个 review packet 与 Gate 顺序，当前稳定停在 HUMAN_REVIEW_GATE；`scripts/validate-track02-batch-c-drafts.ts` 已验证六步、逐课学习建议、两行进度卡片、Step 1 底部说明、可直接复制参考填充、知识深度与三课能力分离。Human Review 使用独立 `track02-batch-c-review` adapter 与 `/course-builder/preview/track02-batch-c/[lessonId]`，继续复用 Generic Lesson Runtime Panel 的 previewMode，不写正式学习进度。T2-07～T2-09 尚未 LessonSpec Registry、未 Provision Runtime、未 AVAILABLE；正式 `ai-work` 仍只有 T2-01～T2-06 六节 AVAILABLE 课程；T2-10～T2-15 继续保持批准目录 / 即将开放。
+
+2026-09-25 Batch C Human Review 修正规则：学员端可显示正常课程序号（例如 `07 / 08 / 09`），但课程标题/卡片标题不拼接内部生产身份 `T2-07`、Track、Batch 或 Lesson ID；Step 5 固定的是“AI适合做什么 / AI不应该替你做什么”两个判断方向，**卡片数量不固定，也不得预设两张**，由课题知识密度决定；Step 6“遇到什么情况，我应该想到这节课？”必须显示对本课适用场景与能力价值的总结说明。此次 Human Review 发现 Preview Runtime 曾把 `triggerScenario` 在 previewMode 下置空并回退到 `lesson.related[0]`，导致误显示“下一课……”文案；现已为 Generic Lesson Runtime Panel 增加独立 `previewTriggerScenario` 输入并由 Batch C Preview 显式传入，Next Lesson Value 继续独立显示。规则与 validator 已同步。
+
 `TRACK02-LEARNING-PATH-ACCESS-001` 继续作为冻结交互基线：`/learning-path` 使用 `?track=foundation-ai|ai-work` 切换 T1/T2；T2 完整展示 15 节批准目录，当前 T2-01～T2-06 已切为真实 AVAILABLE Runtime，T2-07～T2-15 保持“即将开放”。Track Progress 只统计真实已开放课程。Access 与 Learning Prerequisite 分离：`ai-work` 正式访问由有效 OPC Membership 决定，T1 完成度不是会员进入 T2 的硬 Gate；未完成 T1 只生成非阻断学习建议。T2-01 上一项固定为“学习地图”；T1-20 完成后的跨 Track Continue 当前真实指向 T2-01；Sidebar 继续只显示当前 Course/Track。
 
 `COURSE-BUILDER-SKILL-V1-WORKFLOW-001` 当前稳定课程生产基线适用于所有正式课程板块，不仅 Track 01。架构固定为 `Course Production Contract → Orchestrator → Current Course Builder Skill → Deterministic Validators → Human Review Gate → LessonSpec Registry → Runtime Provisioning → Runtime Acceptance → AVAILABLE`。Workflow 生命周期不绑定具体 Skill version。
 
 Course Production Workflow 当前已按 Track 02 验证为真正跨 Track 通用：Global Rule Sources 只保留跨板块长期规则；每次运行必须从 Current Facts 解析 current Track/Board owner + directory status、previous→current→next continuity、current Formal Brief/Batch + brief status、Deferred/Supporting Boundary 与 Grounding/Research Packet。Track 切换只替换 Context references，不复制 Workflow，也不新建 Track-specific Course Builder Skill。COURSE_BUILD_START_HERE 已取消默认 Track 01 恢复；FORMAL_CURRICULUM 已对齐 Track 01 20节/6 Phase 与 Track 02 15节批准目录；FIVE_TRACK_CAPABILITY_CONTINUITY 只维护当前跨 Track 连续性，不再保存旧生产阶段或 Skill 版本决策。
+
+2026-09-25 完成课程生产规则全项目治理：`COURSE_PRODUCTION_RULE_SOURCES` 继续作为唯一跨板块规则集合；`COURSE_BUILD_START_HERE.md` 已更新 Track 02 Batch A/B/C 当前状态，并明确历史 acceptance / fixture / task-result 只属于历史证据，不得定义当前规则；Course Builder Skill v1 已显式采用 Step 5 数量不预设、Step 6 Trigger 与 Next Lesson Value 分离、学员正常序号与内部生产身份分离三条规则。新增 `npm run learning:course-governance:check`，检查 Active Rule Owners、Skill、Track 01/02 当前 validators、Preview/Runtime Trigger 映射、正式课程编号边界与历史资产隔离。Generic Lesson Runtime Panel 已移除 Step 6 对 `lesson.related[0]` 的 fallback，未来即使遗漏 Trigger，也不会把“下一课……”文案误显示为本课触发总结。Track 01 T11～T20、Track 02 Batch A/B/C 当前 validators 已从固定 Review 数量约束改为内容/双方向校验；早期 Beginner/Stage2/Continuity acceptance 已在 scripts 入口治理中删除，不进入新 Workflow。
+
+2026-09-25 完成 scripts 入口治理：删除 15 个已被现行 Formal Runtime / Stable Course Production Workflow 取代的旧 pilot、旧 LessonSpec/Runtime sample validator 与早期 Course Builder acceptance；从 `package.json` 共移除 27 个过时、单课旧入口或已完成 Batch 的生产入口。T1-06～T1-10 的逐课 provision / acceptance / draft validator，以及已 AVAILABLE 的 Track 01 T11～T1-20、Track 02 Batch A/B 的旧 Draft / Workflow / Registration 生产脚本，共 23 个统一改名为 `scripts/_historical-*`，且不暴露 package command。当前 scripts 根目录剩 32 个 current TypeScript 脚本，全部都有明确 package entrypoint；historical 暴露数为 0。新增 `scripts/README.md` 作为人工入口说明，新增 `npm run scripts:current:check` 强制：所有非 `_historical-*` 的根目录 TypeScript 脚本必须有 package entrypoint、历史脚本不得暴露、已退役脚本不得重新出现。Course Production Workflow preflight 已纳入该检查。
 
 现行六步固定教学责任：EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY；表现形式由课题决定。Step 4 的字段数量不固定，Reference Fill / Reference Answer 必须形成可直接交给 AI 执行并得到本课目标结果的完整任务。Step 5 上方固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向给出本课具体回答；主卡片数量不固定；下方 `knowledgeDepth.review` 使用“明确命题 + 回答/解释”讲清原因、边界、使用条件或易混淆判断，说明数量同样不固定；上下两层不得机械重复、不为版式凑数量。Step 6 必须分开表达可执行能力、自证证据、现实触发情境与下一步价值。学员可见文案中文优先；只有本课真正需要的行业通用 AI / 技术术语保留英文或缩写。
 

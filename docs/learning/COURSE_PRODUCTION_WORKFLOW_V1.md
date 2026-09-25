@@ -26,9 +26,11 @@ Workflow 是稳定生命周期骨架，不绑定某个 Course Builder Skill 具�
 
 ```bash
 npm run learning:course-current-state:check
+npm run learning:course-governance:check
+npm run scripts:current:check
 ```
 
-该检查只确认 Current Facts / Current Workflow Batch / Human Review Gate 是否一致，不新增生命周期 Stage。检查失败时不得从历史 task-result 推断当前状态继续生产。
+第一项确认 Current Facts / Current Workflow Batch / Human Review Gate 是否一致；第二项确认当前 Rule Owners、Course Builder Skill、Track 当前 Validators 与 Preview/Runtime 映射没有重新引入已废止规则；第三项确认 scripts 根目录只有明确 package entrypoint 或 `_historical-*` 归档脚本，且已退役 pilot / acceptance 不会重新暴露。三者都不新增生命周期 Stage。任一检查失败时不得从历史 task-result、旧 acceptance、legacy fixture 或脚本文件名猜测当前规则继续生产。
 
 ## 2. Stable Workflow
 
@@ -66,6 +68,8 @@ Workflow 不复制课程规则正文。
 - `docs/learning/UNIFIED_LESSON_SHELL_V1.md`
 
 因此这些 owner 文件后续发生变化时，Workflow 下一次运行自动消费最新规则，不需要把规则正文再次复制到 Workflow 文件。全局 Rule Sources 只能放跨板块长期规则，不得写死 Track 01 或任何单一板块的 Catalog、Formal Brief、Batch、Fixture 或 Deferred Ledger。
+
+历史 acceptance / fixture / task-result 可以保留用于解释或回归当时资产，但不属于 Rule Sources。它们内部若保留某批课程的固定数量、旧 handoff 或旧 Capability 文案，不得被 Orchestrator、Current Skill 或新课程 validator 继承为通用规则。
 
 每次运行还必须解析当前课程 Context，但这些 Context 不属于全局 Rule Sources。Context 必须按“current owner reference + read-latest”解析，而不是把某个 Track 文本复制进 Workflow：
 

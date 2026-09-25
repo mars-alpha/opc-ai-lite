@@ -261,6 +261,7 @@ export function GenericLessonRuntimePanel({
   previewPracticeHintsGrouped = false,
   previewPracticeCopyValuesOnly = true,
   previewSelfAssessment = null,
+  previewTriggerScenario = null,
   previewIntroComparison = null,
   completionControl = null,
   onRuntimeChange = null
@@ -285,6 +286,7 @@ export function GenericLessonRuntimePanel({
   previewPracticeHintsGrouped?: boolean;
   previewPracticeCopyValuesOnly?: boolean;
   previewSelfAssessment?: ReadonlyArray<string> | null;
+  previewTriggerScenario?: string | null;
   previewIntroComparison?: PreviewIntroComparison | null;
   completionControl?: ReactNode;
   onRuntimeChange?: ((runtime: RuntimeData) => void) | null;
@@ -330,7 +332,7 @@ export function GenericLessonRuntimePanel({
     ? previewSelfAssessment
     : approvedPresentation?.selfAssessment ?? null;
   const presentationTriggerScenario = previewMode
-    ? null
+    ? previewTriggerScenario
     : approvedPresentation?.triggerScenario ?? null;
   const richPresentationEnabled = previewMode || Boolean(approvedPresentation);
 
@@ -1467,7 +1469,7 @@ export function GenericLessonRuntimePanel({
               </div>
               <div>
                 <strong>遇到什么情况，我应该想到这节课？</strong>
-                <p>{presentationTriggerScenario ?? lesson.related[0] ?? "当真实任务中再次出现本课解决的问题时，就应该调用这项能力。"}</p>
+                <p>{presentationTriggerScenario ?? "当真实任务中再次出现本课解决的问题时，这节课学到的能力就适用于识别问题、判断边界并完成对应处理。"}</p>
               </div>
             </div>
           ) : null}

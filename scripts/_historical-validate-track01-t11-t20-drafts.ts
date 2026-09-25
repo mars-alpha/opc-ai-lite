@@ -47,7 +47,14 @@ for (const packet of packets) {
     expectedReferenceAnswer.length >= 80 && expectedReferenceAnswer.includes("请"),
     "REFERENCE_ANSWER_MUST_BE_COPY_READY_AI_TASK:" + draft.lessonSpec.lessonId
   );
-  assert(draft.review.length >= 2, "REVIEW_BOUNDARY_REQUIRED:" + draft.lessonSpec.lessonId);
+  assert(draft.review.length >= 1, "REVIEW_BOUNDARY_REQUIRED:" + draft.lessonSpec.lessonId);
+  assert(
+    draft.review.every((item) => {
+      const [fit, boundary] = item.split("｜");
+      return Boolean(fit?.trim() && boundary?.trim());
+    }),
+    "REVIEW_TWO_DIRECTIONS_REQUIRED:" + draft.lessonSpec.lessonId
+  );
   assert(draft.selfAssessment.length >= 2, "SELF_ASSESSMENT_REQUIRED:" + draft.lessonSpec.lessonId);
   const learnerVisible = JSON.stringify({
     title: draft.lessonSpec.title,
@@ -88,10 +95,6 @@ for (const packet of packets) {
   );
 }
 
-const reviewCounts = track01T111T120Drafts.map((draft) => draft.review.length);
-assert(new Set(reviewCounts).size > 1, "REVIEW_CARD_COUNT_MUST_FOLLOW_KNOWLEDGE_DENSITY");
-assert(reviewCounts.some((count) => count >= 4), "DENSE_LESSON_REVIEW_MUST_ALLOW_MORE_CARDS");
-
 const titles = packets.map((packet) =>
   packet.output.mode === "BUILD" ? packet.output.lessonSpec.title : ""
 ).join(" ");
@@ -118,5 +121,5 @@ console.log("TRACK01_T11_T20_DETERMINISTIC_VALIDATION=PASS");
 console.log("TRACK01_T11_T20_REVIEW_PACKET_GATE_STATE=PASS");
 console.log("TRACK01_T11_T20_CHINESE_FIRST_LEARNER_COPY=PASS");
 console.log("TRACK01_T11_T20_COPY_READY_REFERENCE_ANSWER=PASS");
-console.log("TRACK01_T11_T20_REVIEW_DENSITY_VARIATION=PASS");
+console.log("TRACK01_T11_T20_REVIEW_DIRECTION_CONTENT=PASS");
 console.log("TRACK01_T11_T20_TRIGGER_SCENARIOS=PASS");

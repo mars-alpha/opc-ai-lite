@@ -36,14 +36,12 @@ assert(runtime.includes("track01T109Draft"), "T109_FORMAL_RUNTIME_MISSING");
 assert(runtime.includes("track01T109Spec"), "T109_SPEC_REGISTRY_MISSING");
 assert(runtime.includes("track01T109RuntimeDefinition"), "T109_RUNTIME_DEFINITION_MISSING");
 assert(catalogCode.includes('runtimeAvailable("t1-09-knowledge-source")'), "T109_AVAILABLE_FACT_MISSING");
-assert(fs.existsSync("scripts/accept-track01-t109-runtime.ts"), "T109_ACCEPTANCE_SCRIPT_MISSING");
 
 assert(catalogCode.includes('lessonId:"t1-10-search-rag"'), "T110_CATALOG_ENTRY_MISSING");
 assert(catalogCode.includes('runtimeAvailable("t1-10-search-rag")'), "T110_RUNTIME_MAPPING_MISSING");
 assert(runtime.includes("track01T110Draft"), "T110_FORMAL_RUNTIME_MISSING");
 assert(runtime.includes("track01T110Spec"), "T110_SPEC_REGISTRY_MISSING");
 assert(runtime.includes("track01T110RuntimeDefinition"), "T110_RUNTIME_DEFINITION_MISSING");
-assert(fs.existsSync("scripts/accept-track01-t110-runtime.ts"), "T110_ACCEPTANCE_SCRIPT_MISSING");
 assert(
   facts.includes("T1-01～T1-20                     AVAILABLE / FORMAL_RUNTIME"),
   "TRACK01_TWENTY_CURRENT_FACT_MISSING"

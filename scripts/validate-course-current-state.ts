@@ -16,7 +16,7 @@ assert(
   "T11_T20_CURRENT_STATE_MISSING"
 );
 assert(
-  facts.includes("Next Gate                       Track 02 T2-07～T2-09 Formal Brief / Course Production"),
+  facts.includes("Next Gate                       Track 02 Batch C Human Review"),
   "TRACK02_NEXT_BATCH_GATE_MISSING"
 );
 assert(!facts.includes("T1-11～T1-20 继续保持冻结目录规划状态"), "STALE_T11_T20_FROZEN_STATE_PRESENT");
@@ -44,6 +44,12 @@ assert(
   "PROJECT_STATUS_TRACK02_BATCH_A_MISSING"
 );
 assert(
+  facts.includes("T2-07～T2-09                    PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING") &&
+    projectStatus.includes("Track 02 Batch C                         T2-07～T2-09 PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING") &&
+    projectStatus.includes("Track 02 Batch C Preview / Workflow      PASS / HUMAN REVIEW PENDING"),
+  "TRACK02_BATCH_C_HUMAN_REVIEW_GATE_MISSING"
+);
+assert(
   (catalog.match(/\.\.\.runtimeAvailable\("t1-[^"]+"\)/g) ?? []).length === 20,
   "TRACK01_TWENTY_RUNTIME_MAPPINGS_REQUIRED"
 );
@@ -63,4 +69,5 @@ console.log("COURSE_CURRENT_STATE_T11_T20_AVAILABLE=PASS");
 console.log("COURSE_CURRENT_STATE_TRACK01_RUNTIME_COMPLETE=PASS");
 console.log("COURSE_CURRENT_STATE_TRACK02_CONTEXT=PASS");
 console.log("COURSE_CURRENT_STATE_TRACK02_BATCH_B_AVAILABLE=PASS");
+console.log("COURSE_CURRENT_STATE_TRACK02_BATCH_C_HUMAN_REVIEW=PASS");
 console.log("COURSE_CURRENT_STATE_NO_HISTORICAL_RESULT_DEPENDENCY=PASS");

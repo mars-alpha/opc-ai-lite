@@ -1206,6 +1206,47 @@ Runtime：T2-01～T2-03 已重新幂等 Provision；真实 Access / 9 Check / 3 
 
 Workflow：第 1～5 板块共用现行 Course Builder Skill、Workflow、Validators 与 Human Review；切换板块只替换 Context，不复制规则或新建前端。
 
+## TRACK02-BATCH-C-T2-07-T2-09 — Formal Brief → Workflow Draft
+
+Status: HUMAN_REVIEW_PENDING
+Priority: P0
+
+Goal：按 Stable Course Production Workflow 构建 Track 02 Phase 3「会处理复杂资料」的 T2-07～T2-09，并在 Human Review 前停止，不提前注册或 Provision Runtime。
+
+Scope：T2-07 Targeted Document Reading → T2-08 Cross-document Comparison → T2-09 Information-to-Action Extraction。课程继续复用现有 Unified Lesson Shell / Course Builder Skill v1；文件能力只通过课程内 Sample Input / 外部 AI Practice Context 表达，不新增上传器、文件浏览器、Renderer、interaction type 或 CSS。
+
+Result：`docs/learning/TRACK02_BATCH_C_T2_07_T2_09_FORMAL_BRIEFS_V1.md`、`fixtures/course-builder/track02-batch-c.ts`、`scripts/run-track02-batch-c-workflow.ts`、`scripts/validate-track02-batch-c-drafts.ts` 已建立。三个 BUILD Draft 均产生 PENDING_REVIEW packet，Deterministic Validation PASS，Workflow Next Stage = HUMAN_REVIEW_GATE。Human Review Preview 已通过独立 `lib/learning/track02-batch-c-review.ts` 与 `/course-builder/preview/track02-batch-c/[lessonId]` 接入现有 Generic Lesson Runtime Panel；只使用 previewMode，不写正式学习进度，也未注册正式 LessonSpec。
+
+Validation：`npm run learning:track02-batch-c:draft-check` PASS；`npm run learning:track02-batch-c:workflow` PASS；`npm run learning:track02-batch-c:review-check` PASS；`npm run typecheck` PASS；`npm run build` PASS。
+
+Boundary：T2-07～T2-09 当前未 LessonSpec Registry、未 Runtime Provisioning、未 Runtime Acceptance、未 AVAILABLE。只有 Human Review PASS 后才允许进入正式 Registry / Runtime。
+
+Next：人工体验并审阅 T2-07～T2-09；若 PASS，再进入 LessonSpec Registration → Runtime Provisioning → Runtime Acceptance。
+
+Human Review correction（2026-09-25）：T2-07～T2-09 按实际体验修正三项长期规则并同步全局生产基线。1）学员端保留正常课程序号 `07 / 08 / 09`，但标题不显示内部生产编号 `T2-07 / T2-08 / T2-09`；2）Step 5 只固定“AI适合做什么 / AI不应该替你做什么”两个判断方向，卡片数量不固定、不得预设两张；3）Step 6“遇到什么情况，我应该想到这节课？”必须显示本课适用场景与能力价值总结。已定位并修复 Preview Runtime 字段串位：previewMode 原先把 triggerScenario 置空并回退到 `lesson.related[0]`，所以错误显示 Next Lesson Value。现由独立 `previewTriggerScenario` 传入，Next Lesson Value 仍单独显示。对应 Draft、Preview、Lesson Output Contract、Beginner Quality、Governance 与 deterministic validators 已同步。
+
+## COURSE-RULE-GOVERNANCE-001 — Cross-project Course Production Anti-drift
+
+Status: COMPLETE / VALIDATION_PASS
+Priority: P0
+
+Goal：对所有会影响正式课程生产的 Rule Owners、Workflow、Current Course Builder Skill、current validators、Preview/Runtime presentation 做统一治理，消除已确认规则与旧文件之间的冲突，避免后续 Track 03～05 再次从历史资产恢复旧规则。
+
+Result：当前唯一规则链为 `COURSE_PRODUCTION_RULE_SOURCES + Current Track Context + Current Formal Brief`。Step 5 只固定两个判断方向、不固定卡片数；Step 6 Trigger 是本课适用场景/能力价值总结并与 Next Lesson Value 分离；学员端允许正常课程序号但标题不拼接内部 T/Track/Batch/Lesson ID。`GenericLessonRuntimePanel` 已删除 `lesson.related[0]` Trigger fallback。当前 Batch C validator 使用内容/双方向验证，不使用固定 Review 数量；早期 Beginner/Stage2/Continuity acceptance 已在后续 scripts 治理中删除。
+
+Validation：`learning:course-governance:check`、`learning:course-production-workflow:check`、`learning:course-build-entry:check`、`learning:course-current-state:check`、当前 Batch C Draft / Review、`typecheck`、`build` 全部 PASS。已完成 Batch 的旧 Draft / Workflow / Registration validator 后续归档为 `_historical-*`，不再作为 current gate。
+
+## SCRIPT-ENTRYPOINT-GOVERNANCE-001 — Current Scripts Cleanup
+
+Status: COMPLETE / VALIDATION_PASS
+Priority: P0
+
+Goal：减少 `scripts/` 中旧任务脚本对后续开发的误导，让“最新可运行脚本”只通过 `package.json` 暴露，并隔离仍有历史恢复价值的单课脚本。
+
+Result：删除 15 个已退役 pilot / sample validator / early Course Builder acceptance；累计移除 27 个过时、单课旧入口或已完成 Batch 的 package scripts；23 个仍有追溯/恢复价值的单课或已完成 Batch 生产脚本统一改名为 `_historical-*` 并取消当前入口。当前 scripts 中 32 个 current TypeScript 脚本全部有 package entrypoint，historical 暴露数为 0。新增 `scripts/README.md` 与 `scripts:current:check`。规则：普通根目录 `.ts` 必须有 package entrypoint；未暴露脚本只能是 `_historical-*`；已退役脚本重新出现即验证失败。
+
+Validation：`npm run scripts:current:check`、Course Governance、Course Production Workflow、Course Build Entry、Current State、Track 01 Baseline、Batch C Draft / Review、`typecheck`、`build` 全部 PASS。
+
 # BACKLOG
 
 ```text

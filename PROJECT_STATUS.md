@@ -8,13 +8,14 @@
 MVP Core / Content-Knowledge Pipeline     COMPLETE / AI_PROVIDER_PENDING_WHERE_REQUIRED
 Formal Runtime + Access                  COMPLETE
 Unified Lesson Shell v1                  FROZEN / ACCEPTANCE PASS
-Course Production Workflow               STABLE / CURRENT SKILL VIA REGISTRY
+Course Production Workflow               STABLE / GOVERNANCE CHECK PASS / CURRENT SKILL VIA REGISTRY
 Track 01 Formal Curriculum               T1-01～T1-20 AVAILABLE / FORMAL_RUNTIME
 Track 02 Directory                       T2-01～T2-15 DIRECTORY_APPROVED_V1 / 15 KEEP
 Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME
 Track 02 Batch B                         T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
+Track 02 Batch C                         T2-07～T2-09 PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
-CURRENT                                  FRONTEND / ACCESS BASELINE FROZEN / READY_FOR_NEXT_PLAN
+CURRENT                                  TRACK02_BATCH_C / HUMAN_REVIEW_GATE
 ```
 
 ## 当前系统健康
@@ -27,13 +28,15 @@ Track 01 20 Lesson Runtime mappings      PASS
 Unified Lesson Shell v1                  FROZEN / PASS
 Check / Practice server authority        PASS
 Completion / Rating / Resume             PASS
-Course Production Workflow               PASS
+Course Production Workflow               PASS / ANTI-DRIFT GOVERNANCE PASS
+Script entrypoint governance             PASS / CURRENT ENTRIES ONLY
 Current Course Builder Skill registry    PASS
 Course six-step content responsibility   FROZEN / EXPERIENCE_REVIEW_PASS
 Track 02 current owners / context         PASS
 Track 02 Learning Map / Access           FROZEN / IMPLEMENTATION PASS
 Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 02 Batch B Runtime                 PROVISIONED / ACCEPTANCE PASS
+Track 02 Batch C Preview / Workflow      PASS / HUMAN REVIEW PENDING
 Membership / Follow benefit model        FROZEN / CURRENT
 Frontend information architecture        FROZEN / CURRENT
 Frontend UI/CSS freeze for course work   ACTIVE

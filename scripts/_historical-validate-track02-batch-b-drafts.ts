@@ -27,13 +27,14 @@ for (const packet of packets) {
   assert(d.checkSequence?.length === 3 && d.practice !== null, id + ":CHECK_PRACTICE");
   const reference = d.practice.rubric.map((item) => item.example.trim()).join("\n");
   assert(d.referenceAnswer === reference && reference.length >= 220 && reference.includes("请"), id + ":DIRECT_COPY_REFERENCE");
-  assert(d.review.length >= 2 && d.selfAssessment.length >= 2, id + ":REVIEW_CAPABILITY");
+  assert(d.review.length >= 1 && d.selfAssessment.length >= 2, id + ":REVIEW_CAPABILITY");
+  assert(d.review.every((item) => { const [fit, boundary] = item.split("｜"); return Boolean(fit?.trim() && boundary?.trim()); }), id + ":REVIEW_TWO_DIRECTIONS");
   const intro = track02BatchBIntroComparisons[id as keyof typeof track02BatchBIntroComparisons];
   const depth = track02BatchBKnowledgeDepth[id as keyof typeof track02BatchBKnowledgeDepth];
   const trigger = track02BatchBTriggerScenarios[id as keyof typeof track02BatchBTriggerScenarios];
   assert(intro?.bottomDetails.length === 2 && intro.bottomDetails.every((item) => item.title.trim() && item.text.trim()), id + ":STEP1_BOTTOM");
   assert(intro.title !== d.content.example.title && intro.situation !== d.content.example.situation, id + ":INTRO_EXAMPLE_DUPLICATE");
-  assert(depth?.example.length >= 2 && depth?.review.length >= 2, id + ":DEPTH");
+  assert(depth?.example.length >= 1 && Boolean(depth?.review.length), id + ":DEPTH");
   assert(Boolean(trigger?.trim()) && !trigger.includes("下一课"), id + ":TRIGGER");
   const visible = JSON.stringify({title:d.lessonSpec.title,content:d.content,practice:d.practice,checks:d.checkSequence,review:d.review,selfAssessment:d.selfAssessment});
   for (const forbidden of ["Research Brief","Evidence Pack","Evidence Synthesis","Schema","Beginner"]) assert(!visible.includes(forbidden), id + ":ENGLISH_INTERNAL_TERM");

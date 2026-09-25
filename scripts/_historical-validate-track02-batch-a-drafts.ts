@@ -71,15 +71,19 @@ for (const packet of packets) {
     expectedReference.length >= 220 && expectedReference.includes("请"),
     "COPY_READY_TASK_REQUIRED:" + draft.lessonSpec.lessonId
   );
-  assert(draft.review.length >= 3, "REVIEW_DEPTH_REQUIRED:" + draft.lessonSpec.lessonId);
+  assert(draft.review.length >= 1, "REVIEW_REQUIRED:" + draft.lessonSpec.lessonId);
+  assert(
+    draft.review.every((item) => {
+      const [fit, boundary] = item.split("｜");
+      return Boolean(fit?.trim() && boundary?.trim());
+    }),
+    "REVIEW_TWO_DIRECTIONS_REQUIRED:" + draft.lessonSpec.lessonId
+  );
   const knowledgeDepth =
     track02BatchAKnowledgeDepth[
       draft.lessonSpec.lessonId as keyof typeof track02BatchAKnowledgeDepth
     ];
-  assert(
-    knowledgeDepth?.review.length >= 2,
-    "STEP5_EXPLANATION_LAYER_REQUIRED:" + draft.lessonSpec.lessonId
-  );
+  assert(Boolean(knowledgeDepth?.review.length), "STEP5_EXPLANATION_LAYER_REQUIRED:" + draft.lessonSpec.lessonId);
   assert(draft.selfAssessment.length >= 2, "SELF_ASSESSMENT_REQUIRED:" + draft.lessonSpec.lessonId);
 
   const learnerVisible = JSON.stringify({
