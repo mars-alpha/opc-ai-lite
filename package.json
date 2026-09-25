@@ -41,9 +41,9 @@
     "learning:runtime:accept:track02-batch-b": "node --conditions=react-server --import tsx scripts/accept-track02-batch-b-runtime.ts",
     "learning:runtime:track02-batch-c": "tsx scripts/provision-track02-batch-c-runtime.ts --apply --confirm=TRACK02-BATCH-C-RUNTIME-001",
     "learning:runtime:accept:track02-batch-c": "node --conditions=react-server --import tsx scripts/accept-track02-batch-c-runtime.ts",
-    "learning:track02-batch-d:draft-check": "tsx scripts/validate-track02-batch-d-drafts.ts",
-    "learning:track02-batch-d:workflow": "tsx scripts/run-track02-batch-d-workflow.ts",
-    "learning:track02-batch-d:review-check": "tsx scripts/validate-track02-batch-d-review.ts"
+    "learning:runtime:track02-batch-d": "tsx scripts/provision-track02-batch-d-runtime.ts --apply --confirm=TRACK02-BATCH-D-RUNTIME-001",
+    "learning:runtime:accept:track02-batch-d": "node --conditions=react-server --import tsx scripts/accept-track02-batch-d-runtime.ts",
+    "learning:track02-batch-d:formal-check": "tsx scripts/validate-track02-batch-d-registration.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

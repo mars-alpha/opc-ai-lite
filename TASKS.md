@@ -1219,28 +1219,28 @@ Result：三个 BUILD Draft 完成 Deterministic Validation 与 Human Review；�
 
 Validation：Human Review PASS；Formal Registration PASS；Runtime Provisioning PASS；会员 Access / 9 Check / 3 Practice / Completion Runtime Acceptance PASS；正式 Registry / Learning Path / TypeScript / Build 继续作为上线后回归 Gate。
 
-Boundary：T2-07～T2-09 已 AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS；T2-10～T2-15 仍未注册 LessonSpec、未 Provision Runtime、保持 COMING_SOON。
+Boundary（当时状态，已由后续 Batch D 上线覆盖）：T2-07～T2-09 先完成 AVAILABLE；当前 Track 02 最终状态以 Batch D 任务与 Current Facts 为准，T2-01～T2-15 已全部 AVAILABLE。
 
-Next：进入 T2-10～T2-12 Formal Brief / Workflow 构建。
+Next（历史阶段）：随后已进入并完成 Batch D；当前下一步以 Project Status 的 Track 03 planning 为准。
 
 Human Review correction（2026-09-25）：T2-07～T2-09 按实际体验修正长期规则并同步全局生产基线。1）学员端保留正常课程序号 `07 / 08 / 09`，但标题不显示内部生产编号 `T2-07 / T2-08 / T2-09`；2）Step 5 固定“AI适合做什么 / AI不应该替你做什么”两个判断方向；该数量规则后续已由 Batch D Human Review 更新为“主卡片至少 2 张、上限不固定，超过两张只为让知识更清晰”；3）Step 6“遇到什么情况，我应该想到这节课？”必须显示本课适用场景与能力价值总结。已定位并修复 Preview Runtime 字段串位：previewMode 原先把 triggerScenario 置空并回退到 `lesson.related[0]`，所以错误显示 Next Lesson Value。现由独立 `previewTriggerScenario` 传入，Next Lesson Value 仍单独显示。对应 Draft、Preview、Lesson Output Contract、Beginner Quality、Governance 与 deterministic validators 已同步。
 
 ## TRACK02-BATCH-D-T2-10-T2-15 — Formal Brief → Workflow Draft
 
-Status: HUMAN_REVIEW_PENDING
+Status: COMPLETE / AVAILABLE / RUNTIME_ACCEPTANCE_PASS
 Priority: P0
 
-Goal：按 Stable Course Production Workflow 一次性构建 Track 02 剩余 T2-10～T2-15，并在 Human Review Gate 停止，不提前注册或 Provision Runtime。
+Goal：按 Stable Course Production Workflow 一次性构建并正式发布 Track 02 剩余 T2-10～T2-15。
 
 Scope：T2-10 Metric Definition → T2-11 Data Quality → T2-12 Data Analysis → T2-13 Knowledge Capture → T2-14 Knowledge Organization / Source Governance → T2-15 Reusable Method。继续复用 Unified Lesson Shell / Course Builder Skill v1，不新增 Spreadsheet Editor、Knowledge Base UI、Automation Builder、Renderer、interaction type 或 CSS。
 
-Result：已建立 `docs/learning/TRACK02_BATCH_D_T2_10_T2_15_FORMAL_BRIEFS_V1.md`、`fixtures/course-builder/track02-batch-d.ts`、`lib/learning/track02-batch-d-review.ts`、Batch D Preview Route、Workflow 与 deterministic validators。6 个 BUILD Draft 均通过结构校验并进入 PENDING_REVIEW；T2-15 明确保留在 reusable method / template / checklist / SOP-lite，不提前教授 Track 04 的 Trigger / Node / State / Retry / Automation / Agent Design。
+Result：已建立 Batch D Formal Brief、Draft、Preview、Workflow 与 deterministic validators；6 个 BUILD Draft 当时完成结构校验并进入 Human Review Gate。后续 Human Review PASS，并已完成正式 Runtime 上线。T2-15 继续明确保留在 reusable method / template / checklist / SOP-lite，不提前教授 Track 04 的 Trigger / Node / State / Retry / Automation / Agent Design。
 
-Validation：`learning:track02-batch-d:draft-check`、`learning:track02-batch-d:workflow`、`learning:track02-batch-d:review-check`、Current State、Course Governance、Course Production Workflow、Script Entrypoints、TypeScript、Production Build 全部 PASS。
+Validation：生产期 Draft / Workflow / Review 已完成并归档；正式状态使用 `learning:track02-batch-d:formal-check`、Runtime Provisioning、authenticated Runtime Acceptance、Current State、Course Governance、Formal Registry、Track 02 Access、TypeScript 与 Production Build 验收。
 
-Boundary：T2-10～T2-15 当前未 LessonSpec Registry、未 Runtime Provisioning、未 Runtime Acceptance、未 AVAILABLE。T2-01～T2-09 保持正式 AVAILABLE，不受本批 Preview 影响。
+Boundary：T2-10～T2-15 已完成 LessonSpec Registry、Runtime Provisioning、Runtime Acceptance 并 AVAILABLE；Track 02 T2-01～T2-15 当前全部正式上线。
 
-Next：人工体验并审阅 T2-10～T2-15；若 PASS，再进入 LessonSpec Registration → Runtime Provisioning → Runtime Acceptance。
+Next：Batch D 上线链路已闭环；Track 02 完成，进入 Track 03 planning。
 
 Human Review Rework（2026-09-25）：已定位并删除两类 Batch D 自动模板污染：Step 1 从 Step 2 example 自动派生、Step 5 从 mistakes 自动派生说明层。六课现逐课显式定义 Step 1 / Step 5；Formal Brief 提供 must-retain judgments，current validator 同时检查 Step 1/2 overlap、Step 5 最低结构与知识覆盖。具体通用规则只以 current Rule Sources 为准；T2-10～T2-15 当前主 Review 为 2/2/3/2/3/2。
 

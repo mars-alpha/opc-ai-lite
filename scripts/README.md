@@ -22,7 +22,7 @@ Status: **ACTIVE / GOVERNED**
 - `npm run learning:formal-registry:check`
 - `npm run scripts:current:check`
 
-当前课程生产 Gate：Track 02 Batch D（T2-10～T2-15）Human Review。当前入口：`learning:track02-batch-d:draft-check`、`learning:track02-batch-d:workflow`、`learning:track02-batch-d:review-check`。
+Track 02 T2-01～T2-15 已完成正式课程生产。Batch D 当前正式入口：`learning:track02-batch-d:formal-check`、`learning:runtime:track02-batch-d`、`learning:runtime:accept:track02-batch-d`；Draft / Workflow / Review 脚本已归档为 historical，不再属于 current gate。
 
 正式 Runtime / UI 架构回归：
 

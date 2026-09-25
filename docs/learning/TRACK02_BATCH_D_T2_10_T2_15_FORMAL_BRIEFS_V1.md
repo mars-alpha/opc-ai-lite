@@ -1,11 +1,11 @@
 # Track 02 Batch D — T2-10～T2-15 Formal Briefs v1
 
-Status: **PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING**
+Status: **AVAILABLE / FORMAL_RUNTIME / RUNTIME_ACCEPTANCE_PASS**
 Track Owner: `docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
 Audit: `docs/learning/TRACK02_SIX_STEP_AUDIT_V1.md`
 Scope: **会看数据 → 会积累知识 → 会复用方法**（T2-10～T2-15）
 Boundary: 继续复用 Unified Lesson Shell / Course Builder Skill v1；不新增 Spreadsheet Editor、Knowledge Base UI、Automation Builder、Renderer、interaction type 或 CSS。
-Human Review Preview: `/course-builder/preview/track02-batch-d/[lessonId]` via `lib/learning/track02-batch-d-review.ts`; previewMode only, no formal progress writes or LessonSpec registration.
+Human Review: **PASS**。原 Preview 保留审阅证据；正式课程由 `lib/learning/track02-batch-d-runtime.ts` + LessonSpec Registry + Formal Runtime 提供。
 
 ## Batch goal
 

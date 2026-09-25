@@ -14,6 +14,7 @@ import { getTrack01Phase1RuntimePresentation } from "../../../../../lib/learning
 import { getTrack02BatchARuntimePresentation } from "../../../../../lib/learning/track02-batch-a-runtime";
 import { getTrack02BatchBRuntimePresentation } from "../../../../../lib/learning/track02-batch-b-runtime";
 import { getTrack02BatchCRuntimePresentation } from "../../../../../lib/learning/track02-batch-c-runtime";
+import { getTrack02BatchDRuntimePresentation } from "../../../../../lib/learning/track02-batch-d-runtime";
 import { track02Catalog } from "../../../../../lib/learning/track-catalog";
 import {
   getCrossTrackNextLesson,
@@ -103,7 +104,8 @@ export default async function LessonPage({
       getTrack01Phase1RuntimePresentation(course.slug, lesson.id) ??
       getTrack02BatchARuntimePresentation(course.slug, lesson.id) ??
       getTrack02BatchBRuntimePresentation(course.slug, lesson.id) ??
-      getTrack02BatchCRuntimePresentation(course.slug, lesson.id);
+      getTrack02BatchCRuntimePresentation(course.slug, lesson.id) ??
+      getTrack02BatchDRuntimePresentation(course.slug, lesson.id);
 
     if (!registeredSpec) {
       throw new Error("FORMAL_LESSON_SPEC_NOT_REGISTERED:" + course.slug + "/" + lesson.id);

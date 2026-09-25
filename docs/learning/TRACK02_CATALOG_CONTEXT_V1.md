@@ -1,6 +1,6 @@
 # Track 02 Catalog & Course Context v1
 
-Status: **DIRECTORY_APPROVED_V1 / T2-01～T2-09 AVAILABLE / BATCH_D_T2-10～T2-15 HUMAN_REVIEW_PENDING**
+Status: **DIRECTORY_APPROVED_V1 / T2-01～T2-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS**
 Task: **TRACK02-CURRICULUM-CONTEXT-001 — Track 02 Capability, Knowledge & Course Context Freeze**
 
 ## 1. Authority
@@ -31,7 +31,7 @@ Track 02 关联文件只允许按以下职责读取，禁止多文件共同拥�
 | `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md` | T2-01～T2-03 lesson-boundary owner；生产已完成 / AVAILABLE | NO — lesson boundary only |
 | `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md` | T2-04～T2-06 lesson-boundary owner；生产已完成 / AVAILABLE | NO — lesson boundary only |
 | `docs/learning/TRACK02_BATCH_C_T2_07_T2_09_FORMAL_BRIEFS_V1.md` | T2-07～T2-09 lesson-boundary owner；生产已完成 / AVAILABLE | NO — lesson boundary only |
-| `docs/learning/TRACK02_BATCH_D_T2_10_T2_15_FORMAL_BRIEFS_V1.md` | **CURRENT FORMAL BRIEF**：T2-10～T2-15；Human Review Pending | NO — lesson boundary only |
+| `docs/learning/TRACK02_BATCH_D_T2_10_T2_15_FORMAL_BRIEFS_V1.md` | T2-10～T2-15 lesson-boundary owner；生产已完成 / AVAILABLE | NO — lesson boundary only |
 | `docs/CURRENT_SYSTEM_FACTS.md` | 当前事实与阶段状态 | NO |
 | `PROJECT_STATUS.md` / `TASKS.md` | 当前阶段 / 任务状态 | NO |
 

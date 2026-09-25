@@ -21,17 +21,11 @@ assert(
   "TRACK02_BATCH_A_RUNTIME_AVAILABLE_REQUIRED"
 );
 assert(
-  track02Lessons.slice(3, 6).every((lesson) =>
+  track02Lessons.slice(3).every((lesson) =>
     lesson.curriculumStatus === "AVAILABLE" && lesson.availability === "AVAILABLE" &&
     lesson.runtimeCourseSlug === "ai-work" && lesson.runtimeLessonId === lesson.lessonId
-  ) && track02Lessons.slice(6, 9).every((lesson) =>
-    lesson.curriculumStatus === "AVAILABLE" && lesson.availability === "AVAILABLE" &&
-    lesson.runtimeCourseSlug === "ai-work" && lesson.runtimeLessonId === lesson.lessonId
-  ) && track02Lessons.slice(9).every((lesson) =>
-    lesson.curriculumStatus === "PLANNED" && lesson.availability === "COMING_SOON" &&
-    !lesson.runtimeCourseSlug && !lesson.runtimeLessonId
   ),
-  "TRACK02_BATCH_C_AVAILABLE_LATER_COURSES_COMING_SOON_REQUIRED"
+  "TRACK02_ALL_FIFTEEN_RUNTIME_AVAILABLE_REQUIRED"
 );
 
 assert(learningTracks["foundation-ai"].stages.flatMap((stage) => stage.lessons).length === 20, "TRACK01_TWENTY_LESSONS_REQUIRED");
@@ -40,7 +34,7 @@ assert(learningPathHrefForCourse("foundation-ai") === "/learning-path?track=foun
 
 const aiWork = getCourse("ai-work");
 assert(Boolean(aiWork), "TRACK02_RUNTIME_COURSE_REQUIRED");
-assert(aiWork ? getAllLessons(aiWork).length === 9 : false, "TRACK02_FORMAL_DIRECTORY_NINE_PUBLISHED_REQUIRED");
+assert(aiWork ? getAllLessons(aiWork).length === 15 : false, "TRACK02_FORMAL_DIRECTORY_FIFTEEN_PUBLISHED_REQUIRED");
 
 const foundation = getCourse("foundation-ai");
 const foundationLast = foundation ? getAllLessons(foundation).at(-1) : null;
@@ -62,6 +56,7 @@ assert(lessonPage.includes("registeredSpec.learningRecommendation"), "LESSON_SPE
 assert(lessonPage.includes("getTrack02BatchARuntimePresentation"), "TRACK02_PRESENTATION_REQUIRED");
 assert(lessonPage.includes("getTrack02BatchBRuntimePresentation"), "TRACK02_BATCH_B_PRESENTATION_REQUIRED");
 assert(lessonPage.includes("getTrack02BatchCRuntimePresentation"), "TRACK02_BATCH_C_PRESENTATION_REQUIRED");
+assert(lessonPage.includes("getTrack02BatchDRuntimePresentation"), "TRACK02_BATCH_D_PRESENTATION_REQUIRED");
 
 const runtimeShell = fs.readFileSync("components/AsyncLessonRuntimeShell.tsx", "utf8");
 assert(runtimeShell.includes("previous.href ??"), "EXTERNAL_PREVIOUS_LINK_REQUIRED");
@@ -86,7 +81,7 @@ assert(sidebar.includes("learningPathHrefForCourse(course.slug)"), "SIDEBAR_TRAC
 console.log("TRACK02_LEARNING_MAP_SWITCH=PASS");
 console.log("TRACK02_FIFTEEN_LESSON_CATALOG=PASS");
 console.log("TRACK02_BATCH_A_RUNTIME_AVAILABLE=PASS");
-console.log("TRACK02_BATCH_C_AVAILABLE_T210_T215_COMING_SOON=PASS");
+console.log("TRACK02_ALL_FIFTEEN_RUNTIME_AVAILABLE=PASS");
 console.log("TRACK02_MEMBER_ACCESS_SEPARATED_FROM_T1=PASS");
 console.log("TRACK02_PREREQUISITE_RECOMMENDATION_ONLY=PASS");
 console.log("TRACK02_T201_PREVIOUS_LEARNING_MAP=PASS");

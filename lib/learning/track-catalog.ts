@@ -86,9 +86,9 @@ export const track02Catalog: TrackCatalogStage[] = [
     promise: "面对表格和数字时，先把口径与质量搞清楚，再让 AI 帮你形成可信判断。",
     order: 4,
     lessons: [
-      plannedLesson("t2-10-metric-definition", "一个数字到底是什么意思，先把口径搞清楚", "明确指标对象、范围、时间和计算定义。", 1, ["T2-09"]),
-      plannedLesson("t2-11-data-quality", "数据很乱，先别急着让 AI 分析", "先判断缺失、重复、格式、单位和异常。", 2, ["T2-10"]),
-      plannedLesson("t2-12-data-analysis", "怎么从数据里得到一个可信的判断", "把问题、指标、计算、比较、解释和核验串起来。", 3, ["T2-10", "T2-11"])
+      { ...plannedLesson("t2-10-metric-definition", "一个数字到底是什么意思，先把口径搞清楚", "明确指标对象、范围、时间和计算定义。", 1, ["T2-09"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-10-metric-definition", badge: "已上线" },
+      { ...plannedLesson("t2-11-data-quality", "数据很乱，先别急着让 AI 分析", "先判断缺失、重复、格式、单位和异常。", 2, ["T2-10"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-11-data-quality", badge: "已上线" },
+      { ...plannedLesson("t2-12-data-analysis", "怎么从数据里得到一个可信的判断", "把问题、指标、计算、比较、解释和核验串起来。", 3, ["T2-10", "T2-11"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-12-data-analysis", badge: "已上线" }
     ]
   },
   {
@@ -97,8 +97,8 @@ export const track02Catalog: TrackCatalogStage[] = [
     promise: "把值得复用的资料和经验留下来，并知道以后怎样找到可信版本。",
     order: 5,
     lessons: [
-      plannedLesson("t2-13-knowledge-capture", "哪些东西值得留下来，哪些不用存", "区分临时信息与值得沉淀的稳定知识。", 1, ["T2-12"]),
-      plannedLesson("t2-14-knowledge-organization", "怎么让知识以后找得到，而且知道哪份可信", "用主题、来源、日期、版本和事实源维护知识。", 2, ["T2-13"])
+      { ...plannedLesson("t2-13-knowledge-capture", "哪些东西值得留下来，哪些不用存", "区分临时信息与值得沉淀的稳定知识。", 1, ["T2-12"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-13-knowledge-capture", badge: "已上线" },
+      { ...plannedLesson("t2-14-knowledge-organization", "怎么让知识以后找得到，而且知道哪份可信", "用主题、来源、日期、版本和事实源维护知识。", 2, ["T2-13"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-14-knowledge-organization", badge: "已上线" }
     ]
   },
   {
@@ -107,7 +107,7 @@ export const track02Catalog: TrackCatalogStage[] = [
     promise: "把一次做成功的真实工作提炼成以后可以继续使用的方法。",
     order: 6,
     lessons: [
-      plannedLesson("t2-15-reusable-method", "这次做得不错，怎么让下次不用重新来", "把成功过程留下成模板、检查清单或轻量流程。", 1, ["T2-14"])
+      { ...plannedLesson("t2-15-reusable-method", "这次做得不错，怎么让下次不用重新来", "把成功过程留下成模板、检查清单或轻量流程。", 1, ["T2-14"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-work", runtimeLessonId: "t2-15-reusable-method", badge: "已上线" }
     ]
   }
 ];

@@ -16,7 +16,6 @@ const skillRegistry = read("skills/REGISTRY.md");
 const panel = read("components/GenericLessonRuntimePanel.tsx");
 const batchCPreview = read("app/course-builder/preview/track02-batch-c/[lessonId]/page.tsx");
 const batchDSource = read("fixtures/course-builder/track02-batch-d.ts");
-const batchDValidator = read("scripts/validate-track02-batch-d-drafts.ts");
 const formalRoute = read("app/courses/[slug]/lessons/[lessonId]/page.tsx");
 
 for (const phrase of [
@@ -71,11 +70,6 @@ assert(
     !batchDSource.includes("text: lesson.example.after") &&
     !batchDSource.includes("lesson.mistakes.slice"),
   "BATCH_D_TEMPLATE_DERIVATION_DRIFT"
-);
-assert(
-  batchDValidator.includes("STEP_1_2_OVERLAP") &&
-    batchDValidator.includes("STEP5_KNOWLEDGE_COVERAGE"),
-  "BATCH_D_CONTENT_INTEGRITY_VALIDATOR_MISSING"
 );
 assert(
   skill.includes("不能写成下一课预告") &&

@@ -14,9 +14,9 @@ Track 02 Directory                       T2-01～T2-15 DIRECTORY_APPROVED_V1 / 1
 Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIME
 Track 02 Batch B                         T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
 Track 02 Batch C                         T2-07～T2-09 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
-Track 02 Batch D                         T2-10～T2-15 PREVIEW_READY / DETERMINISTIC_PASS / HUMAN_REVIEW_PENDING
+Track 02 Batch D                         T2-10～T2-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
-CURRENT                                  TRACK02_BATCH_D / HUMAN_REVIEW_GATE
+CURRENT                                  TRACK02 COMPLETE / TRACK03 PLANNING
 ```
 
 ## 当前系统健康
@@ -38,7 +38,7 @@ Track 02 Learning Map / Access           FROZEN / IMPLEMENTATION PASS
 Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 02 Batch B Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 02 Batch C Runtime                 PROVISIONED / ACCEPTANCE PASS
-Track 02 Batch D Preview / Workflow      PASS / HUMAN REVIEW PENDING
+Track 02 Batch D Runtime                 PROVISIONED / ACCEPTANCE PASS
 Membership / Follow benefit model        FROZEN / CURRENT
 Frontend information architecture        FROZEN / CURRENT
 Frontend UI/CSS freeze for course work   ACTIVE
@@ -72,9 +72,7 @@ RUNTIME-INFRA-PERF-003
 
 ## 下一步
 
-T2-01～T2-09 已开放。T2-10～T2-15 已完成一次性 Formal Brief、Draft、Deterministic Validation 与 Human Review Preview，目前停在 HUMAN_REVIEW_GATE；这六课尚未注册 LessonSpec、未 Provision Runtime、未 AVAILABLE。
-
-当前审阅入口为 Batch D T2-10～T2-15 Preview；人工确认通过后才允许进入 LessonSpec Registration → Runtime Provisioning → Runtime Acceptance。继续复用已冻结的 Learning Map / Access / Lesson Shell。
+T2-01～T2-15 已全部正式开放并通过 Runtime Acceptance。Track 02 当前生产链闭环；下一步进入 Track 03 规划，继续复用已冻结的 Learning Map / Access / Lesson Shell。
 
 AI Daily 等后续产品能力继续遵循：
 
