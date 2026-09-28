@@ -11,7 +11,7 @@ import { getLearningTrack } from "../../lib/learning/track-catalog";
 const stages = [
   ["01", "foundation-ai", "AI Foundation", "AI 基础认知", "真正看懂 AI、模型、Prompt、RAG、Tool、Agent 与现代 AI 能力边界"],
   ["02", "ai-work", "AI Work", "AI 工作应用", "把 AI 用进研究、写作、文件、数据、知识和重复工作"],
-  ["03", "", "AI Growth", "AI 推广运营与业务增长", "把 AI 放进内容、获客、销售、客服与运营流程"],
+  ["03", "ai-growth", "AI Growth", "AI 推广运营与业务增长", "把 AI 放进内容、获客、销售、客服与运营流程"],
   ["04", "", "AI Workflow", "AI Workflow 与自动化", "设计可控、可重复、可评估的 AI 工作系统"],
   ["05", "", "FDE", "FDE / AI 解决方案落地", "从真实业务问题出发，完成发现、设计、试点、评估与落地"]
 ] as const;

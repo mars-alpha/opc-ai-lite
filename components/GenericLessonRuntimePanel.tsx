@@ -18,7 +18,6 @@ import { buildPracticeCopyText } from "../lib/learning/practice-copy";
 import {
   lessonStepNavigationDescription,
   unifiedLessonStepLabel,
-  unifiedLessonStepNavDescription
 } from "../lib/learning/unified-lesson-shell";
 import { useProgress } from "./ProgressProvider";
 
@@ -1494,7 +1493,7 @@ export function GenericLessonRuntimePanel({
         }} disabled={interactionLocked || currentStep === 0}>← 上一步</button>
         <div className="guided-step-nav-center">
           <span>{unifiedLessonStepLabel(step.kind)}</span>
-          <small>{courseSlug === "foundation-ai" || courseSlug === "ai-work" ? "" : `${unifiedLessonStepNavDescription(step.kind)} · `}{currentStep + 1} / {plan.steps.length}</small>
+          <small>{currentStep + 1} / {plan.steps.length}</small>
         </div>
         <div className="guided-step-nav-actions">
           <button type="button" className="guided-confused-button" onClick={() => setConfusedOpen((value) => !value)}>还是不懂</button>

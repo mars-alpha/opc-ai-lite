@@ -96,6 +96,19 @@ Track 02 Context Freeze 已重新评估与其能力目标有关的 Deferred 项�
 
 因此，当前 Ledger 没有任何条目因登记为 Deferred 而自动升级成 Track 02 第 16 节或新增 Primary Knowledge Home。
 
+## 5.2 Track 03 planning resolution — TRACK03-CURRICULUM-CONTEXT-001
+
+Track 03 重新评估与业务增长有关的 Deferred 项：
+
+- OCR / ASR / TTS：可作为 T3-06 多模态内容再利用的 supporting capability，不升级为 pipeline 工程课；
+- Media preprocessing / frame sampling / compression：普通路径只说明素材准备边界，工程参数继续 Deferred 到 Advanced Technical / Track 05；
+- 渠道营销与多模态内容生产：已经吸收为 Track 03 的稳定业务方法，但具体平台按钮、账号配置、发布后台只属于 Channel Practice；
+- RAG：在客服场景只调用“基于可信知识答复”的既有能力，不重教 RAG 原理；
+- Workflow / Agent / API / MCP / Browser automation / Computer Use reliability：不进入 Track 03 Core，继续进入 Track 04/05；
+- IAM / RBAC / Secrets / Audit / 合规架构：继续留给 Track 05 / 企业扩展。
+
+因此 Track 03 不因 Deferred Ledger 自动新增第 16 节；当前 Six-step Audit 收敛为 15 个 Primary Knowledge Home。
+
 ## 6. Workflow generation findings — T1-11～T1-20
 
 实际生成 10 节 Draft 后确认，以下知识如果强行塞进当前课，会明显破坏“一个主问题 + Beginner 最小动作”的教学边界：

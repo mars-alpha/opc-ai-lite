@@ -15,7 +15,9 @@ import { getTrack02BatchARuntimePresentation } from "../../../../../lib/learning
 import { getTrack02BatchBRuntimePresentation } from "../../../../../lib/learning/track02-batch-b-runtime";
 import { getTrack02BatchCRuntimePresentation } from "../../../../../lib/learning/track02-batch-c-runtime";
 import { getTrack02BatchDRuntimePresentation } from "../../../../../lib/learning/track02-batch-d-runtime";
-import { track02Catalog } from "../../../../../lib/learning/track-catalog";
+import { getTrack03BatchARuntimePresentation } from "../../../../../lib/learning/track03-batch-a-runtime";
+import { getTrack03BatchesBERuntimePresentation } from "../../../../../lib/learning/track03-batches-b-e-runtime";
+import { track02Catalog, track03Catalog } from "../../../../../lib/learning/track-catalog";
 import {
   getCrossTrackNextLesson,
   learningPathHrefForCourse
@@ -40,9 +42,9 @@ export default async function LessonPage({
   const course = getCourse(slug);
   if (!course) notFound();
   // Registered lesson content is reviewable before publication; the formal runtime stays closed.
+  const currentCatalog = course.slug === "ai-work" ? track02Catalog : course.slug === "ai-growth" ? track03Catalog : null;
   if (
-    course.slug === "ai-work" &&
-    track02Catalog.some((stage) =>
+    currentCatalog?.some((stage) =>
       stage.lessons.some((item) => item.lessonId === lessonId && item.availability !== "AVAILABLE")
     )
   ) notFound();
@@ -67,7 +69,7 @@ export default async function LessonPage({
   const previous =
     previousLesson
       ? { id: previousLesson.id, title: previousLesson.title }
-      : course.slug === "ai-work"
+      : course.slug === "ai-work" || course.slug === "ai-growth"
         ? {
             id: "learning-map",
             title: "学习地图",
@@ -105,7 +107,9 @@ export default async function LessonPage({
       getTrack02BatchARuntimePresentation(course.slug, lesson.id) ??
       getTrack02BatchBRuntimePresentation(course.slug, lesson.id) ??
       getTrack02BatchCRuntimePresentation(course.slug, lesson.id) ??
-      getTrack02BatchDRuntimePresentation(course.slug, lesson.id);
+      getTrack02BatchDRuntimePresentation(course.slug, lesson.id) ??
+      getTrack03BatchARuntimePresentation(course.slug, lesson.id) ??
+      getTrack03BatchesBERuntimePresentation(course.slug, lesson.id);
 
     if (!registeredSpec) {
       throw new Error("FORMAL_LESSON_SPEC_NOT_REGISTERED:" + course.slug + "/" + lesson.id);
@@ -125,11 +129,7 @@ export default async function LessonPage({
         previous={previous}
         next={next}
         lockedLessonIds={lockedLessonIds}
-        learningRecommendation={
-          course.slug === "ai-work" && index < 6
-            ? registeredSpec.learningRecommendation ?? null
-            : null
-        }
+        learningRecommendation={registeredSpec.learningRecommendation ?? null}
       />
     );
   }

@@ -229,21 +229,15 @@ Track 01 的 Prompt / Context / Reliability / Search / RAG / Structured Output /
 
 > 你已经能完成工作，现在让这些工作产生曝光、线索与业务价值。
 
-默认 OPC / 自媒体案例链：
+当前唯一 Track 03 Context Owner：`docs/learning/TRACK03_CATALOG_CONTEXT_V1.md`。
 
-```text
-Research
-→ 选题
-→ 内容生产
-→ 多平台适配
-→ 发布
-→ Lead Capture
-→ Sales Follow-up
-→ Customer Service
-→ Data Review
-```
+当前结果型能力链：
 
-方法必须可替换到房地产、电商、教育、企业服务。
+**找对业务对象 → 做成内容资产 → 发布并承接线索 → 推进销售 → 做好客服 → 用数据复盘增长**
+
+默认 OPC / 自媒体 Artifact Thread 从 Track 02 Research / Content / Data / Knowledge Assets 开始，依次形成 Audience & Use-case Card、Message Hierarchy、Topic/Series、Multimodal Asset Pack、Channel Distribution、Conversion Path、Lead、Sales Follow-up、Service Response、Operations Review 与 Growth Review。方法必须可替换到房地产、电商、教育、企业服务。
+
+Track 03 的终点不是 Automation，而是“已经人工跑通、能衡量、值得重复”的业务链路；Track 04 才负责系统化。
 
 ## 9. Track 04 continuity
 

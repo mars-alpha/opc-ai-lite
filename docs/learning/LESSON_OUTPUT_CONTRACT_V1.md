@@ -39,20 +39,25 @@ Curriculum 决定学什么和顺序；Formal Brief 决定知识边界；Course B
 
 总原则：**Topic first, responsibility fixed, representation flexible.** 先由课题决定需要教什么，再决定每一步怎样表达；六步负责防止知识没教会，不负责把所有课程做成同一种版式。
 
-学员可见的每一步顶部 objective 只负责一句话说明“这一页要做什么”，课程知识、案例、边界和操作要求必须放在本步正文，不得把 objective 写成长段。**六步顶部进度卡片从本课 step.navigationDescription 读取独立描述，逐步准确说清该课当前要学、要判断或要做什么；每张卡片显式两行，每行不超过 9 字，正常桌面宽度下显示不超过两行。不得复用整套通用句，也不得截取课程 step title / objective 代替。**
+学员可见的每一步顶部 objective 只负责一句话说明“这一页要做什么”，课程知识、案例、边界和操作要求必须放在本步正文，不得把 objective 写成长段。**六步顶部进度卡片从本课 step.navigationDescription 读取独立描述，逐步准确说清该课当前要学、要判断或要做什么；每张卡片显式两行，每行不超过 9 字，正常桌面宽度下显示不超过两行。不得复用整套通用句，也不得截取课程 step title / objective 代替。navigationDescription 只服务顶部进度卡片，不得进入底部页码。底部页码固定只显示 `1 / 6`～`6 / 6`，页码前后不得附加任何描述。**
 
 正式课程输出还须同时准备以下学员入口文案；这些是课程内容数据，由统一 Shell 展示，不增设页面或交互：
 
 - **学习建议**：`learningRecommendation` 用一句话说明本课会解决什么问题，以及学员开始前可以做的具体准备或补足哪项知识。只在本课确实依赖旧知识时建议回看相应内容，不默认写“复习上一课”。一句话以句号收束，总长不超过 52 字；桌面端须完整显示在两行内，不能靠省略号隐藏必要信息。
 - **进度卡片**：六步分别依据本课教学动作写独立的 `navigationDescription`，每条显式换行两行、每行不超过 9 字。六条应分别说明对应步骤的具体任务，不能给不同课复用一组六句通用文案；缺失、空行、超长或重复的描述不得进入正式 Runtime。Step title / objective 与进度卡片各有用途，不互相替代。
+- **底部页码**：统一只显示 `当前步 / 6`，即 `1 / 6、2 / 6、3 / 6、4 / 6、5 / 6、6 / 6`。不得在页码前拼接 `navigationDescription`、步骤摘要、教学提示或课程专属描述；课程差异只体现在顶部进度卡片和正文。
 - **Step 1 底部说明**：当课程使用当前 Shell 的 intro comparison 呈现时，在 takeaway 之后给出本课自己的 `bottomDetails`，补上学员理解核心判断所需的原因或区分点，不直接重复 takeaway，也不提前讲 Step 2 的完整案例。条数按知识需要决定；零基础课程最多两条。课程 Preview 与 Human Review 必须实际查看底部是否出现、内容是否帮助理解。
 
 ### Learner-facing language rule
 
 所有学员可见文案默认中文优先：
+- **先说人话，再决定是否需要术语**：面向零基础学习者，先用日常工作语言把意思讲懂，再在确有学习价值时补充专业名词。若一句话去掉英文术语后反而更容易理解且不损失知识，就必须使用中文自然表达。不得把课程写成行业报告、咨询框架或术语表。
+- **普通业务术语不因行业常见就保留英文**：如 ICP、Audience、Business Fit、Problem Fit、Value Fit、Evidence、Assumption、Priority、Exclusion、Use Case、Trigger、Current Behavior、Friction、Desired Outcome、Value Proposition、Message Hierarchy、Primary Value、Proof、Secondary Detail、Next Step、CTA、HITL、Growth Review、Landing、Lead、Dashboard 等，学员端统一翻译成自然中文，例如“行动引导”“转人工 / 人工接管”“增长复盘”“承接页面”“线索”“数据看板”；这些不是必须掌握的 AI 通用技术词。
 - 非必要英文名称不得直接展示给学员；例如 `Clear Task Brief` 应写成“清晰任务说明”。`Beginner` 应写“初学/初学者”，`Schema` 若不是本课必须掌握的通用术语，应写“结构规则/数据结构规则”；`Goal / Observe / Decide / Act / Stop` 等过程说明优先使用自然中文。
 - AI 常用行业术语首次出现默认采用 **中文（English）**，例如“提示词（Prompt）”，后续正文优先使用中文简称。**行业常用技术缩写是例外**：如 RAG、API、MCP，学员端使用“中文解释（缩写）”，例如“检索增强生成（RAG）”“应用程序编程接口（API）”“模型上下文协议（MCP）”；不展开英文全称，避免增加阅读负担。课程标题、阶段内课名、Step 标题，以及学习路径 / 课程表中的阶段说明与课程名称同样适用：普通专业术语遵守中文（English）；行业常用技术缩写使用“中文解释（缩写）”。
 - 内部 lessonId、Artifact ID、Schema 名、状态名、课程编排编号等不得出现在学员可见文案中。
+- **课程生产与跨板块说明不得进入学员正文**：`Track 03 / Track 04`、Batch、handoff、Workflow Gate、“为下一板块准备输入”“系统化候选”等只属于内部规划或课程治理。当前课只讲当前 Primary Knowledge Home；不得为了说明后续课程边界而把与本课无关的自动化、系统架构或下一板块目标写进 Step 1～6、Check、Practice、Review、Knowledge Depth、Capability 或 Next Lesson Value。
+- Deterministic language gate 必须扫描完整学员可见 Draft，包括 Step 文案、intro comparison、Knowledge Depth、Check、Practice、Review、Self Assessment、Trigger Scenario、Capability Gain 与 Next Lesson Value；发现普通业务 / 生产英文标签裸露、内部 Track / Batch / handoff / Workflow 说明或与本课无关的后续板块目标时判定 `LEARNER_LANGUAGE_FAIL` / `CROSS_TRACK_CONTENT_FAIL`。Human Review 继续判断中文是否自然、口语化、像在教人做事，而不是只检查“有没有英文”。
 
 ### Step 1 — EXPLAIN
 
@@ -149,7 +154,7 @@ Artifact 必须自然产生：Natural Learning Action → Natural Learner Output
 
 ## 5. Deterministic validation vs Human Review
 
-Code Validation 可以判断：六步顺序完整；正式课六步 `navigationDescription` 存在且每条两行、每行长度合规；学习建议为一句话且满足长度要求；intro comparison 的底部说明存在；Review 在启用时存在有效内容；Hint 不含手写编号；Mastery Sequence 完整；deferredTerms 不泄漏；Capability 不能只写“理解了”；Schema / Completion Gate / authority boundary 正确。Review 数量、表达是否完整清楚属于 Human Review，不由固定数量规则决定。
+Code Validation 可以判断：六步顺序完整；正式课六步 `navigationDescription` 存在且每条两行、每行长度合规；`navigationDescription` 只用于顶部进度卡片且底部页码只渲染 `当前步 / 6`；学习建议为一句话且满足长度要求；intro comparison 的底部说明存在；Review 在启用时存在有效内容；Hint 不含手写编号；Mastery Sequence 完整；deferredTerms 不泄漏；Capability 不能只写“理解了”；Schema / Completion Gate / authority boundary 正确。Review 数量、表达是否完整清楚属于 Human Review，不由固定数量规则决定。
 
 Human Review 必须判断：学习建议能否讲清本课和具体准备、完整显示为两行；六张进度卡片是否逐课逐步准确；Step 1 底部说明是否出现并帮助理解且不重复 takeaway；Step 1 是否真实自然且只解决当前主问题；Step 2 是否真正让核心规律变得可见，而不是机械套案例模板；Step 3 是否像理解判断；Step 4 是否完成真实学习动作、字段是否只为任务完整性服务、COPY_TO_AI / Reference 是否形成完整可运行任务；Artifact 是否被强行制造；Step 5 卡片 / 描述 / pitfalls 是否互补；Step 6 是否形成可执行能力并给出具体触发情境；学员可见正文是否混入课程编排或生产说明；整节课是否愿意继续学。
 

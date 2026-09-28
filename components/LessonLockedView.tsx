@@ -60,8 +60,8 @@ export function LessonLockedView({
             ) : accessReason === "MEMBERSHIP_REQUIRED" ? (
               <>
                 <div className="kicker">OPC 会员权益</div>
-                <h1>继续把 AI 用进真实工作</h1>
-                <p>解锁更多实用课程，继续学习如何用 AI 完成研究、写作、资料处理、数据分析与知识沉淀，把已经学会的基础能力真正用到工作中。</p>
+                <h1>{course.slug === "ai-growth" ? "继续把 AI 变成业务增长能力" : "继续把 AI 用进真实工作"}</h1>
+                <p>{course.slug === "ai-growth" ? "解锁推广运营与业务增长课程，继续学习如何把内容推进到渠道、线索、销售、客服和增长复盘。" : "解锁更多实用课程，继续学习如何用 AI 完成研究、写作、资料处理、数据分析与知识沉淀，把已经学会的基础能力真正用到工作中。"}</p>
                 <LockedAccessCta kind="MEMBER" compact />
               </>
             ) : (

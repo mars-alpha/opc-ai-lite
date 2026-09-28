@@ -24,6 +24,8 @@ Status: **ACTIVE / GOVERNED**
 
 Track 02 T2-01～T2-15 已完成正式课程生产。Batch D 当前正式入口：`learning:track02-batch-d:formal-check`、`learning:runtime:track02-batch-d`、`learning:runtime:accept:track02-batch-d`；Draft / Workflow / Review 脚本已归档为 historical，不再属于 current gate。
 
+Track 03 T3-01～T3-15 已全部正式 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。当前正式验证 / 恢复入口：`learning:track03:formal-check`、`learning:track03-path-access:check`、`learning:runtime:track03-batch-a`、`learning:runtime:accept:track03-batch-a`、`learning:runtime:track03-batches-b-e`、`learning:runtime:accept:track03-batches-b-e`。Batch B～E Draft / Workflow / Review 生产脚本已归档为 `_historical-*`，不再属于 current gate。
+
 正式 Runtime / UI 架构回归：
 
 - `npm run learning:course-interaction:check`
@@ -37,7 +39,7 @@ Provision / Acceptance 命令具有数据库或真实 Runtime 副作用，只能
 
 ## 历史脚本
 
-`scripts/_historical-*` 包含两类历史资产：T1-06～T1-10 逐课建设时期留下的单课 provision / acceptance / draft validator，以及已正式 AVAILABLE 的 Track 01 T11～T20、Track 02 Batch A/B/C 旧 Draft / Workflow / Review / Registration 生产脚本。
+`scripts/_historical-*` 包含两类历史资产：T1-06～T1-10 逐课建设时期留下的单课 provision / acceptance / draft validator，以及已正式 AVAILABLE 的 Track 01 T11～T20、Track 02 已完成批次、Track 03 Batch A～E 的旧 Draft / Workflow / Review / Registration 生产脚本。
 
 它们：
 - 不属于当前 Workflow；

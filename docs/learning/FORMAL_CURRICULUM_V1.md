@@ -138,9 +138,7 @@ Track 02 当前课程上下文唯一 owner：
 
 T2-01～T2-15 已通过 `TRACK02-SIX-STEP-AUDIT-001`，结果为 **15 KEEP / 0 MERGE / 0 SPLIT / 0 DEFER / 0 REMOVE**。18→15 Knowledge Mapping、Artifact Thread、跨 Track Anti-repeat / Deferred Boundary 与“严格复用现有 Unified Lesson Shell、不新增 UI、不调整 CSS”的约束均由 Track 02 owner 维护。本文件不复制第二份 Lesson Directory。
 
-T2-01～T2-03「会找答案」已开放，Formal Brief owner 为 `docs/learning/TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md`。
-
-T2-04～T2-06「会做成品」已有待人工审阅 Draft，Formal Brief owner 为 `docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`。T2-07～T2-15 仍只在批准目录中。
+T2-01～T2-15 已全部完成正式课程生产并 AVAILABLE；生产状态以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。
 
 课程生产状态仍以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。
 
@@ -150,73 +148,17 @@ T2-04～T2-06「会做成品」已有待人工审阅 Draft，Formal Brief owner 
 
 ## Stage 3 — AI 推广运营与业务增长｜业务应用
 
-目标：把 AI 从个人效率推进到真实获客、内容、销售、客服和运营流程。这里不是“教 AI 写文案”，而是训练完整业务链路。
+目标：把 Track 02 已形成的工作产物转成曝光、线索与业务价值，并形成人工验证过、可交给 Track 04 系统化的业务链路。这里不是“教 AI 写文案”，也不是平台操作课。
 
-### Module 3.1 — 内容运营
+当前唯一 Track 03 Context Owner：`docs/learning/TRACK03_CATALOG_CONTEXT_V1.md`。
 
-课程方向：
-- 选题与 Research
-- 内容策划与栏目体系
-- 文案、图片、视频协作
-- 审核与事实检查
-- 多渠道分发
-- 一份核心内容多次再利用
-- 数据复盘与下一轮选题
+当前结果型能力结构固定为：
 
-标准链路：`选题 → Research → 策划 → 内容 → 多模态素材 → 审核 → 发布 → 数据复盘 → 二次利用`。
+**找对业务对象 → 做成内容资产 → 发布并承接线索 → 推进销售 → 做好客服 → 用数据复盘增长**
 
-### Module 3.2 — 推广与获客
+T3-01～T3-15 已通过 `TRACK03-SIX-STEP-AUDIT-001`，结果为 **15 KEEP / 0 MERGE / 0 SPLIT / 0 DEFER / 0 REMOVE**。Primary Knowledge Home、Artifact Thread、跨 Track Boundary、Channel Practice Boundary 与 Production Batching 均由 Track 03 owner 维护；本文件不复制第二份 Lesson Directory。
 
-课程方向：
-- 目标用户与使用场景
-- 营销信息设计
-- 活动方案
-- 广告 / 素材方向
-- Landing Page
-- 私域承接
-- Lead（线索）整理与分类
-- 从“写一条广告”升级为设计获客流程
-
-### Module 3.3 — 销售
-
-课程方向：
-- 客户资料整理与需求提取
-- 沟通历史总结
-- 跟进优先级
-- 跟进草稿
-- 异议分类
-- CRM 信息整理
-- 销售复盘
-- 人工确认后发送
-
-代表性流程：`客户长期未回复 → 汇总背景 → AI 草拟跟进 → 销售确认 → 发送 → 记录下一次跟进`。
-
-### Module 3.4 — 客服
-
-课程方向：
-- FAQ 与标准知识
-- RAG 客服
-- 意图识别
-- 回复草稿
-- 答复边界
-- 找不到证据时的处理
-- 转人工
-- 投诉 / 高风险场景
-- 客服质量 Evaluation
-
-### Module 3.5 — 运营分析
-
-课程方向：
-- AI 日报 / 周报
-- 用户反馈分类
-- 评论 / 舆情整理
-- 内容 / 活动 / 销售数据分析
-- 异常发现
-- 从指标形成下一步行动
-
-### Module 3.6 — 渠道实战
-
-微信、公众号、小程序、网站聊天框、抖音私信、阿里旺旺、企业微信、飞书、小红书、B站、视频号等属于高频变化的 Channel Practice。核心课程教业务方法，平台课负责当前界面与渠道落地。
+课程生产状态仍以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。
 
 ---
 

@@ -7,7 +7,7 @@ import {
   type FoundationLessonType
 } from "./foundation-catalog";
 
-export type LearningTrackSlug = "foundation-ai" | "ai-work";
+export type LearningTrackSlug = "foundation-ai" | "ai-work" | "ai-growth";
 export type TrackCatalogLesson = FoundationCatalogLesson;
 export type TrackCatalogStage = FoundationCatalogStage;
 
@@ -112,6 +112,74 @@ export const track02Catalog: TrackCatalogStage[] = [
   }
 ];
 
+
+
+export const track03Catalog: TrackCatalogStage[] = [
+  {
+    stageId: "growth-audience",
+    title: "找对业务对象",
+    promise: "先找清楚重点服务谁、什么时候真的有需求，以及怎样把最重要的价值说清楚。",
+    order: 1,
+    lessons: [
+      { ...plannedLesson("t3-01-icp-audience-fit", "不是“所有人”都要做，先找清楚你到底想服务谁", "从几类可能的读者或客户中，选出现在最值得先服务的一类。", 1, ["T2-01", "T2-04", "T2-12"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-01-icp-audience-fit", badge: "已上线" },
+      { ...plannedLesson("t3-02-use-case-fit", "用户为什么现在会在意这件事", "找出对方在什么情况下真的会需要帮助，以及现在最值得回应哪个问题。", 2, ["T3-01"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-02-use-case-fit", badge: "已上线" },
+      { ...plannedLesson("t3-03-message-hierarchy", "你的信息为什么值得对方继续看", "把一堆功能和卖点重新排出先后，让读者先看到最重要的价值。", 3, ["T3-01", "T3-02"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-03-message-hierarchy", badge: "已上线" }
+    ]
+  },
+  {
+    stageId: "growth-content",
+    title: "做成内容资产",
+    promise: "从真实业务问题出发，持续找到值得做的选题，并把核心内容复用成多种内容资产。",
+    order: 2,
+    lessons: [
+      { ...plannedLesson("t3-04-topic-opportunity", "选什么题，才不是“为了更新而更新”", "判断哪些主题真正值得投入内容生产。", 4, ["T3-01", "T3-02", "T3-03"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-04-topic-opportunity", badge: "已上线" },
+      { ...plannedLesson("t3-05-content-system", "怎么把零散选题变成持续内容体系", "把零散主题组织成可以长期持续的内容主线。", 5, ["T3-04"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-05-content-system", badge: "已上线" },
+      { ...plannedLesson("t3-06-multimodal-reuse", "一份核心内容，怎么变成文字、图片、视频等多种资产", "从一份核心内容出发，规划多种表达形式和复用方式。", 6, ["T3-05"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-06-multimodal-reuse", badge: "已上线" }
+    ]
+  },
+  {
+    stageId: "growth-leads",
+    title: "发布并承接线索",
+    promise: "让内容适配不同渠道，并把曝光自然推进到下一步行动和有效线索。",
+    order: 3,
+    lessons: [
+      { ...plannedLesson("t3-07-channel-adaptation", "同一内容为什么不能原样发到所有渠道", "理解不同渠道承担的角色，并调整内容表达。", 7, ["T3-03", "T3-06"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-07-channel-adaptation", badge: "已上线" },
+      { ...plannedLesson("t3-08-conversion-path", "有曝光以后，怎么让用户知道下一步做什么", "设计自然的下一步，让内容从被看见走向进一步行动。", 8, ["T3-07"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-08-conversion-path", badge: "已上线" },
+      { ...plannedLesson("t3-09-lead-priority", "来了线索以后，先跟谁、怎么判断价值", "判断线索质量和优先级，把有限精力放在更值得跟进的人身上。", 9, ["T3-08"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-09-lead-priority", badge: "已上线" }
+    ]
+  },
+  {
+    stageId: "growth-sales",
+    title: "推进销售",
+    promise: "先理解客户背景和真实需求，再处理跟进、异议和下一步推进。",
+    order: 4,
+    lessons: [
+      { ...plannedLesson("t3-10-customer-context", "跟进客户前，先把背景和真实需求搞清楚", "把零散客户信息整理成清楚的背景和需求判断。", 10, ["T3-09"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-10-customer-context", badge: "已上线" },
+      { ...plannedLesson("t3-11-sales-follow-up", "客户没回复或有异议，下一步怎么跟进", "根据客户状态和真实顾虑，决定下一次跟进怎么做。", 11, ["T3-10"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-11-sales-follow-up", badge: "已上线" }
+    ]
+  },
+  {
+    stageId: "growth-service",
+    title: "做好客服",
+    promise: "让回复有依据、有边界，知道什么时候可以回答、什么时候必须转人工。",
+    order: 5,
+    lessons: [
+      { ...plannedLesson("t3-12-service-response", "客服回复为什么必须先找到依据", "基于可信资料回答客户问题，不把猜测当成事实。", 12, ["T3-11"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-12-service-response", badge: "已上线" },
+      { ...plannedLesson("t3-13-service-escalation", "什么情况不能继续自动回答，必须停下来转人工", "识别高风险和不确定场景，及时停止自动回答并升级处理。", 13, ["T3-12"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-13-service-escalation", badge: "已上线" }
+    ]
+  },
+  {
+    stageId: "growth-review",
+    title: "用数据复盘增长",
+    promise: "把内容、线索、销售和客服数据连起来，判断这一轮哪里有效、下一轮该改什么。",
+    order: 6,
+    lessons: [
+      { ...plannedLesson("t3-14-operations-metrics", "内容、线索、销售、客服到底看哪些数字", "建立从内容到业务结果的关键指标关系。", 14, ["T3-01", "T3-13"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-14-operations-metrics", badge: "已上线" },
+      { ...plannedLesson("t3-15-growth-review", "这轮做完以后，下一轮到底改什么", "根据结果、问题和反馈，决定下一轮最值得改进的动作。", 15, ["T3-14"], "AVAILABLE"), availability: "AVAILABLE", runtimeCourseSlug: "ai-growth", runtimeLessonId: "t3-15-growth-review", badge: "已上线" }
+    ]
+  }
+];
+
 export const learningTracks: Record<LearningTrackSlug, LearningTrackCatalog> = {
   "foundation-ai": {
     slug: "foundation-ai",
@@ -130,11 +198,22 @@ export const learningTracks: Record<LearningTrackSlug, LearningTrackCatalog> = {
     description: "把已经理解的 AI 基础能力用到研究、写作、文件、数据、知识和可复用工作方法。",
     stageLabel: "6 个能力分组",
     stages: track02Catalog
+  },
+  "ai-growth": {
+    slug: "ai-growth",
+    index: "03",
+    eyebrow: "AI Growth",
+    title: "AI 推广运营与业务增长",
+    description: "把 AI 工作成果继续推进到内容、渠道、线索、销售、客服和增长复盘。",
+    stageLabel: "6 个能力分组",
+    stages: track03Catalog
   }
 };
 
 export function getLearningTrack(slug: string | undefined): LearningTrackCatalog {
-  return slug === "ai-work" ? learningTracks["ai-work"] : learningTracks["foundation-ai"];
+  if (slug === "ai-work") return learningTracks["ai-work"];
+  if (slug === "ai-growth") return learningTracks["ai-growth"];
+  return learningTracks["foundation-ai"];
 }
 
 export function isTrackRuntimeLesson(lesson: TrackCatalogLesson) {

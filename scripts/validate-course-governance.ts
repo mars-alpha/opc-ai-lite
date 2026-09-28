@@ -50,6 +50,29 @@ assert(
   "COURSE_BUILDER_REVIEW_MIN_TWO_FLEXIBLE_MAX_DRIFT"
 );
 assert(
+  ruleText.includes("页码前后不得附加任何描述") &&
+    ruleText.includes("navigationDescription 只服务顶部进度卡片") &&
+    skill.includes("navigationDescription 只服务顶部六张进度卡片") &&
+    panel.includes("<small>{currentStep + 1} / {plan.steps.length}</small>") &&
+    !panel.includes("unifiedLessonStepNavDescription(step.kind)"),
+  "PAGINATION_NUMBER_ONLY_RULE_DRIFT"
+);
+assert(
+  ruleText.includes("先说人话，再决定是否需要术语") &&
+    ruleText.includes("LEARNER_LANGUAGE_FAIL") &&
+    ruleText.includes("BEGINNER_PLAIN_LANGUAGE_FAIL") &&
+    skill.includes("禁止把课程写成咨询报告、商业框架或术语表") &&
+    skill.includes("ICP、Audience、Business Fit") &&
+    skill.includes("不得裸露给学员"),
+  "BEGINNER_PLAIN_LANGUAGE_OR_LEARNER_LANGUAGE_GATE_MISSING"
+);
+assert(
+  ruleText.includes("真实自媒体 / 一人公司经营场景") &&
+    ruleText.includes("禁止拿“本课程 / 课程推广 / 课程功能”本身作为主要教学案例") &&
+    skill.includes("禁止拿本课程、课程推广、课程功能或内部课程生产过程作为主要教学案例"),
+  "SELF_MEDIA_REAL_CASE_RULE_MISSING"
+);
+assert(
   courseBuilderCore.includes("主卡片至少 2 张") &&
     courseBuilderCore.includes("上限不固定"),
   "COURSE_BUILDER_CORE_REVIEW_RULE_DRIFT"
@@ -131,6 +154,10 @@ assert(
 
 console.log("COURSE_GOVERNANCE_ACTIVE_RULE_OWNERS=PASS");
 console.log("COURSE_GOVERNANCE_STEP1_STEP2_SEPARATION=PASS");
+console.log("COURSE_GOVERNANCE_PAGINATION_NUMBER_ONLY=PASS");
+console.log("COURSE_GOVERNANCE_BEGINNER_PLAIN_LANGUAGE=PASS");
+console.log("COURSE_GOVERNANCE_LEARNER_LANGUAGE=PASS");
+console.log("COURSE_GOVERNANCE_REAL_SELF_MEDIA_CASE=PASS");
 console.log("COURSE_GOVERNANCE_STEP5_KNOWLEDGE_COVERAGE=PASS");
 console.log("COURSE_GOVERNANCE_STEP5_MIN_TWO_FLEXIBLE_MAX=PASS");
 console.log("COURSE_GOVERNANCE_STEP6_TRIGGER_SEPARATION=PASS");

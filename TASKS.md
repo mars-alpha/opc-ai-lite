@@ -2,16 +2,15 @@
 
 > NOW / NEXT / BACKLOG + 必要历史任务摘要。完成任务不再默认生成或永久保留独立 `docs/task-results/*`；只有当前 Runtime、Validator、可执行复现或唯一验收证据仍依赖时才保留。Current state 必须读取 `PROJECT_STATUS.md` / `docs/CURRENT_SYSTEM_FACTS.md` / current owner，不从旧任务条目恢复。
 
-# NOW — TRACK02-NEXT-BATCH-PLANNING
+# NOW — TRACK04-PLANNING
 
-Status: T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
+Status: TRACK03 COMPLETE / T3-01～T3-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 
-- T2-04 同样的信息，怎样讲给不同的人听：接收者与沟通目的。
-- T2-05 一堆资料，怎么变成能交付的成品：有依据的交付物。
-- T2-06 AI 已经写出来了，但“不好”，到底怎么改：诊断和定向修订。
-- Formal Brief：`docs/learning/TRACK02_BATCH_B_T2_04_T2_06_FORMAL_BRIEFS_V1.md`；BUILD Draft：`fixtures/course-builder/track02-batch-b.ts`。
-- Workflow / 校验：`scripts/run-track02-batch-b-workflow.ts`、`scripts/validate-track02-batch-b-drafts.ts`。三课 LessonSpec 与正式课程展示映射已注册；学员已确认正式课程，远端数据库 Provision、Runtime Acceptance 与公开目录均已完成。
-- T2-07～T2-15 仍是批准目录；后续按「会处理复杂资料」T2-07～09、「会看数据」T2-10～12、「会积累知识」T2-13～14、「会复用方法」T2-15 分批准备 Brief，沿用同一 Workflow。不提前标为课件已输出。
+- Track 03 15/15 已正式上线。
+- T3-04～T3-15 已完成 Human Review PASS、LessonSpec Registry、Runtime Provisioning 与 Runtime Acceptance。
+- 新增 12 节共 36 道 required Check + 12 个 required STRUCTURED_TEXT_V1 Practice，全部真实 Acceptance PASS。
+- Track 03 学习地图 15 节全部 AVAILABLE；未新增课程 UI/CSS。
+- 下一步：进入 Track 04 planning / Formal Curriculum Context。
 
 # COMPLETED
 
@@ -1243,6 +1242,45 @@ Boundary：T2-10～T2-15 已完成 LessonSpec Registry、Runtime Provisioning、
 Next：Batch D 上线链路已闭环；Track 02 完成，进入 Track 03 planning。
 
 Human Review Rework（2026-09-25）：已定位并删除两类 Batch D 自动模板污染：Step 1 从 Step 2 example 自动派生、Step 5 从 mistakes 自动派生说明层。六课现逐课显式定义 Step 1 / Step 5；Formal Brief 提供 must-retain judgments，current validator 同时检查 Step 1/2 overlap、Step 5 最低结构与知识覆盖。具体通用规则只以 current Rule Sources 为准；T2-10～T2-15 当前主 Review 为 2/2/3/2/3/2。
+
+## TRACK03-CURRICULUM-CONTEXT-001 — Capability / Knowledge / Directory Planning
+
+Status: COMPLETE / DIRECTORY_APPROVED_V1
+Priority: P0
+
+Goal：在 Track 02 完整上线后，按 Capability-first 方法建立 Track 03「AI 推广运营与业务增长」唯一课程上下文 owner，并完成 Six-step Knowledge Point Audit；不提前生成课程 Runtime。
+
+Result：建立 `docs/learning/TRACK03_CATALOG_CONTEXT_V1.md` 与 `TRACK03_SIX_STEP_AUDIT_V1.md`。Track 03 收敛为 6 个结果型阶段、15 个 Primary Knowledge Home：找对业务对象 → 做成内容资产 → 发布并承接线索 → 推进销售 → 做好客服 → 用数据复盘增长。Audit 结果为 15 KEEP / 0 MERGE / 0 SPLIT / 0 DEFER / 0 REMOVE。
+
+Boundary：复用 Track 02 Research / Content / Data / Knowledge Assets；不重教 Prompt/Research/Writing/Data foundations；不提前进入 Track 04 的 Trigger/State/Retry/Automation；平台按钮、CRM、Landing Page Builder、广告后台只作 Channel Practice；不新增 UI、不改 CSS。
+
+Next：TRACK03-BATCH-A — T3-01～T3-03 Formal Brief → Workflow Draft → Deterministic Validation → Human Review Gate。
+
+## TRACK03-BATCH-A-T3-01-T3-03 — Formal Brief
+
+Status: COMPLETE / FORMAL_BRIEF_READY
+Priority: P0
+
+Goal：为 Track 03 Batch A T3-01～T3-03 建立正式课程边界，在进入 Course Builder Workflow 前固定 Primary Knowledge Home、Step 1/2 信息增量、Check、Practice、Step 5 must-retain judgments 与 Step 6 Capability。
+
+Result：建立 `docs/learning/TRACK03_BATCH_A_T3_01_T3_03_FORMAL_BRIEFS_V1.md`。T3-01 固定为 ICP / Audience Business Fit；T3-02 固定为 Use Case / Problem-Situation Fit；T3-03 固定为 Value Proposition / Message Hierarchy。三课分别解决“优先服务谁 / 什么情况下真的会在意 / 为什么信息值得继续看”，禁止退化成三份用户画像或营销文案课。
+
+Boundary：只完成 Formal Brief；未生成 Lesson Draft、未注册 LessonSpec、未 Provision Runtime；不新增 UI/CSS，不进入 Track 04 Automation。
+
+Next：T3-01～T3-03 Course Production Workflow Draft → Deterministic Validation → Human Review Gate。
+
+## TRACK03-BATCH-A-WORKFLOW-001 — T3-01～T3-03 Draft / Deterministic / Preview
+
+Status: COMPLETE / AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+Priority: P0
+
+Goal：按 Stable Course Production Workflow 把 T3-01～T3-03 Formal Brief 转成结构化 Course Builder Draft，并在 Human Review Gate 停止。
+
+Result：建立 `fixtures/course-builder/track03-batch-a.ts`、`lib/learning/track03-batch-a-review.ts`、Batch A Preview Route、Workflow runner 与 deterministic validators。三课 Draft 分别保持 ICP / Use Case / Message Hierarchy 独立能力；Step 1/2 overlap guard、三题 Check、COPY_TO_AI Reference Fill、Step 5 must-retain coverage、Step 6 Trigger separation 全部通过。Review 主卡片按课题知识密度为 3 / 2 / 3，validator 只固定最低 2 张与知识覆盖，不把数量写成模板。
+
+Boundary：T3-01～T3-03 已完成 Human Review PASS、LessonSpec Registry、正式 ai-growth Course、Runtime Provisioning 与 authenticated Runtime Acceptance，并已 AVAILABLE；仍不新增 UI/CSS，不进入 Track 04 Automation。
+
+Next：Batch A 已闭环；进入 Track 03 Batch B T3-04～T3-06 planning → Formal Brief。
 
 ## COURSE-RULE-GOVERNANCE-001 — Cross-project Course Production Anti-drift
 

@@ -170,7 +170,7 @@ Formal Brief 进入 Course Builder 后，正式 Draft 还必须遵守 `docs/lear
 关键原则：
 - 不因单节课内容问题扩展 Runtime / UI；
 - Artifact 必须从当前课自然学习动作产生，不得为了下一课 handoff 反向制造字段；
-- Production Brief 若锁定内部 Case Thread，可用于保持业务连续性；但 Stable Method Layer 与学员可见案例必须行业中立、自然真实、可迁移，不得把内部 OPC / 自媒体 / 品牌 / 项目标签作为课程正文默认表达；
+- Production Brief 若锁定内部 Case Thread，可用于保持业务连续性。推广运营类课程默认优先使用**真实自媒体 / 一人公司经营场景**作为学员案例，例如选题、内容生产、分发、私信线索、客户跟进、客服与复盘；方法层必须保持行业中立、自然真实、可迁移。禁止拿“本课程 / 课程推广 / 课程功能”本身作为主要教学案例，也不得把内部项目生产过程写进学员正文；
 - 技术规则能自动判断的进入 Code Validation，案例自然度、教学清晰度、Review 是否重复等语义质量必须由 Human Review 判断。
 
 后续若需要改变这套输出方式，必须版本化 Lesson Output Contract，不允许在单节课里静默漂移。
@@ -188,16 +188,20 @@ Human Review 关注：
 - Practice 是否可完成；
 - 是否与相邻课程重复；
 - 是否愿意继续学习。
+- 学员是否不需要先学一组商业 / 咨询术语就能直接听懂；
+- 学员可见文案是否中文自然，AI 必要通用术语是否按“中文（英文/缩写）”首次出现，普通业务英文是否已经翻译；CTA、HITL、Growth Review、Landing、Lead、Dashboard 等不得因行业常用而直接裸露。
 
 技术 PASS 不能替代 Human Review PASS。
 Human Review 前还必须完成 **Six-step Content Integrity Review**：
 
 - 六步每一步都必须与当前 Formal Brief / Draft Version 一致；
 - 根据 `LESSON_OUTPUT_CONTRACT_V1.md` 检查学习建议是否说清本课与准备、六张进度卡片是否逐课逐步准确；使用 intro comparison 的课程须在 Step 1 takeaway 下方显示能帮助理解本课判断的说明。不得只检查字符串长度而忽略教学含义；
+- 底部页码必须统一为纯 `1 / 6`～`6 / 6`；`navigationDescription` 只允许进入顶部六张进度卡片，禁止在页码前后拼接步骤摘要、课程专属描述或教学提示。发现页码描述即视为展示规则漂移；
 - Step 1 / Step 2 必须做内容独立性检查：Step 1 不得直接复用 Step 2 的完整 `situation / before / after / result`，也不得从 `lesson.example` 自动派生 intro comparison；发现主要字段直接复用或两步大段可互换，必须判定 `STEP_1_2_OVERLAP_FAIL` 并重做 Draft；
 - CHECK 题组必须属于当前课程版本，不得沿用已被 supersede 的旧题；
 - Step 4 必须有真实学习动作；CONCEPT 可不设 Practice Gate，但不能出现“有 PRACTICE Step、无可操作内容”；
 - Review / Capability 必须收束当前版本，而不是旧稿残留；
+- 所有学员可见字段必须做跨课程污染检查：不得出现内部 Track / Batch / handoff / Workflow Gate、为下一板块准备输入、系统化候选等生产语言；不得为解释后续课程边界而加入当前课没有教学价值的自动化或系统架构内容。此检查覆盖 intro comparison、Knowledge Depth、Check、Practice、Review、Self Assessment、Trigger Scenario、Capability Gain 与 Next Lesson Value；
 - 仅修改标题、正文或 Case Thread，而未同步 Check / Practice / Participation，视为未完成 Rework。
 - Step 5 上方 Review 主体固定围绕“AI适合做什么 / AI不应该替你做什么”两个核心方向回答；二者不能删除。主卡片**至少 2 张，上限不固定**；两张是最低要求，超过两张只在能让当前课题知识更清晰时增加，不为版式凑数。每张都必须有本课具体回答正文，禁止泛化口号；主卡片下方必须保留 `knowledgeDepth.review` 说明层，按“明确命题 + 回答/解释”继续讲清为什么、边界、使用条件和易混淆判断，数量不固定，且不得与主卡片机械重复。mistakes 只做辅助纠偏；
 - Step 5 在 Formal Brief 中必须先列出本课 must-retain judgments；Human Review 先确认主卡片不少于 2 张，再逐项核对这些判断是否由主卡片 + `knowledgeDepth.review` 完整覆盖。达到最低 2 张后，后续验收标准是知识覆盖与清晰度，不再追求固定数量。缺少关键判断即 `STEP5_KNOWLEDGE_COVERAGE_FAIL`；`mistakes` 不得自动转成 Review 主体或说明层；
@@ -207,6 +211,8 @@ Human Review 前还必须完成 **Six-step Content Integrity Review**：
 - Step 6 的“遇到什么情况，我应该想到这节课？”必须作为**本课总结说明**：描述学习者未来会真实遇到的具体场景，并说明本课能力为什么适用/能解决什么；不得退化成“我会先…… / 你应该先……”式操作引导。它与 Next Lesson Value 分开存放和展示；若内容只是“本课使用某知识 / 上一课已学某知识 / 下一课继续某知识”，视为 CAPABILITY_TRIGGER_FAIL。
 - Human Review 必须区分“正常课程序号”和“内部生产身份”：学员端可显示 `07 / 08 / 09` 这类正常课程序号，但课程标题与卡片标题不得拼接 `T2-07`、Track、Batch、内部 Lesson ID 等生产标识。
 - Human Review 必须检查是否出现模板漂移：把某一课的案例结构、字段数量、Review 数量或生产术语复制成其他课程的默认结构。Step 5 只固定两个核心复盘方向和“主卡片至少 2 张”这个最低结构；超过 2 张的数量、具体回答和下方说明数量都必须由课题决定。还要检查是否错误删除说明层、给上限设固定条数、让上下两层机械重复，或把 `Beginner`、`Schema`、过程英文标签等在没有教学必要时泄漏到学员端。
+- Beginner Plain-language Gate：Human Review 必须检查“意思虽然正确，但表达是否过于学术 / 咨询化”。若标题、正文、卡片、Check 或 Practice 需要学习者先理解 ICP、Use Case、Primary Value、Proof 等业务框架词才能理解本课，应先改成普通中文再教学；概念名称不得成为理解内容的前置门槛。失败记为 `BEGINNER_PLAIN_LANGUAGE_FAIL`。
+- Learner-facing Language Gate：普通业务 / 生产英文标签必须翻译为自然中文；只有本课确实需要掌握的 AI 行业通用技术术语才允许首次用“中文（English/缩写）”，后续优先中文。deterministic validator 负责拦截常见裸英文，Human Review 负责判断剩余中文是否自然。失败记为 `LEARNER_LANGUAGE_FAIL`。
 
 Human Review FAIL：
 ```text

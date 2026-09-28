@@ -36,10 +36,25 @@ Status: **QUALITY_BASELINE_V1**
 - AI 专业术语第一次有意义地出现时默认使用“中文（English）”，例如：提示词（Prompt）、上下文（Context）、迭代（Iteration）；但 RAG、API、MCP 等行业常用技术缩写使用“中文解释（缩写）”，例如“检索增强生成（RAG）”，不展开英文全称；
 - 首次说明后优先继续使用中文，不反复堆叠英文；
 - 内部工程 / Schema / Artifact 名称不直接作为学习者主要文案，例如 Task Brief 应显示为“任务说明”，Context Pack 应显示为“上下文资料包”；
-- 默认 OPC / 自媒体 / 内容运营可以继续作为课程背后的 Case Thread，但除非业务语境确有必要，不在学习者正文反复凸显品牌或行业标签；
+- 默认可沿用真实自媒体 / 一人公司经营作为 Case Thread。推广运营课程优先使用真实选题、内容、分发、私信、线索、客户跟进等场景；方法必须可迁移到其他行业。禁止把“这门课程本身怎么推广 / 课程有哪些功能”当作主要教学案例；
 - 学习者看到的是可迁移的真实任务，教学设计层保留业务连续性。
 
 固定原则：**内部工程语言 ≠ 学习者界面语言；Case Logic 可以稳定，前台表达必须自然、通用。**
+
+### 2.1.1 Plain-language Gate
+
+零基础课程默认按“普通人第一次听也能懂”的方式写，不按咨询报告、商业框架或教材术语表的方式写。
+
+- 先写“发生了什么 / 为什么麻烦 / 应该怎么判断”，再决定是否补术语；
+- 一个概念能用自然中文说清，就不要为了显得专业换成英文名词；
+- 一句话中同时出现 2 个以上新专业名词，默认视为认知负担过高，应拆开或改写；
+- 标题、卡片、题目、练习字段尤其优先使用口语化、动作化中文，例如“先选最值得服务的人”优于“ICP Priority”；
+- 专业概念即使在 Formal Brief 内保留英文 identity，进入学员可见 Draft 时也必须做 learner-facing rewrite；
+- CTA、HITL、Growth Review、Landing、Lead、Dashboard 等普通业务 / 运营英文不作为学习目标时必须直接改成自然中文，例如“行动引导”“转人工 / 人工接管”“增长复盘”“承接页面”“线索”“数据看板”；不得因为行业常用就裸露给零基础学员；
+- Track / Batch / handoff / Workflow Gate、“系统化候选”“给下一板块准备输入”等课程生产语言不得进入学员正文。当前课只保留理解和完成本课所需知识，不用后续课程边界解释当前课；
+- Human Review 若出现“意思正确但像行业报告、咨询术语、MBA 框架，普通人需要先学词才能学内容”，判定 `BEGINNER_PLAIN_LANGUAGE_FAIL`。
+
+固定原则：**先让人听懂，再让人知道这个概念叫什么；名称不能成为理解知识的前置门槛。**
 ## 2.2 Six-step Content Integrity
 
 六步 Shell 只定义结构，不代表六步内容自动正确。每次 Draft 新版本、Continuity Rework 或 Case Thread 调整后，必须逐步重新确认：
@@ -50,6 +65,8 @@ Status: **QUALITY_BASELINE_V1**
 4. PRACTICE：必须存在与当前课目标一致的真实学习动作；
 5. REVIEW：只复盘当前版本真正教过的判断；
 6. CAPABILITY：必须对应当前版本实际获得的能力与 Next Reuse。
+
+完整性复核必须覆盖所有学员可见字段，不只检查 `content`：Step 1 intro / bottomDetails、Step 2 example、Step 3 checks、Step 4 practice / reference fill、Step 5 review / knowledgeDepth、Step 6 selfAssessment / trigger / capabilityGain / nextLessonValue 都属于同一语言与课程边界 Gate。
 
 特别规则：
 

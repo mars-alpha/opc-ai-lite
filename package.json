@@ -16,6 +16,10 @@
     "learning:sidebar-ux:check": "tsx scripts/validate-course-sidebar-ux.ts",
     "learning:track01-baseline:check": "tsx scripts/validate-track01-current-baseline.ts",
     "learning:track02-context:check": "tsx scripts/validate-track02-curriculum-context.ts",
+    "learning:track03-context:check": "tsx scripts/validate-track03-curriculum-context.ts",
+    "learning:track03-path-access:check": "tsx scripts/validate-track03-learning-path-access.ts",
+    "learning:runtime:track03-batch-a": "tsx scripts/provision-track03-batch-a-runtime.ts --apply --confirm=TRACK03-BATCH-A-RUNTIME-001",
+    "learning:runtime:accept:track03-batch-a": "node --conditions=react-server --import tsx scripts/accept-track03-batch-a-runtime.ts",
     "learning:track02-path-access:check": "tsx scripts/validate-track02-learning-path-access.ts",
     "access:membership-policy:check": "tsx scripts/validate-membership-benefit-policy.ts",
     "practice:ia:check": "tsx scripts/validate-practice-information-architecture.ts",
@@ -43,7 +47,10 @@
     "learning:runtime:accept:track02-batch-c": "node --conditions=react-server --import tsx scripts/accept-track02-batch-c-runtime.ts",
     "learning:runtime:track02-batch-d": "tsx scripts/provision-track02-batch-d-runtime.ts --apply --confirm=TRACK02-BATCH-D-RUNTIME-001",
     "learning:runtime:accept:track02-batch-d": "node --conditions=react-server --import tsx scripts/accept-track02-batch-d-runtime.ts",
-    "learning:track02-batch-d:formal-check": "tsx scripts/validate-track02-batch-d-registration.ts"
+    "learning:track02-batch-d:formal-check": "tsx scripts/validate-track02-batch-d-registration.ts",
+    "learning:track03:formal-check": "tsx scripts/validate-track03-formal-registration.ts",
+    "learning:runtime:track03-batches-b-e": "tsx scripts/provision-track03-batches-b-e-runtime.ts --apply --confirm=TRACK03-BATCHES-B-E-RUNTIME-001",
+    "learning:runtime:accept:track03-batches-b-e": "node --conditions=react-server --import tsx scripts/accept-track03-batches-b-e-runtime.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

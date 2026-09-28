@@ -108,6 +108,11 @@ assert(
   "OUTPUT_CONTRACT_PRESENTATION_RULES_MISSING"
 );
 assert(
+  outputContract.includes("底部页码固定只显示 `1 / 6`～`6 / 6`") &&
+    outputContract.includes("navigationDescription 只服务顶部进度卡片"),
+  "OUTPUT_CONTRACT_PAGINATION_NUMBER_ONLY_RULE_MISSING"
+);
+assert(
   outputContract.includes("Learner-visible course numbering rule") &&
     outputContract.includes("正常课程序号") &&
     outputContract.includes("`T2-07`"),

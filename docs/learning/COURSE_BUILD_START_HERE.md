@@ -96,6 +96,7 @@
 
 - Track 01：`docs/learning/TRACK01_CATALOG_METADATA_V2.md`
 - Track 02：`docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
+- Track 03：`docs/learning/TRACK03_CATALOG_CONTEXT_V1.md`
 
 当前 Formal Brief / Batch **不在本入口维护状态清单**。必须从 `docs/CURRENT_SYSTEM_FACTS.md` + current Track owner 解析当前 Brief 路径与 Gate，再读取该 Brief。
 

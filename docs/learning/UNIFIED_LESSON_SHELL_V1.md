@@ -37,7 +37,7 @@ Draft Preview 必须复用 `GenericLessonRuntimePanel`。Preview 只用于 Human
 | 5 | REVIEW | 复盘框架 | 把本课收束成可复用的判断 / 诊断框架 |
 | 6 | CAPABILITY | 能力获得 | 明确学员获得什么能力、可用在哪里、下一步学什么 |
 
-正文保留每节课自己的 Step 标题。底部导航只显示固定四字教学标签 + 页码。
+正文保留每节课自己的 Step 标题。底部导航中固定四字教学标签可独立显示；**页码这一行只显示 `1 / 6`～`6 / 6`，页码前后不拼接任何步骤描述、navigationDescription 或教学提示。**
 顶部六张进度卡片读取当前课各 Step 的 `navigationDescription`；Hero 读取该课 `learningRecommendation`；Step 1 的 intro comparison 在 takeaway 后展示 `bottomDetails`。展示位置与结构保持不变；文案生产及验收规则统一见 `LESSON_OUTPUT_CONTRACT_V1.md`。
 
 ## 3. Step 3 — Three-Question Mastery
@@ -82,11 +82,11 @@ Step 1 / Step 2 / Step 5 可以通过通用数据配置改变内容层级，但�
 
 Desktop / tablet：
 - 左：自然尺寸“上一步”；
-- 中：固定教学标签 + 页码，视觉居中；
+- 中：固定教学标签独立显示；其下页码只显示 `当前步 / 6`，例如 `3 / 6`，不带任何描述；
 - 右：“还是不懂” + 自然尺寸“下一步”。
 
 Mobile `<=640px`：
-- 第一行：`上一步 | 教学标签+页码 | 下一步`；
+- 第一行：`上一步 | 教学标签 + 纯页码 | 下一步`；纯页码仅为 `1 / 6`～`6 / 6`，不附加描述；
 - 第二行：“还是不懂”；
 - 不允许旧 CSS 再隐藏 `.guided-step-nav` 内部容器。
 

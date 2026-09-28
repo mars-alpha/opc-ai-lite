@@ -15,8 +15,10 @@ Track 02 Batch A                         T2-01～T2-03 AVAILABLE / FORMAL_RUNTIM
 Track 02 Batch B                         T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
 Track 02 Batch C                         T2-07～T2-09 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
 Track 02 Batch D                         T2-10～T2-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
+Track 03 Directory                       T3-01～T3-15 DIRECTORY_APPROVED_V1 / 15 KEEP
+Track 03 Formal Curriculum               T3-01～T3-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
-CURRENT                                  TRACK02 COMPLETE / TRACK03 PLANNING
+CURRENT                                  TRACK04 / PLANNING
 ```
 
 ## 当前系统健康
@@ -39,6 +41,8 @@ Track 02 Batch A Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 02 Batch B Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 02 Batch C Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 02 Batch D Runtime                 PROVISIONED / ACCEPTANCE PASS
+Track 03 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS
+Track 03 Learning Map                    15 LESSON DIRECTORY / ALL AVAILABLE
 Membership / Follow benefit model        FROZEN / CURRENT
 Frontend information architecture        FROZEN / CURRENT
 Frontend UI/CSS freeze for course work   ACTIVE
@@ -72,7 +76,7 @@ RUNTIME-INFRA-PERF-003
 
 ## 下一步
 
-T2-01～T2-15 已全部正式开放并通过 Runtime Acceptance。Track 02 当前生产链闭环；下一步进入 Track 03 规划，继续复用已冻结的 Learning Map / Access / Lesson Shell。
+Track 03 T3-01～T3-15 已全部正式上线：15 节 LessonSpec、Presentation、学习地图、数据库 Runtime、会员访问、45 道 required Check、15 个 required Practice 与 Completion Acceptance 均通过。Track 03 正式生产完成，下一步进入 Track 04 planning / Formal Curriculum Context。
 
 AI Daily 等后续产品能力继续遵循：
 

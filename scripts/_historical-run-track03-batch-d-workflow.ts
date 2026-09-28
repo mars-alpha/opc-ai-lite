@@ -1,0 +1,27 @@
+import fs from "node:fs";
+import { createCourseBuilderReviewPacket } from "../lib/learning/course-builder";
+import { COURSE_PRODUCTION_RULE_SOURCES } from "../lib/learning/course-production-contract";
+import { loadCourseProductionRuleSources, nextCourseProductionStage } from "../lib/learning/course-production-orchestrator";
+import { CURRENT_COURSE_BUILDER_SKILL } from "../skills/course-builder";
+import { track03BatchDDrafts } from "../fixtures/course-builder/track03-batch-d";
+
+const contextPaths=["docs/CURRENT_SYSTEM_FACTS.md","docs/learning/TRACK03_CATALOG_CONTEXT_V1.md","docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md","docs/learning/TRACK03_BATCH_D_T3_10_T3_13_FORMAL_BRIEFS_V1.md","docs/learning/DEFERRED_KNOWLEDGE_LEDGER_V1.md"] as const;
+const rules=loadCourseProductionRuleSources((source)=>fs.readFileSync(source,"utf8"));
+if(Object.keys(rules).length!==COURSE_PRODUCTION_RULE_SOURCES.length) throw new Error("T3D_RULES_MISSING");
+const context=Object.fromEntries(contextPaths.map((path)=>[path,fs.readFileSync(path,"utf8")]));
+if(contextPaths.some((path)=>!context[path]?.trim())) throw new Error("T3D_CONTEXT_MISSING");
+if(!context["docs/learning/TRACK03_BATCH_D_T3_10_T3_13_FORMAL_BRIEFS_V1.md"].includes("HUMAN_REVIEW_PENDING")) throw new Error("T3D_BRIEF_GATE");
+const base={ruleSourcesLoaded:[...COURSE_PRODUCTION_RULE_SOURCES],groundingReady:true,courseContextReady:true,formalBriefReady:true,lessonSpecRegistered:false,runtimeProvisioned:false,runtimeAcceptance:"PENDING" as const,available:false};
+if(nextCourseProductionStage({...base,draftReady:false,deterministicValidation:"PENDING",humanReview:"PENDING"})!=="RUN_COURSE_BUILDER") throw new Error("T3D_BUILDER_STAGE");
+if(nextCourseProductionStage({...base,draftReady:true,deterministicValidation:"PENDING",humanReview:"PENDING"})!=="RUN_DETERMINISTIC_VALIDATORS") throw new Error("T3D_VALIDATOR_STAGE");
+const packets=track03BatchDDrafts.map((draft,index)=>createCourseBuilderReviewPacket(draft,new Date("2026-09-28T06:"+String(10+index).padStart(2,"0")+":00.000Z"),CURRENT_COURSE_BUILDER_SKILL.version));
+if(packets.length!==4 || packets.some((p)=>p.status!=="PENDING_REVIEW"||p.validation.schema!=="PASS"||p.validation.rules!=="PASS"||p.validation.warnings.length)) throw new Error("T3D_DETERMINISTIC");
+const next=nextCourseProductionStage({...base,draftReady:true,deterministicValidation:"PASS",humanReview:"PENDING"});
+if(next!=="HUMAN_REVIEW_GATE") throw new Error("T3D_HUMAN_REVIEW_GATE");
+console.log("TRACK03_BATCH_D_RULES_CONTEXT_BRIEF=PASS");
+console.log("TRACK03_BATCH_D_CURRENT_SKILL="+CURRENT_COURSE_BUILDER_SKILL.version);
+console.log("TRACK03_BATCH_D_REVIEW_PACKETS=PASS");
+console.log("TRACK03_BATCH_D_DETERMINISTIC_VALIDATION=PASS");
+console.log("TRACK03_BATCH_D_NEXT_STAGE="+next);
+console.log("TRACK03_BATCH_D_RUNTIME_PROVISIONING=NOT_STARTED");
+console.log("TRACK03_BATCH_D_AVAILABLE=NO");

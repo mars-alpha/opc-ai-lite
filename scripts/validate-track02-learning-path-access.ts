@@ -65,7 +65,7 @@ assert(runtimeShell.includes('next.label ?? "继续下一课"'), "CROSS_TRACK_NE
 assert(runtimeShell.includes("learningPathHrefForCourse(courseSlug)"), "FINAL_LESSON_TRACK_AWARE_RETURN_REQUIRED");
 
 const entitlement = fs.readFileSync("lib/server/entitlements/service.ts", "utf8");
-assert(entitlement.includes('if (courseSlug === "ai-work") return { allowed: true };'), "TRACK02_T1_COMPLETION_MUST_NOT_BLOCK");
+assert(entitlement.includes('courseSlug === "ai-work" || courseSlug === "ai-growth"') && entitlement.includes("return { allowed: true };"), "TRACK02_T1_COMPLETION_MUST_NOT_BLOCK");
 assert(entitlement.includes("getLearningPrerequisiteRecommendation"), "LEARNING_PREREQUISITE_SEPARATION_REQUIRED");
 assert(entitlement.includes('reason: "MEMBERSHIP_REQUIRED"'), "TRACK02_MEMBERSHIP_GATE_REQUIRED");
 
