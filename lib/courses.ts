@@ -2,6 +2,7 @@ import { track01Phase1Course } from "./learning/track01-phase1-runtime";
 import { track02CourseWithBatchD } from "./learning/track02-batch-d-runtime";
 import { track03FullCourse } from "./learning/track03-batches-b-e-runtime";
 import { track04Course } from "./learning/track04-runtime";
+import { track05Course } from "./learning/track05-runtime";
 
 export type LessonGuideBlock = {
   type: "prompt" | "template" | "steps" | "checklist" | "example";
@@ -176,7 +177,8 @@ export const courses: Course[] = [
       ]}
     ]
   },
-  track04Course
+  track04Course,
+  track05Course
 ];
 
 export function getCourse(slug:string){ return courses.find((course)=>course.slug===slug); }

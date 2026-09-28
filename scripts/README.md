@@ -28,6 +28,8 @@ Track 03 T3-01～T3-15 已全部正式 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_P
 
 Track 04 T4-01～T4-15 已全部 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。当前唯一正式验证 / 恢复入口：`learning:track04-context:check`、`learning:track04:formal-check`、`learning:track04-path-access:check`、`learning:runtime:track04`、`learning:runtime:accept:track04`。Batch Preview / Draft / Workflow / Review / Batch-specific Runtime 脚本已退出 current path；课程内容 provenance 保留在 Formal Brief 与 fixtures。
 
+Track 05 T5-01～T5-16 已全部 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。正式 Runtime 为 6 modules / 16 lessons / 48 checks / 16 practices；当前正式验证 / 恢复入口：`learning:track05-context:check`、`learning:track05:formal-check`、`learning:track05-path-access:check`、`learning:runtime:track05`、`learning:runtime:accept:track05`。上线前 Preview 已退出 current path；Formal Brief、Human Review evidence、fixtures、Provision / Acceptance 脚本保留为可追溯、可重跑发布链。
+
 正式 Runtime / UI 架构回归：
 
 - `npm run learning:course-interaction:check`

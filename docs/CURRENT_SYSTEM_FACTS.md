@@ -19,8 +19,11 @@ Track 04 canonical path          T4-01～T4-15 / 6 Phases / DIRECTORY_APPROVED_V
 Track 04 T4-01～T4-15          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 Current Course Builder Skill    course-builder@1.0.0
 Frontend boundary               EXISTING UNIFIED LESSON SHELL / NO NEW UI / NO CSS CHANGE
+Track 05 canonical path          T5-01～T5-16 / 6 Phases / DIRECTORY_APPROVED_V1 / 6 PRODUCTION BATCHES
+Track 05 T5-01～T5-16          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+Track 05 Learning Map            16 LESSON DIRECTORY / 6 PHASES / ALL AVAILABLE
 Deferred knowledge              DEFERRED_KNOWLEDGE_LEDGER_V1 → Track 05 planning input
-Next Gate                       Track 05 curriculum planning
+Next Gate                       Track 05 COMPLETE / READY FOR GIT COMMIT
 ```
 
 T1-11～T1-20 已完成 Stable Course Production Workflow 全链路：10 个结构化 Draft、Deterministic Validation、Human Review、LessonSpec Registry、Runtime Provisioning 与 authenticated Runtime Acceptance 全部 PASS。10 节课均已进入 `foundation-ai` Phase 4～6 正式 Runtime，并继续复用现有 Unified Lesson Shell；本批次没有新增 UI / Renderer / interaction type，也没有调整 CSS。未展开知识继续由 `DEFERRED_KNOWLEDGE_LEDGER_V1.md` 作为 Track 02～05 规划输入。
@@ -29,32 +32,15 @@ Track 03 Batch A T3-01～T3-03 曾先完成 Human Review PASS → LessonSpec Reg
 
 Track 03 T3-04～T3-15 已完成产品负责人 Human Review PASS → LessonSpec Registry → Runtime Provisioning → Runtime Acceptance → AVAILABLE。Track 03 现已 15/15 正式上线；新增 12 节均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice，共 36 道 Check + 12 个 Practice，会员访问、Check Gate、Practice Gate 与 Completion 全部真实 Acceptance PASS。全程复用 Unified Lesson Shell，不新增 UI / Renderer / interaction type，不调整 CSS；学员可见语言继续遵守中文优先与跨 Track 污染 Gate。
 
+Track 05 T5-01～T5-16 已完成 Capability Map → Knowledge Map → Six-step Audit → Product Human Review → 6 个 Production Batch → Formal Brief → Course Builder Draft → Deterministic Validation → Human Review → LessonSpec Registry → `fde` Formal Runtime → Runtime Provisioning → authenticated Runtime Acceptance → AVAILABLE。16 节均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice，共 48 道 Check + 16 个 Practice；正式 Runtime 与课程 Sidebar 统一为 6 个阶段，课数分布 3 / 3 / 3 / 3 / 3 / 1。会员访问、Track 04 仅学习建议、Check Gate、Practice Gate 与 16 个 Completion 全部真实 Acceptance PASS。T5-16 只做 Capstone Integration，不新增 Primary Knowledge Home。全程复用 Unified Lesson Shell，不新增 UI / Renderer / interaction type，不调整 CSS。上线前临时 Preview 已退出 current path；正式 owner 为 `lib/learning/track05-runtime.ts` / `lib/learning/track05-specs.ts`，课程目录与知识边界以 `TRACK05_CATALOG_CONTEXT_V1.md` 为唯一 owner。
+
 Track 04 T4-01～T4-15 已全部完成 Human Review PASS → LessonSpec Registry → `ai-workflow` Formal Runtime → Runtime Provisioning → authenticated Runtime Acceptance → AVAILABLE。正式 Runtime 统一由 `lib/learning/track04-runtime.ts` 管理，15 节均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice，共 45 道 Check + 15 个 Practice；会员访问、Track 03 仅学习建议、Check Gate、Practice Gate 与 15 个 Completion 全部真实 Acceptance PASS。学习地图与课程 Sidebar 统一为 6 个阶段、15/15 AVAILABLE，阶段标题不带“阶段 1：”等前序。数据库旧 `task-decomposition / context-engineering / hitl / evaluation` 及旧模块已从 `ai-workflow` 正式空间清理；课程生产 Preview/批次 Runtime 入口退出 current path。
 
 2026-09-23 真实学习体验复核后，T1-11～T1-20 又完成 `TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001`：学员可见语言中文优先、Step 4 Reference Fill 可直接复制给 AI 形成完整任务、Step 5 改为按知识密度组织的课题化判断卡片、Step 6 使用独立现实触发场景并与 Next Lesson Value 分离。修改后重新 Provision，10/10 authenticated Runtime Acceptance 再次 PASS。规则已回写 Course Build Entry / Lesson Output Contract / Beginner Quality / Governance / Course Builder Skill v1 / Workflow read-latest owner；Unified Lesson Shell 与 CSS 未改变。
 
-## 1. 仓库扫描基线
+## 1. 仓库治理基线
 
-当前治理提交后的 Git 受控文件：
-
-```text
-TOTAL  209
-TEXT   202
-BINARY 7
-```
-
-主要目录：
-
-```text
-app/         54
-components/  35
-docs/        37
-drizzle/     21
-lib/         36
-skills/      1
-```
-
-审计开始时完整盘点 176 个既有 Git 受控文件；本治理任务新增 `AGENTS.md` 与本文件，提交后共 178 个受控文件。二进制资源只做存在性与引用盘点，不作为业务事实源。
+仓库文件数量会随课程、Runtime 与治理资产持续变化，不再在 Current Facts 中维护容易腐化的静态文件计数。当前工程事实以 Git 工作区、当前代码、Schema、Runtime 验收与本文件 Section 0 为准；需要文件级盘点时直接读取当前 Git，而不是引用历史统计。
 
 ## 2. 当前正式 Runtime
 
@@ -154,9 +140,9 @@ Lesson Resource
 Admin Lesson edit / publish
 ```
 
-正式课程交互当前只有一条主链：Lesson route → `FormalGuidedLessonView` → `AsyncLessonRuntimeShell` → `GenericLessonRuntimePanel` → Completion / Rating / 下一课。正式 Runtime course 与历史 static course 的边界统一由 `lib/learning/course-runtime-boundaries.ts` 管理；当前 `foundation-ai`、`ai-work` 与 `ai-growth` 属于 FORMAL_RUNTIME，历史 `ai-literacy / chatgpt-worker / ai-workflow` 只能进入 `components/legacy-learning/LegacyStaticLessonView`，不得作为新课程 fallback。正式课程缺少 LessonSpec、Presentation 或数据库 Runtime 时必须直接暴露配置错误。
+正式课程交互当前只有一条主链：Lesson route → `FormalGuidedLessonView` → `AsyncLessonRuntimeShell` → `GenericLessonRuntimePanel` → Completion / Rating / 下一课。正式 Runtime course 与历史 static course 的边界统一由 `lib/learning/course-runtime-boundaries.ts` 管理；当前 `foundation-ai`、`ai-work`、`ai-growth`、`ai-workflow` 与 `fde` 属于 FORMAL_RUNTIME；历史 `ai-literacy / chatgpt-worker` 才能进入 `components/legacy-learning/LegacyStaticLessonView`，不得作为新课程 fallback。正式课程缺少 LessonSpec、Presentation 或数据库 Runtime 时必须直接暴露配置错误。
 
-`foundation-ai` T1-01～T1-20、`ai-work` T2-01～T2-15 与 `ai-growth` T3-01～T3-15 已进入正式六步 Runtime。核心状态流统一为 currentStep / Completion → Lesson Progress；Step 3 → `lesson_check_responses`；Step 4 → Practice Submission / Evaluation；Rating → `learning_feedback`。PostgreSQL / Server 是正式学习状态唯一事实源。六步教学规则不在本文件复制，统一读取当前 `COURSE_PRODUCTION_RULE_SOURCES`。
+`foundation-ai` T1-01～T1-20、`ai-work` T2-01～T2-15、`ai-growth` T3-01～T3-15、`ai-workflow` T4-01～T4-15 与 `fde` T5-01～T5-03 已进入正式六步 Runtime。核心状态流统一为 currentStep / Completion → Lesson Progress；Step 3 → `lesson_check_responses`；Step 4 → Practice Submission / Evaluation；Rating → `learning_feedback`。PostgreSQL / Server 是正式学习状态唯一事实源。六步教学规则不在本文件复制，统一读取当前 `COURSE_PRODUCTION_RULE_SOURCES`。
 
 ### COURSE_RUNTIME_PERF-003 — Static Shell / Dynamic State Split
 

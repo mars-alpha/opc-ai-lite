@@ -1,4 +1,4 @@
-export const FORMAL_RUNTIME_COURSE_SLUGS = ["foundation-ai", "ai-work", "ai-growth", "ai-workflow"] as const;
+export const FORMAL_RUNTIME_COURSE_SLUGS = ["foundation-ai", "ai-work", "ai-growth", "ai-workflow", "fde"] as const;
 export const LEGACY_STATIC_COURSE_SLUGS = [
   "ai-literacy",
   "chatgpt-worker"

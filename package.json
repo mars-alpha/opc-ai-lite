@@ -55,7 +55,14 @@
     "learning:track04:formal-check": "tsx scripts/validate-track04-formal-registration.ts",
     "learning:track04-path-access:check": "tsx scripts/validate-track04-learning-path-access.ts",
     "learning:runtime:track04": "tsx scripts/provision-track04-runtime.ts --apply --confirm=TRACK04-RUNTIME-001",
-    "learning:runtime:accept:track04": "node --conditions=react-server --import tsx scripts/accept-track04-runtime.ts"
+    "learning:runtime:accept:track04": "node --conditions=react-server --import tsx scripts/accept-track04-runtime.ts",
+    "learning:track05-context:check": "tsx scripts/validate-track05-curriculum-context.ts",
+    "learning:track05:formal-check": "tsx scripts/validate-track05-formal-registration.ts",
+    "learning:track05-path-access:check": "tsx scripts/validate-track05-learning-path-access.ts",
+    "learning:track05-bf:build": "tsx scripts/run-track05-batches-bf-course-builder.ts",
+    "learning:track05-bf:human-review": "tsx scripts/validate-track05-batches-bf-human-review.ts",
+    "learning:runtime:track05": "tsx scripts/provision-track05-runtime.ts --apply --confirm=TRACK05-RUNTIME-001",
+    "learning:runtime:accept:track05": "node --conditions=react-server --import tsx scripts/accept-track05-runtime.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

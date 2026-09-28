@@ -182,6 +182,8 @@ Track 04 Core 课程目录、15 个候选 Primary Knowledge Home、顺序、Defe
 
 目标：学习者能够进入一个真实业务，发现问题、设计 AI 方案、验证价值并推动真实使用。FDE 在 OPC 中不是“纯工程师编程课”，而是 AI 解决方案能力。
 
+当前 Track 05 详细目录、Primary Knowledge Home、Six-step Audit 与 Track04→05 边界统一由 `docs/learning/TRACK05_CATALOG_CONTEXT_V1.md` 维护；本文件只保留长期稳定的 FDE 能力域，不维护第二份课表。
+
 ### Module 5.1 — Problem Discovery
 
 课程方向：

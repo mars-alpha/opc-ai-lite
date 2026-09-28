@@ -7,7 +7,7 @@ import {
   type FoundationLessonType
 } from "./foundation-catalog";
 
-export type LearningTrackSlug = "foundation-ai" | "ai-work" | "ai-growth" | "ai-workflow";
+export type LearningTrackSlug = "foundation-ai" | "ai-work" | "ai-growth" | "ai-workflow" | "fde";
 export type TrackCatalogLesson = FoundationCatalogLesson;
 export type TrackCatalogStage = FoundationCatalogStage;
 
@@ -211,6 +211,37 @@ export const track04Catalog: TrackCatalogStage[] = [
   ]}
 ];
 
+export const track05Catalog: TrackCatalogStage[] = [
+  { stageId:"fde-discovery", title:"看清真实问题", promise:"先确认真正的问题、关键角色和当前事实，再进入解决方案设计。", order:1, lessons:[
+    { ...plannedLesson("t5-01-problem-discovery","别急着想“用什么 AI”，先确认业务到底哪里出了问题","区分症状、影响、可能原因和未知信息，避免解决错问题。",1,["T4-15"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-01-problem-discovery", badge:"已上线" },
+    { ...plannedLesson("t5-02-stakeholder-map","谁在用、谁受影响、谁决定这件事能不能上线","找清使用、影响、结果责任、关键提供与批准角色。",2,["T5-01"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-02-stakeholder-map", badge:"已上线" },
+    { ...plannedLesson("t5-03-current-state-baseline","现在到底有多慢、多贵、多容易出错","建立有周期、有来源、证据质量清楚的当前状态基线。",3,["T5-02"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-03-current-state-baseline", badge:"已上线" }
+  ]},
+  { stageId:"fde-definition", title:"定义目标与价值", promise:"把模糊抱怨收敛成明确问题、目标状态和投入价值。", order:2, lessons:[
+    { ...plannedLesson("t5-04-problem-statement","把模糊抱怨变成一个真正能解决的问题","把对象、场景、影响、范围和约束收敛成清楚的问题定义。",4,["T5-01","T5-02","T5-03"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-04-problem-statement", badge:"已上线" },
+    { ...plannedLesson("t5-05-target-state","做完以后，业务应该具体变成什么样","先定义业务应该变成什么状态，再讨论具体解决路径。",5,["T5-04"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-05-target-state", badge:"已上线" },
+    { ...plannedLesson("t5-06-value-hypothesis","这件事值得投入多少时间和成本","判断问题带来的价值是否值得继续投入时间、成本和资源。",6,["T5-03","T5-04","T5-05"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-06-value-hypothesis", badge:"已上线" }
+  ]},
+  { stageId:"fde-solution", title:"设计可落地方案", promise:"比较不同解决路径，确认落地条件，再把选定方案收敛到可启动范围。", order:3, lessons:[
+    { ...plannedLesson("t5-07-solution-options","不是所有问题都要“自己做系统”：先比较解决路径","比较手工、配置、购买和自建等路径，避免默认从造系统开始。",7,["T5-04","T5-05","T5-06"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-07-solution-options", badge:"已上线" },
+    { ...plannedLesson("t5-08-solution-readiness","数据、权限和依赖不具备，再好的方案也落不了地","检查数据、权限、依赖和风险是否支持方案真正落地。",8,["T5-07"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-08-solution-readiness", badge:"已上线" },
+    { ...plannedLesson("t5-09-solution-scope","把想法收敛成一份可以开始做的解决方案","明确先做什么、不做什么、依赖什么，以及怎样开始交付。",9,["T5-07","T5-08"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-09-solution-scope", badge:"已上线" }
+  ]},
+  { stageId:"fde-pilot", title:"用最小试点验证", promise:"用最小原型验证关键假设，再通过真实试点学习方案是否可用。", order:4, lessons:[
+    { ...plannedLesson("t5-10-prototype-hypothesis","原型不是“小号正式系统”，只验证最关键假设","用最小证明验证最大未知，而不是提前建设完整系统。",10,["T5-09"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-10-prototype-hypothesis", badge:"已上线" },
+    { ...plannedLesson("t5-11-pilot-design","试点应该找谁试、试什么、什么情况下立即停","定义真实用户、场景、证据、护栏和停止条件。",11,["T5-05","T5-08","T5-10"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-11-pilot-design", badge:"已上线" },
+    { ...plannedLesson("t5-12-pilot-learning","试点出问题时，先改方案还是先改使用方式","区分方案、数据、流程和使用摩擦问题，决定下一轮怎么改。",12,["T5-11"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-12-pilot-learning", badge:"已上线" }
+  ]},
+  { stageId:"fde-adoption", title:"用证据决定并推动采用", promise:"根据试点证据决定是否继续投入，并解决真实采用与长期负责的问题。", order:5, lessons:[
+    { ...plannedLesson("t5-13-evaluation-decision","试点结束后，怎么判断继续、调整还是停止","把当前基线和试点结果放在一起，做继续、调整或停止的判断。",13,["T5-03","T5-05","T5-06","T5-11","T5-12"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-13-evaluation-decision", badge:"已上线" },
+    { ...plannedLesson("t5-14-adoption","方案明明有效，为什么团队还是不用","识别信任、使用摩擦、培训和激励等真实采用阻力。",14,["T5-02","T5-13"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-14-adoption", badge:"已上线" },
+    { ...plannedLesson("t5-15-rollout-ownership","从“有人试用”变成真正的工作方式，需要谁长期负责","明确长期负责人、支持、反馈和版本责任，让方案进入日常工作。",15,["T5-14"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-15-rollout-ownership", badge:"已上线" }
+  ]},
+  { stageId:"fde-capstone", title:"完成解决方案落地交付", promise:"把前面所有判断整合成一套可交付、可复核、可继续推进的 AI 解决方案。", order:6, lessons:[
+    { ...plannedLesson("t5-16-capstone","把一个真实业务问题交付成完整 AI 解决方案","整合问题、价值、方案、试点、证据和采用计划，形成完整解决方案包。",16,["T5-01","T5-02","T5-03","T5-04","T5-05","T5-06","T5-07","T5-08","T5-09","T5-10","T5-11","T5-12","T5-13","T5-14","T5-15"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"fde", runtimeLessonId:"t5-16-capstone", badge:"已上线" }
+  ]}
+];
+
 export const learningTracks: Record<LearningTrackSlug, LearningTrackCatalog> = {
   "foundation-ai": {
     slug: "foundation-ai",
@@ -247,6 +278,15 @@ export const learningTracks: Record<LearningTrackSlug, LearningTrackCatalog> = {
     description: "把已经人工验证的业务流程设计成可重复、可控、可检查的 AI 工作系统。",
     stageLabel: "6 个能力分组",
     stages: track04Catalog
+  },
+  "fde": {
+    slug: "fde",
+    index: "05",
+    eyebrow: "FDE",
+    title: "FDE / AI 解决方案落地",
+    description: "从真实业务问题出发，完成发现、设计、试点、评估与落地。",
+    stageLabel: "6 个学习阶段",
+    stages: track05Catalog
   }
 };
 
@@ -254,6 +294,7 @@ export function getLearningTrack(slug: string | undefined): LearningTrackCatalog
   if (slug === "ai-work") return learningTracks["ai-work"];
   if (slug === "ai-growth") return learningTracks["ai-growth"];
   if (slug === "ai-workflow") return learningTracks["ai-workflow"];
+  if (slug === "fde") return learningTracks.fde;
   return learningTracks["foundation-ai"];
 }
 

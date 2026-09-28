@@ -253,9 +253,13 @@ Track 04 的最终产物不是某个平台里的“自动化截图”，而是�
 
 ## 10. Track 05 continuity
 
+当前唯一 Track 05 Context Owner：`docs/learning/TRACK05_CATALOG_CONTEXT_V1.md`。
+
 统一入口：
 
 > 现在不再只优化一个任务，而是解决一个完整业务问题。
+
+当前 Track 05 候选能力链固定按 **Problem Discovery → Value → Solution Design → Prototype/Pilot → Evaluation/Adoption → FDE Delivery** 审计；具体课数与顺序只由 Track 05 owner 维护，本 Continuity 文件不维护第二份目录。
 
 FDE Capstone 必须尽量复用前面已经形成的：
 - Business Context

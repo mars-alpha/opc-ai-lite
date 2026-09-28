@@ -123,6 +123,19 @@ Track 04 已按“把已人工验证的流程系统化”完成课程审计、�
 
 上述 planning resolution 已兑现为 T4-01～T4-15 共 15 个正式 Primary Knowledge Home，并完成 Human Review / Runtime Acceptance。未被 Track 04 吸收的工程实现边界继续 Deferred 到 Track 05 / Technical / Enterprise；本 Ledger 不再维护第二份 Track 04 目录。
 
+## 5.4 Track 05 planning resolution — TRACK05-CURRICULUM-001
+
+Track 05 以“完整业务问题 → AI Solution → Pilot → Adoption”为能力目标重新评估剩余 Deferred：
+
+- OAuth / Token / Secrets、IAM / RBAC / ABAC：普通 FDE Core 只吸收“权限与访问是否具备”的 Readiness 判断；具体配置继续 Technical / Enterprise；
+- Tool / Code Sandbox、MCP transport / deployment、Queue / Scheduler / Multi-Agent framework：只作为方案依赖或技术风险识别，不升级为 FDE 工程实现课；
+- 完整 JSON Schema / ORM / type generation：不进入普通 FDE Core；
+- Browser / Computer Use reliability：可作为 Solution Option / Pilot risk 案例，不教授 selector 编程；
+- audit / compliance：普通 FDE 需要识别审批、审计与法规阻塞点；完整企业安全/法规架构继续 Enterprise；
+- Build vs Buy、Prototype、Pilot、Adoption、Rollout：升级为 Track 05 Core，因为它们直接决定方案能否从“可做”进入“真实使用”。
+
+Track 05 Directory Human Review 已确认：T5-01～T5-15 为 15 个 Primary Knowledge Home，T5-16 为 Capstone Integration Lesson，目录状态为 DIRECTORY_APPROVED_V1 / HUMAN_REVIEW_PASS。剩余 Deferred 工程实现与企业级内容继续保持 Technical / Enterprise 边界；本 Ledger 不维护第二份 Track 05 目录。
+
 ## 6. Workflow generation findings — T1-11～T1-20
 
 实际生成 10 节 Draft 后确认，以下知识如果强行塞进当前课，会明显破坏“一个主问题 + Beginner 最小动作”的教学边界：

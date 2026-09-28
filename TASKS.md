@@ -2,9 +2,9 @@
 
 > 只保留 NOW / NEXT / BACKLOG 与必要的完成里程碑。当前事实以 `docs/CURRENT_SYSTEM_FACTS.md` / `PROJECT_STATUS.md` / current owner 为准；历史实现细节通过 Git 与 `docs/task-results/*` 追溯，不从本文件恢复旧 Gate。
 
-# NOW — TRACK05-CURRICULUM-PLANNING
+# NOW — TRACK05-COMPLETE-READY-FOR-COMMIT
 
-Status: **READY_TO_PLAN**
+Status: **T5-01～T5-16 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS**
 
 - Track 01～04 正式课程均已 AVAILABLE / FORMAL_RUNTIME。
 - Track 04 T4-01～T4-15 已完成 Human Review、LessonSpec Registry、15 课 Runtime Provisioning 与 authenticated Runtime Acceptance。
@@ -14,19 +14,12 @@ Status: **READY_TO_PLAN**
 
 # NEXT
 
-## TRACK05-CURRICULUM-001 — FDE Core Curriculum Planning
+## TRACK05-FINAL-GIT-COMMIT
 
-目标：
-- 从真实业务问题出发定义 Track 05 能力链；
-- 从 `DEFERRED_KNOWLEDGE_LEDGER_V1.md` 与 Five-Track Continuity 选择必要知识；
-- 完成 Knowledge Map → Six-step Audit → Course Directory；
-- 先确认目录，再进入 Formal Brief / Course Production Workflow。
-
-验收：
-- Primary Knowledge Home 一课一责；
-- 与 Track 04 系统设计边界不重复；
-- 目录通过六步可教学性审计；
-- 不新增课程 UI / CSS。
+- Track 05 T5-01～T5-16：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。
+- 正式 Runtime：6 modules / 16 lessons / 48 checks / 16 practices。
+- 上线前 Preview 已退出 current path；Formal Brief / Human Review / Draft / Provision / Acceptance 证据保留为可追溯发布链。
+- 完整 Git diff 审计与治理清场完成后，下一步仅做 Track05 统一 Git commit。
 
 # BACKLOG
 
@@ -48,3 +41,12 @@ Status: **READY_TO_PLAN**
 - Track 02 T2-01～T2-15：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 - Track 03 T3-01～T3-15：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 - Track 04 T4-01～T4-15：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+- Track 05 Directory Human Review：DIRECTORY_APPROVED_V1 / 15 PRIMARY KNOWLEDGE HOMES + 1 CAPSTONE
+- Track 05 Production Batching：APPROVED_V1 / 6 BATCHES / PHASE-ALIGNED
+- Track 05 Batch A Formal Brief：T5-01～T5-03 APPROVED_V1 / READY_FOR_COURSE_BUILDER
+- Track 05 Batch A Course Builder：3 DRAFTS / DETERMINISTIC_VALIDATION_PASS / HUMAN_REVIEW_PASS
+- Track 05 Batch A T5-01～T5-03：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+- Track 05 Batches B–F Formal Brief：T5-04～T5-16 / 5 BRIEFS APPROVED_V1
+- Track 05 T5-04～T5-16 Course Builder：13 DRAFTS / DETERMINISTIC_VALIDATION_PASS / HUMAN_REVIEW_PASS
+
+- Track 05 T5-01～T5-16：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS / 6 PHASE RUNTIME

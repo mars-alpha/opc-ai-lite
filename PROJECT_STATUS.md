@@ -21,8 +21,12 @@ Track 04 Directory                       T4-01～T4-15 DIRECTORY_APPROVED_V1 / 1
 Track 04 Formal Curriculum               T4-01～T4-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
 Track 04 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS
 Track 04 Learning Map                    15 LESSON DIRECTORY / ALL AVAILABLE
+Track 05 Directory                       T5-01～T5-16 / 6 PHASES / 15 KNOWLEDGE HOMES + 1 CAPSTONE
+Track 05 Formal Curriculum               T5-01～T5-16 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS
+Track 05 Runtime                          6 MODULES / 16 LESSONS / 48 CHECKS / 16 PRACTICES / ACCEPTANCE PASS
+Track 05 Learning Map                     16 LESSON DIRECTORY / ALL AVAILABLE
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
-CURRENT                                  TRACK05 CURRICULUM PLANNING
+CURRENT                                  TRACK05 COMPLETE / READY FOR GIT COMMIT
 ```
 
 ## 当前系统健康
@@ -47,6 +51,8 @@ Track 02 Batch C Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 02 Batch D Runtime                 PROVISIONED / ACCEPTANCE PASS
 Track 03 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS
 Track 03 Learning Map                    15 LESSON DIRECTORY / ALL AVAILABLE
+Track 05 Runtime                         6 MODULES / 16 LESSONS PROVISIONED / ACCEPTANCE PASS
+Track 05 Learning Map                    16 LESSONS / 6 PHASES / ALL AVAILABLE
 Membership / Follow benefit model        FROZEN / CURRENT
 Frontend information architecture        FROZEN / CURRENT
 Frontend UI/CSS freeze for course work   ACTIVE
@@ -80,7 +86,7 @@ RUNTIME-INFRA-PERF-003
 
 ## 下一步
 
-Track 03 与 Track 04 已全部正式上线。Track 04 T4-01～T4-15 已完成 LessonSpec Registry、15 课 Runtime Provisioning 与 authenticated Runtime Acceptance；学习地图 15/15 AVAILABLE。下一课程主线进入 Track 05 Curriculum Planning。
+Track 03 与 Track 04 已全部正式上线。Track 05 目录已批准，Batch A T5-01～T5-03 已正式上线并完成 Runtime Acceptance；下一步按已批准生产批次进入 Batch B T5-04～T5-06 Formal Brief。
 
 AI Daily 等后续产品能力继续遵循：
 
