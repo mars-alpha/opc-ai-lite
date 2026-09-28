@@ -26,7 +26,7 @@ Track 05 Formal Curriculum               T5-01～T5-16 AVAILABLE / FORMAL_RUNTIM
 Track 05 Runtime                          6 MODULES / 16 LESSONS / 48 CHECKS / 16 PRACTICES / ACCEPTANCE PASS
 Track 05 Learning Map                     16 LESSON DIRECTORY / ALL AVAILABLE
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
-CURRENT                                  LEARNING PATH FROZEN / ENTRYPOINTS ITERATING / RELEASE CANDIDATE
+CURRENT                                  LEARNING PATH FROZEN / ENTRYPOINTS ITERATING / PRODUCTION DEPLOYED
 ```
 
 ## 当前系统健康
@@ -56,6 +56,8 @@ Track 05 Learning Map                    16 LESSONS / 6 PHASES / ALL AVAILABLE
 Membership / Follow benefit model        FROZEN / CURRENT
 Frontend information architecture        FROZEN / CURRENT
 Frontend UI/CSS freeze for course work   ACTIVE
+Production domain                         https://opcai.fun / HTTPS ACTIVE
+Production release                        0b5f0b0 / DEPLOYED / HTTP→HTTPS
 ```
 
 正式 Runtime：Next.js App Router + PostgreSQL + Drizzle。根目录静态 HTML/CSS/JS 是 legacy prototype。

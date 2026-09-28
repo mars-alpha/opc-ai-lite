@@ -14,14 +14,14 @@ assert(facts.includes("Track 04 T4-01～T4-15          AVAILABLE / FORMAL_RUNTIM
 assert(facts.includes("Track 05 canonical path          T5-01～T5-16 / 6 Phases / DIRECTORY_APPROVED_V1 / 6 PRODUCTION BATCHES"),"TRACK05_BATCHING_APPROVED");
 assert(facts.includes("Track 05 T5-01～T5-16          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),"TRACK05_ALL_RUNTIME");
 assert(facts.includes("Track 05 Learning Map            16 LESSON DIRECTORY / 6 PHASES / ALL AVAILABLE"),"TRACK05_FULL_LEARNING_MAP");
-assert(facts.includes("Next Gate                       DEPLOY CURRENT RELEASE / OPCAI.FUN"),"NEXT_GATE");
+assert(facts.includes("Next Gate                       CURRENT RELEASE DEPLOYED / ENTRYPOINTS ITERATING"),"NEXT_GATE");
 assert(status.includes("Track 03 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS"),"TRACK03_RUNTIME");
 assert(status.includes("Track 04 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS"),"TRACK04_RUNTIME");
 assert(status.includes("Track 04 Learning Map                    15 LESSON DIRECTORY / ALL AVAILABLE"),"TRACK04_MAP");
 assert(status.includes("Track 05 Directory                       T5-01～T5-16 / 6 PHASES / 15 KNOWLEDGE HOMES + 1 CAPSTONE"),"TRACK05_DIRECTORY");
 assert(status.includes("Track 05 Runtime                          6 MODULES / 16 LESSONS / 48 CHECKS / 16 PRACTICES / ACCEPTANCE PASS"),"TRACK05_RUNTIME");
 assert(status.includes("Track 05 Learning Map                     16 LESSON DIRECTORY / ALL AVAILABLE"),"TRACK05_LEARNING_MAP");
-assert(status.includes("CURRENT                                  LEARNING PATH FROZEN / ENTRYPOINTS ITERATING / RELEASE CANDIDATE"),"PROJECT_CURRENT");
+assert(status.includes("CURRENT                                  LEARNING PATH FROZEN / ENTRYPOINTS ITERATING / PRODUCTION DEPLOYED"),"PROJECT_CURRENT");
 const trackCatalog=fs.readFileSync("lib/learning/track-catalog.ts","utf8");
 const registry=fs.readFileSync("lib/learning/lesson-spec-registry.ts","utf8");
 assert(trackCatalog.includes("track05Catalog")&&registry.includes("track05LessonSpecs"),"TRACK05_FORMAL_REGISTRATION");
