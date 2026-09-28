@@ -109,6 +109,20 @@ Track 03 重新评估与业务增长有关的 Deferred 项：
 
 因此 Track 03 不因 Deferred Ledger 自动新增第 16 节；当前 Six-step Audit 收敛为 15 个 Primary Knowledge Home。
 
+## 5.3 Track 04 resolution — RELEASED
+
+Track 04 已按“把已人工验证的流程系统化”完成课程审计、生产与正式发布；以下记录保留其知识吸收边界：
+
+- Queue / Scheduler / Event / State Machine：吸收其“触发、状态、停止/失败”的系统设计责任，不教授具体框架或部署；
+- Retry / Idempotency：已进入可靠工作流核心课程；Compensation 保持 supporting knowledge，不独立成课；
+- Agent long-running state：只吸收状态与 Workflow-vs-Agent 动态性边界，不进入 Multi-Agent framework；
+- API / Tool / MCP：吸收连接设计与输入输出契约判断，不重复基础定义，也不进入 OAuth / transport / deployment 工程；
+- Browser / Computer Use：作为外部执行能力与失败案例出现，不独立成平台操作课；
+- Approval / HITL：吸收为跨 Workflow 的人工确认与回退控制点；企业级 audit / IAM 继续留 Track 05；
+- 完整 JSON Schema、Skill lifecycle、Sandbox、OAuth/Secrets、IAM/RBAC、Multi-Agent、部署运维继续 Deferred 到 Track 05 / Technical / Enterprise。
+
+上述 planning resolution 已兑现为 T4-01～T4-15 共 15 个正式 Primary Knowledge Home，并完成 Human Review / Runtime Acceptance。未被 Track 04 吸收的工程实现边界继续 Deferred 到 Track 05 / Technical / Enterprise；本 Ledger 不再维护第二份 Track 04 目录。
+
 ## 6. Workflow generation findings — T1-11～T1-20
 
 实际生成 10 节 Draft 后确认，以下知识如果强行塞进当前课，会明显破坏“一个主问题 + Beginner 最小动作”的教学边界：
@@ -124,7 +138,7 @@ Track 03 重新评估与业务增长有关的 Deferred 项：
 - T1-19：Playwright / Browser Automation、Sandbox、Computer Use reliability 属于执行工程；
 - T1-20：IAM / RBAC / Secrets / Audit / Approval Architecture 与法规细节属于企业安全治理。
 
-这些条目继续作为后续板块课程规划输入；是否形成正式课程，由后续 Track 的能力目标与 Six-step Knowledge Point Gate 决定。
+这些条目中已由 Track 02～04 吸收的内容以各 Track current owner 为准；剩余工程实现与企业级内容继续作为 Track 05 / Technical / Enterprise 规划输入，并仍需 Six-step Knowledge Point Gate。
 
 ## 7. Human Review confirmation — T1-11～T1-20
 
@@ -137,7 +151,7 @@ Human Review 再次确认：当前 Ledger 的 Deferred 边界仍然有效，不�
 - Tool / API / Browser / Computer Use 的生产可靠性、认证、重试、隔离和自动化框架继续按现有条目进入 Track 04 / Track 05；
 - Track 01 的 Human Review 修正只提升学员语言、现实触发与能力闭环，不通过新增 UI 或扩展知识深度解决内容问题。
 
-后续 Track 02～05 仍按本 Ledger Section 5 重新做 Six-step Knowledge Point Gate，不自动把 Deferred 条目升级为课程。
+Track 05 继续按本 Ledger Section 5 重新做 Six-step Knowledge Point Gate，不自动把剩余 Deferred 条目升级为课程。
 
 ## 8. Runtime acceptance confirmation — T1-11～T1-20
 

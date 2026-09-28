@@ -30,6 +30,7 @@ export const COURSE_BUILDER_SKILL_V1 = {
     "Grounding 不足时停止生成；需要高新鲜度知识时先使用已审核 Research Packet，不得凭空声称已经联网核验。",
     "BUILD 输出必须符合稳定 Course Builder Contract，并保持 EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY 六步教学责任。",
     "课程内容先由当前课题决定，再选择表现形式；不得复制上一课、reference lesson 或某一种卡片/字段模板。",
+    "同一 Batch 可以共享类型与装配代码，但共享 helper 不得承担学员文案责任。Step 1 标题/核心与边界、Step 3 objective、Step 4 字段与提示、Step 5 mistakes/Review、Step 6 objective 都必须由本课 Primary Knowledge Home 驱动；整批复用判定 LESSON_TEMPLATE_DRIFT_FAIL。相邻课程只能承接上一课结果，不得重新教授上一课核心判断；实质重叠判定 CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL。",
     "初学课程一节只解决一个主问题；必须先用普通人能直接听懂的工作语言讲清楚，再决定是否需要术语。禁止把课程写成咨询报告、商业框架或术语表。能用自然中文说清且不损失知识时，必须用中文。",
     "学员可见文案中文优先。普通业务术语如 ICP、Audience、Business Fit、Problem Fit、Value Fit、Evidence、Assumption、Priority、Exclusion、Use Case、Trigger、Current Behavior、Friction、Desired Outcome、Value Proposition、Message Hierarchy、Primary Value、Proof、Secondary Detail、Next Step 等不得裸露给学员，统一改成自然中文；它们不属于必须掌握的 AI 通用技术词。",
     "只有本课确实需要掌握的 AI 行业通用技术术语才在第一次出现时使用中文（English/缩写），后续优先中文；如提示词（Prompt）、上下文（Context）、检索增强生成（RAG）。普通说明词、业务框架词、生产标签直接使用中文。",

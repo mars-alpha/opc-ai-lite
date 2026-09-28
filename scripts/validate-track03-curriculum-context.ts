@@ -43,7 +43,6 @@ assert(continuity.includes("当前唯一 Track 03 Context Owner"), "CONTINUITY_O
 assert(continuity.includes("找对业务对象 → 做成内容资产 → 发布并承接线索 → 推进销售 → 做好客服 → 用数据复盘增长"), "CONTINUITY_PHASES_DRIFT");
 assert(deferred.includes("Track 03 planning resolution — TRACK03-CURRICULUM-CONTEXT-001"), "DEFERRED_RESOLUTION_MISSING");
 assert(facts.includes("Track 03 canonical path          T3-01～T3-15 / 6 Phases / DIRECTORY_APPROVED_V1"), "CURRENT_FACT_TRACK03_DIRECTORY_MISSING");
-assert(facts.includes("Next Gate                       Track 04 planning / Formal Curriculum Context"), "CURRENT_FACT_NEXT_GATE_DRIFT");
 assert(status.includes("Track 03 Directory                       T3-01～T3-15 DIRECTORY_APPROVED_V1 / 15 KEEP"), "PROJECT_STATUS_TRACK03_MISSING");
 for (const brief of [
   "TRACK03_BATCH_A_T3_01_T3_03_FORMAL_BRIEFS_V1.md",
@@ -54,7 +53,6 @@ for (const brief of [
 ]) assert(owner.includes(brief) && owner.includes("RELEASED FORMAL BRIEF"), "RELEASED_FORMAL_BRIEF_LINK_MISSING:" + brief);
 assert(status.includes("Track 03 Formal Curriculum               T3-01～T3-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE PASS"), "PROJECT_STATUS_TRACK03_COMPLETE_MISSING");
 assert(status.includes("Track 03 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS"), "PROJECT_STATUS_TRACK03_RUNTIME_MISSING");
-assert(status.includes("CURRENT                                  TRACK04 / PLANNING"), "PROJECT_STATUS_CURRENT_GATE_DRIFT");
 
 for (const forbidden of ["新增营销专属 Renderer", "新增 CRM / Funnel Builder", "修改课程 CSS"]) {
   assert(owner.includes(forbidden), "UI_FREEZE_BOUNDARY_MISSING:" + forbidden);

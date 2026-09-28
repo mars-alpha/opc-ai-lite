@@ -1,6 +1,7 @@
 import { track01Phase1Course } from "./learning/track01-phase1-runtime";
 import { track02CourseWithBatchD } from "./learning/track02-batch-d-runtime";
 import { track03FullCourse } from "./learning/track03-batches-b-e-runtime";
+import { track04Course } from "./learning/track04-runtime";
 
 export type LessonGuideBlock = {
   type: "prompt" | "template" | "steps" | "checklist" | "example";
@@ -175,77 +176,7 @@ export const courses: Course[] = [
       ]}
     ]
   },
-  {
-    slug:"ai-workflow", title:"用 AI 搭建自动化工作流", stage:"AI Workflow", stageLabel:"Stage 3 · 建立工作流认知", level:"进阶", duration:"3.1 小时",
-    summary:"学习任务拆解、Context Engineering、知识库、Automation、Human-in-the-loop 与 Evaluation。",
-    outcome:"把重复任务组织成可执行工作流，并知道哪些环节该自动化、哪些必须保留人工判断。",
-    modules:[
-      { id:"thinking", title:"01 · 工作流思维", description:"从问一次 AI 升级到设计可重复流程。", lessons:[
-        {
-          id:"task-decomposition", title:"任务拆解与节点设计", duration:"24 分钟", summary:"拆出输入、处理、判断、输出和检查节点。",
-          plainExplanation:"工作流不是把一条大提示词自动重复，而是把任务拆成多个职责清楚、可以检查的步骤。",
-          whyItMatters:"大任务直接交给一个模型完成时，失败后很难知道错在哪；拆成节点后，每一步都可以验证、替换和改进。",
-          points:["识别重复节点","区分生成与判断","定义每一步输入输出"],
-          content:["先从真实任务的起点和最终结果画出流程，不要先选自动化工具。","生成、检索、计算、判断、审批应该尽量分开，因为它们的风险和验证方式不同。","每个节点都要有明确输入、输出、失败条件和下一步。"],
-          example:{title:"内容发布流程不要写成一个超级 Prompt",situation:"团队想自动生成并发布公众号内容。",before:"一个提示词同时研究、写作、审核、发布。",after:"拆成选题→证据收集→草稿→事实检查→人工审核→发布。",result:"任何一步失败都能定位，发布前也保留人工关口。"},
-          guides:[
-            {type:"template",title:"节点卡模板",body:"节点名称：\n目标：\n输入：\n处理方式：AI / 规则 / 人工 / 工具\n输出：\n成功条件：\n失败怎么办：\n下一节点："},
-            {type:"steps",title:"拆任务的顺序",items:["先写最终交付结果","列出现实中已经存在的人工步骤","把生成和判断分开","给每一步定义输入输出","最后才决定哪些步骤值得自动化"]}
-          ],
-          practice:{goal:"把一个重复任务画成 4~7 个节点。",steps:["选一个每周重复的真实任务。","写出起点输入和最终结果。","拆出中间节点。","给每个节点标记 AI / 规则 / 人工 / 工具。"],acceptance:["至少有一个人工或规则判断节点","每个节点有明确输入输出","没有把所有步骤都塞进一个模型调用"]},
-          mistakes:["先选 n8n、Zapier 等工具，再倒推需求","把整个流程做成一个超级提示词","节点没有失败处理和退出条件"],
-          related:["下一课：Context Engineering 决定每个节点应该看到什么","Automation：后续再决定哪些节点真正自动化"]
-        },
-        {
-          id:"context-engineering", title:"Context Engineering", duration:"28 分钟", summary:"设计模型在每一步真正需要看到的信息。",
-          plainExplanation:"Context Engineering 不是把更多资料塞给 AI，而是让每一个节点只看到完成当前任务真正需要的信息。",
-          whyItMatters:"长期项目中最常见的问题之一，就是历史资料、旧规则和无关上下文越来越多，最终让 AI 判断冲突、成本升高、结果不稳定。",
-          points:["减少无关上下文","按节点提供信息","区分事实源、任务上下文和可选资料"],
-          content:["先确定 Canonical Source：某个事实到底以哪里为准。","再把上下文分成 Must Know、Nice to Know、Do Not Load，避免全量读取。","不同节点应使用不同上下文，例如写作节点不一定需要部署配置，代码节点也不需要全部市场资料。"],
-          example:{title:"为什么长期 Coding Agent 越做越慢？",situation:"每次任务都让 Agent 读取全部规划、全部历史结果和整个仓库。",before:"上下文越来越大，旧规则冲突，Agent反复讨论历史问题。",after:"只读全局规则 + 当前 Task + 当前模块必要文件；其他资料按需读取。",result:"任务边界更清晰，错误和上下文成本都下降。"},
-          guides:[
-            {type:"template",title:"Minimum Sufficient Context 模板",body:"Must Know：完成任务必须知道什么？\nNice to Know：有帮助但不是必须？\nDo Not Load：哪些信息会造成噪声？\nCanonical Source：关键事实以哪里为准？\nStop Rule：出现什么情况停止扩大范围？"},
-            {type:"checklist",title:"上下文加入前先问",items:["这个信息会改变当前决策吗？","它是不是已经在另一个事实源重复？","它是否可能已经过时？","当前节点真的需要它吗？"]}
-          ],
-          practice:{goal:"给一个真实 AI 任务做上下文瘦身。",steps:["列出当前你会提供给 AI 的所有资料。","分成 Must / Nice / Do Not Load。","指定至少一个 Canonical Source。","删除非必要上下文后重新执行同一任务。"],acceptance:["至少删掉一类无关上下文","明确一个事实源","能比较瘦身前后的输出或执行效率"]},
-          mistakes:["把知识库和 Context Engineering 当成同一件事","认为上下文越多越可靠","同一个事实在多个文档长期重复维护"],
-          related:["Knowledge Base = 有什么知识；Context Engineering = 当前任务给什么知识","OPC 项目治理本身也使用这一原则"]
-        }
-      ]},
-      { id:"automation", title:"02 · 自动化与验证", description:"加入自动化、人工确认与质量评估。", lessons:[
-        {
-          id:"hitl", title:"Automation 与 Human-in-the-loop", duration:"30 分钟", summary:"判断什么应该自动化，什么需要人工确认。",
-          plainExplanation:"自动化的目标不是把人全部拿掉，而是把稳定、重复、低风险的步骤交给系统，把关键判断留给合适的人。",
-          whyItMatters:"涉及发布、资金、权限、客户承诺或高影响决策时，全自动往往会把偶发错误放大成真实损失。",
-          points:["识别适合自动化的节点","设置人工确认点","设计异常、超时和回退"],
-          content:["高频、规则清晰、可逆、低风险的动作通常适合优先自动化。","高风险、不可逆、证据不足或需要价值判断的动作，应保留人工确认。","Human-in-the-loop 不只是审批按钮，还包括补充信息、纠错、异常处理和最终承担责任。"],
-          example:{title:"AI 客服可以自动回答，但退款不一定自动执行",situation:"客服机器人收到用户退款请求。",before:"模型判断‘符合条件’后直接退款。",after:"AI先检索政策并生成建议；涉及金额动作时交给规则系统或人工确认。",result:"大部分咨询自动化，但关键动作保持可控。"},
-          guides:[
-            {type:"checklist",title:"一个节点能不能全自动？",items:["错误是否容易发现？","错误是否可逆？","是否涉及资金、权限、发布或法律承诺？","规则是否稳定且明确？","证据不足时系统能否安全停止？"]},
-            {type:"template",title:"人工确认点模板",body:"触发条件：\n需要人确认什么：\n系统提供哪些证据：\n允许的操作：批准 / 修改 / 拒绝\n超时怎么办：\n结果如何记录："}
-          ],
-          practice:{goal:"给自己的工作流增加一个合理的人工确认点。",steps:["选择上一课拆出的工作流。","给每个节点标记风险高/中/低。","选择一个中高风险节点设计确认机制。","写出拒绝、超时或数据缺失时怎么办。"],acceptance:["确认点不是随意加，而是对应具体风险","有明确证据提供给人工","异常时不会默认继续执行"]},
-          mistakes:["把‘全自动’当成成熟度指标","每一步都要求人工审批，失去自动化价值","失败时静默继续，而不是停止或回退"],
-          related:["下一课 Evaluation：人工修改和失败记录本身就是重要评估数据","Agent 设计同样需要权限和 Stop Rule"]
-        },
-        {
-          id:"evaluation", title:"Evaluation：如何知道流程真的有效", duration:"26 分钟", summary:"建立质量、效率和稳定性评价标准。",
-          plainExplanation:"Evaluation 就是先定义‘什么叫做有效’，再持续用真实结果检查工作流，而不是只看它有没有成功运行。",
-          whyItMatters:"一个自动化即使每天都跑成功，也可能输出质量差、人工修改很多、耗时没有下降，甚至制造更多返工。",
-          points:["定义成功标准","记录失败案例","用指标和样本持续优化"],
-          content:["评估应同时关注质量、效率、稳定性和业务价值，而不是单一准确率。","可以建立一个小型真实样本集，固定测试关键场景，并持续加入失败案例。","每次改提示词、模型或流程后，用同一组标准重新比较，才知道优化是否真的有效。"],
-          example:{title:"摘要工作流‘跑通’不等于有效",situation:"系统每天自动把 20 篇文章生成摘要。",before:"只统计是否成功生成 20 条摘要。",after:"增加事实准确率、人工修改量、用户点击率、处理时间四个指标。",result:"发现真正的问题不是生成失败，而是摘要过长且人工修改太多。"},
-          guides:[
-            {type:"template",title:"最小 Evaluation 表",body:"任务：\n测试样本：\n质量指标：\n效率指标：\n失败类型：\n人工修改量：\nBaseline：\n新版本结果：\n是否真的更好："},
-            {type:"checklist",title:"指标是否有用？",items:["能否反映真实用户/业务结果？","有没有 Baseline 可比较？","失败案例是否被记录而不是删除？","优化后是否用相同条件重新测试？"]}
-          ],
-          practice:{goal:"给一个 AI 任务建立最小评估基线。",steps:["选一个你已经用 AI 完成过的重复任务。","找 5 个真实样本。","定义 2 个质量指标和 1 个效率指标。","记录当前 Baseline，再修改一次流程并比较。"],acceptance:["有真实样本而不是想象场景","至少一个指标可以客观比较","能判断新版本是真的更好还是只是感觉更好"]},
-          mistakes:["只看模型主观评分","没有 Baseline 就宣布提升","失败样本被修掉后不再保留，导致问题反复出现"],
-          related:["Stage Project 会把 Evaluation 用到完整项目","FDE 阶段会进一步关注 Adoption、价值度量和真实业务结果"]
-        }
-      ]}
-    ]
-  }
+  track04Course
 ];
 
 export function getCourse(slug:string){ return courses.find((course)=>course.slug===slug); }

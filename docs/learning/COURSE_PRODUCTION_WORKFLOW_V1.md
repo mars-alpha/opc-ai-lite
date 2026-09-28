@@ -150,7 +150,7 @@ FAIL + issues[]
 
 Workflow 不关心 validator 数量和具体实现。
 
-当前课程类 Deterministic Validators 至少要覆盖两类长期防漂移检查：1）`STEP_1_2_OVERLAP_FAIL`，防止 Step 1 直接复用或由 Step 2 example 自动派生；2）Step 5 先检查主卡片不少于 2 张，再用 `STEP5_KNOWLEDGE_COVERAGE_FAIL` 按 current Formal Brief 的 must-retain judgments 检查是否讲完整。两张是最低要求，上限不固定；超过两张只为提升当前课程知识清晰度，不按固定范围验收。语义自然度仍由 Human Review 最终确认，但明显字段复用、主卡片不足、缺失判断和旧模板自动派生必须在 Code Validation 阶段直接 FAIL。
+当前课程类 Deterministic Validators 至少覆盖四类长期防漂移检查：1）`STEP_1_2_OVERLAP_FAIL`，防止 Step 1 复用或由 Step 2 example 自动派生；2）`STEP5_KNOWLEDGE_COVERAGE_FAIL`，按 current Formal Brief 的 must-retain judgments 验收 Step 5；3）`LESSON_TEMPLATE_DRIFT_FAIL`，批量课程检查 Step 1 标题/边界、Step 3 objective/feedback、Step 4 字段/总提示/reflection、Step 5 mistakes/Review、Step 6 objective 等是否被共享模板统一生成；4）`CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL`，检查相邻课程是否只是换案例重复同一 Primary Knowledge Home。共享 helper 只复用类型、数据装配和确定性逻辑，不承担 learner-facing 文案责任。每批 Draft 进入 Human Review 前必须先做跨课重复审计；Human Review 再确认“上一课已教什么 / 本课新增什么判断 / 下一课才展开什么”。这些检查属于既有 Deterministic Validators + Human Review Gate，不新增 Workflow Stage。
 
 ## 8. Current implementation
 

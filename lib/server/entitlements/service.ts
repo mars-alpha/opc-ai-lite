@@ -74,7 +74,7 @@ export async function getStageAccess(
   userId: string | null,
   courseSlug: string
 ): Promise<{ allowed: boolean; requiredCourseSlug?: string }> {
-  if (courseSlug === "ai-work" || courseSlug === "ai-growth") return { allowed: true };
+  if (courseSlug === "ai-work" || courseSlug === "ai-growth" || courseSlug === "ai-workflow") return { allowed: true };
   if (courseSlug === "foundation-ai") return { allowed: true };
   const currentIndex = courses.findIndex((course) => course.slug === courseSlug);
   if (currentIndex <= 0) return { allowed: true };
@@ -121,7 +121,7 @@ export async function getLearningPrerequisiteRecommendation(
   userId: string | null,
   courseSlug: string
 ): Promise<{ recommendedCourseSlug?: string; satisfied: boolean }> {
-  const recommendedCourseSlug = courseSlug === "ai-work" ? "foundation-ai" : courseSlug === "ai-growth" ? "ai-work" : null;
+  const recommendedCourseSlug = courseSlug === "ai-work" ? "foundation-ai" : courseSlug === "ai-growth" ? "ai-work" : courseSlug === "ai-workflow" ? "ai-growth" : null;
   if (!recommendedCourseSlug) return { satisfied: true };
   const recommendedCourse = getCourse(recommendedCourseSlug);
   if (!recommendedCourse || !userId) {
@@ -159,7 +159,7 @@ export async function getLessonAccess(
     return { allowed: true, reason: "PUBLIC" };
   }
 
-  if (courseSlug === "ai-work" || courseSlug === "ai-growth") {
+  if (courseSlug === "ai-work" || courseSlug === "ai-growth" || courseSlug === "ai-workflow") {
     return (await hasActiveMembership(userId))
       ? { allowed: true, reason: "ENTITLED" }
       : { allowed: false, reason: "MEMBERSHIP_REQUIRED" };
@@ -218,7 +218,7 @@ export async function getLockedLessonIds(
   if (!course) return [];
 
   const courseLessons = course.modules.flatMap((module) => module.lessons);
-  if (courseSlug === "ai-work" || courseSlug === "ai-growth") {
+  if (courseSlug === "ai-work" || courseSlug === "ai-growth" || courseSlug === "ai-workflow") {
     return (await hasActiveMembership(userId))
       ? []
       : courseLessons.map((lesson) => lesson.id);
@@ -261,7 +261,7 @@ export async function getLessonPageAccess(
   }
 
   const courseLessons = course.modules.flatMap((module) => module.lessons);
-  if (courseSlug === "ai-work" || courseSlug === "ai-growth") {
+  if (courseSlug === "ai-work" || courseSlug === "ai-growth" || courseSlug === "ai-workflow") {
     const entitled = await hasActiveMembership(userId);
     return {
       access: entitled

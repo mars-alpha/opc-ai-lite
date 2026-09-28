@@ -164,74 +164,17 @@ T3-01～T3-15 已通过 `TRACK03-SIX-STEP-AUDIT-001`，结果为 **15 KEEP / 0 M
 
 ## Stage 4 — AI Workflow 与自动化｜系统化进阶
 
-目标：从“会用 AI 做业务”进一步升级成“会设计可控、可重复、可评估的 AI 工作系统”。
+目标：把已经人工验证过的真实业务流程，设计成可重复、可控、可失败恢复、可人工接管、可评估的 AI 工作系统。
 
-### Module 4.1 — Workflow Design
+当前唯一 Track 04 Context Owner：`docs/learning/TRACK04_CATALOG_CONTEXT_V1.md`。
 
-- Task Decomposition
-- Input / Process / Decision / Output / Check
-- 节点设计
-- State / Stop Rule / Failure Handling
-- 最小闭环
+当前 Planning Draft 的结果型能力结构：
 
-### Module 4.2 — Context Engineering
+**判断是否值得系统化 → 拆清人工流程 → 设计触发/状态/停止失败 → 管理节点上下文 → 分配 AI/Code/Tool/人责任 → 连接外部能力 → 处理失败与人工确认 → 判断 Workflow/Agent 边界 → 评估稳定性 → 形成 Workflow Design Blueprint**
 
-基础 Context 已在 Stage 1 学过，这里只深化：
-- Minimum Sufficient Context
-- Must Know / Nice to Know / Do Not Load
-- Canonical Source
-- 节点级 Context
-- 长期运行中的上下文治理
+Track 04 Core 课程目录、15 个候选 Primary Knowledge Home、顺序、Deferred Boundary 与 Production Batch 建议只由 Track 04 owner 维护；本文件不维护第二份详细目录。
 
-### Module 4.3 — Responsibility Architecture
-
-固定判断框架：
-
-```text
-确定性逻辑 → Code
-语义理解 / 生成 → Skill / Model
-外部能力 → Tool
-受控多步流程 → Workflow
-动态决策循环 → Agent
-最终写库 / 权限 / 发布 / 状态 → Core System
-```
-
-OPC 架构认知固定为：`Code = Truth, Skill = Intelligence, Workflow = Controlled Bridge, Core System = Authority`。
-
-### Module 4.4 — Integration
-
-- API Integration
-- Tool Integration
-- MCP Integration
-- Structured Input / Output
-- Schema
-- 数据流与权限
-
-普通学习路径理解设计；真正代码实现进入 Technical Track。
-
-### Module 4.5 — Automation 与 Human-in-the-loop
-
-- 自动化价值判断
-- 可逆 / 不可逆动作
-- Approval / 权限
-- 超时 / 异常 / 回退
-- 人工确认
-- 高风险动作边界
-
-### Module 4.6 — Evaluation
-
-- Baseline / Test Set
-- Quality / Efficiency / Stability
-- Business Value
-- Failure Cases
-- Human Edits
-- Regression
-
-### Module 4.7 — Workflow Project
-
-完成一个真实业务 AI Workflow，包括目标、触发、输入、节点、AI/Code/人分工、人工确认、异常和成功指标。
-
-当前 `ai-workflow-project` 是候选项目样板；正式 PROJECT 仍受 Deliverable Runtime 未完成影响。
+普通学习路径学习“系统设计判断”，不以具体自动化平台按钮、代码框架或部署工程为课程骨架。真实代码实现、企业级安全、部署以及完整 FDE Solution/Pilot 继续由 Technical / Track 05 承担。
 
 ---
 
@@ -397,11 +340,7 @@ FDE 不要求所有学习者成为传统程序员；需要写代码的实现部�
 | `skill-foundations` | F6-01 候选参考，不直接等于正式课 |
 | `writing-files` | 进入 Track 02 文件处理 |
 | `meeting-action-list` | 进入 Track 02 PRACTICE 候选 |
-| `task-decomposition` | 进入 Track 04 Workflow Design |
-| `context-engineering` | 进入 Track 04 Context Engineering，不与 F2-02 重复 |
-| `hitl` | Foundation F6-06 建立概念，Track 04 深化 |
-| `evaluation` | Foundation F7-05 建立基础，Track 04 深化 |
-| `ai-workflow-project` | Track 04 Workflow Project 候选；等待可信 Deliverable Runtime |
+| `task-decomposition` / `context-engineering` / `hitl` / `evaluation` / `ai-workflow-project` | 历史试点资产；其有效知识已由 Track 04 current owner 重新审计并吸收到 T4-01～T4-15。旧 lesson identity 不再作为 Track 04 目录、Runtime 或未来课程规划输入。 |
 
 当前 `lib/courses.ts` 中仍有早期 static 课程数据，仅作为显式 legacy 数据保留，不得作为正式课程的 fallback renderer 或 Curriculum Source of Truth。正式 `foundation-ai` 课程必须完整进入 LessonSpec Registry → Runtime Plan → GenericLessonRuntimePanel；缺少任一环节必须直接失败，不得静默回退旧 UI。
 

@@ -88,6 +88,13 @@ assert(
   "STEP5_KNOWLEDGE_COVERAGE_GUARD_MISSING"
 );
 assert(
+  ruleText.includes("LESSON_TEMPLATE_DRIFT_FAIL") &&
+    ruleText.includes("CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL") &&
+    skill.includes("LESSON_TEMPLATE_DRIFT_FAIL") &&
+    skill.includes("CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL"),
+  "BATCH_ANTI_TEMPLATE_OR_CROSS_LESSON_OVERLAP_GUARD_MISSING"
+);
+assert(
   !batchDSource.includes("situation: lesson.example.situation") &&
     !batchDSource.includes("text: lesson.example.before") &&
     !batchDSource.includes("text: lesson.example.after") &&
@@ -159,6 +166,8 @@ console.log("COURSE_GOVERNANCE_BEGINNER_PLAIN_LANGUAGE=PASS");
 console.log("COURSE_GOVERNANCE_LEARNER_LANGUAGE=PASS");
 console.log("COURSE_GOVERNANCE_REAL_SELF_MEDIA_CASE=PASS");
 console.log("COURSE_GOVERNANCE_STEP5_KNOWLEDGE_COVERAGE=PASS");
+console.log("COURSE_GOVERNANCE_BATCH_ANTI_TEMPLATE=PASS");
+console.log("COURSE_GOVERNANCE_CROSS_LESSON_KNOWLEDGE_SEPARATION=PASS");
 console.log("COURSE_GOVERNANCE_STEP5_MIN_TWO_FLEXIBLE_MAX=PASS");
 console.log("COURSE_GOVERNANCE_STEP6_TRIGGER_SEPARATION=PASS");
 console.log("COURSE_GOVERNANCE_LEARNER_NUMBERING_BOUNDARY=PASS");

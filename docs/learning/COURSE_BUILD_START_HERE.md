@@ -97,8 +97,9 @@
 - Track 01：`docs/learning/TRACK01_CATALOG_METADATA_V2.md`
 - Track 02：`docs/learning/TRACK02_CATALOG_CONTEXT_V1.md`
 - Track 03：`docs/learning/TRACK03_CATALOG_CONTEXT_V1.md`
+- Track 04：`docs/learning/TRACK04_CATALOG_CONTEXT_V1.md`
 
-当前 Formal Brief / Batch **不在本入口维护状态清单**。必须从 `docs/CURRENT_SYSTEM_FACTS.md` + current Track owner 解析当前 Brief 路径与 Gate，再读取该 Brief。
+当前 Formal Brief / Batch **不在本入口维护状态清单**。必须从 `docs/CURRENT_SYSTEM_FACTS.md` + current Track owner 解析当前 Brief 路径与 Gate，再读取该 Brief。本入口不得写死任何当前 Track 的 Batch / Brief 路径，避免完成批次后旧状态继续污染新课程。
 
 旧单课 / 旧 Batch Formal Brief 可以保留为历史课程证据，但除非 Current Facts / current Track owner 明确把它指定为当前 Brief，否则不得从其中的旧 Step 写法、卡片数量、`固定回答` 等措辞推导新课程规则。新课程只读 current Formal Brief + Required Rule Sources。
 
@@ -156,7 +157,7 @@ FORMAL_RUNTIME：正式课程 route → FormalGuidedLessonView → AsyncLessonRu
 
 COURSE_BUILDER_PREVIEW：/course-builder/preview/* 仅用于 Human Review / acceptance，必须使用 previewMode，不写正式 Progress / Completion。
 
-LEGACY_STATIC：ai-literacy / chatgpt-worker / ai-workflow 只允许进入 components/legacy-learning/*；这些资产仅因历史 Entitlement / DB seed / acceptance 依赖暂存，不得作为新课程模板。
+LEGACY_STATIC：ai-literacy / chatgpt-worker 只允许进入 components/legacy-learning/*；这些资产仅因历史 Entitlement / DB seed / acceptance 依赖暂存，不得作为新课程模板。`ai-workflow` 已属于 FORMAL_RUNTIME，不得再按 legacy 恢复。
 
 正式/legacy slug 的唯一边界文件是 `lib/learning/course-runtime-boundaries.ts`。新正式课程不能通过增加 fallback 进入页面，必须显式进入 Formal Runtime 主链。
 

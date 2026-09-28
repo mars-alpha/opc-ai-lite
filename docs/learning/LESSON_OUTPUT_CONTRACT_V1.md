@@ -39,6 +39,16 @@ Curriculum 决定学什么和顺序；Formal Brief 决定知识边界；Course B
 
 总原则：**Topic first, responsibility fixed, representation flexible.** 先由课题决定需要教什么，再决定每一步怎样表达；六步负责防止知识没教会，不负责把所有课程做成同一种版式。
 
+### Anti-template / cross-lesson separation gate
+
+同一 Production Batch 内，Course Builder 可以共享数据结构、类型和装配代码，但**共享 helper 不得承担课程文案责任**。Step 1 标题 / 核心与边界说明、Step 3 objective、Step 4 字段名与字段问题、Step 4 总提示与反思、Step 5 mistakes / pitfalls、Step 5 复盘标题与说明、Step 6 objective 等都必须从本课 Primary Knowledge Home 和能力目标重新生成；整批复用同一句或同一组字段只换 lesson title，判定 `LESSON_TEMPLATE_DRIFT_FAIL`。
+
+Step 4 的字段标题必须直接对应本课要训练的认知动作或业务判断，例如状态课训练“状态 / 进入条件 / 允许动作 / 离开条件”，失败恢复课训练“失败类型 / 可恢复性 / 重试安全 / 停止与转人工”；不得用“真实业务场景 / 已有事实与规则 / 要做的设计 / 输出边界”之类跨课程通用四字段承载所有课。
+
+Step 5 的 mistakes / pitfalls 必须列出**本课最可能出现的具体误判**，不得跨课程复用“技术上能做就应该做 / AI 不应补规则 / 跑通一次就算完成”等通用三句。固定 Review 方向仍为 **AI适合做什么 / AI不应该替你做什么**，但正文必须只回答当前课程。
+
+相邻课程允许承接上一课已经形成的结果，但不得重复教授上一课 Primary Knowledge Home。若两个课程的 Step 1～6 大部分仍在解释同一核心判断，或后一课只是换案例重复前一课的方法，判定 `CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL`。Human Review 必须特别检查相邻课的“本课新增判断是什么、上一课已经教过什么、下一课才展开什么”。
+
 学员可见的每一步顶部 objective 只负责一句话说明“这一页要做什么”，课程知识、案例、边界和操作要求必须放在本步正文，不得把 objective 写成长段。**六步顶部进度卡片从本课 step.navigationDescription 读取独立描述，逐步准确说清该课当前要学、要判断或要做什么；每张卡片显式两行，每行不超过 9 字，正常桌面宽度下显示不超过两行。不得复用整套通用句，也不得截取课程 step title / objective 代替。navigationDescription 只服务顶部进度卡片，不得进入底部页码。底部页码固定只显示 `1 / 6`～`6 / 6`，页码前后不得附加任何描述。**
 
 正式课程输出还须同时准备以下学员入口文案；这些是课程内容数据，由统一 Shell 展示，不增设页面或交互：

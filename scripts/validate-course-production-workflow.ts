@@ -62,7 +62,6 @@ const courseBuildEntry = fs.readFileSync(
 );
 const outputContract = fs.readFileSync("docs/learning/LESSON_OUTPUT_CONTRACT_V1.md", "utf8");
 const formalRegistryCheck = fs.readFileSync("scripts/validate-formal-lesson-runtime-registry.ts", "utf8");
-const tasks = fs.readFileSync("TASKS.md", "utf8");
 const formalCurriculum = fs.readFileSync(
   "docs/learning/FORMAL_CURRICULUM_V1.md",
   "utf8"
@@ -87,6 +86,13 @@ assert(
   workflowDoc.includes("learning:course-governance:check") &&
     governanceValidator.includes("COURSE_GOVERNANCE_STEP5_MIN_TWO_FLEXIBLE_MAX=PASS"),
   "COURSE_GOVERNANCE_GATE_MISSING"
+);
+assert(
+  workflowDoc.includes("LESSON_TEMPLATE_DRIFT_FAIL") &&
+    workflowDoc.includes("CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL") &&
+    workflowDoc.includes("共享 helper 只复用类型、数据装配和确定性逻辑") &&
+    workflowDoc.includes("每批 Draft 进入 Human Review 前必须先做跨课重复审计"),
+  "WORKFLOW_BATCH_ANTI_TEMPLATE_GATE_MISSING"
 );
 assert(
   workflowDoc.includes("scripts:current:check") &&
@@ -129,7 +135,6 @@ assert(
     formalRegistryCheck.includes("FORMAL_LEARNING_ADVICE_MISSING"),
   "FORMAL_PRESENTATION_GATE_MISSING"
 );
-assert(!tasks.includes("进度卡片由 Unified Lesson Shell 使用固定短描述"), "TASKS_OLD_NAVIGATION_RULE_PRESENT");
 
 assert(
   COURSE_PRODUCTION_WORKFLOW_V1.ruleSourcePolicy === "READ_LATEST_AT_RUN_START",
@@ -249,4 +254,6 @@ console.log("COURSE_PRODUCTION_ACTIVE_RULE_DRIFT_GUARD=PASS");
 console.log("COURSE_PRODUCTION_PRESENTATION_RULES_SHARED=PASS");
 console.log("COURSE_PRODUCTION_ORCHESTRATOR_GATES=PASS");
 console.log("COURSE_PRODUCTION_HUMAN_REVIEW_GATE=PASS");
+console.log("COURSE_PRODUCTION_BATCH_ANTI_TEMPLATE=PASS");
+console.log("COURSE_PRODUCTION_CROSS_LESSON_SEPARATION=PASS");
 console.log("COURSE_BUILDER_SKILL_V1_CURRENT=PASS");

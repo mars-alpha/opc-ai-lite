@@ -15,10 +15,12 @@ T1-11～T1-20                    AVAILABLE / FORMAL_RUNTIME
 T2-01～T2-15                    AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 Track 03 canonical path          T3-01～T3-15 / 6 Phases / DIRECTORY_APPROVED_V1
 Track 03 T3-01～T3-15          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+Track 04 canonical path          T4-01～T4-15 / 6 Phases / DIRECTORY_APPROVED_V1 / 15 KEEP
+Track 04 T4-01～T4-15          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 Current Course Builder Skill    course-builder@1.0.0
 Frontend boundary               EXISTING UNIFIED LESSON SHELL / NO NEW UI / NO CSS CHANGE
-Deferred knowledge              DEFERRED_KNOWLEDGE_LEDGER_V1 → Track 02～05 planning input
-Next Gate                       Track 04 planning / Formal Curriculum Context
+Deferred knowledge              DEFERRED_KNOWLEDGE_LEDGER_V1 → Track 05 planning input
+Next Gate                       Track 05 curriculum planning
 ```
 
 T1-11～T1-20 已完成 Stable Course Production Workflow 全链路：10 个结构化 Draft、Deterministic Validation、Human Review、LessonSpec Registry、Runtime Provisioning 与 authenticated Runtime Acceptance 全部 PASS。10 节课均已进入 `foundation-ai` Phase 4～6 正式 Runtime，并继续复用现有 Unified Lesson Shell；本批次没有新增 UI / Renderer / interaction type，也没有调整 CSS。未展开知识继续由 `DEFERRED_KNOWLEDGE_LEDGER_V1.md` 作为 Track 02～05 规划输入。
@@ -26,6 +28,8 @@ T1-11～T1-20 已完成 Stable Course Production Workflow 全链路：10 个结�
 Track 03 Batch A T3-01～T3-03 曾先完成 Human Review PASS → LessonSpec Registry → Runtime Provisioning → Runtime Acceptance → AVAILABLE，建立了 `ai-growth` 正式 Runtime Course 与首批验收基线。该“仅前三节开放”的阶段状态现已被后续 T3-04～T3-15 全量正式上线覆盖；Batch A 的 9 道 required Check + 3 个 required STRUCTURED_TEXT_V1 Practice 验收结果仍作为历史发布证据保留。前置 Track 02 继续只作学习建议，不作为会员硬门槛。
 
 Track 03 T3-04～T3-15 已完成产品负责人 Human Review PASS → LessonSpec Registry → Runtime Provisioning → Runtime Acceptance → AVAILABLE。Track 03 现已 15/15 正式上线；新增 12 节均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice，共 36 道 Check + 12 个 Practice，会员访问、Check Gate、Practice Gate 与 Completion 全部真实 Acceptance PASS。全程复用 Unified Lesson Shell，不新增 UI / Renderer / interaction type，不调整 CSS；学员可见语言继续遵守中文优先与跨 Track 污染 Gate。
+
+Track 04 T4-01～T4-15 已全部完成 Human Review PASS → LessonSpec Registry → `ai-workflow` Formal Runtime → Runtime Provisioning → authenticated Runtime Acceptance → AVAILABLE。正式 Runtime 统一由 `lib/learning/track04-runtime.ts` 管理，15 节均为 PUBLISHED，每课 3 道 required Check + 1 个 required STRUCTURED_TEXT_V1 Practice，共 45 道 Check + 15 个 Practice；会员访问、Track 03 仅学习建议、Check Gate、Practice Gate 与 15 个 Completion 全部真实 Acceptance PASS。学习地图与课程 Sidebar 统一为 6 个阶段、15/15 AVAILABLE，阶段标题不带“阶段 1：”等前序。数据库旧 `task-decomposition / context-engineering / hitl / evaluation` 及旧模块已从 `ai-workflow` 正式空间清理；课程生产 Preview/批次 Runtime 入口退出 current path。
 
 2026-09-23 真实学习体验复核后，T1-11～T1-20 又完成 `TRACK01-T11-T20-LEARNING-EXPERIENCE-REWORK-001`：学员可见语言中文优先、Step 4 Reference Fill 可直接复制给 AI 形成完整任务、Step 5 改为按知识密度组织的课题化判断卡片、Step 6 使用独立现实触发场景并与 Next Lesson Value 分离。修改后重新 Provision，10/10 authenticated Runtime Acceptance 再次 PASS。规则已回写 Course Build Entry / Lesson Output Contract / Beginner Quality / Governance / Course Builder Skill v1 / Workflow read-latest owner；Unified Lesson Shell 与 CSS 未改变。
 
@@ -152,7 +156,7 @@ Admin Lesson edit / publish
 
 正式课程交互当前只有一条主链：Lesson route → `FormalGuidedLessonView` → `AsyncLessonRuntimeShell` → `GenericLessonRuntimePanel` → Completion / Rating / 下一课。正式 Runtime course 与历史 static course 的边界统一由 `lib/learning/course-runtime-boundaries.ts` 管理；当前 `foundation-ai`、`ai-work` 与 `ai-growth` 属于 FORMAL_RUNTIME，历史 `ai-literacy / chatgpt-worker / ai-workflow` 只能进入 `components/legacy-learning/LegacyStaticLessonView`，不得作为新课程 fallback。正式课程缺少 LessonSpec、Presentation 或数据库 Runtime 时必须直接暴露配置错误。
 
-`foundation-ai` T1-01～T1-20、`ai-work` T2-01～T2-15 与 `ai-growth` T3-01～T3-03 已进入正式六步 Runtime。核心状态流统一为 currentStep / Completion → Lesson Progress；Step 3 → `lesson_check_responses`；Step 4 → Practice Submission / Evaluation；Rating → `learning_feedback`。PostgreSQL / Server 是正式学习状态唯一事实源。六步教学规则不在本文件复制，统一读取当前 `COURSE_PRODUCTION_RULE_SOURCES`。
+`foundation-ai` T1-01～T1-20、`ai-work` T2-01～T2-15 与 `ai-growth` T3-01～T3-15 已进入正式六步 Runtime。核心状态流统一为 currentStep / Completion → Lesson Progress；Step 3 → `lesson_check_responses`；Step 4 → Practice Submission / Evaluation；Rating → `learning_feedback`。PostgreSQL / Server 是正式学习状态唯一事实源。六步教学规则不在本文件复制，统一读取当前 `COURSE_PRODUCTION_RULE_SOURCES`。
 
 ### COURSE_RUNTIME_PERF-003 — Static Shell / Dynamic State Split
 
@@ -397,49 +401,13 @@ Published + active Knowledge
 
 Impact Analysis 本身不落新表、不生成新 migration。RULE 模式只在 Knowledge 已明确关联 lessonId 或 stageId 时给建议；没有课程关联时返回空建议，不随意猜测 Lesson。
 
-当前已落地 Course Builder Skill v0.1 契约层：BUILD / IMPROVE Structured Output → lib/learning/course-builder.ts Code Validation → PENDING_REVIEW Review Packet。BUILD 复用 Lesson Spec validator，并校验课程正文、required Check / Practice 对齐；IMPROVE 只生成修改 Proposal。两种模式都拒绝 Skill 携带 publish/status/access/entitlement/progress/completion 等 Core Authority 字段。当前不落数据库、不调用真实 Provider、不写 Published Course。
+当前 Course Builder 唯一生产基线为 `course-builder@1.0.0`：BUILD / IMPROVE 只生成结构化 Draft / Proposal，不拥有 publish、access、progress、completion 或 production data 权限。正式课程必须读取 current Rule Sources + current Track Context + Formal Brief，经过 Deterministic Validators 与 Human Review 后才能注册 Runtime。
 
-首个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/skill-foundations.ts`：`ai-literacy/skill-foundations`，题目“Skill 是什么：把可复用方法交给 AI”。它已通过 Code Validation、CONCEPT rules、Generic Runtime Plan、Unified Lesson Shell compatibility 与 curriculum fit 检查，但仍是 `PENDING_REVIEW` acceptance fixture，不属于正式课程 Source of Truth，也未注册到 Runtime。
+课程批量生产已固定 anti-template / cross-lesson separation：共享 helper 只复用类型、数据装配和确定性逻辑；Step 1 / 3 / 4 / 5 / 6 learner-facing 文案必须由本课 Primary Knowledge Home 驱动。整批模板化判定 `LESSON_TEMPLATE_DRIFT_FAIL`，相邻课程重复教授同一核心判断判定 `CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL`。
 
-当前存在只读 Draft Preview：`/course-builder/preview/skill-foundations`。页面直接读取上述 fixture；Generic Lesson Runtime Panel 的 `previewMode` 禁止正式 Runtime fetch / submission，只允许本地 Step 导航与本地 Check，用于 Human Review。该 Preview 不等于 Runtime registration，不写 Progress / Completion / PostgreSQL，也不进入正式课程目录。
+Course Builder acceptance fixtures / Preview 只用于局部开发验证，不属于正式课程 Source of Truth，也不得作为新课程恢复入口。Track 04 发布后已移除其 Batch Preview current route；正式课程统一走 LessonSpec Registry → GenericLessonRuntimePanel → Runtime Gates。
 
-Course Builder BUILD 当前新增教学治理契约：`grounding.status=REVIEWED`，来源只能是 `APPROVED_KNOWLEDGE` 或 `RESEARCH_PACKET`；`pedagogy.languagePolicy=TERM_READABILITY`，学员可见的普通 AI / 技术专业术语首次出现采用“中文（English）”，例如“词元（Token）”“概率（Probability）”“提示词（Prompt）”，后续正文优先使用中文简称；RAG、API、MCP 等行业常用技术缩写使用“中文解释（缩写）”，例如“检索增强生成（RAG）”，不展开英文全称；通用课程必须 `aiToolNeutral=true`；同时必须提供 `pedagogy.participation`。该 participation 是教学参与层，不自动成为 Completion Gate。Course Builder 本身仍不具备网络爬取能力；正式流程应先由独立研究/知识流程产出经审核资料包，再交给 Course Builder 生成课程。
-
-Lesson Spec 当前允许 CONCEPT 在 `practiceMode=NONE` 时包含一个非验收型 PRACTICE Step，用于参与式学习；此时禁止 PRACTICE Completion Gate。`skill-foundations` 当前采用 6 步 `EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY`，正式 Gate 仍只有 CHECK。Preview Renderer 会在该 PRACTICE Step 展示 Course Builder participation，而不会调用正式 Practice API。
-
-`skill-foundations` Preview 的 EXPLAIN 当前支持通用 `previewIntroComparison`：直接显示真实场景、临时做法 / 可复用做法、Prompt / Skill 对比与核心结论，不需要额外点击。该能力只属于 Preview 教学呈现，不改变 Lesson Spec、Runtime Gate、Progress 或正式课程状态。
-
-第二个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/prompt-foundations.ts`：`ai-literacy/prompt-foundations`，类型 APPLICATION。它使用 `EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY`，Completion Gates 为 CHECK + PRACTICE，`realAiOperation=GUIDED`、`realAiEvidence=NONE`。只读 Preview 路由为 `/course-builder/preview/prompt-foundations`，可本地完成 Check / Practice 规则验收并复制用户自己填写的提示词，但不会写正式 Progress / Completion。
-
-Course Builder BUILD 的 `check` / `practice` 当前已从任意对象升级为最小明确 Schema。Check 必须包含 id/question/options/correctValue/explanation；Practice 必须包含 id/title/goal/instructions/hints/rubric/passScore，并校验正确答案存在、Rubric key 与输入字段一致、分数范围合法。
-
-Generic Lesson Preview 的互动反馈当前会在 Step 切换时清除，避免上一节 Check / Practice 消息污染后续步骤。`prompt-foundations` 的 Practice 开启 `referenceAnswerEnabled=true`；仅当本地 Practice 评估未通过时显示完整参考答案，并支持结构化“一键填充”到任务 / 背景 / 限制 / 结果输入框以及复制。填充只更新本地表单并清除旧评分，不会自动提交、不会设置 Practice Passed，也不是可信完成证据。
-
-`prompt-foundations` 当前知识深度已扩为 4 个核心点：任务 / 背景 / 限制 / 结果基础结构、Example（示例）的使用时机、Context（上下文）必须真实提供的场景、Iteration（迭代）根据具体偏差修正结果。新增知识主要通过 Preview 的 `previewKnowledgeDepth` 分散到 EXAMPLE 与 REVIEW，PRACTICE 仅增加轻量提示；六步结构、CHECK + PRACTICE Gate、Runtime 边界均未改变。
-
-Course Builder BUILD 的 `pedagogy` 当前必须包含 `sixStepResponsibilities`，键固定为 EXPLAIN / EXAMPLE / CHECK / PRACTICE / REVIEW / CAPABILITY。每一项必须包含 `purpose` / `include` / `avoid`。职责固定为：EXPLAIN 建立单一核心直觉；EXAMPLE 展开方法、边界与更深知识；CHECK 验证理解并解释原因；PRACTICE 用分层辅助把知识变成能力且不偷偷增加 Gate；REVIEW 形成可复用判断 / 诊断框架；CAPABILITY 明确已获得能力、真实应用场景与下一步。缺少任一责任会被 Course Builder Code Validation 拒绝。
-
-第三个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/meeting-action-list.ts`：`ai-literacy/meeting-action-list`，类型 PRACTICE。它使用统一 `EXPLAIN → EXAMPLE → CHECK → PRACTICE → REVIEW → CAPABILITY`，`practiceMode=INDEPENDENT`，Completion Gates 为 CHECK + PRACTICE，`realAiOperation=NONE`、`realAiEvidence=NONE`。只读 Preview 为 `/course-builder/preview/meeting-action-list`。Practice 使用行动 / 负责人 / 截止时间 / 未决问题四字段和本地确定性 Rubric 验收，失败后可使用 Hint、参考答案与一键填充；不会写正式 Progress / Completion。该 Lesson 不替代独立 Practice / 进阶练习领域。
-
-`rulePracticeEvaluator` 当前对 meeting-action-list 需要的短字段采用语义评分：`owner` 只要是一个明确人名 / 角色即可满分，`大家 / 相关同事 / 待定` 等模糊责任人不会满分；`deadline` 要包含可判断时间表达。行动与未决问题仍要求足够具体。PRACTICE acceptance 直接使用结构化参考答案做回归，固定验证单一负责人“小林”可满分且整份答案通过。
-
-Generic Lesson Preview 的 required PRACTICE 扩展区当前只在 `participation.kind=COPY_TO_AI` 时显示“放进你的 AI 软件试一下”；`MINI_TASK` 不再渲染该 Prompt 专属区域。`meeting-action-list` 还复用 `previewKnowledgeDepth`，在 EXAMPLE / REVIEW 增加更深知识，但不增加新的 Gate。
-
-`PreviewIntroComparison` 当前支持可选 `comparisonPlacement=MIDDLE|BOTTOM`。`meeting-action-list` 使用 `BOTTOM`：EXPLAIN 主区只保留场景与两种做法，核心 takeaway 后再以轻量 knowledge-depth 样式展示“摘要 = 回顾发生了什么 / 行动清单 = 帮助下一步执行”。默认仍为 MIDDLE，因此现有 Prompt Preview 不变。
-
-第四个真实 BUILD acceptance draft 已落盘于 `fixtures/course-builder/ai-workflow-project.ts`：`ai-literacy/ai-workflow-project`，类型 PROJECT。它使用统一六步，`practiceMode=PROJECT`，Completion Gates 为 CHECK + DELIVERABLE，`realAiOperation=NONE`、`realAiEvidence=NONE`。只读 Preview 为 `/course-builder/preview/ai-workflow-project`。项目草稿包含目标 / 触发输入 / 工作流步骤 / 人工确认 / 成功指标五部分，并复用本地 RULE evaluator、Hint、参考答案和一键填充。
-
-`LessonRuntimePlan` 当前新增 `requiresDeliverable`，可显式识别 PROJECT 的 DELIVERABLE Completion Gate。Generic Lesson Preview 在 PROJECT 下允许对结构化项目草稿做本地质量检查并继续体验后续 Step，但 Preview Runtime 会加入 `DELIVERABLE_RUNTIME_NOT_SUPPORTED` blocker。当前没有正式 Deliverable Resolver / Submission / Completion 状态，因此本地项目草稿 PASS 不等于正式 PROJECT 完成，也不会写正式 Progress / Completion。
-
-`PreviewIntroComparison` 当前还支持可选 `bottomDetails`，用于在 Step 1 takeaway 和底部概念区之后增加轻量价值说明。`ai-workflow-project` 已使用该能力，明确临时 AI 使用的维护成本、工作流的可交接/可检查/可改进价值，以及“会用 AI → 用 AI 建工作方式”的能力跃迁。该扩展不改变 Step 结构或 Completion Gate。
-
-`PreviewIntroComparison` 当前在 `comparison` 为空时完全不渲染概念对比区。`ai-workflow-project` 已移除“单次使用 / 工作流”概念栏，因此 Step 1 当前只显示场景、两种做法、takeaway 和 `bottomDetails` 价值说明；其他 Preview 若提供 comparison 仍按原规则显示。
-
-`prompt-foundations` 当前也使用 `comparisonPlacement=BOTTOM`：Step 1 主区只显示“只说一句要求 / 把关键条件说出来”，takeaway 之后才以轻量 knowledge-depth 样式解释“模糊 = AI 还要猜 / 清楚 = AI 知道怎么做”。Prompt Preview 单独启用 `previewReviewCardFill`：REVIEW 卡片仍保持同排等高，但“正确理解”区域会自动填满剩余高度；其他课程沿用原有通用 Review 布局。
-
-统一 Lesson Shell 底部导航不再重复具体 Step 标题，而是按 Step Kind 显示固定四字教学标签：EXPLAIN=建立直觉、EXAMPLE=讲透方法、CHECK=检查理解、PRACTICE=动手实操、REVIEW=复盘框架、CAPABILITY=能力获得。具体课程 Step 标题在正文中保持不变。
-
-底部导航当前采用三列稳定布局：左侧“上一步”和右侧“下一步”恢复原有 `.btn` 自然尺寸；中间固定显示四字教学标签 + 当前页码，并保持视觉居中；“还是不懂”作为辅助操作，不参与中间定位。手机端（≤640px）第一行固定为“上一步｜阶段+页码｜下一步”，第二行单独居中显示“还是不懂”，避免右侧辅助操作破坏中间对齐。
+Unified Lesson Shell 当前底部导航规则：教学标签可以作为独立元素保留；页码行只显示 `1 / 6`～`6 / 6`，不得在页码前后拼接 navigationDescription、Step 摘要或课程专属描述。顶部六张进度卡片继续使用每课自己的 `navigationDescription`。
 
 `LEARNING-UX-FINAL-001` 已将当前课程体验冻结为 `Unified Lesson Shell v1 / FROZEN_V1`。代码契约位于 `lib/learning/unified-lesson-shell.ts`，规范位于 `docs/learning/UNIFIED_LESSON_SHELL_V1.md`，并由 `npm run learning:shell:accept` 防止六步顺序/标签、三题 Mastery、slug Renderer 分支、Preview 边界和移动端导航发生无意漂移。普通课程内容任务不得顺手改变 Shell；结构变化必须另开明确 UX / Runtime 任务。
 
@@ -561,10 +529,6 @@ ACCESS-UX-001 已完成 Locked Content Conversion UX：内容可锁定，但价�
 
 LEARNING-UX-001 + LEARNING-UX-001-C 已完成单 Lesson Guided Learning 与 Completion Loop 样板实现；`chatgpt-worker / task-brief` 是第一份 Reference Lesson。LEARNING-SPEC-001 / 002 已固定 Lesson Spec。LEARNING-RUNTIME-001 进一步建立 Generic Lesson Runtime Foundation：`TASK_BRIEF_V1` 与 `STRUCTURED_TEXT_V1` 共用 Practice Submission / Evaluation Runtime；Completion Core 可执行 CHECK / PRACTICE / REAL_AI Gate；Runtime Read Model 暴露 configurationReady / blockers。Interactive Read / Check 现统一遵守 Access Core，不再为 task-brief 保留 lesson-name Preview 白名单。Real AI Evidence 复用 `learning_events`，当前只把 USER_CONFIRMATION 与可信 SYSTEM_RESULT 视为 Runtime 支持；ARTIFACT 因没有正式 Resolver 保持 unsupported。没有新增数据库 Schema / Migration，也未改变 Access Core。
 
-LEARNING-RUNTIME-001-A 已完成正式 Pilot Provisioning 与真实 Runtime Acceptance：`check_memory_rag_source` 已绑定 `lesson_ai_literacy_memory_rag`，required + PUBLISHED；`practice_task_decomposition_nodes` 已绑定 `lesson_ai_workflow_task_decomposition`，required + PUBLISHED + `STRUCTURED_TEXT_V1` + passScore 80。Acceptance 确认两个 Pilot 都已 `configurationReady=true / enforcementActive=true`，且 Completion Core 会在 required Gate 未满足时阻断、通过后放行。一次性测试用户及其所有关联数据已清理。没有新增 Migration / Schema，也没有改变 Access Core。
-
-LEARNING-UX-RUNTIME-ALIGN-001 已完成 Reference UX 对齐：`task-brief`、`memory-rag`（CONCEPT）、`task-decomposition`（PRACTICE）与 `writing-files`（APPLICATION）均进入同一 Generic Guided Lesson Shell。Core 只依据 Lesson Spec、Step Kind、Runtime configuration 与 Completion Gate 组合行为，不按课程名选择 Renderer。`writing-files` 已注册用于统一 APPLICATION UX，但仍保持 `configurationReady=false / enforcementActive=false`：required Check / Practice 尚未 provision，REAL_AI evidence = ARTIFACT 仍缺可信 Resolver；同一 Shell 会明确显示 blocker，并隐藏正式完成动作，不允许手填引用绕过 Gate。此前 `/learning-preview` 三课型演示页与旧 `InteractiveLessonPanel` 均已删除。
-
 当前阶段边界：
 
 ```text
@@ -577,6 +541,8 @@ T1-01～T1-20                     AVAILABLE / FORMAL_RUNTIME
 Track 02 Context                 T2-01～T2-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 Track 02 Batch B                 T2-04～T2-06 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 Track 02 Batch C                 T2-07～T2-09 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+Track 03                        T3-01～T3-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
+Track 04                        T4-01～T4-15 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 RUNTIME-INFRA-PERF-003            PROPOSED / NOT_STARTED
 ```
 
@@ -584,7 +550,7 @@ RUNTIME-INFRA-PERF-003            PROPOSED / NOT_STARTED
 
 2026-09-24 课程展示数据与生产规则已对齐：
 - T1-01～T1-20 和 T2-01～T2-09 的正式课进度卡片从各课 `navigationDescription` 读取，不使用统一短句；T2 前三课的学习建议各自说明本课目标与准备动作，第 1 步 takeaway 下方各有两条本课说明。课程正文和已确认的 UI / CSS / 交互没有因本轮规则收敛而改变。
-- `LESSON_OUTPUT_CONTRACT_V1.md` 维护跨板块输出规则；Workflow 在启动时读取最新 owner，Skill v1 按最新规则生成，LessonSpec 和正式 Registry 校验两行卡片、一句话学习建议；T2 Draft Validator 额外校验第 1 步底部说明。第 3～5 板块沿用相同 Workflow，仅替换当前板块 Context，尚未生产对应新课程。
+- `LESSON_OUTPUT_CONTRACT_V1.md` 维护跨板块输出规则；Workflow 在启动时读取最新 owner，Skill v1 按最新规则生成。Track 03/04 已用同一 Workflow 完成正式生产并验证“只切换 Context、不复制 Workflow / Skill”可行；Track 05 继续沿用该链路，并在每批 Draft 进入 Human Review 前执行 Batch anti-template 与 cross-lesson knowledge separation。
 
 当前产品工程顺序固定为：
 

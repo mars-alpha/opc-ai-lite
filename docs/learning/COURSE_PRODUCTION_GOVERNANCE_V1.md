@@ -301,6 +301,19 @@ availability
 - Skill 升级不会自动改变历史 Lesson Draft。
 - Skill / Orchestrator / Deterministic Validators / Human Review Policy 的内部升级不要求修改 Workflow；只有稳定 Contract breaking change、正式 Gate 增删或 Gate 顺序变化才升级 Workflow。
 
+## 5A. Batch anti-template governance
+
+Production Batch 只用于统一生产与审核，不得把课程批量生产成同一套文案。共享 helper / fixture 可以复用类型、数据装配和确定性逻辑，但不得统一生成所有课程的 Step 1 标题 / boundary、Step 4 字段、Step 5 易错点、Step 3 / Step 6 objective、学习建议或 Practice prompt / reflection。
+
+Deterministic Validator 至少检查同批课程：
+- Step 1 title / intro boundary 不得整批相同；
+- Step 4 field signature 必须课程专属；
+- mistakes / Review 正文不得整批复用；
+- learningRecommendation、Check / Capability objective、Practice prompt / reflection 不得整批完全相同；
+- Primary Knowledge Home / mainConcept 必须一课一责。
+
+Human Review 继续检查语义层：相邻课程可以承接上一课产物，但不得重新教授上一课核心判断。模板化输出判定 `LESSON_TEMPLATE_DRIFT_FAIL`；跨课核心知识实质重叠判定 `CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL`。
+
 ## 6. Production batch rule
 
 正式 Curriculum scope 与生产批次必须分离。

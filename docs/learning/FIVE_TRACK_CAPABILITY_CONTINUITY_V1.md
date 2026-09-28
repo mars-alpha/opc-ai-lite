@@ -247,7 +247,9 @@ Track 03 的终点不是 Automation，而是“已经人工跑通、能衡量、
 
 只自动化已经理解/验证的流程。
 
-禁止为了教 Workflow 而凭空创造与前面业务无关的新流程。
+Track 04 的最终产物不是某个平台里的“自动化截图”，而是一份可解释、可交给实现方的 Workflow Design Blueprint：包含自动化价值判断、步骤、触发、状态、停止/失败、节点上下文、责任分工、输入输出契约、外部连接、失败恢复、人工确认与评估计划。
+
+禁止为了教 Workflow 而凭空创造与前面业务无关的新流程；默认复用 Track 03 已人工验证的真实业务链。具体目录由 `docs/learning/TRACK04_CATALOG_CONTEXT_V1.md` 唯一维护。
 
 ## 10. Track 05 continuity
 

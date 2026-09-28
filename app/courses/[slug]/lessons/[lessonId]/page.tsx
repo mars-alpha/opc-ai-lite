@@ -17,7 +17,8 @@ import { getTrack02BatchCRuntimePresentation } from "../../../../../lib/learning
 import { getTrack02BatchDRuntimePresentation } from "../../../../../lib/learning/track02-batch-d-runtime";
 import { getTrack03BatchARuntimePresentation } from "../../../../../lib/learning/track03-batch-a-runtime";
 import { getTrack03BatchesBERuntimePresentation } from "../../../../../lib/learning/track03-batches-b-e-runtime";
-import { track02Catalog, track03Catalog } from "../../../../../lib/learning/track-catalog";
+import { getTrack04RuntimePresentation } from "../../../../../lib/learning/track04-runtime";
+import { track02Catalog, track03Catalog, track04Catalog } from "../../../../../lib/learning/track-catalog";
 import {
   getCrossTrackNextLesson,
   learningPathHrefForCourse
@@ -42,7 +43,7 @@ export default async function LessonPage({
   const course = getCourse(slug);
   if (!course) notFound();
   // Registered lesson content is reviewable before publication; the formal runtime stays closed.
-  const currentCatalog = course.slug === "ai-work" ? track02Catalog : course.slug === "ai-growth" ? track03Catalog : null;
+  const currentCatalog = course.slug === "ai-work" ? track02Catalog : course.slug === "ai-growth" ? track03Catalog : course.slug === "ai-workflow" ? track04Catalog : null;
   if (
     currentCatalog?.some((stage) =>
       stage.lessons.some((item) => item.lessonId === lessonId && item.availability !== "AVAILABLE")
@@ -69,7 +70,7 @@ export default async function LessonPage({
   const previous =
     previousLesson
       ? { id: previousLesson.id, title: previousLesson.title }
-      : course.slug === "ai-work" || course.slug === "ai-growth"
+      : course.slug === "ai-work" || course.slug === "ai-growth" || course.slug === "ai-workflow"
         ? {
             id: "learning-map",
             title: "学习地图",
@@ -109,7 +110,8 @@ export default async function LessonPage({
       getTrack02BatchCRuntimePresentation(course.slug, lesson.id) ??
       getTrack02BatchDRuntimePresentation(course.slug, lesson.id) ??
       getTrack03BatchARuntimePresentation(course.slug, lesson.id) ??
-      getTrack03BatchesBERuntimePresentation(course.slug, lesson.id);
+      getTrack03BatchesBERuntimePresentation(course.slug, lesson.id) ??
+      getTrack04RuntimePresentation(course.slug, lesson.id);
 
     if (!registeredSpec) {
       throw new Error("FORMAL_LESSON_SPEC_NOT_REGISTERED:" + course.slug + "/" + lesson.id);

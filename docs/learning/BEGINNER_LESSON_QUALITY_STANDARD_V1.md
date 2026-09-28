@@ -254,6 +254,15 @@ Production / Human Review 必须逐步回答以上问题。任何一步如果只
 
 Anti-template rule：同一六步可以产生完全不同的课程表现。Formal Brief / Course Builder 必须先根据当前课题确定必要知识与学习动作，再决定案例形式、Practice 字段和文字组织；不得因为 reference lesson、上一课或既有 UI 曾使用某种结构，就把它升级成默认教学模板。
 
+同一 Production Batch 还必须通过**跨课去模板化检查**：
+- Step 1 标题、核心 / 边界说明必须课程专属；整批同一开头或同一边界句直接 FAIL；
+- Step 4 字段必须直接训练本课能力，不能所有课程固定成“场景 / 已有事实 / 要做的设计 / 输出边界”；
+- Step 5 易错点必须来自本课真实误判；不能整批复用通用三句；
+- Step 3 / Step 6 objective、学习建议、Practice prompt / reflection 若整批完全相同，视为模板漂移；
+- 相邻课程必须有明确新增判断，后一课不能只是换案例重复前一课 Primary Knowledge Home。
+
+出现整批模板化判定 `LESSON_TEMPLATE_DRIFT_FAIL`；相邻课程实质重复教授同一核心判断判定 `CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL`.
+
 ## 4. Forbidden beginner drift
 
 除非该课就是对应 Primary Knowledge Home，否则 Beginner opening 不得顺手引入：

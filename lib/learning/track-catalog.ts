@@ -7,7 +7,7 @@ import {
   type FoundationLessonType
 } from "./foundation-catalog";
 
-export type LearningTrackSlug = "foundation-ai" | "ai-work" | "ai-growth";
+export type LearningTrackSlug = "foundation-ai" | "ai-work" | "ai-growth" | "ai-workflow";
 export type TrackCatalogLesson = FoundationCatalogLesson;
 export type TrackCatalogStage = FoundationCatalogStage;
 
@@ -180,6 +180,37 @@ export const track03Catalog: TrackCatalogStage[] = [
   }
 ];
 
+
+export const track04Catalog: TrackCatalogStage[] = [
+  { stageId:"workflow-suitability", title:"先判断什么值得系统化", promise:"先选对值得系统化的真实业务链，避免把混乱直接自动化。", order:1, lessons:[
+    { ...plannedLesson("t4-01-automation-suitability","哪些重复工作值得系统化，哪些反而不该动","判断重复、稳定、价值和风险，决定现在是否值得系统化。",1,["T3-15"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-01-automation-suitability", badge:"已上线" }
+  ]},
+  { stageId:"workflow-decomposition", title:"把人工流程拆清楚", promise:"把人的隐含做法拆成系统能理解的步骤，并定义什么时候启动和停止。", order:2, lessons:[
+    { ...plannedLesson("t4-02-workflow-decomposition","一条人工流程，怎么拆成系统真正能执行的步骤","把输入、处理、判断、输出和检查拆清楚。",2,["T4-01"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-02-workflow-decomposition", badge:"已上线" },
+    { ...plannedLesson("t4-03-trigger-boundary","系统什么时候开始做，什么条件下才应该启动","定义启动事件、必要条件、不启动条件和最小输入。",3,["T4-02"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-03-trigger-boundary", badge:"已上线" },
+    { ...plannedLesson("t4-04-workflow-state","流程跑到哪一步了，系统怎么知道当前状态","理解状态与进度怎样让流程知道自己做到哪里。",4,["T4-03"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-04-workflow-state", badge:"已上线" },
+    { ...plannedLesson("t4-05-stop-failure-boundary","什么时候继续、停止，什么时候算失败","定义继续、完成、停止和失败分支。",5,["T4-04"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-05-stop-failure-boundary", badge:"已上线" }
+  ]},
+  { stageId:"workflow-context", title:"让每一步拿到正确的信息", promise:"控制每一步看到的信息、责任和交接结果。", order:3, lessons:[
+    { ...plannedLesson("t4-06-node-context","每一步到底需要看到哪些信息","设计节点需要的最小充分上下文。",6,["T4-05"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-06-node-context", badge:"已上线" },
+    { ...plannedLesson("t4-07-responsibility-boundary","哪些事交给 AI，哪些必须用确定规则","区分 AI、代码、工具和人工的责任。",7,["T4-06"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-07-responsibility-boundary", badge:"已上线" },
+    { ...plannedLesson("t4-08-structured-handoff","上一步的结果，怎么稳定交给下一步继续用","用结构化输入输出让步骤稳定交接。",8,["T4-07"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-08-structured-handoff", badge:"已上线" }
+  ]},
+  { stageId:"workflow-integration", title:"把外部能力接进流程", promise:"判断什么时候连接接口、工具和模型上下文协议（MCP）。", order:4, lessons:[
+    { ...plannedLesson("t4-09-external-integration","要连接外部系统时，接口、工具和模型上下文协议（MCP）怎么选","设计外部能力连接方式和输入输出边界。",9,["T4-08"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-09-external-integration", badge:"已上线" }
+  ]},
+  { stageId:"workflow-reliability", title:"让流程出错时仍然可控", promise:"处理失败、重复执行、高风险动作和人工确认。", order:5, lessons:[
+    { ...plannedLesson("t4-10-failure-recovery","外部调用超时或失败，流程应该怎么处理","设计超时、重试、停止和人工恢复。",10,["T4-09"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-10-failure-recovery", badge:"已上线" },
+    { ...plannedLesson("t4-11-idempotency","同一个动作执行两次，怎么避免造成两份结果","理解幂等和重复执行保护。",11,["T4-10"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-11-idempotency", badge:"已上线" },
+    { ...plannedLesson("t4-12-human-approval","哪些动作可以自动做，哪些必须先让人确认","设计人工确认、审批和回退边界。",12,["T4-11"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-12-human-approval", badge:"已上线" },
+    { ...plannedLesson("t4-13-workflow-agent-boundary","固定流程不够用时，什么时候才需要智能体（Agent）","判断固定工作流和动态智能体的边界。",13,["T4-12"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-13-workflow-agent-boundary", badge:"已上线" }
+  ]},
+  { stageId:"workflow-evaluation", title:"判断这套系统是否真的值得长期使用", promise:"验证流程是否稳定有效，并形成完整工作流设计蓝图。", order:6, lessons:[
+    { ...plannedLesson("t4-14-workflow-evaluation","怎么知道自动化不是“能跑”，而是真的稳定有效","用测试样例、指标和回归检查工作流。",14,["T4-13"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-14-workflow-evaluation", badge:"已上线" },
+    { ...plannedLesson("t4-15-workflow-blueprint","把一条真实业务链整理成完整工作流设计蓝图","把前面判断整理成可交付的工作流设计蓝图。",15,["T4-14"],"AVAILABLE"), availability:"AVAILABLE", runtimeCourseSlug:"ai-workflow", runtimeLessonId:"t4-15-workflow-blueprint", badge:"已上线" }
+  ]}
+];
+
 export const learningTracks: Record<LearningTrackSlug, LearningTrackCatalog> = {
   "foundation-ai": {
     slug: "foundation-ai",
@@ -207,12 +238,22 @@ export const learningTracks: Record<LearningTrackSlug, LearningTrackCatalog> = {
     description: "把 AI 工作成果继续推进到内容、渠道、线索、销售、客服和增长复盘。",
     stageLabel: "6 个能力分组",
     stages: track03Catalog
+  },
+  "ai-workflow": {
+    slug: "ai-workflow",
+    index: "04",
+    eyebrow: "AI Workflow",
+    title: "AI Workflow 与自动化",
+    description: "把已经人工验证的业务流程设计成可重复、可控、可检查的 AI 工作系统。",
+    stageLabel: "6 个能力分组",
+    stages: track04Catalog
   }
 };
 
 export function getLearningTrack(slug: string | undefined): LearningTrackCatalog {
   if (slug === "ai-work") return learningTracks["ai-work"];
   if (slug === "ai-growth") return learningTracks["ai-growth"];
+  if (slug === "ai-workflow") return learningTracks["ai-workflow"];
   return learningTracks["foundation-ai"];
 }
 

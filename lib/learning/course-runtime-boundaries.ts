@@ -1,8 +1,7 @@
-export const FORMAL_RUNTIME_COURSE_SLUGS = ["foundation-ai", "ai-work", "ai-growth"] as const;
+export const FORMAL_RUNTIME_COURSE_SLUGS = ["foundation-ai", "ai-work", "ai-growth", "ai-workflow"] as const;
 export const LEGACY_STATIC_COURSE_SLUGS = [
   "ai-literacy",
-  "chatgpt-worker",
-  "ai-workflow"
+  "chatgpt-worker"
 ] as const;
 
 const formalRuntimeCourseSlugs = new Set<string>(FORMAL_RUNTIME_COURSE_SLUGS);

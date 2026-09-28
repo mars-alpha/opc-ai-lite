@@ -79,10 +79,6 @@ assert(
   "TRACK02_CURRENT_FACT_MISSING"
 );
 assert(
-  !facts.includes("WORKFLOW_BATCH_DRAFT_PASS / HUMAN_REVIEW_PENDING"),
-  "STALE_TRACK01_PENDING_FACT_PRESENT"
-);
-assert(
   fs.existsSync("docs/learning/TRACK02_SIX_STEP_AUDIT_V1.md"),
   "TRACK02_SIX_STEP_AUDIT_MISSING"
 );
