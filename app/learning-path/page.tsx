@@ -31,9 +31,9 @@ export default async function LearningPathPage({
       <LearningTrackPreference track={track.slug} />
       <PageHero
         eyebrow="Learning Path"
-        title={<>从看懂 AI，到把 AI 用进真实业务</>}
-        description="OPC 的学习主线分成五大板块。学习顺序是推荐路径，不等于访问权限；会员可以按自己的需要直接进入已开放的学习板块。"
-        actions={<Link className="btn btn-primary" href="#foundation-catalog">查看当前课程目录</Link>}
+        title={<>从看懂 AI，<span className="accent">到把 AI 用进真实业务</span></>}
+        description="从 AI 基础认知开始，逐步走向工作应用、业务增长、工作流设计与解决方案落地。学完五大板块，你会更清楚地判断 AI 能做什么、怎么用进真实工作，并把方法沉淀成可复用、可交付的能力。"
+        actions={<><Link className="btn btn-primary" href="#foundation-catalog">进入学习地图</Link><Link className="btn btn-secondary" href="/practice">AI热点练习</Link></>}
         metrics={[
           { value: "5", label: "五大长期学习板块" },
           { value: track.stageLabel.split(" ")[0], label: track.slug === "ai-work" ? "当前能力分组" : "当前学习阶段" },
@@ -42,9 +42,9 @@ export default async function LearningPathPage({
         visual={
           <HeroVisual
             cards={[
-              { title: "CURRENT", value: track.title, detail: track.description },
-              { title: "CATALOG", value: track.stages.flatMap((stage) => stage.lessons).length + " 节", detail: "目录与 Runtime 开放状态分离" },
-              { title: "PATH", value: "5 大板块", detail: "基础 → 工作 → 业务 → Workflow → FDE" }
+              { title: "CURRENT", value: track.title, detail: "从理解 AI 到真正会用，先建立稳定的判断与协作基础。" },
+              { title: "CATALOG", value: track.stages.flatMap((stage) => stage.lessons).length + " 节", detail: "每一课解决一个真实问题，把知识逐步变成能直接使用的方法。" },
+              { title: "PATH", value: "5 大板块", detail: "最终获得从 AI 使用、业务增长到工作流与解决方案落地的完整能力链。" }
             ]}
             eyebrow="OPC Learning"
             caption={"当前： " + track.title}
@@ -58,7 +58,7 @@ export default async function LearningPathPage({
             <div>
               <div className="eyebrow">Learning Map</div>
               <h2 className="section-title">学习地图</h2>
-              <p className="section-subtitle">在学习地图中切换板块。前置课程只作为学习建议，不作为会员进入后续板块的硬性门槛。</p>
+              <p className="section-subtitle">沿着五大板块持续学习，你会从“知道 AI 能做什么”，走到“能把 AI 稳定用进工作、业务和真实解决方案”。</p>
             </div>
           </Reveal>
 

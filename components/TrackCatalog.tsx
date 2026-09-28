@@ -13,7 +13,7 @@ export function TrackCatalog({ track }: { track: LearningTrackCatalog }) {
       <div className="foundation-catalog-legend" aria-label="课程目录状态说明">
         <span><i className="catalog-dot is-ready" />已上线：可直接进入课程</span>
       </div>
-      {track.stages.map((stage) => (
+      {track.stages.map((stage, stageIndex) => (
         <section className="foundation-stage" key={stage.stageId}>
           <div className="foundation-stage-head">
             <div className="foundation-stage-index" aria-hidden="true"><i /></div>
@@ -21,11 +21,19 @@ export function TrackCatalog({ track }: { track: LearningTrackCatalog }) {
             <div className="foundation-stage-count">{stage.lessons.length} 节</div>
           </div>
           <div className="foundation-lesson-list">
-            {stage.lessons.map((lesson) => {
+            {stage.lessons.map((lesson, lessonIndex) => {
               const runtimeReady = isTrackRuntimeLesson(lesson);
+              const continuousNumber =
+                track.slug === "foundation-ai" || track.slug === "ai-work"
+                  ? track.stages
+                      .slice(0, stageIndex)
+                      .reduce((total, item) => total + item.lessons.length, 0) +
+                    lessonIndex +
+                    1
+                  : lesson.order;
               const status = runtimeReady ? getStatus(lesson.runtimeCourseSlug!, lesson.runtimeLessonId!) : "NOT_STARTED";
               const row = <>
-                <div className="foundation-lesson-number">{String(lesson.order).padStart(2, "0")}</div>
+                <div className="foundation-lesson-number">{String(continuousNumber).padStart(2, "0")}</div>
                 <div className="foundation-lesson-main">
                   <div className="foundation-lesson-title-row">
                     <h4>{lesson.title}</h4>

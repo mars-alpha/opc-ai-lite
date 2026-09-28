@@ -24,9 +24,9 @@ export default async function PracticePage() {
           </>
         }
         metrics={[
-          { value: "1 个能力", label: "一次只练一个能力" },
-          { value: "4 Questions", label: "谁痛 / 值不值 / AI 能否解决 / 如何证明" },
-          { value: "AI Daily → Practice", label: "热点知识整理后进入能力练习" }
+          { value: "单项能力", label: "一次只练一个明确能力" },
+          { value: "四项判断", label: "判断问题是否真实、值不值得、AI 是否适合、如何验证" },
+          { value: "日报转练习", label: "从热点知识提炼可练习的单项能力" }
         ]}
         visual={
           <HeroVisual
@@ -40,16 +40,6 @@ export default async function PracticePage() {
           />
         }
       />
-
-      <section className="section compact">
-        <div className="container">
-          <div className="opc-four">
-            {["谁真的在痛？", "值不值得解决？", "AI 能不能解决？", "怎么证明有效？"].map((question, index) => (
-              <div key={question}><span>0{index + 1}</span><strong>{question}</strong></div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section className="section" id="projects">
         <div className="container">

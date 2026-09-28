@@ -38,12 +38,12 @@ export default function AIDailyPage() {
       <PageHero
         eyebrow="AI Daily · Knowledge Radar"
         title={<>知道发生了什么<br /><span className="accent">更要知道是否与你有关</span></>}
-        description="AI Daily 不是新闻列表，而是 OPC Knowledge Engine 的雷达入口：筛选变化、形成知识、判断实操价值，并发现可能受影响的课程。"
+        description="AI 日报不是新闻堆砌，而是帮你筛选真正重要的变化，提炼成值得掌握的知识，再判断哪些值得实践、哪些会影响正在学习的课程。"
         actions={<><Link className="btn btn-primary" href="#feed">查看示例内容</Link><Link className="btn btn-secondary" href="/learning-path">回到学习路径</Link></>}
         metrics={[
-          { value: "Top 3", label: "免费用户可查看每日精选" },
-          { value: "Follow / Member", label: "公众号关注或会员解锁全部" },
-          { value: "Impact", label: "判断与 Stage / Lesson 的关系" }
+          { value: "每日精选", label: "免费用户每天可查看 3 条精选" },
+          { value: "关注或会员", label: "关注公众号或 OPC 会员可查看全部日报" },
+          { value: "课程影响", label: "判断新变化是否影响已学知识与课程" }
         ]}
         visual={<HeroVisual
           cards={[

@@ -2,7 +2,7 @@
 
 > 只保留 NOW / NEXT / BACKLOG 与必要的完成里程碑。当前事实以 `docs/CURRENT_SYSTEM_FACTS.md` / `PROJECT_STATUS.md` / current owner 为准；历史实现细节通过 Git 与 `docs/task-results/*` 追溯，不从本文件恢复旧 Gate。
 
-# NOW — TRACK05-COMPLETE-READY-FOR-COMMIT
+# NOW — RELEASE-CURRENT-BASELINE
 
 Status: **T5-01～T5-16 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS**
 
@@ -14,12 +14,11 @@ Status: **T5-01～T5-16 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS**
 
 # NEXT
 
-## TRACK05-FINAL-GIT-COMMIT
+## DEPLOY-CURRENT-BASELINE-TO-OPCAI-FUN
 
-- Track 05 T5-01～T5-16：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。
-- 正式 Runtime：6 modules / 16 lessons / 48 checks / 16 practices。
-- 上线前 Preview 已退出 current path；Formal Brief / Human Review / Draft / Provision / Acceptance 证据保留为可追溯发布链。
-- 完整 Git diff 审计与治理清场完成后，下一步仅做 Track05 统一 Git commit。
+- 学习路径 Track 01～05 课程基线已落实并冻结，近期不再调整课程结构与课程内容。
+- 首页、AI 日报、进阶练习、公众号学习助手、会员权益等入口继续按 MVP 逐步开发。
+- 当前版本完成验证、Git commit 后部署到 opcai.fun（源站 1.14.180.16）。
 
 # BACKLOG
 

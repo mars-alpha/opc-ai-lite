@@ -1,3 +1,10 @@
+## 当前产品阶段
+
+- 学习路径课程体系已落实：Track 01～05 当前课程目录、六步课程壳层、正式 Runtime 与学习路径展示视为已确认基线，近期不再继续调整课程结构与课程内容。
+- 当前开发重点转向首页、AI 日报、进阶练习、公众号学习助手、会员权益等入口的逐步完善；这些入口按真实 MVP 小步开发，不反向改动已冻结的学习路径课程基线。
+- 当前准备上线版本已包含：首页公众号学习助手与真实登录态权益显示、首页主线精简、AI 日报中文化描述与指标、进阶练习页精简与中文指标、学习路径入口文案/编号优化、页脚 ICP 备案号。
+- 部署目标：opcai.fun；生产源站继续使用 1.14.180.16（Nginx → PM2 → Next.js:3000）。
+
 # CURRENT_SYSTEM_FACTS.md — OPC AI 当前系统事实
 
 > 当前事实基线以本文件 Section 0「Current Course Production Snapshot」+ 当前代码 / Schema / Runtime 最新验证为准；历史任务名只用于追溯，不代表当前课程生产阶段。
@@ -23,7 +30,7 @@ Track 05 canonical path          T5-01～T5-16 / 6 Phases / DIRECTORY_APPROVED_V
 Track 05 T5-01～T5-16          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
 Track 05 Learning Map            16 LESSON DIRECTORY / 6 PHASES / ALL AVAILABLE
 Deferred knowledge              DEFERRED_KNOWLEDGE_LEDGER_V1 → Track 05 planning input
-Next Gate                       Track 05 COMPLETE / READY FOR GIT COMMIT
+Next Gate                       DEPLOY CURRENT RELEASE / OPCAI.FUN
 ```
 
 T1-11～T1-20 已完成 Stable Course Production Workflow 全链路：10 个结构化 Draft、Deterministic Validation、Human Review、LessonSpec Registry、Runtime Provisioning 与 authenticated Runtime Acceptance 全部 PASS。10 节课均已进入 `foundation-ai` Phase 4～6 正式 Runtime，并继续复用现有 Unified Lesson Shell；本批次没有新增 UI / Renderer / interaction type，也没有调整 CSS。未展开知识继续由 `DEFERRED_KNOWLEDGE_LEDGER_V1.md` 作为 Track 02～05 规划输入。

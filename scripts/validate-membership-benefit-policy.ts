@@ -31,10 +31,13 @@ assert(membershipView.includes("OPC 订阅会员"), "MEMBER_COLUMN_TITLE_REQUIRE
 assert(officialAccount.includes("公众号学习助手"), "FOLLOW_ASSISTANT_REQUIRED");
 assert(officialAccount.includes("AI 基础认知课程全章节"), "FOLLOW_COURSE_UNLOCK_REQUIRED");
 assert(officialAccount.includes("完整 AI 日报"), "FOLLOW_DAILY_UNLOCK_REQUIRED");
-assert(officialAccount.includes("实操项目、进阶练习"), "FOLLOW_PUSH_SCOPE_REQUIRED");
-assert(officialAccount.includes("收到推送不代表已获得这些会员内容的使用权限"), "PUSH_MUST_NOT_IMPLY_ACCESS");
-assert(officialAccount.includes("仍按实际会员权益判断"), "PUSH_ACCESS_SEPARATION_REQUIRED");
-assert(officialAccount.includes("真实微信关注验证将在微信渠道接入后自动完成"), "FOLLOW_VERIFICATION_PENDING_REQUIRED");
+assert(officialAccount.includes("实操项目与进阶练习"), "FOLLOW_PUSH_SCOPE_REQUIRED");
+assert(!officialAccount.includes("收到推送不代表已获得这些会员内容的使用权限"), "INTERNAL_PUSH_ACCESS_COPY_HIDDEN");
+assert(!officialAccount.includes("仍按实际会员权益判断"), "INTERNAL_MEMBERSHIP_RULE_COPY_HIDDEN");
+assert(!officialAccount.includes("真实微信关注验证将在微信渠道接入后自动完成"), "INTERNAL_FOLLOW_VERIFICATION_COPY_HIDDEN");
+assert(officialAccount.includes("关注公众号 → 解锁完整内容"), "FOLLOW_VALUE_HEADLINE_REQUIRED");
+assert(officialAccount.includes("让值得学的内容主动来到你面前"), "FOLLOW_VALUE_COPY_REQUIRED");
+assert(officialAccount.includes("公众号权益待解锁"), "AUTHENTICATED_FOLLOW_STATUS_REQUIRED");
 assert(dailyFeed.includes("部分内容可免费阅读全文"), "DAILY_PARTIAL_FREE_COPY_REQUIRED");
 assert(!dailyFeed.includes("Top 3 免费阅读全文"), "DAILY_TOP3_MUST_NOT_BE_PRODUCT_PROMISE");
 assert(lockedCta.includes("进阶练习、实操项目与后续进阶内容"), "MEMBER_VALUE_COPY_REQUIRED");

@@ -26,7 +26,7 @@ Track 05 Formal Curriculum               T5-01～T5-16 AVAILABLE / FORMAL_RUNTIM
 Track 05 Runtime                          6 MODULES / 16 LESSONS / 48 CHECKS / 16 PRACTICES / ACCEPTANCE PASS
 Track 05 Learning Map                     16 LESSON DIRECTORY / ALL AVAILABLE
 RUNTIME-INFRA-PERF-003                    PROPOSED / NOT_STARTED
-CURRENT                                  TRACK05 COMPLETE / READY FOR GIT COMMIT
+CURRENT                                  LEARNING PATH FROZEN / ENTRYPOINTS ITERATING / RELEASE CANDIDATE
 ```
 
 ## 当前系统健康
@@ -98,3 +98,7 @@ AI Daily 等后续产品能力继续遵循：
 → 真实 MVP 可验收
 → 再增加功能
 ```
+
+Learning Path Baseline                    TRACK01～05 FROZEN / NO STRUCTURE OR COURSE COPY CHANGES
+Current Product Focus                     HOME / AI DAILY / PRACTICE / OFFICIAL ACCOUNT / MEMBERSHIP
+Release Target                            opcai.fun via 1.14.180.16 / Nginx / PM2 / Next.js:3000

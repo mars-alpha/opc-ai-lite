@@ -1,23 +1,26 @@
 import Link from "next/link";
-import { ContinueLearning } from "../components/ContinueLearning";
+import { cookies } from "next/headers";
 import { HeroVisual } from "../components/HeroVisual";
-import { HomeKnowledge } from "../components/HomeKnowledge";
 import { MembershipBenefits } from "../components/MembershipBenefits";
 import { OfficialAccountUnlock } from "../components/OfficialAccountUnlock";
 import { PageHero } from "../components/PageHero";
 import { Reveal } from "../components/Reveal";
-import { courses } from "../lib/courses";
+import { getSessionUser, SESSION_COOKIE } from "../lib/server/auth/service";
+import { hasOfficialAccountFollowEntitlement } from "../lib/server/entitlements/service";
+import { getMembershipStatus } from "../lib/server/membership/service";
 
-const continueCatalog = courses.filter((course) => course.slug !== "ai-literacy").map((course) => ({
-  slug: course.slug,
-  title: course.title,
-  stageLabel: course.stageLabel,
-  lessons: course.modules.flatMap((module) =>
-    module.lessons.map((lesson) => ({ id: lesson.id, title: lesson.title, summary: lesson.summary }))
-  )
-}));
+export const dynamic = "force-dynamic";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieStore = await cookies();
+  const user = await getSessionUser(cookieStore.get(SESSION_COOKIE)?.value ?? null);
+  const [followUnlocked, membership] = user
+    ? await Promise.all([
+        hasOfficialAccountFollowEntitlement(user.id),
+        getMembershipStatus(user.id)
+      ])
+    : [false, { active: false }];
+
   return (
     <>
       <PageHero
@@ -31,9 +34,9 @@ export default function HomePage() {
           </>
         }
         metrics={[
-          { value: "Learn", label: "六阶段能力成长路径" },
-          { value: "Update", label: "AI Daily → Knowledge → Course" },
-          { value: "Practice", label: "短实操与阶段项目验证能力" }
+          { value: "系统学习", label: "六阶段课程建立完整 AI 能力结构" },
+          { value: "持续更新", label: "AI 日报筛选真正值得关注的新变化" },
+          { value: "实操验证", label: "用短练习与阶段项目检验是否掌握" }
         ]}
         visual={
           <HeroVisual
@@ -47,17 +50,11 @@ export default function HomePage() {
         }
       />
 
-      <section className="section compact home-continue-section">
-        <div className="container">
-          <ContinueLearning catalog={continueCatalog} />
-        </div>
-      </section>
-
-      <section className="section compact">
-        <div className="container">
-          <HomeKnowledge />
-        </div>
-      </section>
+      <OfficialAccountUnlock
+        authenticated={Boolean(user)}
+        followUnlocked={followUnlocked}
+        membershipActive={membership.active}
+      />
 
       <section className="section" id="about">
         <div className="container">
@@ -88,17 +85,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <OfficialAccountUnlock />
       <MembershipBenefits />
     </>
   );
 }
-
-
-
-
-
-
-
-
-

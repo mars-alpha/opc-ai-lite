@@ -53,9 +53,9 @@ assert(formal.includes("当前 Track 05 详细目录、Primary Knowledge Home、
 assert(deferred.includes("## 5.4 Track 05 planning resolution — TRACK05-CURRICULUM-001"),"DEFERRED_RESOLUTION");
 assert(facts.includes("Track 05 canonical path          T5-01～T5-16 / 6 Phases / DIRECTORY_APPROVED_V1 / 6 PRODUCTION BATCHES"),"CURRENT_FACTS_APPROVED");
 assert(facts.includes("Track 05 T5-01～T5-16          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),"CURRENT_FACTS_ALL_AVAILABLE");
-assert(facts.includes("Next Gate                       Track 05 COMPLETE / READY FOR GIT COMMIT"),"CURRENT_FACTS_GATE");
+assert(facts.includes("Next Gate                       DEPLOY CURRENT RELEASE / OPCAI.FUN"),"CURRENT_FACTS_GATE");
 assert(status.includes("Track 05 Directory                       T5-01～T5-16 / 6 PHASES / 15 KNOWLEDGE HOMES + 1 CAPSTONE"),"PROJECT_STATUS");
-assert(tasks.includes("TRACK05-COMPLETE-READY-FOR-COMMIT"),"TASKS_CURRENT");
+assert(tasks.includes("RELEASE-CURRENT-BASELINE"),"TASKS_CURRENT");
 const batchAHumanReview=fs.readFileSync("docs/learning/TRACK05_BATCH_A_T5_01_T5_03_HUMAN_REVIEW_V1.md","utf8");
 assert(batchAHumanReview.includes("HUMAN_REVIEW_PASS / 3 LESSONS / READY_FOR_LESSON_SPEC_REGISTRY")&&batchAHumanReview.includes("Post-release closure"),"BATCH_A_HUMAN_REVIEW");
 const batchesBfHumanReview=fs.readFileSync("docs/learning/TRACK05_BATCHES_B_F_T5_04_T5_16_HUMAN_REVIEW_V1.md","utf8");
