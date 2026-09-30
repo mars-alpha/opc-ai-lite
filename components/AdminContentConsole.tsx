@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { KnowledgeRoutingPanel } from "./KnowledgeRoutingPanel";
+import { ContentWorkbenchLifecyclePanel } from "./ContentWorkbenchLifecyclePanel";
 
 type PublicationStatus = "DRAFT" | "REVIEW" | "PUBLISHED" | "ARCHIVED";
+type ContentFocus = "CANDIDATE" | "REVIEW" | "PUBLISH";
 type Destination =
   | "IGNORE"
   | "DAILY_ITEM"
@@ -26,6 +28,7 @@ type ContentItem = {
   reviewer: string | null;
   readingMinutes: number | null;
   status: PublicationStatus;
+  version: number;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -49,7 +52,7 @@ function emptyItem(): ContentItem {
     summary: "",
     category: "AI 更新",
     destination: "DAILY_ITEM",
-    sourceType: "manual",
+    sourceType: "WORKBENCH",
     sourceRef: null,
     sourceUrl: null,
     sourcePublishedAt: null,
@@ -58,24 +61,11 @@ function emptyItem(): ContentItem {
     reviewer: null,
     readingMinutes: 5,
     status: "DRAFT",
+    version: 1,
     publishedAt: null,
     createdAt: now,
     updatedAt: now
   };
-}
-
-function toDateTimeLocal(value: string | null) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  const offset = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-}
-
-function fromDateTimeLocal(value: string) {
-  if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 function makeContentId() {
@@ -103,9 +93,11 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-export function AdminContentConsole() {
+export function AdminContentConsole({ focus }: { focus: ContentFocus }) {
   const [items, setItems] = useState<ContentItem[]>([]);
-  const [filter, setFilter] = useState<(typeof statuses)[number]>("ALL");
+  const [filter, setFilter] = useState<(typeof statuses)[number]>(
+    focus === "PUBLISH" ? "REVIEW" : "DRAFT"
+  );
   const [selectedId, setSelectedId] = useState("");
   const [draft, setDraft] = useState<ContentItem | null>(null);
   const [creating, setCreating] = useState(false);
@@ -156,6 +148,24 @@ export function AdminContentConsole() {
     return result;
   }, [items]);
 
+  const focusCopy = {
+    CANDIDATE: {
+      kicker: "CANDIDATE",
+      title: "候选内容",
+      description: "左侧选择候选，右侧整理当前版本并关联证据。"
+    },
+    REVIEW: {
+      kicker: "REVIEW",
+      title: "待审核内容",
+      description: "左侧选择待审核内容，右侧核对版本、证据和去向后作出人工决定。"
+    },
+    PUBLISH: {
+      kicker: "PUBLISH",
+      title: "待发布内容",
+      description: "左侧选择已进入审核状态的内容，右侧确认发布条件与后续路由。"
+    }
+  }[focus];
+
   function startCreate() {
     setCreating(true);
     setSelectedId("");
@@ -175,19 +185,13 @@ export function AdminContentConsole() {
 
   async function save() {
     if (!draft) return;
-    if (!draft.title.trim() || !draft.summary.trim() || !draft.category.trim() || !draft.sourceType.trim()) {
-      setMessage("标题、摘要、分类和来源类型不能为空。");
+    if (!draft.title.trim() || !draft.summary.trim() || !draft.category.trim()) {
+      setMessage("标题、摘要和分类不能为空。");
       return;
     }
 
     setSaving(true);
     setMessage(null);
-
-    const now = new Date().toISOString();
-    const reviewedAt =
-      draft.status === "REVIEW" || draft.status === "PUBLISHED"
-        ? draft.reviewedAt ?? now
-        : draft.reviewedAt;
 
     const payload = {
       id: creating ? makeContentId() : draft.id,
@@ -199,11 +203,7 @@ export function AdminContentConsole() {
       sourceRef: draft.sourceRef,
       sourceUrl: draft.sourceUrl,
       sourcePublishedAt: draft.sourcePublishedAt,
-      reviewedAt,
-      reviewer: draft.reviewer,
-      readingMinutes: draft.readingMinutes,
-      status: draft.status,
-      publishedAt: draft.status === "PUBLISHED" ? draft.publishedAt : null
+      readingMinutes: draft.readingMinutes
     };
 
     try {
@@ -225,11 +225,7 @@ export function AdminContentConsole() {
       setSelectedId(saved.id);
       setDraft(saved);
       await loadItems(saved.id);
-      setMessage(
-        saved.status === "PUBLISHED"
-          ? "已发布。AI Daily 会在 Published 内容缓存刷新后读取这条内容。"
-          : "已保存为 " + statusLabel(saved.status) + "。"
-      );
+      setMessage(creating ? "候选内容已创建为草稿。" : "内容已保存为新版本，需要重新审核后才能发布。");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "保存失败");
     } finally {
@@ -245,13 +241,16 @@ export function AdminContentConsole() {
     <div className="admin-content-console">
       <aside className="admin-content-queue">
         <div className="admin-panel-head">
-          <div>
-            <div className="kicker">Content Queue</div>
-            <h2>内容队列</h2>
-          </div>
-          <button className="btn btn-primary admin-create-content" type="button" onClick={startCreate}>
-            新建内容
-          </button>
+            <div>
+              <div className="kicker">{focusCopy.kicker}</div>
+              <h2>{focusCopy.title}</h2>
+              <p>{focusCopy.description}</p>
+            </div>
+            {focus === "CANDIDATE" ? (
+              <button className="btn btn-primary admin-create-content" type="button" onClick={startCreate}>
+                新建内容
+              </button>
+            ) : null}
         </div>
 
         <div className="admin-content-filters">
@@ -284,7 +283,7 @@ export function AdminContentConsole() {
                   <small>{formatDate(item.updatedAt)}</small>
                 </div>
                 <strong>{item.title}</strong>
-                <span>{item.category} · {item.sourceType}</span>
+                <span>{item.category} · v{item.version}</span>
                 <small>{destinations.find((entry) => entry.value === item.destination)?.label ?? item.destination}</small>
               </button>
             ))
@@ -308,169 +307,89 @@ export function AdminContentConsole() {
               </div>
             </div>
 
-            <div className="admin-form-grid">
-              <label className="admin-field admin-field-wide">
-                <span>标题</span>
-                <input
-                  value={draft.title}
-                  maxLength={180}
-                  onChange={(event) => updateDraft({ title: event.target.value })}
-                  placeholder="这条 AI 信息发生了什么？"
-                />
-              </label>
+            <div className="admin-operation-split">
+              <section className="admin-operation-input">
+                <div className="admin-operation-pane-head">
+                  <div>
+                    <span>{focus === "CANDIDATE" ? "EDIT" : "CONTENT"}</span>
+                    <strong>{focus === "CANDIDATE" ? "内容编辑" : "当前内容"}</strong>
+                  </div>
+                  <small>{focus === "CANDIDATE" ? "只在这里修改当前版本" : "审核与发布阶段保持只读"}</small>
+                </div>
+                {focus === "CANDIDATE" ? (
+                  <>
+                    <div className="admin-form-grid">
+                      <label className="admin-field admin-field-wide">
+                        <span>标题</span>
+                        <input value={draft.title} maxLength={180} onChange={(event) => updateDraft({ title: event.target.value })} placeholder="这条 AI 信息发生了什么？" />
+                      </label>
+                      <label className="admin-field admin-field-wide">
+                        <span>摘要</span>
+                        <textarea rows={7} maxLength={1200} value={draft.summary} onChange={(event) => updateDraft({ summary: event.target.value })} placeholder="用 OPC 的语言说明为什么值得关注。" />
+                      </label>
+                      <label className="admin-field">
+                        <span>分类</span>
+                        <input value={draft.category} maxLength={120} onChange={(event) => updateDraft({ category: event.target.value })} placeholder="模型与能力 / 工具 / 行业" />
+                      </label>
+                      <label className="admin-field">
+                        <span>去向</span>
+                        <select value={draft.destination} onChange={(event) => updateDraft({ destination: event.target.value as Destination })}>
+                          {destinations.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}
+                        </select>
+                      </label>
+                      <label className="admin-field">
+                        <span>阅读时间（分钟）</span>
+                        <input type="number" min={1} max={120} value={draft.readingMinutes ?? ""} onChange={(event) => updateDraft({ readingMinutes: event.target.value ? Number(event.target.value) : null })} />
+                      </label>
+                    </div>
+                    <div className="admin-editor-footer admin-operation-footer">
+                      <div>
+                        {message && <p className="admin-message">{message}</p>}
+                        <small>保存后会形成新版本；已有审核结论自动失效。</small>
+                      </div>
+                      <button className="btn btn-primary" type="button" onClick={save} disabled={saving || (!creating && (draft.status === "PUBLISHED" || draft.status === "ARCHIVED"))}>
+                        {saving ? "保存中…" : creating ? "创建候选内容" : "保存新版本"}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="admin-content-readonly">
+                    <div><span>标题</span><strong>{draft.title}</strong></div>
+                    <div><span>摘要</span><p>{draft.summary}</p></div>
+                    <dl>
+                      <div><dt>分类</dt><dd>{draft.category}</dd></div>
+                      <div><dt>去向</dt><dd>{destinations.find((item) => item.value === draft.destination)?.label ?? draft.destination}</dd></div>
+                      <div><dt>版本</dt><dd>v{draft.version}</dd></div>
+                      <div><dt>最近更新</dt><dd>{formatDate(draft.updatedAt)}</dd></div>
+                    </dl>
+                  </div>
+                )}
+              </section>
 
-              <label className="admin-field admin-field-wide">
-                <span>摘要</span>
-                <textarea
-                  rows={5}
-                  maxLength={1200}
-                  value={draft.summary}
-                  onChange={(event) => updateDraft({ summary: event.target.value })}
-                  placeholder="用 OPC 的语言说明为什么值得关注。"
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>分类</span>
-                <input
-                  value={draft.category}
-                  maxLength={120}
-                  onChange={(event) => updateDraft({ category: event.target.value })}
-                  placeholder="模型与能力 / 工具 / 行业"
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>去向</span>
-                <select
-                  value={draft.destination}
-                  onChange={(event) => updateDraft({ destination: event.target.value as Destination })}
-                >
-                  {destinations.map((item) => (
-                    <option value={item.value} key={item.value}>{item.label}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="admin-field">
-                <span>来源类型</span>
-                <input
-                  value={draft.sourceType}
-                  maxLength={120}
-                  onChange={(event) => updateDraft({ sourceType: event.target.value })}
-                  placeholder="manual / youtube / official"
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>来源标识</span>
-                <input
-                  value={draft.sourceRef ?? ""}
-                  onChange={(event) => updateDraft({ sourceRef: event.target.value || null })}
-                  placeholder="原始内容 ID，可留空"
-                />
-              </label>
-
-              <label className="admin-field admin-field-wide">
-                <span>来源 URL</span>
-                <input
-                  type="url"
-                  value={draft.sourceUrl ?? ""}
-                  onChange={(event) => updateDraft({ sourceUrl: event.target.value || null })}
-                  placeholder="https://..."
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>来源发布时间</span>
-                <input
-                  type="datetime-local"
-                  value={toDateTimeLocal(draft.sourcePublishedAt)}
-                  onChange={(event) => updateDraft({ sourcePublishedAt: fromDateTimeLocal(event.target.value) })}
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>阅读时间（分钟）</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={120}
-                  value={draft.readingMinutes ?? ""}
-                  onChange={(event) =>
-                    updateDraft({ readingMinutes: event.target.value ? Number(event.target.value) : null })
-                  }
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>审核人</span>
-                <input
-                  value={draft.reviewer ?? ""}
-                  onChange={(event) => updateDraft({ reviewer: event.target.value || null })}
-                  placeholder="管理员名称 / 标识"
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>状态</span>
-                <select
-                  value={draft.status}
-                  onChange={(event) =>
-                    updateDraft({ status: event.target.value as PublicationStatus })
-                  }
-                >
-                  {publicationStatuses.map((status) => (
-                    <option value={status} key={status}>{statusLabel(status)}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="admin-field">
-                <span>审核时间</span>
-                <input
-                  type="datetime-local"
-                  value={toDateTimeLocal(draft.reviewedAt)}
-                  onChange={(event) => updateDraft({ reviewedAt: fromDateTimeLocal(event.target.value) })}
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>发布时间</span>
-                <input
-                  type="datetime-local"
-                  disabled={draft.status !== "PUBLISHED"}
-                  value={toDateTimeLocal(draft.publishedAt)}
-                  onChange={(event) => updateDraft({ publishedAt: fromDateTimeLocal(event.target.value) })}
-                />
-                <small>PUBLISHED 且留空时，服务端会自动使用当前时间。</small>
-              </label>
-            </div>
-
-            <div className="admin-content-lifecycle">
-              <span className={draft.status === "DRAFT" ? "is-current" : ""}>DRAFT</span>
-              <i>→</i>
-              <span className={draft.status === "REVIEW" ? "is-current" : ""}>REVIEW</span>
-              <i>→</i>
-              <span className={draft.status === "PUBLISHED" ? "is-current" : ""}>PUBLISHED</span>
-              <i>→</i>
-              <span className={draft.status === "ARCHIVED" ? "is-current" : ""}>ARCHIVED</span>
-            </div>
-
-            {!creating && draft.destination === "KNOWLEDGE_CAPSULE" ? (
-              <KnowledgeRoutingPanel content={draft} />
-            ) : null}
-
-            <div className="admin-editor-footer">
-              <div>
-                {message && <p className="admin-message">{message}</p>}
-                <small>
-                  只有 PUBLISHED 且 destination 不是 IGNORE 的 Content 才会进入 AI Daily 读取边界。
-                </small>
-              </div>
-              <button className="btn btn-primary" type="button" onClick={save} disabled={saving}>
-                {saving ? "保存中…" : creating ? "创建 Content" : "保存 Content"}
-              </button>
+              <section className="admin-operation-output">
+                <div className="admin-operation-pane-head">
+                  <div>
+                    <span>{focus}</span>
+                    <strong>{focus === "CANDIDATE" ? "证据关联" : focus === "REVIEW" ? "审核判断" : "发布与路由"}</strong>
+                  </div>
+                  <small>{focus === "CANDIDATE" ? "关联可信证据后再进入审核" : focus === "REVIEW" ? "基于当前版本与证据作出决定" : "只在条件满足后执行正式发布"}</small>
+                </div>
+                <div className="admin-content-lifecycle">
+                  <span className={draft.status === "DRAFT" ? "is-current" : ""}>DRAFT</span><i>→</i>
+                  <span className={draft.status === "REVIEW" ? "is-current" : ""}>REVIEW</span><i>→</i>
+                  <span className={draft.status === "PUBLISHED" ? "is-current" : ""}>PUBLISHED</span><i>→</i>
+                  <span className={draft.status === "ARCHIVED" ? "is-current" : ""}>ARCHIVED</span>
+                </div>
+                {!creating ? (
+                  <ContentWorkbenchLifecyclePanel mode="ITEM" focus={focus} item={{ id: draft.id, status: draft.status, version: draft.version }} onChanged={() => loadItems(draft.id)} />
+                ) : (
+                  <div className="admin-operation-placeholder">
+                    <strong>创建后在这里展开</strong>
+                    <p>保存候选内容后，右侧会显示证据关联、审核、发布和审计记录。</p>
+                  </div>
+                )}
+                {!creating && focus === "PUBLISH" && draft.destination === "KNOWLEDGE_CAPSULE" && draft.status === "PUBLISHED" ? <KnowledgeRoutingPanel content={draft} /> : null}
+              </section>
             </div>
           </>
         )}

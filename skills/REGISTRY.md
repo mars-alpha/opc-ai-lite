@@ -2,28 +2,18 @@
 
 Status: **ACTIVE_REGISTRY_V1**
 
-本文件只登记已经实际落盘的 Skill。规划中的 Skill 不视为已实现。
+只登记 current 可执行 Skill。历史 Skill 通过 Git 追溯。
 
-## Registry
-
-| Skill ID | Version | Status | Single Responsibility | Primary Output | Human Review | Implementation |
+| Skill ID | Version | Status | Responsibility | Output | Human Review | Implementation |
 | --- | --- | --- | --- | --- | --- | --- |
-| course-builder | 0.1.0 | HISTORICAL_PROVENANCE | 早期 Structured Draft / Improvement Proposal 契约 | Historical evidence only | N/A — not executable in current workflow | `skills/course-builder/_historical-v0.1.ts` |
-| course-builder | 0.2.0 | HISTORICAL_PROVENANCE | 早期 Beginner Quality 对齐版本 | Historical evidence only | N/A — not executable in current workflow | `skills/course-builder/_historical-v0.2.ts` |
-| course-builder | 1.0.0 | CURRENT_DEFAULT | 使用最新 Rule Sources 生成符合稳定 Course Builder Contract 的课程 Draft / Improvement Proposal | Quality-controlled Structured Lesson Draft / Improvement Proposal | Required before production use | `skills/course-builder/v1.ts` |
+| course-builder | 1.0.0 | CURRENT_DEFAULT | 根据 Current Course Context + Rule Sources 生成课程 Draft / Improvement Proposal | Structured Lesson Draft / Improvement Proposal | Required | `skills/course-builder/v1.ts` |
+| practice-draft | 0.1.0 | CURRENT | 把 Reviewed Knowledge 转成可审核的 LATEST_PRACTICE Draft | Structured Practice Draft | Required before publish | `skills/practice-draft/v0.1.ts` |
+| content-analysis | 0.1.0 | CURRENT | 从 OPC AI 官方采集输入中区分事实/疑点并提取关键原文 | Structured Content Analysis | Required before evidence verification | `skills/content-analysis/v0.1.ts` |
+| content-candidate | 0.1.0 | CURRENT | 基于已验证证据生成多个官方内容候选角度 | Structured Candidate Options | Required before review | `skills/content-candidate/v0.1.ts` |
 
-只有 `CURRENT_DEFAULT` 可以被 `skills/course-builder/index.ts` 解析为当前生产 Skill；`HISTORICAL_PROVENANCE` 文件仅用于追溯，不得被 Workflow、Orchestrator、validator 或新课程直接 import。
-
-## Registry Rules
-
-每个新 Skill / Version 落盘时必须登记：
-
-- Skill ID
-- Version
-- Status
-- Single Responsibility
-- Primary Output
-- Human Review Requirement
-- Implementation path
-
-Skill Registry 不拥有业务状态。正式课程生产的当前版本由 `skills/course-builder/index.ts` 解析；Stable Workflow 只依赖 Contract 与标准 Gate，不直接绑定具体 Skill version。
+规则：
+- Skill 必须版本化；
+- Skill 不拥有业务状态；
+- 新版本先验证，再切 current；
+- 已退役实现不留 current 副本，使用 Git history 追溯；
+- 具体治理见 `docs/SKILL_GOVERNANCE.md`。

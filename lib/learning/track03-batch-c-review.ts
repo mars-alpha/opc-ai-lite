@@ -4,7 +4,7 @@ import {
   track03BatchCIntroComparisons,
   track03BatchCKnowledgeDepth,
   track03BatchCTriggerScenarios
-} from "../../fixtures/course-builder/track03-batch-c";
+} from "./course-content/track03-batch-c";
 
 function lessonFromDraft(draft: CourseBuilderBuildDraft, duration: string) {
   return {

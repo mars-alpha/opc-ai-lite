@@ -24,7 +24,7 @@ Version: **1.0.0**
 
 禁止 `if (lessonSlug === "...")`、`if (lessonId === "...")`、`if (courseSlug === "...")` 选择课程 Renderer。
 
-Draft Preview 必须复用 `GenericLessonRuntimePanel`。Preview 只用于 Human Review，不写正式 Progress / Completion，不得伪造 Runtime Ready。
+如果未来显式重新开启课程生产并需要 Draft Preview，必须复用 `GenericLessonRuntimePanel` 的通用 `previewMode`；当前 tree 不保留历史 Track/Batch Preview 路由。Preview 只用于 Human Review，不写正式 Progress / Completion，不得伪造 Runtime Ready。
 
 ## 2. 六步骨架
 
@@ -38,7 +38,7 @@ Draft Preview 必须复用 `GenericLessonRuntimePanel`。Preview 只用于 Human
 | 6 | CAPABILITY | 能力获得 | 明确学员获得什么能力、可用在哪里、下一步学什么 |
 
 正文保留每节课自己的 Step 标题。底部导航中固定四字教学标签可独立显示；**页码这一行只显示 `1 / 6`～`6 / 6`，页码前后不拼接任何步骤描述、navigationDescription 或教学提示。**
-顶部六张进度卡片读取当前课各 Step 的 `navigationDescription`；Hero 读取该课 `learningRecommendation`；Step 1 的 intro comparison 在 takeaway 后展示 `bottomDetails`。展示位置与结构保持不变；文案生产及验收规则统一见 `LESSON_OUTPUT_CONTRACT_V1.md`。
+顶部六张进度卡片读取当前课各 Step 的 `navigationDescription`；Hero 读取该课 `learningRecommendation`；Step 1 的 intro comparison 在 takeaway 后展示 `bottomDetails`。展示位置与结构保持不变；文案生产及验收规则统一见 `COURSE_BUILD_STANDARD_V1.md`。
 
 ## 3. Step 3 — Three-Question Mastery
 
@@ -100,7 +100,8 @@ Runtime：
 - Lesson Type 只影响计划与 Gate，不选择页面 Renderer。
 
 Preview：
-- 复用 Generic Shell；
+- 当前正式产品不暴露历史 Course Builder Preview 路由；
+- 未来显式重新开启课程生产时，只允许用 Generic Shell 的 `previewMode` 建立受控 Review Surface；
 - `previewMode` 不读取 / 提交正式 Runtime 状态；
 - local Check / Practice 只用于 Human Review；
 - Preview PASS 不等于正式 Progress / Completion；

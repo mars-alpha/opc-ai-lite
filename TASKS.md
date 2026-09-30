@@ -1,49 +1,62 @@
 # TASKS.md
 
-> 只保留 NOW / NEXT / BACKLOG 与必要的完成里程碑。当前事实以 `docs/CURRENT_SYSTEM_FACTS.md` / `PROJECT_STATUS.md` / current owner 为准；历史实现细节通过 Git 与 `docs/task-results/*` 追溯，不从本文件恢复旧 Gate。
+> 只保留 NOW / NEXT / BACKLOG。历史任务、已否决方案和修改过程通过 Git 追溯。开发方法与阶段规则唯一 owner：`docs/DEVELOPMENT_OPERATING_MANUAL.md`。
 
-# NOW — ENTRYPOINTS-ITERATION
+# NOW — ADMIN-REMAINING-IA-REBUILD-001
 
-Status: **PRODUCTION DEPLOYED / LEARNING PATH FROZEN**
+目标：
+继续完成管理后台其余界面的重构，先把整个 Admin IA、页面职责和交互基线收口，再进入个人 AI 工作台 Product Spec。
 
-- Track 01～05 学习路径课程基线已落实并冻结，近期不再调整课程结构与课程内容。
-- Release b5f0b0 已部署到 https://opcai.fun；生产源站为 1.14.180.16，Nginx / PM2 / Next.js 链路正常。
-- HTTPS 已启用，HTTP 自动跳转 HTTPS，Let’s Encrypt 自动续期已配置。
-- 当前开发重点：首页、AI 日报、进阶练习、公众号学习助手、会员权益等入口按 MVP 小步迭代。
+执行顺序：
+1. `ADMIN-OFFICIAL-CONTENT-001` — 官方内容；
+2. `ADMIN-COURSES-001` — 课程维护；
+3. `ADMIN-LEARNING-INSIGHTS-001` — 学习洞察；
+4. 其它已具备真实底层能力的后台页面按同一原则继续重构；
+5. 整体 Admin 基线通过 Visual Human Review 后，才进入 `WORKBENCH-PRODUCT-SPEC-001`。
 
-# NEXT
+当前固定边界：
+- 已确认的运营总览、用户与权益界面冻结，不因后续页面重构顺手改动。
+- 未接通能力不提前创建正式页面或导航入口。
+- `/admin/platform`、`/admin/memberships` 仅保留兼容重定向。
+- AI 能力配置、系统管理、个人 AI 工作台当前不作为已交付页面。
+- 每个后台页面独立完成 Decision Brief → TDD → Validator / typecheck / build → 本地体验 → Visual Human Review。
 
-## ENTRYPOINT-MVP-ITERATION
+## ADMIN-OFFICIAL-CONTENT-001
 
-- 继续逐步开发其它入口，不反向改动已冻结的学习路径课程基线。
-- 新入口按真实用户流程、小步开发、可验证验收推进；需要改变学习路径课程时必须重新显式确认。
+- 只管理 OPC AI 官方日报、知识、练习候选及其来源、证据、状态、发布事实。
+- 不管理普通用户素材与个人工作台内容。
+- 保留 Source / Evidence / Content / Review / Publish Core 和 AI Run provenance。
+- 页面收敛为“内容队列 + 当前内容工作区 + 来源/证据/状态 + 当前可执行动作”。
+- 不再把旧阶段式流程作为页面主 IA。
+
+## ADMIN-COURSES-001
+
+- 默认以定位课程、查看状态/版本、受控维护为主。
+- Track 01～05 课程内容与 Unified Lesson Shell 继续冻结。
+- 不恢复旧流程条，不把 Raw JSON 作为普通管理员主界面。
+- 正式课程内容修改仍必须走 Course Builder / Workflow / Human Review。
+
+## ADMIN-LEARNING-INSIGHTS-001
+
+- 聚合真实学习问题、质量风险和课程更新候选。
+- 区分确定性事实聚合与 AI 诊断。
+- Human 只决定是否形成课程更新任务；批准不自动修改课程。
+
+# AFTER ADMIN BASELINE — WORKBENCH-PRODUCT-SPEC-001
+
+仅在整个管理后台基线确认后进入个人 AI 工作台设计与实现。
 
 # BACKLOG
 
-- 真实 AI Provider Runtime（仅在业务功能确需 AI 时接入）
-- AI Daily 自动采集 / AI 初筛 / 自动摘要
-- Feishu API sync
-- Obsidian export
-- Subscription / Order / Payment / WeChat Pay
-- 微信真实 OAuth / Official Account webhook
-- RUNTIME-INFRA-PERF-003
-
-# COMPLETED MILESTONES
-
-- MVP Core / Content-Knowledge Pipeline：COMPLETE
-- Formal Runtime + Access：COMPLETE
-- Unified Lesson Shell v1：FROZEN / ACCEPTANCE_PASS
-- Stable Course Production Workflow + Course Builder Skill v1：ACTIVE / GOVERNED
-- Track 01 T1-01～T1-20：AVAILABLE / FORMAL_RUNTIME
-- Track 02 T2-01～T2-15：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
-- Track 03 T3-01～T3-15：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
-- Track 04 T4-01～T4-15：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
-- Track 05 Directory Human Review：DIRECTORY_APPROVED_V1 / 15 PRIMARY KNOWLEDGE HOMES + 1 CAPSTONE
-- Track 05 Production Batching：APPROVED_V1 / 6 BATCHES / PHASE-ALIGNED
-- Track 05 Batch A Formal Brief：T5-01～T5-03 APPROVED_V1 / READY_FOR_COURSE_BUILDER
-- Track 05 Batch A Course Builder：3 DRAFTS / DETERMINISTIC_VALIDATION_PASS / HUMAN_REVIEW_PASS
-- Track 05 Batch A T5-01～T5-03：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS
-- Track 05 Batches B–F Formal Brief：T5-04～T5-16 / 5 BRIEFS APPROVED_V1
-- Track 05 T5-04～T5-16 Course Builder：13 DRAFTS / DETERMINISTIC_VALIDATION_PASS / HUMAN_REVIEW_PASS
-
-- Track 05 T5-01～T5-16：AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS / 6 PHASE RUNTIME
+- AI Registry / Models / Connectors 管理界面；
+- System 运行状态 / 审计 / 管理员权限 / Feature Flag；
+- 公众号真实 Follow Entitlement；
+- Unified Identity；
+- Order / WeChat Pay；
+- Mobile Web；
+- 微信小程序；
+- 抖音小程序；
+- 独立 Worker（达到真实拆分阈值后）；
+- pgvector（真实语义检索需求出现后）；
+- Redis / Queue（真实吞吐需要后）；
+- 独立工作台子域 / 独立部署（出现独立发布与扩缩容需求后）。

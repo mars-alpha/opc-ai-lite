@@ -1,10 +1,11 @@
 import "server-only";
 
-import { and, eq, gt, isNull, or, sql } from "drizzle-orm";
+import { and, eq, gt, isNull, lte, or, sql } from "drizzle-orm";
 import { courses, getAllLessons, getCourse } from "../../courses";
 import { OPC_MEMBERSHIP_PRODUCT } from "../../membership/policy";
+import { isBootstrapAdminEmail } from "../admin/service";
 import { getDatabase } from "../db";
-import { entitlements, lessonProgress, lessons, modules, stages, userIdentities } from "../db/schema";
+import { entitlements, lessonProgress, lessons, modules, stages, userIdentities, users } from "../db/schema";
 
 export const OFFICIAL_FOLLOW_UNLOCK = {
   courseSlug: "ai-literacy",
@@ -43,6 +44,7 @@ export async function hasActiveEntitlement(
         eq(entitlements.type, input.type),
         eq(entitlements.resourceType, input.resourceType),
         eq(entitlements.resourceId, input.resourceId),
+        lte(entitlements.grantedAt, new Date()),
         isNull(entitlements.revokedAt),
         or(isNull(entitlements.expiresAt), gt(entitlements.expiresAt, new Date()))
       )
@@ -59,6 +61,24 @@ export async function hasActiveMembership(userId: string | null) {
     resourceType: OPC_MEMBERSHIP_PRODUCT.resourceType,
     resourceId: OPC_MEMBERSHIP_PRODUCT.resourceId
   });
+}
+
+export async function hasMembershipAccess(userId: string | null) {
+  if (!userId) return false;
+  const [user] = await getDatabase()
+    .select({ role: users.role, email: userIdentities.providerUserId })
+    .from(users)
+    .innerJoin(
+      userIdentities,
+      and(
+        eq(userIdentities.userId, users.id),
+        eq(userIdentities.provider, "EMAIL")
+      )
+    )
+    .where(eq(users.id, userId))
+    .limit(1);
+  if (user && (user.role === "ADMIN" || isBootstrapAdminEmail(user.email))) return true;
+  return hasActiveMembership(userId);
 }
 
 export async function hasOfficialAccountFollowEntitlement(userId: string | null) {
@@ -160,7 +180,7 @@ export async function getLessonAccess(
   }
 
   if (courseSlug === "ai-work" || courseSlug === "ai-growth" || courseSlug === "ai-workflow" || courseSlug === "fde") {
-    return (await hasActiveMembership(userId))
+    return (await hasMembershipAccess(userId))
       ? { allowed: true, reason: "ENTITLED" }
       : { allowed: false, reason: "MEMBERSHIP_REQUIRED" };
   }
@@ -190,7 +210,7 @@ export async function getLessonAccess(
 
   const [memberActive, chapterEntitled] = userId
     ? await Promise.all([
-        hasActiveMembership(userId),
+        hasMembershipAccess(userId),
         hasActiveEntitlement(userId, {
           type: "CHAPTER_ACCESS",
           resourceType: OFFICIAL_FOLLOW_UNLOCK.resourceType,
@@ -219,7 +239,7 @@ export async function getLockedLessonIds(
 
   const courseLessons = course.modules.flatMap((module) => module.lessons);
   if (courseSlug === "ai-work" || courseSlug === "ai-growth" || courseSlug === "ai-workflow" || courseSlug === "fde") {
-    return (await hasActiveMembership(userId))
+    return (await hasMembershipAccess(userId))
       ? []
       : courseLessons.map((lesson) => lesson.id);
   }
@@ -234,7 +254,7 @@ export async function getLockedLessonIds(
 
   if (userId) {
     const [memberActive, chapterEntitled] = await Promise.all([
-      hasActiveMembership(userId),
+      hasMembershipAccess(userId),
       hasActiveEntitlement(userId, {
         type: "CHAPTER_ACCESS",
         resourceType: OFFICIAL_FOLLOW_UNLOCK.resourceType,
@@ -262,7 +282,7 @@ export async function getLessonPageAccess(
 
   const courseLessons = course.modules.flatMap((module) => module.lessons);
   if (courseSlug === "ai-work" || courseSlug === "ai-growth" || courseSlug === "ai-workflow" || courseSlug === "fde") {
-    const entitled = await hasActiveMembership(userId);
+    const entitled = await hasMembershipAccess(userId);
     return {
       access: entitled
         ? { allowed: true, reason: "ENTITLED" }
@@ -300,7 +320,7 @@ export async function getLessonPageAccess(
   let entitled = false;
   if (userId) {
     const [memberActive, chapterEntitled] = await Promise.all([
-      hasActiveMembership(userId),
+      hasMembershipAccess(userId),
       hasActiveEntitlement(userId, {
         type: "CHAPTER_ACCESS",
         resourceType: OFFICIAL_FOLLOW_UNLOCK.resourceType,

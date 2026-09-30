@@ -1,9 +1,9 @@
 import { courseBuilderCheckSequenceToRuntimeSeeds, type CourseBuilderBuildDraft } from "./course-builder";
-import { track04BatchADrafts, track04BatchAIntroComparisons, track04BatchAKnowledgeDepth, track04BatchATriggerScenarios } from "../../fixtures/course-builder/track04-batch-a";
-import { track04BatchBDrafts, track04BatchBIntroComparisons, track04BatchBKnowledgeDepth, track04BatchBTriggerScenarios } from "../../fixtures/course-builder/track04-batch-b";
-import { track04BatchCDrafts, track04BatchCIntroComparisons, track04BatchCKnowledgeDepth, track04BatchCTriggerScenarios } from "../../fixtures/course-builder/track04-batch-c";
-import { track04BatchDDrafts, track04BatchDIntroComparisons, track04BatchDKnowledgeDepth, track04BatchDTriggerScenarios } from "../../fixtures/course-builder/track04-batch-d";
-import { track04BatchEDrafts, track04BatchEIntroComparisons, track04BatchEKnowledgeDepth, track04BatchETriggerScenarios } from "../../fixtures/course-builder/track04-batch-e";
+import { track04BatchADrafts, track04BatchAIntroComparisons, track04BatchAKnowledgeDepth, track04BatchATriggerScenarios } from "./course-content/track04-batch-a";
+import { track04BatchBDrafts, track04BatchBIntroComparisons, track04BatchBKnowledgeDepth, track04BatchBTriggerScenarios } from "./course-content/track04-batch-b";
+import { track04BatchCDrafts, track04BatchCIntroComparisons, track04BatchCKnowledgeDepth, track04BatchCTriggerScenarios } from "./course-content/track04-batch-c";
+import { track04BatchDDrafts, track04BatchDIntroComparisons, track04BatchDKnowledgeDepth, track04BatchDTriggerScenarios } from "./course-content/track04-batch-d";
+import { track04BatchEDrafts, track04BatchEIntroComparisons, track04BatchEKnowledgeDepth, track04BatchETriggerScenarios } from "./course-content/track04-batch-e";
 
 type ApprovedDraft=CourseBuilderBuildDraft;
 const drafts=[...track04BatchADrafts,...track04BatchBDrafts,...track04BatchCDrafts,...track04BatchDDrafts,...track04BatchEDrafts] as ApprovedDraft[];

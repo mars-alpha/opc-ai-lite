@@ -7,7 +7,7 @@ import {
   track02BatchAIntroComparisons,
   track02BatchAKnowledgeDepth,
   track02BatchATriggerScenarios
-} from "../../fixtures/course-builder/track02-batch-a";
+} from "./course-content/track02-batch-a";
 
 type ApprovedDraft = CourseBuilderBuildDraft;
 

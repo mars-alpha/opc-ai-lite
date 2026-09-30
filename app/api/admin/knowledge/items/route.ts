@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser, readSessionToken } from "../../../../../lib/server/auth/service";
 import { requireAdminUser } from "../../../../../lib/server/admin/service";
-import {
-  createAdminKnowledgeItem,
-  listAdminKnowledgeItems
-} from "../../../../../lib/server/content/admin";
+import { listAdminKnowledgeItems } from "../../../../../lib/server/content/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -32,21 +29,6 @@ export async function GET(request: Request) {
     if (response) return response;
     console.error("[OPC AI] admin knowledge list failed", error);
     return NextResponse.json({ error: "ADMIN_KNOWLEDGE_LIST_FAILED" }, { status: 500 });
-  }
-}
-
-export async function POST(request: Request) {
-  try {
-    await requireAdmin(request);
-    const body = await request.json().catch(() => null);
-    return NextResponse.json({ item: await createAdminKnowledgeItem(body) }, { status: 201 });
-  } catch (error) {
-    const response = authError(error);
-    if (response) return response;
-    const code = error instanceof Error ? error.message : "ADMIN_KNOWLEDGE_CREATE_FAILED";
-    if (code.startsWith("INVALID_")) return NextResponse.json({ error: code }, { status: 400 });
-    console.error("[OPC AI] admin knowledge create failed", error);
-    return NextResponse.json({ error: "ADMIN_KNOWLEDGE_CREATE_FAILED" }, { status: 500 });
   }
 }
 

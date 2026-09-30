@@ -37,9 +37,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    await requireAdmin(request);
+    const user = await requireAdmin(request);
     const body = await request.json().catch(() => null);
-    return NextResponse.json({ item: await createAdminContentItem(body) }, { status: 201 });
+    return NextResponse.json({ item: await createAdminContentItem(user, body) }, { status: 201 });
   } catch (error) {
     const response = authError(error);
     if (response) return response;

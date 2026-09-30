@@ -46,15 +46,18 @@ export async function PUT(
   { params }: { params: Promise<{ itemId: string }> }
 ) {
   try {
-    await requireAdmin(request);
+    const user = await requireAdmin(request);
     const { itemId } = await params;
     const body = await request.json().catch(() => null);
-    return NextResponse.json({ item: await updateAdminContentItem(itemId, body) });
+    return NextResponse.json({ item: await updateAdminContentItem(user, itemId, body) });
   } catch (error) {
     const response = authError(error);
     if (response) return response;
     const code = error instanceof Error ? error.message : "ADMIN_CONTENT_UPDATE_FAILED";
     if (code === "CONTENT_NOT_FOUND") return NextResponse.json({ error: code }, { status: 404 });
+    if (code === "CONTENT_PUBLISHED_IMMUTABLE" || code === "CONTENT_ARCHIVED_IMMUTABLE") {
+      return NextResponse.json({ error: code }, { status: 409 });
+    }
     if (code.startsWith("INVALID_")) return NextResponse.json({ error: code }, { status: 400 });
     console.error("[OPC AI] admin content update failed", error);
     return NextResponse.json({ error: "ADMIN_CONTENT_UPDATE_FAILED" }, { status: 500 });

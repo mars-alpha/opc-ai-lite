@@ -44,17 +44,18 @@ export default async function AdminCoursesPage() {
 
   return (
     <main className="admin-page">
-      <div className="admin-page-head">
+      <div className="admin-view-head admin-page-titlebar">
         <div>
-          <div className="kicker">OPC Admin</div>
+          <span>PLATFORM / COURSES</span>
           <h1>课程维护</h1>
-          <p>维护 PostgreSQL 中的 Lesson，并通过 Draft → Review → Published 控制前台发布。</p>
+          <p>课程属于平台管理域。这里只维护正式 Lesson 数据与发布状态。</p>
         </div>
-        <div className="admin-page-actions">
-          <Link className="btn btn-secondary" href="/admin/content">内容运营</Link>
-          <Link className="btn btn-secondary" href="/admin/learning">学习洞察</Link>
-          <Link className="btn btn-secondary" href="/">查看前台</Link>
-        </div>
+      </div>
+      <div className="admin-platform-flow admin-platform-flow-course">
+        <div><b>01</b><strong>选择课程</strong><span>从左侧目录定位 Lesson</span></div>
+        <div><b>02</b><strong>维护内容</strong><span>编辑标题、摘要和教学内容</span></div>
+        <div><b>03</b><strong>确认状态</strong><span>Draft / Review / Published</span></div>
+        <div><b>04</b><strong>正式生效</strong><span>只有 Published 才进入前台</span></div>
       </div>
       <AdminCourseEditor />
     </main>

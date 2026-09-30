@@ -37,6 +37,9 @@ export const identityProvider = pgEnum("identity_provider", [
   "WECHAT_MINI_PROGRAM"
 ]);
 
+export const userAccountStatus = pgEnum("user_account_status", ["ACTIVE", "DISABLED"]);
+export const userRole = pgEnum("user_role", ["USER", "ADMIN"]);
+
 export const entitlementType = pgEnum("entitlement_type", [
   "COURSE_ACCESS",
   "CHAPTER_ACCESS",
@@ -106,6 +109,9 @@ export const practiceEvaluatorType = pgEnum("practice_evaluator_type", [
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   displayName: text("display_name"),
+  role: userRole("role").notNull().default("USER"),
+  accountStatus: userAccountStatus("account_status").notNull().default("ACTIVE"),
+  adminNote: text("admin_note"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
@@ -406,6 +412,7 @@ export const entitlements = pgTable(
     resourceType: text("resource_type").notNull(),
     resourceId: text("resource_id").notNull(),
     source: entitlementSource("source").notNull(),
+    note: text("note"),
     grantedAt: timestamp("granted_at", { withTimezone: true }).notNull().defaultNow(),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
@@ -454,6 +461,7 @@ export const contentItems = pgTable("content_items", {
   reviewer: text("reviewer"),
   readingMinutes: integer("reading_minutes"),
   status: publicationStatus("status").notNull().default("DRAFT"),
+  version: integer("version").notNull().default(1),
   publishedAt: timestamp("published_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
@@ -471,10 +479,144 @@ export const knowledgeItems = pgTable("knowledge_items", {
   lessonId: text("lesson_id").references(() => lessons.id, { onDelete: "set null" }),
   readingMinutes: integer("reading_minutes"),
   status: publicationStatus("status").notNull().default("DRAFT"),
+  version: integer("version").notNull().default(1),
   publishedAt: timestamp("published_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
+
+export const contentSources = pgTable(
+  "content_sources",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    sourceType: text("source_type").notNull(),
+    canonicalUrl: text("canonical_url"),
+    providerRef: text("provider_ref"),
+    status: text("status").notNull().default("ACTIVE"),
+    metadata: jsonb("metadata").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [uniqueIndex("content_sources_type_ref_uidx").on(table.sourceType, table.providerRef)]
+);
+
+export const contentEvidence = pgTable("content_evidence", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sourceId: text("source_id").notNull().references(() => contentSources.id, { onDelete: "cascade" }),
+  originalUrl: text("original_url"),
+  providerRef: text("provider_ref"),
+  title: text("title"),
+  excerpt: text("excerpt"),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  collectedAt: timestamp("collected_at", { withTimezone: true }).notNull().defaultNow(),
+  contentHash: text("content_hash").notNull(),
+  snapshotKey: text("snapshot_key"),
+  verificationStatus: text("verification_status").notNull().default("UNVERIFIED"),
+  verifiedBy: text("verified_by"),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  metadata: jsonb("metadata").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const contentItemEvidence = pgTable(
+  "content_item_evidence",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    contentId: text("content_id").notNull().references(() => contentItems.id, { onDelete: "cascade" }),
+    evidenceId: uuid("evidence_id").notNull().references(() => contentEvidence.id, { onDelete: "cascade" }),
+    role: text("role").notNull().default("SUPPORTING"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("content_item_evidence_content_evidence_uidx").on(table.contentId, table.evidenceId)
+  ]
+);
+
+export const contentReviews = pgTable("content_reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  contentId: text("content_id").notNull().references(() => contentItems.id, { onDelete: "cascade" }),
+  contentVersion: integer("content_version").notNull(),
+  decision: text("decision").notNull(),
+  note: text("note"),
+  reviewerId: uuid("reviewer_id").references(() => users.id, { onDelete: "set null" }),
+  reviewerEmail: text("reviewer_email").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const contentPublishRecords = pgTable("content_publish_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id").notNull(),
+  entityVersion: integer("entity_version").notNull(),
+  channel: text("channel").notNull(),
+  publishedBy: uuid("published_by").references(() => users.id, { onDelete: "set null" }),
+  publishedByEmail: text("published_by_email").notNull(),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull().defaultNow(),
+  metadata: jsonb("metadata").notNull().default({})
+});
+
+export const adminAuditRecords = pgTable("admin_audit_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+  actorEmail: text("actor_email").notNull(),
+  action: text("action").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id").notNull(),
+  before: jsonb("before"),
+  after: jsonb("after"),
+  note: text("note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const contentAuditRecords = pgTable("content_audit_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+  actorEmail: text("actor_email").notNull(),
+  action: text("action").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id").notNull(),
+  entityVersion: integer("entity_version"),
+  before: jsonb("before"),
+  after: jsonb("after"),
+  metadata: jsonb("metadata").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const feishuDocumentMappings = pgTable(
+  "feishu_document_mappings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    docToken: text("doc_token").notNull(),
+    revision: text("revision"),
+    syncStatus: text("sync_status").notNull().default("LOCAL_ONLY"),
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [uniqueIndex("feishu_document_mappings_entity_uidx").on(table.entityType, table.entityId)]
+);
+
+export const aiRuns = pgTable("ai_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  taskType: text("task_type").notNull(),
+  modelProvider: text("model_provider").notNull(),
+  model: text("model").notNull(),
+  skillVersion: text("skill_version"),
+  promptVersion: text("prompt_version"),
+  rulePackVersions: jsonb("rule_pack_versions").notNull().default([]),
+  contextIds: jsonb("context_ids").notNull().default([]),
+  evidenceIds: jsonb("evidence_ids").notNull().default([]),
+  inputHash: text("input_hash").notNull(),
+  rawOutput: jsonb("raw_output"),
+  validatorResult: jsonb("validator_result"),
+  humanReviewResult: jsonb("human_review_result"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+
 export const knowledgeSourceLinks = pgTable(
   "knowledge_source_links",
   {

@@ -14,6 +14,7 @@ type ContentForKnowledge = {
   category: string;
   readingMinutes: number | null;
   destination: string;
+  status: "DRAFT" | "REVIEW" | "PUBLISHED" | "ARCHIVED";
 };
 
 type KnowledgeItem = {
@@ -36,28 +37,16 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
   const [routing, setRouting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState({
-    title: content.title,
-    summary: content.summary,
-    body: "",
-    category: content.category,
     validity: "NEW",
     stageId: "",
-    lessonId: "",
-    readingMinutes: content.readingMinutes ?? 5,
-    status: "DRAFT"
+    lessonId: ""
   });
 
   useEffect(() => {
     setForm({
-      title: content.title,
-      summary: content.summary,
-      body: "",
-      category: content.category,
       validity: "NEW",
       stageId: "",
-      lessonId: "",
-      readingMinutes: content.readingMinutes ?? 5,
-      status: "DRAFT"
+      lessonId: ""
     });
     setMessage(null);
     setLoading(true);
@@ -70,7 +59,7 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
       })
       .catch((error) => setMessage(error instanceof Error ? error.message : "Knowledge 关联读取失败"))
       .finally(() => setLoading(false));
-  }, [content.id, content.title, content.summary, content.category, content.readingMinutes]);
+  }, [content.id, content.title, content.summary, content.category, content.readingMinutes, content.status]);
 
   if (content.destination !== "KNOWLEDGE_CAPSULE") return null;
 
@@ -85,10 +74,9 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
-            ...form,
+            validity: form.validity,
             stageId: form.stageId || null,
-            lessonId: form.lessonId || null,
-            body: form.body || null
+            lessonId: form.lessonId || null
           })
         }
       );
@@ -110,7 +98,7 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
         <div>
           <div className="kicker">Knowledge Routing</div>
           <h2>Content → Knowledge</h2>
-          <p>这是人工确认动作。不会自动改课程，也不会自动进入 Practice。</p>
+          <p>Knowledge 只从已审核并正式发布的 Content 派生；不会自动改课程，也不会自动进入 Practice。</p>
         </div>
       </div>
 
@@ -135,26 +123,6 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
       ) : (
         <>
           <div className="admin-form-grid admin-routing-form">
-            <label className="admin-field admin-field-wide">
-              <span>Knowledge 标题</span>
-              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
-            </label>
-
-            <label className="admin-field admin-field-wide">
-              <span>Knowledge 摘要</span>
-              <textarea rows={4} value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} />
-            </label>
-
-            <label className="admin-field admin-field-wide">
-              <span>正文（可选）</span>
-              <textarea rows={6} value={form.body} onChange={(event) => setForm({ ...form, body: event.target.value })} placeholder="整理后的 Knowledge Capsule 正文" />
-            </label>
-
-            <label className="admin-field">
-              <span>分类</span>
-              <input value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} />
-            </label>
-
             <label className="admin-field">
               <span>Validity</span>
               <select value={form.validity} onChange={(event) => setForm({ ...form, validity: event.target.value })}>
@@ -176,26 +144,12 @@ export function KnowledgeRoutingPanel({ content }: { content: ContentForKnowledg
               <input value={form.lessonId} onChange={(event) => setForm({ ...form, lessonId: event.target.value })} placeholder="关联已有 Lesson 时填写" />
             </label>
 
-            <label className="admin-field">
-              <span>阅读时间（分钟）</span>
-              <input type="number" min={1} max={120} value={form.readingMinutes} onChange={(event) => setForm({ ...form, readingMinutes: Number(event.target.value) || 1 })} />
-            </label>
-
-            <label className="admin-field">
-              <span>Knowledge 状态</span>
-              <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}>
-                <option value="DRAFT">DRAFT</option>
-                <option value="REVIEW">REVIEW</option>
-                <option value="PUBLISHED">PUBLISHED</option>
-                <option value="ARCHIVED">ARCHIVED</option>
-              </select>
-            </label>
           </div>
 
           <div className="admin-routing-actions">
-            <small>title / summary / category / readingMinutes 已从 Content 预填；Stage / Lesson 只做人工确认，不自动猜测。</small>
-            <button className="btn btn-primary" type="button" onClick={route} disabled={routing}>
-              {routing ? "生成中…" : "生成 Knowledge"}
+            <small>标题、摘要、分类和阅读时间固定继承已发布 Content；Stage / Lesson 只做人工确认，不自动猜测。</small>
+            <button className="btn btn-primary" type="button" onClick={route} disabled={routing || content.status !== "PUBLISHED"}>
+              {routing ? "生成中…" : content.status === "PUBLISHED" ? "生成正式 Knowledge" : "先完成 Content 审核与发布"}
             </button>
           </div>
         </>

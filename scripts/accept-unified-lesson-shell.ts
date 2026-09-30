@@ -14,7 +14,7 @@ import {
 import { validateLessonSpec } from "../lib/learning/lesson-spec";
 import { promptFoundationsBuildDraft } from "../fixtures/course-builder/prompt-foundations";
 import { track01FormalLessonSpecs } from "../lib/learning/track01-phase1-runtime";
-import { track02BatchADrafts } from "../fixtures/course-builder/track02-batch-a";
+import { track02BatchADrafts } from "../lib/learning/course-content/track02-batch-a";
 
 function assert(condition: unknown, code: string) {
   if (!condition) throw new Error(code);

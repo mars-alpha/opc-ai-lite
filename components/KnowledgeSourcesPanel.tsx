@@ -7,10 +7,16 @@ type KnowledgeSource = {
   contentId: string;
   role: "PRIMARY" | "SUPPORTING";
   contentTitle: string;
-  sourceType: string;
-  sourceRef: string | null;
-  sourceUrl: string | null;
   contentStatus: string;
+  evidence: Array<{
+    id: string;
+    title: string | null;
+    originalUrl: string | null;
+    verificationStatus: string;
+    sourceId: string;
+    sourceName: string;
+    sourceType: string;
+  }>;
 };
 
 export function KnowledgeSourcesPanel({
@@ -65,6 +71,8 @@ export function KnowledgeSourcesPanel({
       if (!response.ok) {
         const messages: Record<string, string> = {
           CONTENT_NOT_FOUND: "Content 不存在，请检查 Content ID。",
+          CONTENT_NOT_PUBLISHED: "Supporting Content 必须先完成审核与正式发布。",
+          CONTENT_VERIFIED_EVIDENCE_REQUIRED: "Supporting Content 必须至少关联一条已验证证据。",
           KNOWLEDGE_NOT_FOUND: "Knowledge 不存在。",
           INVALID_CONTENT_ID: "Content ID 无效。"
         };
@@ -87,7 +95,7 @@ export function KnowledgeSourcesPanel({
         <div>
           <div className="kicker">Knowledge Provenance</div>
           <h2>Knowledge 来源</h2>
-          <p>Primary Source 保持兼容；其它 Content 只作为 Supporting Source，不替换主来源。</p>
+          <p>Primary / Supporting 关系仍以正式 Content 为单位；每条 Content 的真实来源来自已关联 Evidence。</p>
         </div>
       </div>
 
@@ -104,9 +112,13 @@ export function KnowledgeSourcesPanel({
                   <div>
                     <span>{item.role}</span>
                     <strong>{item.contentTitle}</strong>
-                    <small>{item.contentId} · {item.sourceType} · {item.contentStatus}</small>
+                    <small>{item.contentId} · {item.contentStatus} · {item.evidence.length} 条证据</small>
                   </div>
-                  <em>{item.sourceRef ?? item.sourceUrl ?? "—"}</em>
+                  <em>
+                    {item.evidence.length
+                      ? Array.from(new Set(item.evidence.map((entry) => entry.sourceName))).join(" / ")
+                      : "未关联证据"}
+                  </em>
                 </div>
               ))
             )}

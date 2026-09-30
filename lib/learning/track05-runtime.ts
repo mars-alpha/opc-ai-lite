@@ -1,10 +1,10 @@
 import { courseBuilderCheckSequenceToRuntimeSeeds, type CourseBuilderBuildDraft } from "./course-builder";
-import { track05BatchADrafts, track05BatchAIntroComparisons, track05BatchAKnowledgeDepth, track05BatchATriggerScenarios } from "../../fixtures/course-builder/track05-batch-a";
-import { track05BatchBDrafts, track05BatchBIntroComparisons, track05BatchBKnowledgeDepth, track05BatchBTriggerScenarios } from "../../fixtures/course-builder/track05-batch-b";
-import { track05BatchCDrafts, track05BatchCIntroComparisons, track05BatchCKnowledgeDepth, track05BatchCTriggerScenarios } from "../../fixtures/course-builder/track05-batch-c";
-import { track05BatchDDrafts, track05BatchDIntroComparisons, track05BatchDKnowledgeDepth, track05BatchDTriggerScenarios } from "../../fixtures/course-builder/track05-batch-d";
-import { track05BatchEDrafts, track05BatchEIntroComparisons, track05BatchEKnowledgeDepth, track05BatchETriggerScenarios } from "../../fixtures/course-builder/track05-batch-e";
-import { track05BatchFDrafts, track05BatchFIntroComparisons, track05BatchFKnowledgeDepth, track05BatchFTriggerScenarios } from "../../fixtures/course-builder/track05-batch-f";
+import { track05BatchADrafts, track05BatchAIntroComparisons, track05BatchAKnowledgeDepth, track05BatchATriggerScenarios } from "./course-content/track05-batch-a";
+import { track05BatchBDrafts, track05BatchBIntroComparisons, track05BatchBKnowledgeDepth, track05BatchBTriggerScenarios } from "./course-content/track05-batch-b";
+import { track05BatchCDrafts, track05BatchCIntroComparisons, track05BatchCKnowledgeDepth, track05BatchCTriggerScenarios } from "./course-content/track05-batch-c";
+import { track05BatchDDrafts, track05BatchDIntroComparisons, track05BatchDKnowledgeDepth, track05BatchDTriggerScenarios } from "./course-content/track05-batch-d";
+import { track05BatchEDrafts, track05BatchEIntroComparisons, track05BatchEKnowledgeDepth, track05BatchETriggerScenarios } from "./course-content/track05-batch-e";
+import { track05BatchFDrafts, track05BatchFIntroComparisons, track05BatchFKnowledgeDepth, track05BatchFTriggerScenarios } from "./course-content/track05-batch-f";
 
 type ApprovedDraft=CourseBuilderBuildDraft;
 const formalDrafts=[...track05BatchADrafts,...track05BatchBDrafts,...track05BatchCDrafts,...track05BatchDDrafts,...track05BatchEDrafts,...track05BatchFDrafts] as ApprovedDraft[];

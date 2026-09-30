@@ -8,56 +8,25 @@ const pkg = JSON.parse(fs.readFileSync("package.json", "utf8")) as {
   scripts?: Record<string, string>;
 };
 
-const scriptEntries = Object.entries(pkg.scripts ?? {});
-const referenced = new Map<string, string[]>();
-
-for (const [name, command] of scriptEntries) {
+const referenced = new Set<string>();
+for (const [name, command] of Object.entries(pkg.scripts ?? {})) {
   const match = command.match(/scripts\/([^\s"']+)/);
   if (!match?.[1]) continue;
   const file = match[1];
-  const names = referenced.get(file) ?? [];
-  names.push(name);
-  referenced.set(file, names);
-  assert(fs.existsSync("scripts/" + file), "PACKAGE_SCRIPT_TARGET_MISSING:" + name + ":" + file);
-  assert(!file.startsWith("_historical-"), "HISTORICAL_SCRIPT_EXPOSED:" + name + ":" + file);
+  assert(fs.existsSync("scripts/" + file), "PACKAGE_SCRIPT_TARGET_MISSING:" + name);
+  referenced.add(file);
 }
 
-const files = fs
-  .readdirSync("scripts")
-  .filter((file) => file.endsWith(".ts"))
-  .sort();
-
+const files = fs.readdirSync("scripts").filter((file) => file.endsWith(".ts")).sort();
 for (const file of files) {
-  if (file.startsWith("_historical-")) {
-    assert(!referenced.has(file), "HISTORICAL_SCRIPT_REFERENCED:" + file);
-    continue;
-  }
   assert(referenced.has(file), "CURRENT_SCRIPT_WITHOUT_PACKAGE_ENTRY:" + file);
+  assert(!file.startsWith("_historical-"), "HISTORICAL_SCRIPT_PRESENT:" + file);
+  assert(!/^(accept-track|provision-track|validate-track|run-track)/.test(file), "TRACK_ONESHOT_SCRIPT_PRESENT:" + file);
 }
 
-const retired = [
-  "accept-learning-runtime-pilots.ts",
-  "provision-learning-runtime-pilots.ts",
-  "validate-learning-spec.ts",
-  "validate-learning-runtime.ts",
-  "accept-course-builder-real-draft.ts",
-  "accept-course-builder-application-draft.ts",
-  "accept-course-builder-practice-draft.ts",
-  "accept-course-builder-project-draft.ts",
-  "accept-course-builder-concept-mastery.ts",
-  "accept-three-question-mastery.ts",
-  "accept-course-builder-beginner-quality.ts",
-  "accept-beginner-foundation-batch-a.ts",
-  "accept-foundation-stage2.ts",
-  "accept-foundation-continuity-trial.ts",
-  "accept-track01-batch-a.ts"
-];
-
-for (const file of retired) {
-  assert(!fs.existsSync("scripts/" + file), "RETIRED_SCRIPT_REINTRODUCED:" + file);
-  assert(!referenced.has(file), "RETIRED_SCRIPT_EXPOSED:" + file);
-}
+const packageCommands = Object.values(pkg.scripts ?? {}).join("\n");
+assert(!/runtime:track0|track0\d|batch-[a-z]/i.test(packageCommands), "TRACK_BATCH_COMMAND_EXPOSED");
 
 console.log("SCRIPT_ENTRYPOINTS_ALL_CURRENT_SCRIPTS_EXPOSED=PASS");
-console.log("SCRIPT_ENTRYPOINTS_HISTORICAL_NOT_EXPOSED=PASS");
-console.log("SCRIPT_ENTRYPOINTS_RETIRED_ABSENT=PASS");
+console.log("SCRIPT_ENTRYPOINTS_NO_HISTORICAL_SCRIPTS=PASS");
+console.log("SCRIPT_ENTRYPOINTS_NO_TRACK_BATCH_ONESHOTS=PASS");

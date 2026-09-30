@@ -14,6 +14,7 @@ const errorMessages: Record<string, string> = {
   INVALID_PASSWORD: "密码需要 8–128 个字符。",
   EMAIL_EXISTS: "这个邮箱已经注册，请直接登录。",
   INVALID_CREDENTIALS: "邮箱或密码不正确。",
+  ACCOUNT_DISABLED: "当前账号已停用，请联系管理员。",
   REGISTER_FAILED: "注册失败，请稍后重试。",
   LOGIN_FAILED: "登录失败，请稍后重试。"
 };

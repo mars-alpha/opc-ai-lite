@@ -46,17 +46,18 @@ export default async function AdminLearningPage() {
 
   return (
     <main className="admin-page">
-      <div className="admin-page-head">
+      <div className="admin-view-head admin-page-titlebar">
         <div>
-          <div className="kicker">OPC Admin · Learning Insight</div>
-          <h1>课程改进工作台</h1>
-          <p>先解决用户问题，只把仍未解决且达到价值条件的问题送进 AI 诊断与人工审核。</p>
+          <span>PLATFORM / LEARNING</span>
+          <h1>学习洞察</h1>
+          <p>聚合真实学习问题、课程更新候选与质量风险；批准不会自动修改课程。</p>
         </div>
-        <div className="admin-page-actions">
-          <Link className="btn btn-secondary" href="/admin/content">内容运营</Link>
-          <Link className="btn btn-secondary" href="/admin/courses">课程维护</Link>
-          <Link className="btn btn-secondary" href="/">查看前台</Link>
-        </div>
+      </div>
+      <div className="admin-platform-flow admin-platform-flow-learning">
+        <div><b>01</b><strong>发现问题</strong><span>聚合真实学习反馈</span></div>
+        <div><b>02</b><strong>分析原因</strong><span>规则先聚合，必要时再用 AI</span></div>
+        <div><b>03</b><strong>形成候选</strong><span>只保留值得处理的课程更新建议</span></div>
+        <div><b>04</b><strong>人工决定</strong><span>批准只形成任务，不自动改课</span></div>
       </div>
 
       <AdminLearningWorkbench

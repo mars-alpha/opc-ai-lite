@@ -24,43 +24,43 @@ import {
   track01T105Intro,
   track01T105KnowledgeDepth,
   track01T105ReferenceFill
-} from "../../fixtures/course-builder/track01-batch-a";
+} from "./course-content/track01-batch-a";
 import {
   track01T106Draft,
   track01T106Intro,
   track01T106KnowledgeDepth,
   track01T106ReferenceFill
-} from "../../fixtures/course-builder/track01-phase2-t106";
+} from "./course-content/track01-phase2-t106";
 import {
   track01T107Draft,
   track01T107Intro,
   track01T107KnowledgeDepth,
   track01T107ReferenceFill
-} from "../../fixtures/course-builder/track01-phase2-t107";
+} from "./course-content/track01-phase2-t107";
 import {
   track01T108Draft,
   track01T108Intro,
   track01T108KnowledgeDepth,
   track01T108ReferenceFill
-} from "../../fixtures/course-builder/track01-phase3-t108";
+} from "./course-content/track01-phase3-t108";
 import {
   track01T109Draft,
   track01T109Intro,
   track01T109KnowledgeDepth,
   track01T109ReferenceFill
-} from "../../fixtures/course-builder/track01-phase3-t109";
+} from "./course-content/track01-phase3-t109";
 import {
   track01T110Draft,
   track01T110Intro,
   track01T110KnowledgeDepth,
   track01T110ReferenceFill
-} from "../../fixtures/course-builder/track01-phase3-t110";
+} from "./course-content/track01-phase3-t110";
 import {
   track01T111T120Drafts,
   track01T111T120Intros,
   track01T111T120KnowledgeDepth,
   track01T111T120TriggerScenarios
-} from "../../fixtures/course-builder/track01-t111-t120";
+} from "./course-content/track01-t111-t120";
 
 type ApprovedDraft = CourseBuilderBuildDraft;
 

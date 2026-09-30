@@ -1,54 +1,61 @@
-# Scripts — Current Entrypoints
+# scripts — Current Executable Surface
 
-Status: **ACTIVE / GOVERNED**
+本目录只保留 current 可重跑脚本。历史一次性 Track / Batch provisioning、acceptance、draft validator 已从 current tree 删除，通过 Git history 追溯。
+
+## Repository / Course Governance
+
+- `validate-repository-governance.ts`：检查 owner、学习文档白名单、legacy 清场和脚本表面。
+- `validate-script-entrypoints.ts`：确保每个 current script 都有 package entrypoint，不存在历史 / Track 一次性脚本。
+- `validate-course-current-state.ts`：验证 5 Tracks / 81 lessons / Catalog / Formal Registry / frozen 状态。
+- `validate-course-build-entry.ts`：验证课程唯一入口与 current owners。
+- `validate-course-governance.ts`：验证 Course Build Standard 的关键防漂移规则。
+- `validate-course-production-workflow.ts`：验证 Stable Workflow / Rule Sources / Human Review Gate。
+- `validate-course-builder.ts`：验证 Course Builder Core Contract。
+- `validate-formal-lesson-runtime-registry.ts`：验证正式 LessonSpec Registry。
+
+## Runtime / UX Acceptance
+
+- `accept-unified-lesson-shell.ts`
+- `accept-formal-check-types-runtime.ts`
+- `accept-access-resume.ts`
+- `validate-course-interaction-architecture.ts`
+- `validate-course-sidebar-ux.ts`
+- `validate-membership-benefit-policy.ts`
+- `validate-practice-information-architecture.ts`
+
+## Database Foundation
+
+- `validate-database-target.ts`：检查当前 `DATABASE_ENVIRONMENT` / `DATABASE_URL` 是否指向允许的标准 PostgreSQL 目标；Supabase current migration 会被拒绝。
+- `validate-database-target-contract.ts`：纯契约测试，固定 Dev/Prod 数据库名、Supabase block 与环境隔离。
+- `migrate-database-safe.ts`：唯一 current migration 入口；Development 需要显式 confirm，Production 还需要 backup confirmation。
+
+```bash
+npm run db:target:contract:check
+npm run db:target:check
+npm run db:migrate -- --confirm=development
+# Production only after Dev + Human Review Gate:
+npm run db:migrate -- --confirm=production --backup-confirmed
+```
+
+## Content Workbench
+
+- `validate-content-workbench-contract.ts`：纯契约验证，检查 Schema boundary、Review state machine 与 Publish Gate。
+- `accept-content-workbench.ts`：静态/架构验收，检查 migration、API、UI authority、Knowledge derivation 与 public publication boundary。
+- `accept-content-workbench-db.ts`：数据库迁移后执行的 rollback-only Acceptance；事务内创建完整关系后强制回滚，不保留测试数据。
+
+运行顺序：
+
+```bash
+npm run content:workbench:contract:check
+npm run content:workbench:accept
+# 只有目标数据库已应用 0014 后：
+npm run content:workbench:db:accept
+```
+
+## Operational Job
+
+- `drain-learning-behavior-jobs.ts`
 
 ## Rule
 
-正常开发、课程生产、Runtime 验证只使用 `package.json > scripts` 暴露的命令。
-
-- 根目录普通 `.ts` 脚本必须有明确 package script 入口。
-- `_historical-*` 只保留旧单课增量脚本，以及已经 AVAILABLE 批次的历史 Draft / Workflow / Registration / 恢复证据，默认禁止在新开发任务中运行。
-- 已删除的 pilot / legacy Course Builder acceptance 不得恢复为当前入口。
-- 新课程不得从脚本文件名猜流程；先走 `COURSE_BUILD_START_HERE.md` 和 Current Facts。
-
-## 当前优先入口
-
-课程生产 / 防漂移：
-
-- `npm run learning:course-current-state:check`
-- `npm run learning:course-governance:check`
-- `npm run learning:course-production-workflow:check`
-- `npm run learning:course-build-entry:check`
-- `npm run learning:formal-registry:check`
-- `npm run scripts:current:check`
-
-Track 02 T2-01～T2-15 已完成正式课程生产。Batch D 当前正式入口：`learning:track02-batch-d:formal-check`、`learning:runtime:track02-batch-d`、`learning:runtime:accept:track02-batch-d`；Draft / Workflow / Review 脚本已归档为 historical，不再属于 current gate。
-
-Track 03 T3-01～T3-15 已全部正式 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。当前正式验证 / 恢复入口：`learning:track03:formal-check`、`learning:track03-path-access:check`、`learning:runtime:track03-batch-a`、`learning:runtime:accept:track03-batch-a`、`learning:runtime:track03-batches-b-e`、`learning:runtime:accept:track03-batches-b-e`。Batch B～E Draft / Workflow / Review 生产脚本已归档为 `_historical-*`，不再属于 current gate。
-
-Track 04 T4-01～T4-15 已全部 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。当前唯一正式验证 / 恢复入口：`learning:track04-context:check`、`learning:track04:formal-check`、`learning:track04-path-access:check`、`learning:runtime:track04`、`learning:runtime:accept:track04`。Batch Preview / Draft / Workflow / Review / Batch-specific Runtime 脚本已退出 current path；课程内容 provenance 保留在 Formal Brief 与 fixtures。
-
-Track 05 T5-01～T5-16 已全部 AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS。正式 Runtime 为 6 modules / 16 lessons / 48 checks / 16 practices；当前正式验证 / 恢复入口：`learning:track05-context:check`、`learning:track05:formal-check`、`learning:track05-path-access:check`、`learning:runtime:track05`、`learning:runtime:accept:track05`。上线前 Preview 已退出 current path；Formal Brief、Human Review evidence、fixtures、Provision / Acceptance 脚本保留为可追溯、可重跑发布链。
-
-正式 Runtime / UI 架构回归：
-
-- `npm run learning:course-interaction:check`
-- `npm run learning:runtime-perf003:check`
-- `npm run learning:sidebar-ux:check`
-- `npm run learning:track01-baseline:check`
-- `npm run learning:track02-context:check`
-- `npm run learning:track02-path-access:check`
-
-Provision / Acceptance 命令具有数据库或真实 Runtime 副作用，只能在明确进入对应 Workflow Gate 后运行。
-
-## 历史脚本
-
-`scripts/_historical-*` 只保留仍有追溯价值且不会依赖已删除 current owner 的历史资产，例如早期 Track 01、Track 02、Track 03 生产证据。Track 04 已在全量发布时清理无价值的批次历史脚本，避免其旧状态或旧 import 污染后续 Context。
-
-它们：
-- 不属于当前 Workflow；
-- 不出现在 package scripts；
-- 不参与自动验证；
-- 仅在需要追溯或恢复旧增量迁移时人工阅读后使用。
-
-若未来已有统一 Track 01 全量重建脚本，或历史 Batch 不再需要追溯恢复，可继续删除对应 `_historical-*` 文件。
+如果脚本只用于一次 Track / Batch 生产，完成后不留在 current scripts；需要追溯时使用 Git。

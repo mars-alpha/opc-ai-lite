@@ -1,41 +1,59 @@
 import fs from "node:fs";
+import { formalLessonSpecs } from "../lib/learning/lesson-spec-registry";
+import { learningTracks } from "../lib/learning/track-catalog";
 import { COURSE_PRODUCTION_RULE_SOURCES } from "../lib/learning/course-production-contract";
-function assert(c:unknown,code:string):asserts c{if(!c)throw new Error("COURSE_CURRENT_STATE_FAILED:"+code);}
-const facts=fs.readFileSync("docs/CURRENT_SYSTEM_FACTS.md","utf8");
-const entry=fs.readFileSync("docs/learning/COURSE_BUILD_START_HERE.md","utf8");
-const status=fs.readFileSync("PROJECT_STATUS.md","utf8");
-const catalog=fs.readFileSync("lib/learning/foundation-catalog.ts","utf8");
-const runtime=fs.readFileSync("lib/learning/track01-phase1-runtime.ts","utf8");
-assert(facts.includes("## 0. Current Course Production Snapshot"),"CURRENT_SNAPSHOT_MISSING");
-assert(facts.includes("T1-11～T1-20                    AVAILABLE / FORMAL_RUNTIME"),"TRACK01_CURRENT");
-assert(facts.includes("T2-01～T2-15                    AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),"TRACK02_CURRENT");
-assert(facts.includes("Track 03 T3-01～T3-15          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),"TRACK03_CURRENT");
-assert(facts.includes("Track 04 T4-01～T4-15          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),"TRACK04_CURRENT");
-assert(facts.includes("Track 05 canonical path          T5-01～T5-16 / 6 Phases / DIRECTORY_APPROVED_V1 / 6 PRODUCTION BATCHES"),"TRACK05_BATCHING_APPROVED");
-assert(facts.includes("Track 05 T5-01～T5-16          AVAILABLE / FORMAL_RUNTIME / ACCEPTANCE_PASS"),"TRACK05_ALL_RUNTIME");
-assert(facts.includes("Track 05 Learning Map            16 LESSON DIRECTORY / 6 PHASES / ALL AVAILABLE"),"TRACK05_FULL_LEARNING_MAP");
-assert(facts.includes("Next Gate                       CURRENT RELEASE DEPLOYED / ENTRYPOINTS ITERATING"),"NEXT_GATE");
-assert(status.includes("Track 03 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS"),"TRACK03_RUNTIME");
-assert(status.includes("Track 04 Runtime                         15 LESSONS PROVISIONED / ACCEPTANCE PASS"),"TRACK04_RUNTIME");
-assert(status.includes("Track 04 Learning Map                    15 LESSON DIRECTORY / ALL AVAILABLE"),"TRACK04_MAP");
-assert(status.includes("Track 05 Directory                       T5-01～T5-16 / 6 PHASES / 15 KNOWLEDGE HOMES + 1 CAPSTONE"),"TRACK05_DIRECTORY");
-assert(status.includes("Track 05 Runtime                          6 MODULES / 16 LESSONS / 48 CHECKS / 16 PRACTICES / ACCEPTANCE PASS"),"TRACK05_RUNTIME");
-assert(status.includes("Track 05 Learning Map                     16 LESSON DIRECTORY / ALL AVAILABLE"),"TRACK05_LEARNING_MAP");
-assert(status.includes("CURRENT                                  LEARNING PATH FROZEN / ENTRYPOINTS ITERATING / PRODUCTION DEPLOYED"),"PROJECT_CURRENT");
-const trackCatalog=fs.readFileSync("lib/learning/track-catalog.ts","utf8");
-const registry=fs.readFileSync("lib/learning/lesson-spec-registry.ts","utf8");
-assert(trackCatalog.includes("track05Catalog")&&registry.includes("track05LessonSpecs"),"TRACK05_FORMAL_REGISTRATION");
-assert(!fs.existsSync("app/course-builder/preview/track05"),"TRACK05_NO_PREVIEW_CURRENT_PATH");
-assert((catalog.match(/\.\.\.runtimeAvailable\("t1-[^"]+"\)/g)??[]).length===20,"TRACK01_TWENTY_RUNTIME_MAPPINGS_REQUIRED");
-assert(runtime.includes("track01FormalLessonSpecs"),"TRACK01_FORMAL_RUNTIME_REGISTRY_MISSING");
-assert(!COURSE_PRODUCTION_RULE_SOURCES.some(source=>source===("docs/CURRENT_SYSTEM_FACTS.md" as never)||source===("docs/learning/COURSE_BUILD_START_HERE.md" as never)),"BOOTSTRAP_OR_CURRENT_FACTS_MUST_NOT_BE_RULE_SOURCE");
-assert(entry.includes("历史 task-result / legacy fixture / 旧测试课程"),"ENTRY_HISTORY_PRIORITY_RULE_MISSING");
-assert(entry.includes("本入口不得写死任何当前 Track 的 Batch / Brief 路径"),"ENTRY_NO_CURRENT_BATCH_PINNING");
-console.log("COURSE_CURRENT_STATE_SNAPSHOT=PASS");
-console.log("COURSE_CURRENT_STATE_TRACK01_COMPLETE=PASS");
-console.log("COURSE_CURRENT_STATE_TRACK02_COMPLETE=PASS");
-console.log("COURSE_CURRENT_STATE_TRACK03_COMPLETE=PASS");
-console.log("COURSE_CURRENT_STATE_TRACK04_COMPLETE=PASS");
-console.log("COURSE_CURRENT_STATE_TRACK05_COMPLETE=PASS");
-console.log("COURSE_CURRENT_STATE_RULE_OWNER_SEPARATION=PASS");
-console.log("COURSE_CURRENT_STATE_NO_STALE_TRACK04_BATCH_STATE=PASS");
+
+function assert(condition: unknown, code: string): asserts condition {
+  if (!condition) throw new Error("COURSE_CURRENT_STATE_FAILED:" + code);
+}
+
+const facts = fs.readFileSync("docs/CURRENT_SYSTEM_FACTS.md", "utf8");
+const status = fs.readFileSync("PROJECT_STATUS.md", "utf8");
+const contexts = fs.readFileSync("docs/learning/TRACK_CONTEXTS_V1.md", "utf8");
+const entry = fs.readFileSync("docs/learning/COURSE_BUILD_START_HERE.md", "utf8");
+
+const tracks = Object.values(learningTracks);
+const catalogLessons = tracks.flatMap((track) =>
+  track.stages.flatMap((stage) => stage.lessons)
+);
+
+assert(tracks.length === 5, "FIVE_TRACKS_REQUIRED");
+assert(catalogLessons.length === 81, "EIGHTY_ONE_CATALOG_LESSONS_REQUIRED");
+assert(formalLessonSpecs.length === 81, "EIGHTY_ONE_FORMAL_SPECS_REQUIRED");
+
+const catalogKeys = new Set(
+  catalogLessons.map((lesson) => lesson.runtimeCourseSlug + "/" + lesson.runtimeLessonId)
+);
+const specKeys = new Set(
+  formalLessonSpecs.map((spec) => spec.courseSlug + "/" + spec.lessonId)
+);
+assert(catalogKeys.size === 81, "CATALOG_LESSON_IDENTITY_DUPLICATE");
+assert(specKeys.size === 81, "FORMAL_SPEC_IDENTITY_DUPLICATE");
+for (const key of catalogKeys) assert(specKeys.has(key), "FORMAL_SPEC_MISSING:" + key);
+
+for (const lesson of catalogLessons) {
+  assert(lesson.curriculumStatus === "AVAILABLE", "CATALOG_NOT_AVAILABLE:" + lesson.lessonId);
+  assert(lesson.availability === "AVAILABLE", "LESSON_NOT_AVAILABLE:" + lesson.lessonId);
+  assert(contexts.includes(lesson.lessonId), "TRACK_CONTEXT_MISSING:" + lesson.lessonId);
+}
+
+assert(facts.includes("Track 01～05 共 81 节正式课程"), "CURRENT_FACTS_81_LESSONS_MISSING");
+assert(facts.includes("课程内容冻结"), "CURRENT_FACTS_FREEZE_MISSING");
+assert(status.includes("81 LESSONS / FROZEN"), "PROJECT_STATUS_FREEZE_MISSING");
+assert(entry.includes("Track 01～05 已正式上线并冻结"), "COURSE_ENTRY_FREEZE_MISSING");
+
+assert(
+  JSON.stringify(COURSE_PRODUCTION_RULE_SOURCES) ===
+    JSON.stringify([
+      "docs/learning/FORMAL_CURRICULUM_V1.md",
+      "docs/learning/COURSE_BUILD_STANDARD_V1.md",
+      "docs/learning/UNIFIED_LESSON_SHELL_V1.md"
+    ]),
+  "COURSE_RULE_SOURCE_SET_DRIFT"
+);
+
+console.log("COURSE_CURRENT_STATE_5_TRACKS_81_LESSONS=PASS");
+console.log("COURSE_CURRENT_STATE_ALL_AVAILABLE=PASS");
+console.log("COURSE_CURRENT_STATE_FORMAL_REGISTRY_PARITY=PASS");
+console.log("COURSE_CURRENT_STATE_FROZEN=PASS");
+console.log("COURSE_CURRENT_STATE_RULE_SOURCES=PASS");

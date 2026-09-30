@@ -222,80 +222,47 @@ export function AdminCourseEditor() {
               </div>
             </div>
 
-            <div className="admin-form-grid">
-              <label className="admin-field admin-field-wide">
-                <span>标题</span>
-                <input
-                  value={lesson.title}
-                  maxLength={180}
-                  onChange={(event) =>
-                    setLesson({ ...lesson, title: event.target.value })
-                  }
-                />
-              </label>
+            <div className="admin-course-workspace-split">
+              <section className="admin-editor-section admin-course-input-pane">
+                <div className="admin-editor-section-head"><strong>课程设置</strong><span>左侧维护基础字段</span></div>
+                <div className="admin-form-grid">
+                  <label className="admin-field admin-field-wide">
+                    <span>标题</span>
+                    <input value={lesson.title} maxLength={180} onChange={(event) => setLesson({ ...lesson, title: event.target.value })} />
+                  </label>
+                  <label className="admin-field admin-field-wide">
+                    <span>摘要</span>
+                    <textarea rows={5} maxLength={500} value={lesson.summary} onChange={(event) => setLesson({ ...lesson, summary: event.target.value })} />
+                  </label>
+                  <label className="admin-field">
+                    <span>预计时长（分钟）</span>
+                    <input type="number" min={1} max={600} value={lesson.durationMinutes ?? ""} onChange={(event) => setLesson({ ...lesson, durationMinutes: event.target.value ? Number(event.target.value) : null })} />
+                  </label>
+                  <label className="admin-field">
+                    <span>状态</span>
+                    <select value={lesson.status} onChange={(event) => setLesson({ ...lesson, status: event.target.value as LessonDetail["status"] })}>
+                      {statuses.map((status) => <option value={status} key={status}>{status}</option>)}
+                    </select>
+                  </label>
+                </div>
+              </section>
 
-              <label className="admin-field admin-field-wide">
-                <span>摘要</span>
-                <textarea
-                  rows={3}
-                  maxLength={500}
-                  value={lesson.summary}
-                  onChange={(event) =>
-                    setLesson({ ...lesson, summary: event.target.value })
-                  }
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>预计时长（分钟）</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={600}
-                  value={lesson.durationMinutes ?? ""}
-                  onChange={(event) =>
-                    setLesson({
-                      ...lesson,
-                      durationMinutes: event.target.value
-                        ? Number(event.target.value)
-                        : null
-                    })
-                  }
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>状态</span>
-                <select
-                  value={lesson.status}
-                  onChange={(event) =>
-                    setLesson({
-                      ...lesson,
-                      status: event.target.value as LessonDetail["status"]
-                    })
-                  }
-                >
-                  {statuses.map((status) => (
-                    <option value={status} key={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="admin-field admin-field-wide">
-                <span>教学内容 JSON</span>
-                <textarea
-                  className="admin-json-editor"
-                  rows={26}
-                  value={contentText}
-                  spellCheck={false}
-                  onChange={(event) => setContentText(event.target.value)}
-                />
-                <small>
-                  当前 MVP 暂时直接维护 Lesson Read Model JSON。后续再拆成更友好的结构化编辑器。
-                </small>
-              </label>
+              <section className="admin-editor-section admin-course-output-pane">
+                <div className="admin-editor-section-head"><strong>课程内容与预览</strong><span>右侧查看当前课程结构和发布结果</span></div>
+                <div className="admin-course-preview">
+                  <div><span>课程</span><strong>{lesson.title || "未命名课程"}</strong></div>
+                  <div><span>摘要</span><p>{lesson.summary || "尚未填写课程摘要。"}</p></div>
+                  <div className="admin-course-preview-meta">
+                    <span>状态 <b>{lesson.status}</b></span>
+                    <span>版本 <b>v{lesson.version}</b></span>
+                    <span>时长 <b>{lesson.durationMinutes ? `${lesson.durationMinutes} 分钟` : "未设置"}</b></span>
+                  </div>
+                </div>
+                <div className="admin-course-json-block">
+                  <div className="admin-course-json-head"><strong>结构化教学内容</strong><span>当前仍使用 Lesson Read Model JSON</span></div>
+                  <textarea className="admin-json-editor" rows={22} value={contentText} spellCheck={false} onChange={(event) => setContentText(event.target.value)} />
+                </div>
+              </section>
             </div>
 
             <div className="admin-editor-footer">
@@ -311,7 +278,7 @@ export function AdminCourseEditor() {
                 onClick={saveLesson}
                 disabled={saving}
               >
-                {saving ? "保存中…" : "保存 Lesson"}
+                {saving ? "保存中…" : "保存课程"}
               </button>
             </div>
           </>

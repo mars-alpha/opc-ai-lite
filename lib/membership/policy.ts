@@ -31,12 +31,14 @@ export const OPC_MEMBERSHIP_PLANS = [
 
 export type MembershipFeature =
   | "PRACTICE"
-  | "STAGE_PROJECT";
+  | "STAGE_PROJECT"
+  | "PERSONAL_WORKSPACE";
 
 export const MEMBERSHIP_BENEFIT_MATRIX = [
   ["AI 基础认知课程", "关注公众号后解锁全章节", "✓"],
   ["AI 日报", "关注公众号后完整查看", "✓"],
   ["进阶练习", "—", "✓"],
   ["实操项目", "—", "✓"],
-  ["进阶内容", "—", "✓"]
+  ["进阶内容", "—", "✓"],
+  ["个人 AI 工作台", "—", "会员专属 · 后续开放"]
 ] as const;

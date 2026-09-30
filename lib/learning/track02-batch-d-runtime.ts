@@ -1,7 +1,7 @@
 import { courseBuilderCheckSequenceToRuntimeSeeds, type CourseBuilderBuildDraft } from "./course-builder";
 import { TRACK02_RUNTIME_COURSE_SLUG, lessonFromDraft, practiceSeedFor, referenceFillFor } from "./track02-batch-a-runtime";
 import { track02CourseWithBatchC } from "./track02-batch-c-runtime";
-import { track02BatchDDrafts, track02BatchDIntroComparisons, track02BatchDKnowledgeDepth, track02BatchDTriggerScenarios } from "../../fixtures/course-builder/track02-batch-d";
+import { track02BatchDDrafts, track02BatchDIntroComparisons, track02BatchDKnowledgeDepth, track02BatchDTriggerScenarios } from "./course-content/track02-batch-d";
 
 export const track02BatchDRuntimeDefinitions = track02BatchDDrafts.map((sourceDraft, index) => {
   const draft = sourceDraft as CourseBuilderBuildDraft;

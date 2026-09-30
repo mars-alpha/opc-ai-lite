@@ -84,10 +84,17 @@ export function AdminLearningWorkbench({
 
   return (
     <div className="admin-learning-workbench">
-      <section className="admin-insight-section">
+      <div className="admin-learning-summary">
+        <div><span>学习问题</span><strong>{insights.length}</strong><small>达到关注条件后进入分析</small></div>
+        <div><span>更新候选</span><strong>{candidates.length}</strong><small>人工确认后才形成课程任务</small></div>
+        <div><span>质量风险</span><strong>{qualityRisks.length}</strong><small>错误或过时反馈优先人工检查</small></div>
+      </div>
+      <div className="admin-learning-grid">
+        <div className="admin-learning-column admin-learning-column-left">
+      <section className={"admin-insight-section " + (insights.length === 0 ? "is-empty" : "")}>
         <div className="admin-section-head">
           <div>
-            <div className="kicker">Course intelligence</div>
+            <div className="kicker">学习问题</div>
             <h2>需要关注的学习问题</h2>
           </div>
           <span>{insights.length} 条</span>
@@ -137,10 +144,36 @@ export function AdminLearningWorkbench({
         </div>
       </section>
 
-      <section className="admin-insight-section">
+      <section className={"admin-insight-section " + (qualityRisks.length === 0 ? "is-empty" : "")}>
         <div className="admin-section-head">
           <div>
-            <div className="kicker">Human review</div>
+            <div className="kicker">质量风险</div>
+            <h2>错误 / 过时风险</h2>
+          </div>
+          <span>{qualityRisks.length} 条</span>
+        </div>
+        <div className="admin-insight-list">
+          {qualityRisks.length === 0 && <p className="admin-empty">当前没有用户报告的内容质量风险。</p>}
+          {qualityRisks.map((risk) => (
+            <article className="admin-insight-card" key={risk.id}>
+              <div className="admin-insight-meta">
+                <span>REVIEW_REQUIRED</span>
+                <span>{risk.reviewStatus}</span>
+              </div>
+              <h3>{risk.lessonTitle}</h3>
+              <p>{risk.comment || "用户未补充说明。"}</p>
+              <small>质量风险 1 次即可进入人工确认，但不会自动判定课程有错。</small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+        </div>
+        <div className="admin-learning-column admin-learning-column-right">
+      <section className={"admin-insight-section " + (candidates.length === 0 ? "is-empty" : "")}>
+        <div className="admin-section-head">
+          <div>
+            <div className="kicker">人工审核</div>
             <h2>课程更新候选</h2>
           </div>
           <span>{candidates.length} 待审核</span>
@@ -207,29 +240,9 @@ export function AdminLearningWorkbench({
         </div>
       </section>
 
-      <section className="admin-insight-section">
-        <div className="admin-section-head">
-          <div>
-            <div className="kicker">Quality risk</div>
-            <h2>错误 / 过时风险</h2>
-          </div>
-          <span>{qualityRisks.length} 条</span>
+
         </div>
-        <div className="admin-insight-list">
-          {qualityRisks.length === 0 && <p className="admin-empty">当前没有用户报告的内容质量风险。</p>}
-          {qualityRisks.map((risk) => (
-            <article className="admin-insight-card" key={risk.id}>
-              <div className="admin-insight-meta">
-                <span>REVIEW_REQUIRED</span>
-                <span>{risk.reviewStatus}</span>
-              </div>
-              <h3>{risk.lessonTitle}</h3>
-              <p>{risk.comment || "用户未补充说明。"}</p>
-              <small>质量风险 1 次即可进入人工确认，但不会自动判定课程有错。</small>
-            </article>
-          ))}
-        </div>
-      </section>
+      </div>
 
       {message && <div className="admin-message">{message}</div>}
     </div>

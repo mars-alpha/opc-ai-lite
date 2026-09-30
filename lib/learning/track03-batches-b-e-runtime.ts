@@ -1,9 +1,9 @@
 import { courseBuilderCheckSequenceToRuntimeSeeds, type CourseBuilderBuildDraft } from "./course-builder";
 import { TRACK03_RUNTIME_COURSE_SLUG, track03BatchACourse } from "./track03-batch-a-runtime";
-import { track03BatchBDrafts, track03BatchBIntroComparisons, track03BatchBKnowledgeDepth, track03BatchBTriggerScenarios } from "../../fixtures/course-builder/track03-batch-b";
-import { track03BatchCDrafts, track03BatchCIntroComparisons, track03BatchCKnowledgeDepth, track03BatchCTriggerScenarios } from "../../fixtures/course-builder/track03-batch-c";
-import { track03BatchDDrafts, track03BatchDIntroComparisons, track03BatchDKnowledgeDepth, track03BatchDTriggerScenarios } from "../../fixtures/course-builder/track03-batch-d";
-import { track03BatchEDrafts, track03BatchEIntroComparisons, track03BatchEKnowledgeDepth, track03BatchETriggerScenarios } from "../../fixtures/course-builder/track03-batch-e";
+import { track03BatchBDrafts, track03BatchBIntroComparisons, track03BatchBKnowledgeDepth, track03BatchBTriggerScenarios } from "./course-content/track03-batch-b";
+import { track03BatchCDrafts, track03BatchCIntroComparisons, track03BatchCKnowledgeDepth, track03BatchCTriggerScenarios } from "./course-content/track03-batch-c";
+import { track03BatchDDrafts, track03BatchDIntroComparisons, track03BatchDKnowledgeDepth, track03BatchDTriggerScenarios } from "./course-content/track03-batch-d";
+import { track03BatchEDrafts, track03BatchEIntroComparisons, track03BatchEKnowledgeDepth, track03BatchETriggerScenarios } from "./course-content/track03-batch-e";
 
 type ApprovedDraft = CourseBuilderBuildDraft;
 const remainingDrafts = [...track03BatchBDrafts, ...track03BatchCDrafts, ...track03BatchDDrafts, ...track03BatchEDrafts] as ApprovedDraft[];

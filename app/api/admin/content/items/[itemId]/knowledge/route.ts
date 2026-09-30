@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { getSessionUser, readSessionToken } from "../../../../../../../lib/server/auth/service";
 import { requireAdminUser } from "../../../../../../../lib/server/admin/service";
 import {
@@ -44,10 +45,12 @@ export async function POST(
   { params }: { params: Promise<{ itemId: string }> }
 ) {
   try {
-    await requireAdmin(request);
+    const user = await requireAdmin(request);
     const { itemId } = await params;
     const body = await request.json().catch(() => null);
-    const result = await routeContentToKnowledge(itemId, body);
+    const result = await routeContentToKnowledge(user, itemId, body);
+    revalidateTag("opc-published-content");
+    revalidateTag("opc-latest-practice");
     return NextResponse.json(result, { status: result.created ? 201 : 200 });
   } catch (error) {
     const response = authError(error);
@@ -58,6 +61,9 @@ export async function POST(
       return NextResponse.json({ error: code }, { status: 404 });
     }
     if (code === "CONTENT_NOT_KNOWLEDGE_CAPSULE") {
+      return NextResponse.json({ error: code }, { status: 409 });
+    }
+    if (code === "CONTENT_NOT_PUBLISHED") {
       return NextResponse.json({ error: code }, { status: 409 });
     }
     if (code.startsWith("INVALID_")) {

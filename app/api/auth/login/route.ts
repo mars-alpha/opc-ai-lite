@@ -24,6 +24,9 @@ export async function POST(request: Request) {
     if (code === "INVALID_CREDENTIALS") {
       return NextResponse.json({ error: code }, { status: 401 });
     }
+    if (code === "ACCOUNT_DISABLED") {
+      return NextResponse.json({ error: code }, { status: 403 });
+    }
     console.error("[OPC AI] login failed", error);
     return NextResponse.json({ error: "LOGIN_FAILED" }, { status: 500 });
   }

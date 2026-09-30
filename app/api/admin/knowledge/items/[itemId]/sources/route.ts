@@ -16,6 +16,9 @@ function errorResponse(error: unknown) {
   if (code === "KNOWLEDGE_NOT_FOUND" || code === "CONTENT_NOT_FOUND") {
     return NextResponse.json({ error: code }, { status: 404 });
   }
+  if (code === "CONTENT_NOT_PUBLISHED" || code === "CONTENT_VERIFIED_EVIDENCE_REQUIRED") {
+    return NextResponse.json({ error: code }, { status: 409 });
+  }
   if (code.startsWith("INVALID_")) {
     return NextResponse.json({ error: code }, { status: 400 });
   }
@@ -42,10 +45,11 @@ export async function POST(
   { params }: { params: Promise<{ itemId: string }> }
 ) {
   try {
-    requireAdminUser(await requireSessionUser(request));
+    const user = requireAdminUser(await requireSessionUser(request));
     const { itemId } = await params;
     const body = await request.json().catch(() => null);
     const result = await addSupportingKnowledgeSource(
+      user,
       itemId,
       body && typeof body === "object" && !Array.isArray(body)
         ? (body as Record<string, unknown>).contentId

@@ -1,395 +1,171 @@
-# DATA.md — Event、Analytics、Feedback 与 Course Insight
+# DATA.md — Data / Evidence / Audit Boundary
 
-## 1. 原则
+Status: **CURRENT**
 
-只采集当前产品决策真正需要的数据。
+本文件只定义数据事实源、审计和 Content Workbench 的数据边界。具体表结构以 Drizzle Schema / Migration 为准。
 
-不因为“未来可能分析”提前建设大数据体系，也不允许前端直接声明服务端业务结果。
-
----
-
-## 2. 正式 MVP-009 数据实体
+## 1. Source of Truth
 
 ```text
-learning_events
-learning_feedback
-course_insights
-course_update_candidates
+PostgreSQL
+→ business state / relation / version / audit
+
+External Source Snapshot
+→ factual evidence
+
+COS
+→ large raw/media objects
+
+Feishu
+→ deep editing workspace
 ```
 
-Migration：
+飞书不是正式业务状态源。
+
+## 2. Learning Data
+
+当前正式 Learning 数据包括：
+- Progress；
+- Check Response；
+- Practice / Submission / Evaluation；
+- Feedback；
+- Event / Insight；
+- Access / Entitlement 相关状态。
+
+结果事件必须由服务端业务逻辑产生，前端不能伪造 passed / completed / published。
+
+## 3. OPC AI 官方内容数据
+
+OPC AI 官方内容 Core 当前已建立：
 
 ```text
-drizzle/0004_dapper_night_thrasher.sql
+Source
+SourceSnapshot / Evidence
+Candidate
+Review
+DailyItem / Article
+KnowledgeItem
+PublishRecord
+AuditRecord
 ```
 
----
+当前 Schema 对应：
+- `content_sources`
+- `content_evidence`
+- `content_item_evidence`
+- `content_items.version`
+- `content_reviews`
+- `content_publish_records`
+- `content_audit_records`
+- `knowledge_items.version`
+- `feishu_document_mappings`
+- `ai_runs`
 
-## 3. Learning Event
+官方内容基础迁移起于 `drizzle/0014_chunky_ricochet.sql`；current Development 数据库为 TencentDB `opc_ai_dev`，Supabase 仅为 LEGACY TEST ONLY。最新 migration 状态由 `docs/CURRENT_SYSTEM_FACTS.md` 记录。
 
-最小字段：
+要求：
+- 每条正式内容可追溯 Evidence；
+- 状态迁移可审计；
+- 编辑版本可追溯；
+- 发布与草稿分离；
+- 不用 Prompt 字符串代替正式数据关系。
+- Candidate 旧 `sourceType/sourceRef/sourceUrl` 字段仅保留兼容；新 Workbench 的正式 provenance 以 `Content → Evidence → Source` 关系为准。
+- Knowledge 只能从已发布 Content 派生；Supporting Content 也必须已发布并具有 VERIFIED Evidence。
+
+## 4. Feishu / Connector Boundary
+
+个人 AI 工作台固定采用 Connector + 用户 OAuth：
+- 用户选择自己的目标；
+- 工作台只把用户明确勾选的数据单向写入；
+- 第一版不做飞书返回编辑或实时双向同步；
+- 飞书不是平台正式业务状态源。
+
+OPC AI 官方平台如果未来需要飞书深度编辑或回写，必须作为独立管理员 Workflow 重新定义 Contract / Conflict / Audit，不得把旧 Sync Back 方案当作通用工作台事实。
+
+## 5. AI Run
+
+未来 AI 调用必须单独记录 provenance：
 
 ```text
-id
-user_id
-lesson_id
-event_name
-target_type
-target_id
-properties JSONB
+run_id
+task_type
+model_provider
+model
+skill_version
+prompt_version
+rule_pack_versions
+context_ids
+evidence_ids
+input_hash
+raw_output
+validator_result
+human_review_result
 created_at
 ```
 
-Event 分两类：
+AI Run 是审计记录，不是正式 Published Content。
 
-### 客户端允许写入的低风险行为
+## 6. Evidence
 
-只允许 API 白名单中的行为事件。服务端必须校验 eventName / target / payload，不接受任意字符串事件。
+Evidence 必须保留：
+- original URL / provider；
+- published_at（可得时）；
+- collected_at；
+- content hash；
+- snapshot key；
+- source tier / type；
+- verification status。
 
-### 服务端结果事件
+事实不只因为“知识库里写过”就视为最新真相。
 
-以下类型只能由正式业务逻辑产生，不能由前端伪造：
+## 7. Object Storage
 
-```text
-practice_passed
-practice_needs_revision
-evaluation_completed
-evaluation_failed
-lesson_completed
-```
+COS 未来存：
+- Raw HTML；
+- 网页/来源 Snapshot；
+- PDF；
+- 图片；
+- 音频；
+- 视频；
+- OPC AI 官方生成媒体资产；
+- 或未来用户明确选择上传的云端资产。
 
-Runtime 已验证：前端伪造 `practice_passed` 返回 400。
+PostgreSQL 只保存 object key / metadata / relation。
 
----
+## 8. Context / Knowledge
 
-## 4. Feedback
+Approved Knowledge 是审核知识，不等于永远最新的 Evidence。
 
-正式字段包括：
+AI Context Assembly 必须区分：
+- current evidence；
+- approved knowledge；
+- unknown。
 
-```text
-user_id
-lesson_id
-target_type
-target_id
-issue_type
-issue_key
-resolution_status
-helpfulness
-reasons JSONB
-comment
-related_lesson_id
-quality_risk
-review_status
-```
+详见 `docs/CONTEXT_GOVERNANCE.md`。
 
-Feedback 不能直接修改正式课程。
+## 9. Minimal Infrastructure
 
-已有课程可以回答的问题，应优先返回已有课程入口，不调用 AI。
+第一阶段继续标准 PostgreSQL + 现有服务器。
 
----
+数据库部署目标：
+- Supabase：LEGACY TEST ONLY，不再接收 current migration；
+- Development：`opc_ai_dev`；
+- Production：`opc_ai_prod`；
+- 正式托管数据库优先 TencentDB for PostgreSQL；
+- Production 与 Web/API 同地域，优先 VPC 内网；
+- Dev / Prod 账号隔离；
+- Drizzle migration 保持 provider-neutral PostgreSQL。
 
-## 5. Feedback → Course Insight 聚合
+暂不增加：
+- 独立 Vector DB；
+- Redis；
+- Kafka；
+- Data Warehouse。
 
-聚合主键：
+只有真实吞吐/检索需求出现后再增加。
 
-```text
-lesson_id + issue_key
-```
+## 10. Analytics Principle
 
-使用独立用户数而不是反馈条数，避免单一用户重复提交放大问题。
+只采集当前产品决策需要的数据。
 
-当前规则：
-
-```text
-0–2 位独立用户      → OPEN
-3+ 位独立用户       → ANALYSIS_READY
-5+ 位独立用户       → HIGH priority
-quality_risk = true → REVIEW_REQUIRED / HIGH priority
-```
-
-Runtime 已验证：
-
-```text
-3 个独立用户同类反馈 → ANALYSIS_READY
-单个“内容可能过时”反馈 → REVIEW_REQUIRED
-```
-
----
-
-## 6. Course Insight
-
-核心字段：
-
-```text
-lesson_id
-issue_key
-issue_category
-status
-distinct_user_count
-evidence JSONB
-diagnosis JSONB nullable
-analysis_mode
-```
-
-规则聚合阶段：
-
-```text
-analysis_mode = RULE
-```
-
-只有真实模型成功产生结构化诊断后，才可以记录 AI Diagnosis。
-
-当前开发环境没有真实 Provider 配置，因此 `ANALYSIS_READY` 不等于“已完成 AI 分析”。
-
----
-
-## 7. AI Analysis 边界
-
-Provider 配置：
-
-```text
-OPC_AI_ANALYSIS_BASE_URL
-OPC_AI_ANALYSIS_API_KEY
-OPC_AI_ANALYSIS_MODEL
-```
-
-当前开发环境未配置以上变量。
-
-真实链路代码已接通：
-
-```text
-ANALYSIS_READY
-→ AI Analysis
-→ Course Coverage Check
-→ Course Update Candidate
-```
-
-Provider 不可用或调用失败时：
-
-```text
-保持 ANALYSIS_READY
-记录 aiAnalysisError
-不生成虚假 AI Diagnosis
-```
-
----
-
-## 8. Knowledge Provenance
-
-Knowledge 的主来源兼容字段继续保留：
-
-```text
-knowledge_items.source_content_id
-= Primary Source shortcut
-```
-
-正式多来源关系：
-
-```text
-knowledge_source_links
-knowledge_id
-content_id
-role = PRIMARY | SUPPORTING
-created_at
-
-UNIQUE(knowledge_id, content_id)
-```
-
-规则：
-
-```text
-1 Knowledge
-→ 0/1 Primary Source
-→ 0..N Supporting Sources
-```
-
-0007 migration 会把所有已有 `knowledge_items.source_content_id` 回填成 PRIMARY link。
-
-Content → Knowledge 查询必须同时识别 Primary 与 Supporting link，避免同一 Content 因成为 Supporting Source 后又重复创建第二个 Knowledge。
-
-当前不增加通用 asset_relations；Practice 与 Course Candidate 继续使用各自明确的 `sourceKnowledgeId`。
-
----
-
-## 9. Knowledge Deep Resource / Feishu Bridge
-
-Deep Resource 是 Knowledge-owned 的外部深度研究引用，不复用 `lesson_resources`。
-
-```text
-knowledge_deep_resources
-id
-knowledge_id required
-lesson_id nullable
-practice_id nullable
-provider = FEISHU
-title
-summary nullable
-resource_ref nullable
-url
-status = DRAFT | REVIEW | PUBLISHED | ARCHIVED
-created_at
-updated_at
-
-UNIQUE(knowledge_id, url)
-```
-
-规则：
-
-```text
-Knowledge = canonical business source
-Feishu Deep Resource = external deep research / practice carrier
-
-PUBLISHED Deep Resource
-→ requires Knowledge.status = PUBLISHED
-
-Lesson / Practice
-→ optional secondary relation
-→ never required ownership
-```
-
-当前只提供 Admin 人工引用维护；没有 Feishu API 自动发布、同步或用户侧 Reader。
-
----
-
-## 10. Practice Draft Workflow
-
-AI / RULE 生成的 Practice 候选不能直接写入正式 `practices`。
-
-```text
-practice_drafts
-id
-source_knowledge_id required
-source_deep_resource_id nullable
-generation_mode = RULE | AI
-generation_error nullable
-draft JSONB
-status = PENDING_REVIEW | NEEDS_REVISION | APPROVED | DISMISSED
-review_note
-reviewed_by
-reviewed_at
-result_practice_id nullable
-created_at
-updated_at
-
-UNIQUE(source_knowledge_id)
-```
-
-规则：
-
-```text
-Published + active Knowledge
-→ Practice Draft Skill v0.1 / RULE fallback
-→ PENDING_REVIEW
-→ Human edit / review
-→ APPROVED
-→ create LATEST_PRACTICE(status = DRAFT)
-→ later manual publish
-```
-
-Provider 缺失或失败时必须记录 RULE + generation_error，不得把模板输出标记成 AI。
-
-如果 Knowledge 已存在正式 Latest Practice：
-
-```text
-APPROVE Draft
-→ reject LATEST_PRACTICE_EXISTS
-→ 不覆盖正式 Practice
-```
-
----
-
-## 11. Course Impact Analysis
-
-Knowledge 对课程的影响分析不建立独立持久化事实源。
-
-```text
-Published + active Knowledge
-↓
-Published Lesson catalog
-↓
-AI (configured) / conservative RULE
-↓
-transient suggestions
-├─ lessonId
-├─ disposition
-├─ affectedArea
-├─ proposedChange
-├─ rationale
-└─ confidence
-↓
-Human select / edit
-↓
-existing Course Update Candidate
-```
-
-RULE 模式只在 Knowledge 已有明确 `lessonId` 或 `stageId` 关联时建议目标 Lesson；没有关联时返回空结果，避免制造噪音。
-
-Impact Analysis 不自动创建 Candidate，不保存独立 Analysis 表，不自动 APPROVE，也不修改 Lesson。
-
----
-
-## 12. Course Update Candidate
-
-Candidate 只是 Proposal，目前支持两种真实来源：
-
-```text
-lesson_id
-source_type = LEARNING_INSIGHT | KNOWLEDGE
-insight_id nullable
-source_knowledge_id nullable
-disposition
-proposal JSONB
-status = PENDING_REVIEW
-reviewed_by
-reviewed_at
-```
-
-来源约束：
-
-```text
-LEARNING_INSIGHT → insight_id required, source_knowledge_id empty
-KNOWLEDGE        → source_knowledge_id required, insight_id empty
-```
-
-AI、规则或 Knowledge 都不能直接改 Published Lesson。
-
-正式流程：
-
-```text
-Learning Insight ─┐
-                  ├→ Course Update Candidate
-Published Knowledge┘
-→ Human Review
-→ APPROVED / NEEDS_REVISION / DISMISSED
-→ 后续人工课程更新任务
-```
-
-Insight 来源审核可以同步 Course Insight 状态；Knowledge 来源审核只更新 Candidate，不反向修改 Knowledge。
-
----
-
-## 13. 行为信号
-
-Interactive Lesson 可从真实行为刷新 Insight，例如：
-
-```text
-CHECK
-PRACTICE
-HINT
-HELPFULNESS
-```
-
-行为信号必须先达到最小样本阈值再进入分析，避免少量用户行为直接触发课程更新。
-
----
-
-## 14. 当前不建设
-
-```text
-大型 BI
-通用埋点平台
-用户画像评分系统
-前端自定义任意 Event
-AI 自动发布课程
-AI 自动修改 Published
-```
+禁止因为“未来可能分析”提前构建复杂数据平台。

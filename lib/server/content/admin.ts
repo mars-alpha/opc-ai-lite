@@ -1,12 +1,11 @@
 import "server-only";
-import { revalidateTag } from "next/cache";
 
 import { asc, eq } from "drizzle-orm";
+import type { AuthUser } from "../auth/service";
 import { getDatabase } from "../db";
 import { contentItems, knowledgeItems } from "../db/schema";
-import { syncPrimaryKnowledgeSource } from "./knowledge-sources";
+import { recordContentAudit } from "./workbench";
 
-const PUBLICATION_STATUSES = ["DRAFT", "REVIEW", "PUBLISHED", "ARCHIVED"] as const;
 const DESTINATIONS = [
   "IGNORE",
   "DAILY_ITEM",
@@ -14,11 +13,8 @@ const DESTINATIONS = [
   "PRACTICE_CANDIDATE",
   "COURSE_UPDATE_CANDIDATE"
 ] as const;
-const VALIDITIES = ["NEW", "ACTIVE", "WATCH", "OUTDATED", "DEPRECATED"] as const;
 
-type PublicationStatus = (typeof PUBLICATION_STATUSES)[number];
 type Destination = (typeof DESTINATIONS)[number];
-type Validity = (typeof VALIDITIES)[number];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -75,9 +71,7 @@ export async function getAdminContentItem(itemId: string) {
 export function validateContentItemUpdate(input: unknown) {
   if (!isRecord(input)) throw new Error("INVALID_INPUT");
 
-  const status = typeof input.status === "string" ? input.status : "";
   const destination = typeof input.destination === "string" ? input.destination : "";
-  if (!PUBLICATION_STATUSES.includes(status as PublicationStatus)) throw new Error("INVALID_STATUS");
   if (!DESTINATIONS.includes(destination as Destination)) throw new Error("INVALID_DESTINATION");
 
   return {
@@ -89,15 +83,11 @@ export function validateContentItemUpdate(input: unknown) {
     sourceRef: optionalText(input.sourceRef),
     sourceUrl: optionalText(input.sourceUrl),
     sourcePublishedAt: parseOptionalDate(input.sourcePublishedAt),
-    reviewedAt: parseOptionalDate(input.reviewedAt),
-    reviewer: optionalText(input.reviewer),
-    readingMinutes: parseReadingMinutes(input.readingMinutes),
-    status: status as PublicationStatus,
-    publishedAt: status === "PUBLISHED" ? parseOptionalDate(input.publishedAt) ?? new Date() : null
+    readingMinutes: parseReadingMinutes(input.readingMinutes)
   };
 }
 
-export async function createAdminContentItem(input: unknown) {
+export async function createAdminContentItem(user: AuthUser, input: unknown) {
   if (!isRecord(input)) throw new Error("INVALID_INPUT");
   const id = requiredId(input.id, "content_");
   const values = validateContentItemUpdate(input);
@@ -106,23 +96,54 @@ export async function createAdminContentItem(input: unknown) {
     .values({
       id,
       ...values,
+      status: "DRAFT",
+      version: 1,
+      reviewedAt: null,
+      reviewer: null,
+      publishedAt: null,
       collectedAt: new Date(),
       updatedAt: new Date()
     })
     .returning();
-  revalidateTag("opc-published-content");
+  await recordContentAudit(user, {
+    action: "CONTENT_CREATED",
+    entityType: "CONTENT",
+    entityId: created.id,
+    entityVersion: created.version,
+    after: created
+  });
   return created;
 }
 
-export async function updateAdminContentItem(itemId: string, input: unknown) {
-  if (!(await getAdminContentItem(itemId))) throw new Error("CONTENT_NOT_FOUND");
+export async function updateAdminContentItem(user: AuthUser, itemId: string, input: unknown) {
+  const existing = await getAdminContentItem(itemId);
+  if (!existing) throw new Error("CONTENT_NOT_FOUND");
+  if (existing.status === "PUBLISHED") throw new Error("CONTENT_PUBLISHED_IMMUTABLE");
+  if (existing.status === "ARCHIVED") throw new Error("CONTENT_ARCHIVED_IMMUTABLE");
+
   const values = validateContentItemUpdate(input);
   const [updated] = await getDatabase()
     .update(contentItems)
-    .set({ ...values, updatedAt: new Date() })
+    .set({
+      ...values,
+      status: "DRAFT",
+      version: existing.version + 1,
+      reviewedAt: null,
+      reviewer: null,
+      publishedAt: null,
+      updatedAt: new Date()
+    })
     .where(eq(contentItems.id, itemId))
     .returning();
-  revalidateTag("opc-published-content");
+
+  await recordContentAudit(user, {
+    action: "CONTENT_UPDATED",
+    entityType: "CONTENT",
+    entityId: itemId,
+    entityVersion: updated.version,
+    before: existing,
+    after: updated
+  });
   return updated;
 }
 
@@ -136,58 +157,5 @@ export async function listAdminKnowledgeItems() {
 export async function getAdminKnowledgeItem(itemId: string) {
   const [item] = await getDatabase().select().from(knowledgeItems).where(eq(knowledgeItems.id, itemId)).limit(1);
   return item ?? null;
-}
-
-export function validateKnowledgeItemUpdate(input: unknown) {
-  if (!isRecord(input)) throw new Error("INVALID_INPUT");
-
-  const status = typeof input.status === "string" ? input.status : "";
-  const validity = typeof input.validity === "string" ? input.validity : "";
-  if (!PUBLICATION_STATUSES.includes(status as PublicationStatus)) throw new Error("INVALID_STATUS");
-  if (!VALIDITIES.includes(validity as Validity)) throw new Error("INVALID_VALIDITY");
-
-  return {
-    sourceContentId: optionalText(input.sourceContentId),
-    title: requiredText(input.title, "INVALID_TITLE", 180),
-    summary: requiredText(input.summary, "INVALID_SUMMARY", 1200),
-    body: optionalText(input.body),
-    category: requiredText(input.category, "INVALID_CATEGORY", 120),
-    validity: validity as Validity,
-    stageId: optionalText(input.stageId),
-    lessonId: optionalText(input.lessonId),
-    readingMinutes: parseReadingMinutes(input.readingMinutes),
-    status: status as PublicationStatus,
-    publishedAt: status === "PUBLISHED" ? parseOptionalDate(input.publishedAt) ?? new Date() : null
-  };
-}
-
-export async function createAdminKnowledgeItem(input: unknown) {
-  if (!isRecord(input)) throw new Error("INVALID_INPUT");
-  const id = requiredId(input.id, "knowledge_");
-  const values = validateKnowledgeItemUpdate(input);
-  const [created] = await getDatabase()
-    .insert(knowledgeItems)
-    .values({
-      id,
-      ...values,
-      updatedAt: new Date()
-    })
-    .returning();
-  await syncPrimaryKnowledgeSource(created.id, created.sourceContentId);
-  revalidateTag("opc-latest-practice");
-  return created;
-}
-
-export async function updateAdminKnowledgeItem(itemId: string, input: unknown) {
-  if (!(await getAdminKnowledgeItem(itemId))) throw new Error("KNOWLEDGE_NOT_FOUND");
-  const values = validateKnowledgeItemUpdate(input);
-  const [updated] = await getDatabase()
-    .update(knowledgeItems)
-    .set({ ...values, updatedAt: new Date() })
-    .where(eq(knowledgeItems.id, itemId))
-    .returning();
-  await syncPrimaryKnowledgeSource(updated.id, updated.sourceContentId);
-  revalidateTag("opc-latest-practice");
-  return updated;
 }
 

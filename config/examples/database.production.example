@@ -1,0 +1,2 @@
+DATABASE_ENVIRONMENT=production
+DATABASE_URL=postgresql://opc_ai_prod_app:CHANGE_ME@PRIVATE_TENCENTDB_HOST:5432/opc_ai_prod

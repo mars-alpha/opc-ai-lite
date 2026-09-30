@@ -1,9 +1,11 @@
 import "server-only";
 
+import type { AuthUser } from "../auth/service";
+
 import { eq } from "drizzle-orm";
 import { getDatabase } from "../db";
-import { contentItems, knowledgeItems, knowledgeSourceLinks } from "../db/schema";
-import { createAdminKnowledgeItem } from "./admin";
+import { contentAuditRecords, contentItems, contentPublishRecords, knowledgeItems, knowledgeSourceLinks } from "../db/schema";
+import { syncPrimaryKnowledgeSource } from "./knowledge-sources";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -40,7 +42,7 @@ export async function getKnowledgeForContent(contentId: string) {
   return linked?.knowledge ?? null;
 }
 
-export async function routeContentToKnowledge(contentId: string, input: unknown) {
+export async function routeContentToKnowledge(user: AuthUser, contentId: string, input: unknown) {
   const [content] = await getDatabase()
     .select()
     .from(contentItems)
@@ -49,29 +51,70 @@ export async function routeContentToKnowledge(contentId: string, input: unknown)
 
   if (!content) throw new Error("CONTENT_NOT_FOUND");
   if (content.destination !== "KNOWLEDGE_CAPSULE") throw new Error("CONTENT_NOT_KNOWLEDGE_CAPSULE");
+  if (content.status !== "PUBLISHED") throw new Error("CONTENT_NOT_PUBLISHED");
 
   const existing = await getKnowledgeForContent(contentId);
   if (existing) return { item: existing, created: false };
 
   const overrides = isRecord(input) ? input : {};
 
-  const item = await createAdminKnowledgeItem({
-    id: knowledgeIdForContent(contentId),
-    sourceContentId: contentId,
-    title: typeof overrides.title === "string" && overrides.title.trim() ? overrides.title : content.title,
-    summary: typeof overrides.summary === "string" && overrides.summary.trim() ? overrides.summary : content.summary,
-    body: optionalText(overrides.body),
-    category: typeof overrides.category === "string" && overrides.category.trim() ? overrides.category : content.category,
-    validity: typeof overrides.validity === "string" ? overrides.validity : "NEW",
-    stageId: optionalText(overrides.stageId),
-    lessonId: optionalText(overrides.lessonId),
-    readingMinutes:
-      typeof overrides.readingMinutes === "number"
-        ? overrides.readingMinutes
-        : content.readingMinutes,
-    status: typeof overrides.status === "string" ? overrides.status : "DRAFT",
-    publishedAt: overrides.publishedAt ?? null
+  const id = knowledgeIdForContent(contentId);
+  const validity =
+    typeof overrides.validity === "string" &&
+    ["NEW", "ACTIVE", "WATCH", "OUTDATED", "DEPRECATED"].includes(overrides.validity)
+      ? overrides.validity
+      : "NEW";
+  const stageId = optionalText(overrides.stageId);
+  const lessonId = optionalText(overrides.lessonId);
+  const now = new Date();
+
+  const db = getDatabase();
+  const item = await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(knowledgeItems)
+      .values({
+        id,
+        sourceContentId: contentId,
+        title: content.title,
+        summary: content.summary,
+        body: null,
+        category: content.category,
+        validity: validity as "NEW" | "ACTIVE" | "WATCH" | "OUTDATED" | "DEPRECATED",
+        stageId,
+        lessonId,
+        readingMinutes: content.readingMinutes,
+        status: "PUBLISHED",
+        version: 1,
+        publishedAt: now,
+        updatedAt: now
+      })
+      .returning();
+
+    await tx.insert(contentPublishRecords).values({
+      entityType: "KNOWLEDGE",
+      entityId: created.id,
+      entityVersion: created.version,
+      channel: "KNOWLEDGE",
+      publishedBy: user.id,
+      publishedByEmail: user.email,
+      publishedAt: now,
+      metadata: { sourceContentId: contentId }
+    });
+
+    await tx.insert(contentAuditRecords).values({
+      actorId: user.id,
+      actorEmail: user.email,
+      action: "KNOWLEDGE_DERIVED",
+      entityType: "KNOWLEDGE",
+      entityId: created.id,
+      entityVersion: created.version,
+      after: created,
+      metadata: { sourceContentId: contentId }
+    });
+
+    return created;
   });
 
+  await syncPrimaryKnowledgeSource(item.id, contentId);
   return { item, created: true };
 }

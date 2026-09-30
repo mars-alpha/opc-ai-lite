@@ -1,175 +1,70 @@
 import fs from "node:fs";
-import { COURSE_PRODUCTION_RULE_SOURCES } from "../lib/learning/course-production-contract";
 
 function assert(condition: unknown, code: string): asserts condition {
   if (!condition) throw new Error("COURSE_GOVERNANCE_FAILED:" + code);
 }
 
-const read = (path: string) => fs.readFileSync(path, "utf8");
-const ruleText = COURSE_PRODUCTION_RULE_SOURCES.map(read).join("\n");
-const entry = read("docs/learning/COURSE_BUILD_START_HERE.md");
-const workflowDoc = read("docs/learning/COURSE_PRODUCTION_WORKFLOW_V1.md");
-const workflowCode = read("lib/learning/course-production-workflow.ts");
-const skill = read("skills/course-builder/v1.ts");
-const courseBuilderCore = read("lib/learning/course-builder.ts");
-const skillRegistry = read("skills/REGISTRY.md");
-const panel = read("components/GenericLessonRuntimePanel.tsx");
-const batchCPreview = read("app/course-builder/preview/track02-batch-c/[lessonId]/page.tsx");
-const batchDSource = read("fixtures/course-builder/track02-batch-d.ts");
-const formalRoute = read("app/courses/[slug]/lessons/[lessonId]/page.tsx");
+const standard = fs.readFileSync("docs/learning/COURSE_BUILD_STANDARD_V1.md", "utf8");
+const skill = fs.readFileSync("skills/course-builder/v1.ts", "utf8");
+const panel = fs.readFileSync("components/GenericLessonRuntimePanel.tsx", "utf8");
+const route = fs.readFileSync("app/courses/[slug]/lessons/[lessonId]/page.tsx", "utf8");
 
 for (const phrase of [
-  "Step 5 保持 2–4",
-  "Step 5 固定 2–4",
-  "Review 主卡片固定为两张",
-  "保持两张主 Review 卡片",
-  "两个方向各一张已经能把本课讲清楚，就保持两张"
+  "STEP_1_2_OVERLAP_FAIL",
+  "STEP5_KNOWLEDGE_COVERAGE_FAIL",
+  "LESSON_TEMPLATE_DRIFT_FAIL",
+  "CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL",
+  "至少 2 张",
+  "上限不固定",
+  "AI适合做什么",
+  "AI不应该替你做什么",
+  "先说人话，再决定是否需要术语",
+  "LEARNER_LANGUAGE_FAIL",
+  "BEGINNER_PLAIN_LANGUAGE_FAIL",
+  "字段值本身",
+  "UNKNOWN"
 ]) {
-  assert(!ruleText.includes(phrase), "ACTIVE_RULE_FIXED_REVIEW_COUNT:" + phrase);
+  assert(standard.includes(phrase), "STANDARD_RULE_MISSING:" + phrase);
 }
 
 assert(
-  ruleText.includes("至少 2 张") &&
-    ruleText.includes("上限不固定"),
-  "ACTIVE_RULE_REVIEW_MIN_TWO_FLEXIBLE_MAX_MISSING"
-);
-assert(
-  ruleText.includes("本课能力适用场景与本课价值的总结说明") &&
-    ruleText.includes("Next Lesson Value"),
-  "ACTIVE_RULE_STEP6_TRIGGER_SEPARATION_MISSING"
-);
-assert(
-  ruleText.includes("正常课程序号") &&
-    ruleText.includes("T2-07"),
-  "ACTIVE_RULE_LEARNER_NUMBERING_BOUNDARY_MISSING"
+  standard.includes("我怎样知道自己会了") &&
+    standard.includes("遇到什么真实情况，我应该想到这节课") &&
+    standard.includes("下一课为什么值得继续"),
+  "STEP6_RESPONSIBILITY_MISSING"
 );
 
 assert(
-  skill.includes("至少 2 张") &&
-    skill.includes("上限不固定"),
-  "COURSE_BUILDER_REVIEW_MIN_TWO_FLEXIBLE_MAX_DRIFT"
+  standard.includes("正常课程序号") &&
+    standard.includes("T2-07"),
+  "LEARNER_NUMBERING_BOUNDARY_MISSING"
 );
+
 assert(
-  ruleText.includes("页码前后不得附加任何描述") &&
-    ruleText.includes("navigationDescription 只服务顶部进度卡片") &&
-    skill.includes("navigationDescription 只服务顶部六张进度卡片") &&
-    panel.includes("<small>{currentStep + 1} / {plan.steps.length}</small>") &&
-    !panel.includes("unifiedLessonStepNavDescription(step.kind)"),
-  "PAGINATION_NUMBER_ONLY_RULE_DRIFT"
-);
-assert(
-  ruleText.includes("先说人话，再决定是否需要术语") &&
-    ruleText.includes("LEARNER_LANGUAGE_FAIL") &&
-    ruleText.includes("BEGINNER_PLAIN_LANGUAGE_FAIL") &&
-    skill.includes("禁止把课程写成咨询报告、商业框架或术语表") &&
-    skill.includes("ICP、Audience、Business Fit") &&
-    skill.includes("不得裸露给学员"),
-  "BEGINNER_PLAIN_LANGUAGE_OR_LEARNER_LANGUAGE_GATE_MISSING"
-);
-assert(
-  ruleText.includes("真实自媒体 / 一人公司经营场景") &&
-    ruleText.includes("禁止拿“本课程 / 课程推广 / 课程功能”本身作为主要教学案例") &&
-    skill.includes("禁止拿本课程、课程推广、课程功能或内部课程生产过程作为主要教学案例"),
-  "SELF_MEDIA_REAL_CASE_RULE_MISSING"
-);
-assert(
-  courseBuilderCore.includes("主卡片至少 2 张") &&
-    courseBuilderCore.includes("上限不固定"),
-  "COURSE_BUILDER_CORE_REVIEW_RULE_DRIFT"
-);
-assert(
-  ruleText.includes("STEP_1_2_OVERLAP_FAIL") &&
-    skill.includes("STEP_1_2_OVERLAP_FAIL"),
-  "STEP_1_2_OVERLAP_GUARD_MISSING"
-);
-assert(
-  ruleText.includes("STEP5_KNOWLEDGE_COVERAGE_FAIL") &&
-    skill.includes("STEP5_KNOWLEDGE_COVERAGE_FAIL"),
-  "STEP5_KNOWLEDGE_COVERAGE_GUARD_MISSING"
-);
-assert(
-  ruleText.includes("LESSON_TEMPLATE_DRIFT_FAIL") &&
-    ruleText.includes("CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL") &&
+  skill.includes("STEP_1_2_OVERLAP_FAIL") &&
+    skill.includes("STEP5_KNOWLEDGE_COVERAGE_FAIL") &&
     skill.includes("LESSON_TEMPLATE_DRIFT_FAIL") &&
     skill.includes("CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL"),
-  "BATCH_ANTI_TEMPLATE_OR_CROSS_LESSON_OVERLAP_GUARD_MISSING"
-);
-assert(
-  !batchDSource.includes("situation: lesson.example.situation") &&
-    !batchDSource.includes("text: lesson.example.before") &&
-    !batchDSource.includes("text: lesson.example.after") &&
-    !batchDSource.includes("lesson.mistakes.slice"),
-  "BATCH_D_TEMPLATE_DERIVATION_DRIFT"
-);
-assert(
-  skill.includes("不能写成下一课预告") &&
-    skill.includes("不能用 Next Lesson Value 代替"),
-  "COURSE_BUILDER_STEP6_TRIGGER_DRIFT"
-);
-
-assert(panel.includes("previewTriggerScenario?: string | null"), "PREVIEW_TRIGGER_PROP_MISSING");
-assert(
-  panel.includes("? previewTriggerScenario") &&
-    !panel.includes("const presentationTriggerScenario = previewMode\n    ? null") &&
-    !panel.includes("presentationTriggerScenario ?? lesson.related[0]"),
-  "PREVIEW_TRIGGER_MUST_NOT_FALLBACK_TO_NEXT_LESSON"
-);
-assert(
-  batchCPreview.includes('canonicalId.replace("T2-", "")') &&
-    batchCPreview.includes("previewTriggerScenario={presentation.triggerScenario}"),
-  "BATCH_C_PREVIEW_NUMBER_OR_TRIGGER_DRIFT"
-);
-assert(
-  !formalRoute.includes("canonicalId") && !formalRoute.includes("T2-07"),
-  "FORMAL_ROUTE_INTERNAL_ID_PRESENTATION_DRIFT"
+  "COURSE_BUILDER_CRITICAL_GATES_DRIFT"
 );
 
 assert(
-  entry.includes("_historical-*") &&
-    entry.includes("不得作为当前 Workflow 入口"),
-  "HISTORICAL_ACCEPTANCE_BOUNDARY_MISSING"
+  panel.includes("<small>{currentStep + 1} / {plan.steps.length}</small>"),
+  "PURE_PAGE_NUMBER_RENDERING_MISSING"
 );
-assert(read("package.json").includes('"scripts:current:check"'), "SCRIPT_ENTRYPOINT_GOVERNANCE_MISSING");
-assert(
-  !COURSE_PRODUCTION_RULE_SOURCES.some((path) =>
-    path.includes("task-results") ||
-    path.includes("fixture") ||
-    path.includes("CURRENT_SYSTEM_FACTS") ||
-    path.includes("COURSE_BUILD_START_HERE")
-  ),
-  "NON_NORMATIVE_SOURCE_REGISTERED_AS_RULE_SOURCE"
-);
-assert(
-  skillRegistry.includes("_historical-v0.1.ts") &&
-    skillRegistry.includes("_historical-v0.2.ts") &&
-    skillRegistry.includes("不得被 Workflow、Orchestrator、validator 或新课程直接 import"),
-  "HISTORICAL_SKILL_ISOLATION_MISSING"
-);
-assert(
-  workflowDoc.includes("Bootstrap Sources") &&
-    workflowDoc.includes("它们**不是课程规则正文 owner**") &&
-    workflowDoc.includes("随后读取 `COURSE_PRODUCTION_RULE_SOURCES` 当前内容") &&
-    workflowCode.includes('ruleSourcePolicy: "READ_LATEST_AT_RUN_START"') &&
-    workflowCode.includes("Rule source content is read at workflow run start"),
-  "WORKFLOW_READ_LATEST_POLICY_MISSING"
-);
-assert(
-  entry.includes("当前 Formal Brief / Batch **不在本入口维护状态清单**") &&
-    !entry.includes("TRACK02_BATCH_A_T2_01_T2_03_FORMAL_BRIEFS_V1.md"),
-  "COURSE_ENTRY_MUST_NOT_DUPLICATE_CURRENT_BATCH_STATUS"
-);
+assert(!route.includes("T2-07"), "FORMAL_ROUTE_INTERNAL_ID_DRIFT");
 
-console.log("COURSE_GOVERNANCE_ACTIVE_RULE_OWNERS=PASS");
-console.log("COURSE_GOVERNANCE_STEP1_STEP2_SEPARATION=PASS");
-console.log("COURSE_GOVERNANCE_PAGINATION_NUMBER_ONLY=PASS");
-console.log("COURSE_GOVERNANCE_BEGINNER_PLAIN_LANGUAGE=PASS");
-console.log("COURSE_GOVERNANCE_LEARNER_LANGUAGE=PASS");
-console.log("COURSE_GOVERNANCE_REAL_SELF_MEDIA_CASE=PASS");
-console.log("COURSE_GOVERNANCE_STEP5_KNOWLEDGE_COVERAGE=PASS");
-console.log("COURSE_GOVERNANCE_BATCH_ANTI_TEMPLATE=PASS");
-console.log("COURSE_GOVERNANCE_CROSS_LESSON_KNOWLEDGE_SEPARATION=PASS");
-console.log("COURSE_GOVERNANCE_STEP5_MIN_TWO_FLEXIBLE_MAX=PASS");
-console.log("COURSE_GOVERNANCE_STEP6_TRIGGER_SEPARATION=PASS");
-console.log("COURSE_GOVERNANCE_LEARNER_NUMBERING_BOUNDARY=PASS");
-console.log("COURSE_GOVERNANCE_HISTORICAL_ASSET_ISOLATION=PASS");
-console.log("COURSE_GOVERNANCE_RUNTIME_PREVIEW_MAPPING=PASS");
+for (const stale of [
+  "docs/learning/LESSON_OUTPUT_CONTRACT_V1.md",
+  "docs/learning/BEGINNER_LESSON_QUALITY_STANDARD_V1.md",
+  "docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md"
+]) {
+  assert(!fs.existsSync(stale), "SUPERSEDED_RULE_FILE_PRESENT:" + stale);
+}
+
+console.log("COURSE_GOVERNANCE_SINGLE_STANDARD_OWNER=PASS");
+console.log("COURSE_GOVERNANCE_SIX_STEP_GATES=PASS");
+console.log("COURSE_GOVERNANCE_COPY_TO_AI_BOUNDARY=PASS");
+console.log("COURSE_GOVERNANCE_LANGUAGE_AND_ID_BOUNDARY=PASS");
+console.log("COURSE_GOVERNANCE_BATCH_ANTI_DRIFT=PASS");
+console.log("COURSE_GOVERNANCE_RUNTIME_PRESENTATION=PASS");

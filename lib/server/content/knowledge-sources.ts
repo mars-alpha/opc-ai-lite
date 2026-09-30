@@ -1,9 +1,19 @@
 import "server-only";
 
+import type { AuthUser } from "../auth/service";
+
 import { and, asc, eq } from "drizzle-orm";
 
 import { getDatabase } from "../db";
-import { contentItems, knowledgeItems, knowledgeSourceLinks } from "../db/schema";
+import {
+  contentAuditRecords,
+  contentEvidence,
+  contentItemEvidence,
+  contentItems,
+  contentSources,
+  knowledgeItems,
+  knowledgeSourceLinks
+} from "../db/schema";
 
 export async function listKnowledgeSources(knowledgeId: string) {
   const db = getDatabase();
@@ -15,7 +25,7 @@ export async function listKnowledgeSources(knowledgeId: string) {
 
   if (!knowledge) throw new Error("KNOWLEDGE_NOT_FOUND");
 
-  return db
+  const links = await db
     .select({
       id: knowledgeSourceLinks.id,
       knowledgeId: knowledgeSourceLinks.knowledgeId,
@@ -23,15 +33,34 @@ export async function listKnowledgeSources(knowledgeId: string) {
       role: knowledgeSourceLinks.role,
       createdAt: knowledgeSourceLinks.createdAt,
       contentTitle: contentItems.title,
-      sourceType: contentItems.sourceType,
-      sourceRef: contentItems.sourceRef,
-      sourceUrl: contentItems.sourceUrl,
       contentStatus: contentItems.status
     })
     .from(knowledgeSourceLinks)
     .innerJoin(contentItems, eq(knowledgeSourceLinks.contentId, contentItems.id))
     .where(eq(knowledgeSourceLinks.knowledgeId, knowledgeId))
     .orderBy(asc(knowledgeSourceLinks.createdAt));
+
+  return Promise.all(
+    links.map(async (link) => {
+      const evidence = await db
+        .select({
+          id: contentEvidence.id,
+          title: contentEvidence.title,
+          originalUrl: contentEvidence.originalUrl,
+          verificationStatus: contentEvidence.verificationStatus,
+          sourceId: contentSources.id,
+          sourceName: contentSources.name,
+          sourceType: contentSources.sourceType
+        })
+        .from(contentItemEvidence)
+        .innerJoin(contentEvidence, eq(contentItemEvidence.evidenceId, contentEvidence.id))
+        .innerJoin(contentSources, eq(contentEvidence.sourceId, contentSources.id))
+        .where(eq(contentItemEvidence.contentId, link.contentId))
+        .orderBy(asc(contentItemEvidence.createdAt));
+
+      return { ...link, evidence };
+    })
+  );
 }
 
 export async function syncPrimaryKnowledgeSource(
@@ -91,6 +120,7 @@ export async function syncPrimaryKnowledgeSource(
 }
 
 export async function addSupportingKnowledgeSource(
+  user: AuthUser,
   knowledgeId: string,
   contentIdInput: unknown
 ) {
@@ -106,7 +136,7 @@ export async function addSupportingKnowledgeSource(
       .where(eq(knowledgeItems.id, knowledgeId))
       .limit(1),
     db
-      .select({ id: contentItems.id })
+      .select({ id: contentItems.id, status: contentItems.status })
       .from(contentItems)
       .where(eq(contentItems.id, contentId))
       .limit(1)
@@ -114,6 +144,20 @@ export async function addSupportingKnowledgeSource(
 
   if (!knowledge) throw new Error("KNOWLEDGE_NOT_FOUND");
   if (!content) throw new Error("CONTENT_NOT_FOUND");
+  if (content.status !== "PUBLISHED") throw new Error("CONTENT_NOT_PUBLISHED");
+
+  const [verifiedEvidence] = await db
+    .select({ id: contentEvidence.id })
+    .from(contentItemEvidence)
+    .innerJoin(contentEvidence, eq(contentItemEvidence.evidenceId, contentEvidence.id))
+    .where(
+      and(
+        eq(contentItemEvidence.contentId, contentId),
+        eq(contentEvidence.verificationStatus, "VERIFIED")
+      )
+    )
+    .limit(1);
+  if (!verifiedEvidence) throw new Error("CONTENT_VERIFIED_EVIDENCE_REQUIRED");
 
   if (knowledge.sourceContentId === contentId) {
     await syncPrimaryKnowledgeSource(knowledgeId, contentId);
@@ -141,6 +185,16 @@ export async function addSupportingKnowledgeSource(
     knowledgeId,
     contentId,
     role: "SUPPORTING"
+  });
+
+  await db.insert(contentAuditRecords).values({
+    actorId: user.id,
+    actorEmail: user.email,
+    action: "KNOWLEDGE_SUPPORTING_SOURCE_LINKED",
+    entityType: "KNOWLEDGE",
+    entityId: knowledgeId,
+    after: { contentId, role: "SUPPORTING" },
+    metadata: { contentId }
   });
 
   const items = await listKnowledgeSources(knowledgeId);

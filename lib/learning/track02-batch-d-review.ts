@@ -5,7 +5,7 @@ import {
   track02BatchDIntroComparisons,
   track02BatchDKnowledgeDepth,
   track02BatchDTriggerScenarios
-} from "../../fixtures/course-builder/track02-batch-d";
+} from "./course-content/track02-batch-d";
 
 export const track02BatchDReviewDefinitions = track02BatchDDrafts.map((sourceDraft, index) => {
   const draft = sourceDraft as CourseBuilderBuildDraft;

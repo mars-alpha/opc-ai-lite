@@ -1,40 +1,10 @@
-# Course Production Workflow v1
+# COURSE_PRODUCTION_WORKFLOW_V1.md — Stable Course Production Workflow
 
 Status: **STABLE_WORKFLOW_V1**
 
-## 1. Purpose
+本文件只定义课程生产生命周期和 Gate，不复制课程内容规则。
 
-课程生产采用：
-
-```text
-Stable Course Production Contract
-→ Course Production Orchestrator
-→ Course Builder Skill
-→ Deterministic Validators
-→ Human Review Gate
-→ LessonSpec Registry
-→ Runtime Provisioning
-→ Runtime Acceptance
-→ AVAILABLE
-```
-
-Workflow 是稳定生命周期骨架，不绑定某个 Course Builder Skill 具体版本。
-
-### Preflight anti-drift
-
-每次新对话或重新进入课程生产前，先运行：
-
-```bash
-npm run learning:course-current-state:check
-npm run learning:course-governance:check
-npm run scripts:current:check
-```
-
-第一项确认 Current Facts / Current Workflow Batch / Human Review Gate 是否一致；第二项确认当前 Rule Owners、Course Builder Skill、Track 当前 Validators 与 Preview/Runtime 映射没有重新引入已废止规则；第三项确认 scripts 根目录只有明确 package entrypoint 或 `_historical-*` 归档脚本，且已退役 pilot / acceptance 不会重新暴露。三者都不新增生命周期 Stage。任一检查失败时不得从历史 task-result、旧 acceptance、legacy fixture 或脚本文件名猜测当前规则继续生产。
-
-## 2. Stable Workflow
-
-固定阶段：
+## 1. Stable Workflow
 
 ```text
 LOAD_CURRENT_RULE_SOURCES
@@ -49,82 +19,89 @@ LOAD_CURRENT_RULE_SOURCES
 → MARK_AVAILABLE
 ```
 
-只有新增 / 删除正式生命周期 Gate 或改变稳定 Contract，才需要升级 Workflow version。
+只有新增 / 删除 Gate、改变 Gate 顺序或打破稳定 Contract，才升级 Workflow version。
 
-Skill 文案质量提升、Orchestrator 内部判断优化、Validator 增减规则、Human Review 标准细化，不改变 Workflow 阶段语义。
+## 2. Bootstrap Sources
 
-## 3. Rule-source synchronization
+每次开始先读取：
 
-Workflow 不复制课程规则正文。
+- `docs/learning/COURSE_BUILD_START_HERE.md`
+- `docs/CURRENT_SYSTEM_FACTS.md`
 
-每次运行开始必须先读取 Bootstrap Sources：`COURSE_BUILD_START_HERE.md` 与 `CURRENT_SYSTEM_FACTS.md`，用于恢复入口顺序、当前 Track / Batch / Gate 与运行时事实；它们**不是课程规则正文 owner**。
+它们用于恢复当前状态与入口，不是课程规则正文 owner。
 
-随后读取 `COURSE_PRODUCTION_RULE_SOURCES` 当前内容：
+## 3. Rule Sources
+
+`COURSE_PRODUCTION_RULE_SOURCES` 当前只包含：
 
 - `docs/learning/FORMAL_CURRICULUM_V1.md`
-- `docs/learning/LESSON_OUTPUT_CONTRACT_V1.md`
-- `docs/learning/BEGINNER_LESSON_QUALITY_STANDARD_V1.md`
-- `docs/learning/COURSE_PRODUCTION_GOVERNANCE_V1.md`
+- `docs/learning/COURSE_BUILD_STANDARD_V1.md`
 - `docs/learning/UNIFIED_LESSON_SHELL_V1.md`
 
-因此真正的规范 owner 后续发生变化时，Workflow 下一次运行自动消费最新规则，不需要把规则正文再次复制到 Workflow、Current Facts 或 Start Here。全局 Rule Sources 只能放跨板块长期规范，不得写死 Track 01 或任何单一板块的 Catalog、Formal Brief、Batch、Fixture 或 Deferred Ledger。
+每次运行都 read-latest。
 
-历史 acceptance / fixture / task-result 可以保留用于解释或回归当时资产，但不属于 Rule Sources。它们内部若保留某批课程的固定数量、旧 handoff 或旧 Capability 文案，不得被 Orchestrator、Current Skill 或新课程 validator 继承为通用规则。
+Workflow 不复制规则正文，不绑定 Track、不绑定历史 Formal Brief、不绑定具体 Course Builder version。
 
-每次运行还必须解析当前课程 Context，但这些 Context 不属于全局 Rule Sources。Context 必须按“current owner reference + read-latest”解析，而不是把某个 Track 文本复制进 Workflow：
+## 4. Course Context
 
-- 当前 Track / Board 的唯一 Catalog / Context owner + current directory status；
+如果产品负责人显式重新开启课程生产，进入 Course Builder 前必须解析：
+
+- 当前 Track Catalog / Context owner；
 - 上一课 → 本课 → 下一课连续性；
-- 当前 Lesson Formal Brief / Formal Brief Batch owner + brief status；
-- 当前 Track 的 Deferred / Supporting Knowledge Boundary；
-- 当前课程必要的 Grounding / Research Packet；
-- 进入 Runtime 后需要的当前 Track runtime / provisioning / validator references。
+- 当前 Formal Brief；
+- 必要 Grounding / Evidence；
+- 当前 Deferred / Supporting Boundary（若任务需要）。
 
-这些 Context 在 `PREPARE_GROUNDING` / `PREPARE_FORMAL_BRIEF` 阶段解析，并由 `CourseProductionSnapshot.courseContextReady` 形成硬 Gate。只有 current Track owner、current continuity、current Formal Brief、Deferred Boundary 与所需 Grounding 都已解析，才允许 `courseContextReady=true`；否则 Orchestrator 必须停在 `PREPARE_FORMAL_BRIEF`，禁止进入 Course Builder。
+Context 未准备好时：
+`courseContextReady=false`
 
-换到 Track 02～05 或未来新板块时，只替换 Context references，不复制或改写 Workflow，也不创建 Track-specific Course Builder Skill。Track 02 当前就是该规则的第一条非 Track 01 正式验证路径。
+Workflow 必须停在 `PREPARE_FORMAL_BRIEF`。
 
-第 3～5 板块进入生产时，仍按本 Workflow 依次使用 current Course Builder、正式课程展示文案校验、内容校验和 Human Review。学习建议、六步进度卡片、Step 1 底部说明与底部纯页码规则都从最新 `LESSON_OUTPUT_CONTRACT_V1.md` 读取；`navigationDescription` 只服务顶部进度卡片，底部页码统一只显示 `1 / 6`～`6 / 6`，不得拼接任何描述。正式 LessonSpec 在 Registry 校验中检查六步文案与学习建议。若本课使用 intro comparison，Preview / Human Review 核对底部说明已实际显示。此要求不增加 Workflow Stage，不改变现有前端 UI、交互或 CSS。
+当前 Track 01～05 已冻结，因此普通开发任务不创建新的 Formal Brief。
 
-固定原则：
+## 5. Course Builder
 
-> **Rule owner changes are synchronized by reference + read-latest, not by duplicated text.**
+当前 Skill 只通过：
 
-> **Track switch = Context switch, not Workflow fork and not Skill fork.**
+`skills/course-builder/index.ts`
 
-## 4. Component update boundary
+解析。
 
-以下更新不要求修改 Workflow：
+Workflow 不 import historical Skill version。
 
-- Course Builder Skill v1.0 → v1.x / v2；
-- Orchestrator 内部判断优化；
-- Deterministic Validator 增加 / 收紧规则；
-- Human Review checklist 优化；
-- Research / grounding 策略优化；
-- Beginner Quality / Lesson Output Contract 规则更新。
+Course Builder 输出：
+- Draft；
+- structured candidate；
+- validation input。
 
-前提：组件继续遵守 Stable Contract 与标准 Gate 状态。
+它不拥有：
+- Published 状态；
+- Runtime completion；
+- Access；
+- Catalog availability。
 
-以下变化必须升级 Workflow：
+## 6. Deterministic Validators
 
-- 新增或删除正式生命周期 Gate；
-- 改变 Gate 顺序；
-- Course Builder 输入 / 输出 Contract 出现 breaking change；
-- AVAILABLE 准入条件发生结构性改变。
+对 Workflow 只暴露：
 
-## 5. Version binding
+```text
+PASS
+FAIL + issues[]
+```
 
-Workflow 只依赖：
+长期 Gate 至少包括：
+- Step 1 / 2 overlap；
+- Step 5 knowledge coverage；
+- learner language；
+- internal ID boundary；
+- batch template drift；
+- cross-lesson knowledge overlap；
+- LessonSpec / Completion Gate；
+- Preview authority boundary。
 
-- `lib/learning/course-production-contract.ts`
-- 标准 Gate 状态
-- Required Rule Sources
+具体规则正文来自 `COURSE_BUILD_STANDARD_V1.md`。
 
-Workflow **不得直接 import 任意具体 Course Builder Skill version 文件**。
-
-当前 Skill 只能通过 `skills/course-builder/index.ts` registry 选择；历史 Skill version 只保留 provenance，不进入 current Workflow。
-
-## 6. Human Review Gate
+## 7. Human Review
 
 标准状态：
 
@@ -135,42 +112,76 @@ REVISE
 REJECT
 ```
 
-只有 `PASS` 允许进入 LessonSpec Registry / Runtime。
+只有 PASS 可以进入 LessonSpec Registry。
 
-Human Review 标准可以持续更新，但 Gate 状态 Contract 保持稳定。
+Human Review 判断语义质量，不能被技术 PASS 替代。
 
-## 7. Deterministic Validators
+## 8. Runtime
 
-Validator 可以持续增加、减少或重构内部规则，但对 Workflow 只暴露：
-
-```text
-PASS
-FAIL + issues[]
-```
-
-Workflow 不关心 validator 数量和具体实现。
-
-当前课程类 Deterministic Validators 至少覆盖四类长期防漂移检查：1）`STEP_1_2_OVERLAP_FAIL`，防止 Step 1 复用或由 Step 2 example 自动派生；2）`STEP5_KNOWLEDGE_COVERAGE_FAIL`，按 current Formal Brief 的 must-retain judgments 验收 Step 5；3）`LESSON_TEMPLATE_DRIFT_FAIL`，批量课程检查 Step 1 标题/边界、Step 3 objective/feedback、Step 4 字段/总提示/reflection、Step 5 mistakes/Review、Step 6 objective 等是否被共享模板统一生成；4）`CROSS_LESSON_KNOWLEDGE_OVERLAP_FAIL`，检查相邻课程是否只是换案例重复同一 Primary Knowledge Home。共享 helper 只复用类型、数据装配和确定性逻辑，不承担 learner-facing 文案责任。每批 Draft 进入 Human Review 前必须先做跨课重复审计；Human Review 再确认“上一课已教什么 / 本课新增什么判断 / 下一课才展开什么”。这些检查属于既有 Deterministic Validators + Human Review Gate，不新增 Workflow Stage。
-
-## 8. Current implementation
+Human Review PASS 后：
 
 ```text
-Stable Contract
-lib/learning/course-production-contract.ts
-
-Workflow
-lib/learning/course-production-workflow.ts
-
-Orchestrator
-lib/learning/course-production-orchestrator.ts
-
-Human Review Gate
-lib/learning/course-human-review-gate.ts
-
-Current Course Builder
-skills/course-builder/index.ts
-→ Course Builder Skill v1
-
-Workflow Anti-drift Validator
-scripts/validate-course-production-workflow.ts
+REGISTER_LESSON_SPEC
+→ PROVISION_RUNTIME
+→ RUN_RUNTIME_ACCEPTANCE
+→ MARK_AVAILABLE
 ```
+
+必须确认：
+- LessonSpec 已进入正式 Registry；
+- 正式 Runtime 使用统一 Shell；
+- Check / Practice authority 在服务端；
+- Completion Gate 正确；
+- Access 正确；
+- Preview 不写正式 Progress / Completion。
+
+## 9. Track Switch
+
+固定：
+
+> Track switch = Context switch, not Workflow fork and not Skill fork.
+
+切换 Track 只改变 Context references。
+
+## 10. Rule Update
+
+以下变化不升级 Workflow：
+- Course Builder Skill 内部优化；
+- Validator 增减；
+- Human Review checklist 细化；
+- COURSE_BUILD_STANDARD 内容优化；
+- Grounding 策略优化。
+
+以下变化必须升级 Workflow：
+- 新增 / 删除正式 Gate；
+- Gate 顺序改变；
+- Course Builder Contract breaking change；
+- AVAILABLE 准入条件结构性改变。
+
+## 11. Preflight
+
+课程治理任务运行：
+
+```bash
+npm run learning:course-current-state:check
+npm run learning:course-build-entry:check
+npm run learning:course-governance:check
+npm run scripts:current:check
+```
+
+任一失败先修复事实漂移。
+
+## 12. Historical Boundary
+
+固定：**历史生产过程通过 Git 追溯，不作为 current Workflow source。**
+
+已完成 Track / Batch 的：
+- Formal Brief；
+- Draft validation；
+- Human Review file；
+- provisioning script；
+- acceptance script；
+
+不属于 current Workflow source。
+
+需要追溯时使用 Git commit，不把历史文件重新复制回 current tree。

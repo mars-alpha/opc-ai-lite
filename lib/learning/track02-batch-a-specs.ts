@@ -1,5 +1,5 @@
 import type { CourseBuilderBuildDraft } from "./course-builder";
-import { track02BatchADrafts } from "../../fixtures/course-builder/track02-batch-a";
+import { track02BatchADrafts } from "./course-content/track02-batch-a";
 
 type ApprovedTrack02Draft = CourseBuilderBuildDraft;
 

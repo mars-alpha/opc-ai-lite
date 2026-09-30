@@ -1,10 +1,10 @@
 import type { CourseBuilderBuildDraft } from "./course-builder";
-import { track05BatchADrafts } from "../../fixtures/course-builder/track05-batch-a";
-import { track05BatchBDrafts } from "../../fixtures/course-builder/track05-batch-b";
-import { track05BatchCDrafts } from "../../fixtures/course-builder/track05-batch-c";
-import { track05BatchDDrafts } from "../../fixtures/course-builder/track05-batch-d";
-import { track05BatchEDrafts } from "../../fixtures/course-builder/track05-batch-e";
-import { track05BatchFDrafts } from "../../fixtures/course-builder/track05-batch-f";
+import { track05BatchADrafts } from "./course-content/track05-batch-a";
+import { track05BatchBDrafts } from "./course-content/track05-batch-b";
+import { track05BatchCDrafts } from "./course-content/track05-batch-c";
+import { track05BatchDDrafts } from "./course-content/track05-batch-d";
+import { track05BatchEDrafts } from "./course-content/track05-batch-e";
+import { track05BatchFDrafts } from "./course-content/track05-batch-f";
 
 const drafts=[
   ...track05BatchADrafts,

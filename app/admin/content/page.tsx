@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { AdminContentConsole } from "../../../components/AdminContentConsole";
+import { AdminPlatformContentWorkspace } from "../../../components/AdminPlatformContentWorkspace";
 import { getSessionUser, SESSION_COOKIE } from "../../../lib/server/auth/service";
 import { isAdminUser } from "../../../lib/server/admin/service";
 
@@ -39,19 +39,14 @@ export default async function AdminContentPage() {
 
   return (
     <main className="admin-page">
-      <div className="admin-page-head">
+      <div className="admin-view-head admin-page-titlebar">
         <div>
-          <div className="kicker">OPC Admin · Content Operations</div>
-          <h1>AI 内容运营</h1>
-          <p>把候选 AI 信息整理、审核并发布到 AI Daily；本阶段不做自动采集与自动派生。</p>
-        </div>
-        <div className="admin-page-actions">
-          <Link className="btn btn-secondary" href="/admin/courses">课程维护</Link>
-          <Link className="btn btn-secondary" href="/admin/learning">学习洞察</Link>
-          <Link className="btn btn-secondary" href="/ai-daily">查看 AI Daily</Link>
+          <span>PLATFORM / CONTENT</span>
+          <h1>官方内容</h1>
+          <p>这里只处理 OPC AI 官方内容。用户工作台的素材、草稿和产物不进入这里。</p>
         </div>
       </div>
-      <AdminContentConsole />
+      <AdminPlatformContentWorkspace />
     </main>
   );
 }

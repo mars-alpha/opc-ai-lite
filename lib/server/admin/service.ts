@@ -17,8 +17,12 @@ function adminEmails() {
   );
 }
 
+export function isBootstrapAdminEmail(email: string) {
+  return adminEmails().has(email.trim().toLowerCase());
+}
+
 export function isAdminUser(user: AuthUser | null) {
-  return Boolean(user && adminEmails().has(user.email.toLowerCase()));
+  return Boolean(user && (user.role === "ADMIN" || isBootstrapAdminEmail(user.email)));
 }
 
 export function requireAdminUser(user: AuthUser | null) {

@@ -19,6 +19,7 @@ export type AuthUser = {
   id: string;
   email: string;
   displayName: string | null;
+  role: "USER" | "ADMIN";
 };
 
 export function normalizeEmail(value: string) {
@@ -98,7 +99,7 @@ export async function registerUser(input: {
       const [user] = await tx
         .insert(users)
         .values({ displayName })
-        .returning({ id: users.id, displayName: users.displayName });
+        .returning({ id: users.id, displayName: users.displayName, role: users.role });
 
       await tx.insert(userIdentities).values({
         userId: user.id,
@@ -112,7 +113,7 @@ export async function registerUser(input: {
         passwordSalt: credential.salt
       });
 
-      return { id: user.id, email, displayName: user.displayName };
+      return { id: user.id, email, displayName: user.displayName, role: user.role };
     });
   } catch (error) {
     if (
@@ -140,6 +141,8 @@ export async function loginUser(input: {
     .select({
       id: users.id,
       displayName: users.displayName,
+      role: users.role,
+      accountStatus: users.accountStatus,
       passwordHash: userCredentials.passwordHash,
       passwordSalt: userCredentials.passwordSalt
     })
@@ -157,8 +160,9 @@ export async function loginUser(input: {
   if (!row || !(await verifyPassword(password, row.passwordHash, row.passwordSalt))) {
     throw new Error("INVALID_CREDENTIALS");
   }
+  if (row.accountStatus === "DISABLED") throw new Error("ACCOUNT_DISABLED");
 
-  return { id: row.id, email, displayName: row.displayName };
+  return { id: row.id, email, displayName: row.displayName, role: row.role };
 }
 
 export async function createSession(userId: string) {
@@ -184,6 +188,8 @@ export async function getSessionUser(token: string | null): Promise<AuthUser | n
     .select({
       id: users.id,
       displayName: users.displayName,
+      role: users.role,
+      accountStatus: users.accountStatus,
       email: userIdentities.providerUserId
     })
     .from(sessions)
@@ -198,7 +204,8 @@ export async function getSessionUser(token: string | null): Promise<AuthUser | n
     .where(and(eq(sessions.tokenHash, tokenHash), gt(sessions.expiresAt, new Date())))
     .limit(1);
 
-  return row ?? null;
+  if (!row || row.accountStatus === "DISABLED") return null;
+  return { id: row.id, email: row.email, displayName: row.displayName, role: row.role };
 }
 
 export async function deleteSession(token: string | null) {

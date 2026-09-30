@@ -10,7 +10,8 @@ const expectedBenefits = [
   "AI 日报",
   "进阶练习",
   "实操项目",
-  "进阶内容"
+  "进阶内容",
+  "个人 AI 工作台"
 ];
 
 assert(
@@ -42,6 +43,7 @@ assert(dailyFeed.includes("部分内容可免费阅读全文"), "DAILY_PARTIAL_F
 assert(!dailyFeed.includes("Top 3 免费阅读全文"), "DAILY_TOP3_MUST_NOT_BE_PRODUCT_PROMISE");
 assert(lockedCta.includes("进阶练习、实操项目与后续进阶内容"), "MEMBER_VALUE_COPY_REQUIRED");
 assert(practiceAccess.includes("resolveMembershipFeatureAccess"), "PRACTICE_MEMBER_GATE_REQUIRED");
+assert(MEMBERSHIP_BENEFIT_MATRIX.some(([name, , member]) => name === "个人 AI 工作台" && member.includes("会员专属")), "PERSONAL_WORKSPACE_MEMBER_BENEFIT_REQUIRED");
 assert(!practiceAccess.includes("hasOfficialAccountFollowEntitlement"), "FOLLOW_MUST_NOT_UNLOCK_PRACTICE");
 
 for (const banned of [
@@ -57,8 +59,8 @@ for (const banned of [
   assert(!MEMBERSHIP_BENEFIT_MATRIX.some(([name]) => name === banned), "LEGACY_BENEFIT_REINTRODUCED:" + banned);
 }
 
-assert(facts.includes("会员权益表只展示长期稳定的用户价值"), "CURRENT_FACT_GOVERNANCE_REQUIRED");
-assert(architecture.includes("内部内容模型 / 数据来源，不再作为会员权益表的独立产品项"), "ARCHITECTURE_GOVERNANCE_REQUIRED");
+assert(facts.includes("免费用户：AI 日报精选 Top3") && facts.includes("公众号关注权益：全部日报") && facts.includes("个人 AI 工作台") && facts.includes("真实公众号关注验证、完整订单/支付仍未接入"), "CURRENT_FACT_GOVERNANCE_REQUIRED");
+assert(architecture.includes("公众号关注、微信登录、抖音登录、支付属于 Adapter / Identity / Commerce") && architecture.includes("同一 user 共享 Progress / Entitlement / Membership"), "ARCHITECTURE_GOVERNANCE_REQUIRED");
 
 console.log("MEMBERSHIP_BENEFIT_MATRIX=PASS");
 console.log("OFFICIAL_ACCOUNT_LEARNING_ASSISTANT=PASS");

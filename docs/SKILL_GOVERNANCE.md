@@ -225,9 +225,9 @@ v0.1
 → Core Publish
 ```
 
-但以下始终属于 Core / Human-controlled workflow：
+以下始终属于 Core Authority：
 
-- 正式发布；
+- 正式发布状态变化；
 - 正式课程更新；
 - 正式 Knowledge 写入；
 - 权限；
@@ -236,7 +236,7 @@ v0.1
 - 删除正式内容；
 - Production state transition。
 
-后台审核逻辑保持不变。
+是否需要 Human Gate 不由 Skill 自己决定，统一按 `docs/DEVELOPMENT_OPERATING_MANUAL.md` 的 Human Review / Publish 规则判断；不增加没有新信息的重复“审核 + 发布”人工步骤。
 
 ## 11. Independent Optimization Rule
 
@@ -253,7 +253,19 @@ Skill 的设计目标是“可控地持续优化”，不是“一次做成万�
 
 不得为了修复一个输出，把无关职责继续塞入同一个 Skill。
 
-## 12. Registry Rule
+## 12. 个人工作台 Skill 边界
+
+个人工作台 MVP 默认消费 **官方已发布能力**，用户界面不暴露内部 Skill Registry，也不要求普通用户理解 Skill ID / Version。
+
+用户私有“配置型 Skill”属于后续高级能力，不是 Workbench Foundation 前置条件。未来开放时固定：
+- 只允许配置型能力描述，不执行用户上传的任意 Python / JavaScript / TypeScript / Shell、二进制、npm package 或其他可执行代码；
+- 使用用户自己的 BYOK；
+- 私有配置不自动进入 OPC AI 官方 Registry；
+- 用户主动提交候选也必须经过独立官方治理后才能成为官方 Skill。
+
+OPC AI 项目内部可执行 Skill 继续遵循 Proposal / Contract / Registry / Acceptance。
+
+## 13. Registry Rule
 
 所有已经实际落盘并可被项目引用的 Skill 都必须登记到：
 
