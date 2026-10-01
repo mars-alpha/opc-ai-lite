@@ -1,7 +1,8 @@
 import "server-only";
 
-import { and, desc, eq, gt, ilike, isNull, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, ilike, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { OPC_MEMBERSHIP_PRODUCT } from "../../membership/policy";
+import { courses, getAllLessons } from "../../courses";
 import type { AuthUser } from "../auth/service";
 import { isBootstrapAdminEmail } from "./service";
 import { getDatabase } from "../db";
@@ -47,6 +48,14 @@ const membershipCondition = and(
   eq(entitlements.resourceType, OPC_MEMBERSHIP_PRODUCT.resourceType),
   eq(entitlements.resourceId, OPC_MEMBERSHIP_PRODUCT.resourceId)
 );
+
+const CURRENT_CURRICULUM_SLUGS = new Set(["foundation-ai", "ai-work", "ai-growth", "ai-workflow", "fde"]);
+
+function currentCurriculumLessonCount() {
+  return courses
+    .filter((course) => CURRENT_CURRICULUM_SLUGS.has(course.slug))
+    .reduce((total, course) => total + getAllLessons(course).length, 0);
+}
 
 function membershipState(row: {
   membershipId: string | null;
@@ -427,7 +436,6 @@ export async function getAdminPlatformSummary() {
     [activeMembers],
     [expiringMembers],
     [reviewContent],
-    [publishedLessons],
     [openInsights],
     [qualityRisks]
   ] = await Promise.all([
@@ -457,15 +465,11 @@ export async function getAdminPlatformSummary() {
     getDatabase()
       .select({ count: sql<number>`count(*)::int` })
       .from(contentItems)
-      .where(eq(contentItems.status, "REVIEW")),
-    getDatabase()
-      .select({ count: sql<number>`count(*)::int` })
-      .from(lessons)
-      .where(eq(lessons.status, "PUBLISHED")),
+      .where(inArray(contentItems.status, ["DRAFT", "REVIEW"])),
     getDatabase()
       .select({ count: sql<number>`count(*)::int` })
       .from(courseInsights)
-      .where(eq(courseInsights.status, "OPEN")),
+      .where(inArray(courseInsights.status, ["OPEN", "ANALYSIS_READY", "UNDER_REVIEW"])),
     getDatabase()
       .select({ count: sql<number>`count(*)::int` })
       .from(learningFeedback)
@@ -477,7 +481,7 @@ export async function getAdminPlatformSummary() {
     activeMembers: Number(activeMembers?.count ?? 0),
     expiringMembers: Number(expiringMembers?.count ?? 0),
     reviewContent: Number(reviewContent?.count ?? 0),
-    publishedLessons: Number(publishedLessons?.count ?? 0),
+    publishedLessons: currentCurriculumLessonCount(),
     openInsights: Number(openInsights?.count ?? 0),
     qualityRisks: Number(qualityRisks?.count ?? 0)
   };

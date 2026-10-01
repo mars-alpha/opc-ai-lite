@@ -26,6 +26,14 @@ function optionalText(value: unknown) {
   return value.trim() || null;
 }
 
+function stringArray(value: unknown, max = 30) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === "string" && Boolean(item.trim()))
+    .map((item) => item.trim())
+    .slice(0, max);
+}
+
 function parseOptionalDate(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   if (typeof value !== "string") throw new Error("INVALID_DATE");
@@ -77,6 +85,9 @@ export function validateContentItemUpdate(input: unknown) {
   return {
     title: requiredText(input.title, "INVALID_TITLE", 180),
     summary: requiredText(input.summary, "INVALID_SUMMARY", 1200),
+    audience: optionalText(input.audience),
+    purpose: optionalText(input.purpose),
+    tags: stringArray(input.tags, 30),
     category: requiredText(input.category, "INVALID_CATEGORY", 120),
     destination: destination as Destination,
     sourceType: requiredText(input.sourceType, "INVALID_SOURCE_TYPE", 120),

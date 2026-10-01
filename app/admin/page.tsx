@@ -42,8 +42,8 @@ export default async function AdminDashboardPage() {
   const metrics = [
     { label: "注册用户", value: summary.users, detail: "当前平台注册账号", href: "/admin/users" },
     { label: "有效会员", value: summary.activeMembers, detail: "当前有效 Membership", href: "/admin/users" },
-    { label: "正式课程", value: summary.publishedLessons, detail: "当前 Published Lesson", href: "/admin/courses" },
-    { label: "待处理内容", value: summary.reviewContent, detail: "等待管理员处理的官方内容", href: "/admin/content" }
+    { label: "正式课程", value: summary.publishedLessons, detail: "当前五大板块正式课程", href: "/admin/courses" },
+    { label: "待处理内容", value: summary.reviewContent, detail: "等待管理员处理的采集内容", href: "/admin/content?view=workbench" }
   ];
 
   const attention = [
@@ -66,17 +66,17 @@ export default async function AdminDashboardPage() {
       href: "/admin/learning"
     },
     {
-      label: "待处理官方内容",
+      label: "待处理采集内容",
       value: summary.reviewContent,
       detail: summary.reviewContent > 0 ? "有内容等待管理员处理" : "当前没有待处理内容",
-      href: "/admin/content"
+      href: "/admin/content?view=workbench"
     }
   ];
 
   const shortcuts = [
     { href: "/admin/users", title: "用户与权益", detail: "账号、学习概况、会员与 Entitlement" },
-    { href: "/admin/content", title: "官方内容", detail: "管理 OPC AI 自己的内容" },
-    { href: "/admin/courses", title: "课程", detail: "查看课程状态与版本" },
+    { href: "/admin/content?view=strategy", title: "内容采集", detail: "配置采集策略与采集范围" },
+    { href: "/admin/courses", title: "课程维护", detail: "查看课程状态与版本" },
     { href: "/admin/learning", title: "学习洞察", detail: "查看问题、风险与更新候选" }
   ];
 

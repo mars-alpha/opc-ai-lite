@@ -84,11 +84,6 @@ export function AdminLearningWorkbench({
 
   return (
     <div className="admin-learning-workbench">
-      <div className="admin-learning-summary">
-        <div><span>学习问题</span><strong>{insights.length}</strong><small>达到关注条件后进入分析</small></div>
-        <div><span>更新候选</span><strong>{candidates.length}</strong><small>人工确认后才形成课程任务</small></div>
-        <div><span>质量风险</span><strong>{qualityRisks.length}</strong><small>错误或过时反馈优先人工检查</small></div>
-      </div>
       <div className="admin-learning-grid">
         <div className="admin-learning-column admin-learning-column-left">
       <section className={"admin-insight-section " + (insights.length === 0 ? "is-empty" : "")}>

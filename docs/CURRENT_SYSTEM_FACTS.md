@@ -19,7 +19,7 @@
 Frontend / Web        Next.js 15 App Router
 Runtime               Node.js 20
 Database              PostgreSQL + Drizzle
-DB target             TencentDB for PostgreSQL / Supabase LEGACY TEST ONLY
+DB target             TencentDB for PostgreSQL (Supabase target blocked)
 Process manager       PM2
 Reverse proxy         Nginx
 Production OS         Ubuntu 22.04
@@ -105,63 +105,35 @@ Mobile 与未来微信/抖音小程序共享同一业务后台、用户、课程
 
 ## 7. 用户工作台 / 管理后台当前事实
 
-最新产品边界以“角色”优先，不再以旧的内容四阶段或 Admin Workbench 作为信息架构基线。
-
 ### 用户工作台
 
-个人 AI 工作台是未来独立产品，不属于 `/admin`；当前状态为 PLANNED，不暴露正式 `/workspace` 产品页面。
-
-普通用户只看到：
-- 工作台任务；
-- 素材；
-- 创作 / Studio；
-- 自动化；
-- 产物；
-- 连接；
-- 个人设置。
-
-普通用户不看到：
-- 平台用户/会员管理；
-- 官方内容后台；
-- 课程维护后台；
-- 学习洞察后台；
-- 内部 Prompt Registry / Skill Registry；
-- 平台模型 Provider；
-- 数据库、审计、管理员权限、Feature Flag。
-
-用户工作台只“使用能力”。内部 Workflow / Prompt / Skill 可以通过官方模板和产品交互被调用，但不要求普通用户理解平台内部注册和发布机制。
+个人 AI 工作台是未来独立会员产品，不属于 OPC AI 前台或 `/admin`；当前状态为 PLANNED，不暴露正式 `/workspace` 页面。用户只使用任务、素材、Studio、自动化、产物、连接和个人设置，不看到平台 Registry、Provider、数据库、审计或管理员配置。用户素材与 AI 产物第一阶段默认保存在浏览器 IndexedDB，可导出；平台不长期保存普通用户媒体。
 
 ### 管理后台
 
-`/admin` 只表示管理员控制台，当前分为：
+`/admin` 当前正式导航：
+- 平台：运营总览、内容采集、课程维护、学习洞察；
+- 用户：用户与权益。
 
-1. 平台运营：运营总览、官方内容、课程维护、学习洞察；
-2. 用户与权益：一个一级入口管理用户账号、学习概况与会员 / Entitlement；会员不是独立一级业务对象；
-3. AI 能力配置：官方 Workflow 模板、Prompt 模板、Skill Registry、模型 Provider、连接器；
-4. 系统：运行状态、审计、管理员权限与后续 Feature Flag。
+AI 能力配置与系统域仅保留产品边界，底层能力未完成前不暴露正式页面或导航。兼容路由 `/admin/platform`、`/admin/memberships` 只做重定向。
 
-AI 能力配置与系统域目前只保留产品边界，底层能力未完成前不暴露正式页面或导航入口。
+`/admin/content` 对外统一称“内容采集”，固定三个视图：**采集策略 / 今日情报 / 内容工作台**。
+- 采集策略 owner：`AdminCollectionStrategyPanel`；Strategy 与 Source Registry 分离。当前可真实执行的 Collector 为 RSS / HTTP / Manual URL / HN Algolia / GitHub Search；RSSHub、Creator / Comment、MediaCrawler 类能力仍是扩展位。
+- Collector 固定 `REFERENCE_ONLY`，只返回引用、文本、指标与 metadata，不拥有长期保存媒体的权限。
+- Raw Item 有 URL 时按 canonical URL 全局去重，Observation 保存多 Source / Platform 发现事实。
+- Event Seed / Expansion / Cluster / Signal 由确定性 Core 运行；复杂分数只用于排序与审计，不作为普通管理员主界面。
+- 今日情报由 Human 执行 ADOPT / WATCH / IGNORE；Discovery 不直接写 Content。
+- ADOPT 由 `lib/server/content/adoption.ts` 幂等建立 Content DRAFT、关联 Evidence，并进入 `AdminContentStudioWorkspace`。
+- Content Brief Enrichment 是 ADOPT 后的可选 AI 能力，只补核心观点 / 受众 / 目的 / 标签；AI 不拥有 Event Decision、Content 状态或发布权，未配置模型时 Core 流程仍可运行。
+- 内容工作台唯一 UI owner 为 `AdminContentStudioWorkspace`；旧 AdminContentConsole / Lifecycle / Knowledge Routing 展示层已退出 current tree。
+- 审核状态固定为 DRAFT → REVIEW → PUBLISHED；没有实际结果不得审核通过。
 
-`/admin/platform` 不再作为第二个后台首页，只兼容重定向到 `/admin`。`/admin/content` 对外名称统一为“官方内容”，只处理 OPC AI 自己的业务内容。
+Development `opc_ai_dev` 当前已应用 Drizzle migration `0000`～`0025`（26 条）。本地应用使用最小权限账号 `opc_ai_dev_app`，Migration 使用独立 `DATABASE_MIGRATION_URL`。本地通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB；2026-10-01 的 Auth Session 报错已确认是隧道中断，不是 `sessions / users / user_identities` Schema 漂移，因此未新增 Auth migration 或认证补丁。
 
-用户与会员真实能力继续保留：搜索、ACTIVE/DISABLED、学习概况、会员开始/到期/永久/延长/取消及管理员审计。用户备注已退出产品与运行时 contract，不再作为当前能力。
+用户与权益当前真实能力：用户搜索、ACTIVE / DISABLED、学习概况、会员开始/到期/永久/延长/取消，以及管理员审计。历史 `users.admin_note` 仅作为数据库兼容字段，不属于当前产品 contract。
 
-### 为未来用户工作台必须补齐的后台能力
+AI 日报、热点能力练习、实操项目和课程更新候选可以共享 Event / Source，但不共享内容模板；只有课程更新候选进入 Course Builder 六步治理。
 
-这些属于控制层，不直接作为用户界面暴露：
-- 官方 Workflow / Prompt / Skill 模板发布与版本；
-- Provider Adapter / Model Gateway；
-- BYOK 配置契约和 Secret 边界；
-- 连接器 / OAuth；
-- Workspace metadata；
-- Workflow Run / Step Run 最小状态和失败重跑；
-- 模板分发与权限。
-
-用户内容仍默认保存在浏览器 IndexedDB，可导出文件；平台不长期保存普通用户素材、AI 产物或媒体文件。
-
-本轮不再把“来源/证据 → 候选 → 审核 → 发布”视为整个后台的固定结构。官方内容、课程、学习洞察的具体流程后续分别按管理员职责重新设计。
-
-当前用户/会员治理 migrations 已落到 Development `opc_ai_dev`；本地应用继续使用最小权限账号 `opc_ai_dev_app`。历史 migration 中存在的 `users.admin_note` 仅作为数据库兼容遗留，不再进入前端类型、Admin API 或服务层 current contract。Production 尚未执行本轮用户/角色 migrations。
 
 ## 8. 会员与公众号
 
@@ -200,11 +172,9 @@ Workbench 当前数据边界：
 
 ## 11. 当前下一步
 
-当前进入：
+当前状态：`ADMIN-CONTENT-COLLECTION / FUNCTIONAL_AUDIT_PASS / VISUAL_REVIEW`。
 
-`ADMIN-REMAINING-IA-REBUILD-001 / READY`
-
-当前继续完成后台其余界面重构：运营总览与用户与权益已确认为冻结基线；下一站为官方内容，之后依次收口课程维护与学习洞察。未接通的 AI 能力、系统管理与个人 AI 工作台不暴露正式页面。整个 Admin 基线确认后才进入个人 AI 工作台 Product Spec。
+内容采集主链、数据库迁移与 Auth Session 已按当前事实复核。下一步先完成后台视觉审核与 Git Diff 收口；在用户明确确认前不把本轮 UI 标记为 USER_APPROVED，也不提交混杂修改。
 
 ## 12. Repository Governance 状态
 

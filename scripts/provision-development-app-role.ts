@@ -16,10 +16,18 @@ if (target.environment !== "development" || target.databaseName !== "opc_ai_dev"
   throw new Error("DEVELOPMENT_DATABASE_REQUIRED");
 }
 
-const databaseUrl = process.env.DATABASE_URL?.trim();
-if (!databaseUrl) throw new Error("DATABASE_URL_REQUIRED");
+const migrationUrl = process.env.DATABASE_MIGRATION_URL?.trim();
+if (!migrationUrl) throw new Error("DATABASE_MIGRATION_URL_REQUIRED");
 
-const sql = postgres(databaseUrl, { max: 1 });
+const migrationTarget = assertCurrentDatabaseTarget({
+  DATABASE_ENVIRONMENT: process.env.DATABASE_ENVIRONMENT,
+  DATABASE_URL: migrationUrl
+});
+if (migrationTarget.environment !== "development" || migrationTarget.databaseName !== "opc_ai_dev") {
+  throw new Error("DEVELOPMENT_MIGRATION_DATABASE_REQUIRED");
+}
+
+const sql = postgres(migrationUrl, { max: 1 });
 const appRole = quoteIdentifier(APP_ROLE);
 
 try {

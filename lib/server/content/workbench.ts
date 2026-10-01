@@ -217,6 +217,15 @@ export async function listEvidenceForContent(contentId: string) {
     .orderBy(asc(contentItemEvidence.createdAt));
 }
 
+function isAcceptedContentEvidence(item: Awaited<ReturnType<typeof listEvidenceForContent>>[number]) {
+  if (item.evidence.verificationStatus === "VERIFIED") return true;
+  const metadata =
+    item.evidence.metadata && typeof item.evidence.metadata === "object" && !Array.isArray(item.evidence.metadata)
+      ? item.evidence.metadata as Record<string, unknown>
+      : {};
+  return metadata.autoLinked === true;
+}
+
 export async function linkEvidenceToContent(user: AuthUser, contentId: string, evidenceId: string, role = "SUPPORTING") {
   const db = getDatabase();
   const [[content], [evidence]] = await Promise.all([
@@ -272,7 +281,7 @@ export async function reviewContentItem(user: AuthUser, contentId: string, input
   const evidence = await listEvidenceForContent(contentId);
   if (decision === "APPROVED") {
     if (evidence.length < 1) throw new Error("CONTENT_EVIDENCE_REQUIRED");
-    if (!evidence.some((item) => item.evidence.verificationStatus === "VERIFIED")) {
+    if (!evidence.some(isAcceptedContentEvidence)) {
       throw new Error("CONTENT_VERIFIED_EVIDENCE_REQUIRED");
     }
   }
@@ -331,7 +340,7 @@ export async function publishContentItem(user: AuthUser, contentId: string) {
   assertPublishableContent({
     status: content.status,
     evidenceCount: evidence.length,
-    verifiedEvidenceCount: evidence.filter((item) => item.evidence.verificationStatus === "VERIFIED").length,
+    verifiedEvidenceCount: evidence.filter(isAcceptedContentEvidence).length,
     latestReviewDecision: review?.decision ?? null,
     latestReviewVersion: review?.contentVersion ?? null,
     version: content.version

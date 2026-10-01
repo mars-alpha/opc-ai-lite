@@ -10,13 +10,13 @@ Learning Path                     TRACK01～05 / 81 LESSONS / FROZEN
 Unified Lesson Shell              FROZEN / PASS
 Course Production Workflow        STABLE
 Course Builder                    course-builder@1.0.0
-Development Governance Reset         COMPLETE / PASS
+Development Governance Reset      COMPLETE / PASS
 Mobile Web                        PLANNED / AFTER CONTENT FOUNDATION
 WeChat / Douyin Mini Programs     FUTURE / SHARED BACKEND
 Official Account Follow           NOT CONNECTED
 Payment                           NOT CONNECTED
 Repository Governance             COMPLETE / PASS
-CURRENT                           ADMIN REMAINING IA REBUILD / READY
+CURRENT                           CONTENT COLLECTION / FUNCTIONAL AUDIT PASS / VISUAL REVIEW
 ```
 
 ## 系统健康
@@ -24,7 +24,7 @@ CURRENT                           ADMIN REMAINING IA REBUILD / READY
 ```text
 Next.js App Router                ACTIVE
 PostgreSQL + Drizzle              ACTIVE
-Database target                    TENCENTDB POSTGRESQL / SUPABASE LEGACY TEST ONLY
+Database target                   TENCENTDB POSTGRESQL / DEV TUNNEL ACTIVE
 Formal Lesson Runtime             PASS
 LessonSpec Registry               PASS
 Check / Practice authority        PASS
@@ -50,7 +50,7 @@ Production domain                 https://opcai.fun
 5. 建立统一后台的开发顺序和验收标准。
 
 当前产品开发入口：
-`ADMIN-REMAINING-IA-REBUILD-001 / READY`；已确认的运营总览与用户与权益作为冻结基线，下一站重构“官方内容”。
+`ADMIN-CONTENT-COLLECTION / FUNCTIONAL_AUDIT_PASS / VISUAL_REVIEW`。`/admin/content` 已收敛为采集策略 / 今日情报 / 内容工作台；内容主链、Development migration 0000～0025 与 Auth Session 数据库结构已复核。2026-10-01 的 Auth 报错源于本地 TencentDB SSH 隧道中断，恢复隧道后后台路由与 Session 查询正常，无需新增 Auth migration。Visual Human Review 通过前不提交本轮 Git。
 
 ## Development Governance 已确认基线
 
@@ -62,5 +62,5 @@ Production domain                 https://opcai.fun
 - 不保留第二份 current roadmap；历史方案只通过 Git history 追溯；
 - 后续顺序固定为：治理收口 → Admin IA 重构 → Workbench Product Spec → Workbench Foundation；
 - 所有实现任务先完成 Decision Brief，再进入 TDD；
-- 运营总览与“用户与权益”已确认；未接通的 AI 能力、系统管理、个人 AI 工作台不暴露为正式页面；其余后台按官方内容 → 课程维护 → 学习洞察顺序逐页收口；
+- 运营总览与“用户与权益”已确认；未接通的 AI 能力、系统管理、个人 AI 工作台不暴露为正式页面；其余后台按内容采集 → 课程维护 → 学习洞察顺序逐页收口；
 - Visual Human Review Gate 继续由 AGENTS.md 管理。

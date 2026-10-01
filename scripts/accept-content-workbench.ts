@@ -17,11 +17,13 @@ const schema = read("lib/server/db/schema.ts");
 const workbench = read("lib/server/content/workbench.ts");
 const admin = read("lib/server/content/admin.ts");
 const routing = read("lib/server/content/routing.ts");
-const consoleUi = read("components/AdminContentConsole.tsx");
-const lifecycleUi = read("components/ContentWorkbenchLifecyclePanel.tsx");
+const studioUi = read("components/AdminContentStudioWorkspace.tsx");
 const platformWorkspaceUi = read("components/AdminPlatformContentWorkspace.tsx");
-const analysisUi = read("components/AdminContentAnalysisPanel.tsx");
-const knowledgeUi = read("components/KnowledgeRoutingPanel.tsx");
+const discovery = read("lib/server/content/discovery.ts");
+const adoption = read("lib/server/content/adoption.ts");
+const decisionRoute = read("app/api/admin/content/discovery/events/[eventId]/decision/route.ts");
+const briefEnrichment = read("lib/server/content/content-brief-enrichment.ts");
+const studioCss = read("app/admin/content/official-content.css");
 const knowledgeSources = read("lib/server/content/knowledge-sources.ts");
 const adminPage = read("app/admin/content/page.tsx");
 const migration = read("drizzle/0014_chunky_ricochet.sql");
@@ -50,7 +52,10 @@ for (const route of [
   "app/api/admin/content/items/[itemId]/evidence/route.ts",
   "app/api/admin/content/items/[itemId]/review/route.ts",
   "app/api/admin/content/items/[itemId]/publish/route.ts",
-  "app/api/admin/content/items/[itemId]/audit/route.ts"
+  "app/api/admin/content/items/[itemId]/audit/route.ts",
+  "app/api/admin/content/discovery/sources/route.ts",
+  "app/api/admin/content/discovery/raw-items/route.ts",
+  "app/api/admin/content/discovery/events/route.ts"
 ]) {
   assert(fs.existsSync(route), "WORKBENCH_ROUTE_MISSING:" + route);
 }
@@ -64,26 +69,47 @@ assert(admin.includes("existing.version + 1"), "CONTENT_VERSION_INCREMENT_MISSIN
 assert(!admin.includes("createAdminKnowledgeItem"), "DIRECT_KNOWLEDGE_CREATE_MUST_BE_DISABLED");
 assert(!admin.includes("updateAdminKnowledgeItem"), "DIRECT_KNOWLEDGE_UPDATE_MUST_BE_DISABLED");
 
-assert(consoleUi.includes("ContentWorkbenchLifecyclePanel"), "WORKBENCH_UI_NOT_ATTACHED");
-assert(!consoleUi.includes('updateDraft({ status:'), "DIRECT_CONTENT_STATUS_CONTROL_PRESENT");
-assert(lifecycleUi.includes("标记已验证"), "EVIDENCE_VERIFY_UI_MISSING");
-assert(lifecycleUi.includes("审核通过"), "HUMAN_REVIEW_UI_MISSING");
-assert(lifecycleUi.includes("正式发布"), "PUBLISH_UI_MISSING");
+assert(studioUi.includes("审核通过"), "HUMAN_REVIEW_UI_MISSING");
+assert(studioUi.includes("正式发布"), "PUBLISH_UI_MISSING");
 assert(adminPage.includes("AdminPlatformContentWorkspace"), "PLATFORM_CONTENT_WORKSPACE_MISSING");
-assert(platformWorkspaceUi.includes('type Stage = "LIBRARY" | "CANDIDATE" | "REVIEW"'), "PLATFORM_CONTENT_STAGE_MODEL_MISSING");
-assert(platformWorkspaceUi.includes("<AdminContentAnalysisPanel />"), "SOURCE_ANALYSIS_ENTRY_MISSING");
-assert(analysisUi.includes('fetch("/api/admin/content/sources"'), "SOURCE_LIBRARY_API_MISSING");
-assert(analysisUi.includes('"/evidence"'), "SOURCE_EVIDENCE_API_MISSING");
-assert(!lifecycleUi.includes('mode: "LIBRARY"'), "DUPLICATE_LIBRARY_MODE_MUST_BE_REMOVED");
-assert(consoleUi.includes('mode="ITEM"'), "CANDIDATE_REVIEW_MODE_MISSING");
-assert(!consoleUi.includes("<span>来源类型</span>"), "LEGACY_SOURCE_TYPE_UI_PRESENT");
-assert(!consoleUi.includes("<span>来源标识</span>"), "LEGACY_SOURCE_REF_UI_PRESENT");
-assert(!consoleUi.includes("<span>来源 URL</span>"), "LEGACY_SOURCE_URL_UI_PRESENT");
+assert(platformWorkspaceUi.includes('type View = "INTELLIGENCE" | "WORKBENCH" | "STRATEGY"'), "PLATFORM_CONTENT_OPS_VIEW_MODEL_MISSING");
+assert(platformWorkspaceUi.includes('initialView = "INTELLIGENCE"'), "PLATFORM_CONTENT_INTELLIGENCE_DEFAULT_MISSING");
+assert(platformWorkspaceUi.includes("<AdminContentStudioWorkspace"), "CONTENT_PRODUCTION_ENTRY_MISSING");
+assert(platformWorkspaceUi.includes("今日情报"), "INTELLIGENCE_ENTRY_MISSING");
+assert(platformWorkspaceUi.includes("内容工作台"), "WORKBENCH_ENTRY_MISSING");
+assert(platformWorkspaceUi.includes("采集策略"), "STRATEGY_ENTRY_MISSING");
+assert(!platformWorkspaceUi.includes("开始整理"), "TOPIC_INTERMEDIATE_ACTION_PRESENT");
+assert(adoption.includes("ensureContentDraftForEvent"), "DIRECT_ADOPT_DRAFT_MISSING");
+assert(adoption.includes("autoLinked: true"), "AUTO_PROVENANCE_LINK_MISSING");
+assert(decisionRoute.includes("enrichContentBriefAfterAdoption"), "ADOPT_BRIEF_AI_ORCHESTRATION_MISSING");
+assert(briefEnrichment.includes("CONTENT_BRIEF_ENRICHMENT"), "CONTENT_BRIEF_AI_SKILL_MISSING");
+assert(!discovery.includes("insert(contentItems)"), "DISCOVERY_CONTENT_WRITE_BOUNDARY_BROKEN");
+assert(!platformWorkspaceUi.includes("AdminContentAnalysisPanel"), "LEGACY_ANALYSIS_ENTRY_PRESENT");
+assert(!platformWorkspaceUi.includes("AdminContentCandidateGenerator"), "LEGACY_CANDIDATE_ENTRY_PRESENT");
+assert(studioUi.includes("生成结果"), "GENERATED_RESULT_STAGE_MISSING");
+assert(studioUi.includes("审核与发布"), "REVIEW_PUBLISH_PANEL_MISSING");
+assert(studioUi.includes("content-result-editor"), "RESULT_EDITOR_MISSING");
+assert(studioUi.includes("insertAsset"), "ASSET_EDITOR_INTERACTION_MISSING");
+assert(studioUi.includes("showDirectoryPicker"), "OUTPUT_FOLDER_PICKER_MISSING");
+assert(studioUi.includes("推送到飞书"), "FEISHU_RESULT_ACTION_MISSING");
+assert(!studioUi.includes('id: "FEISHU"'), "FEISHU_MUST_NOT_BE_OUTPUT_TYPE");
+assert(!studioUi.includes('id: "CAPCUT"'), "CAPCUT_MUST_NOT_BE_OUTPUT_TYPE");
+assert(!studioUi.includes("content-studio-toolbar"), "DUPLICATE_TOP_ACTION_ROW_PRESENT");
+assert(studioUi.includes("content-studio-audit-stream"), "AUDIT_STREAM_MISSING");
+assert(studioUi.includes("hasReviewableResult"), "REVIEW_RESULT_GATE_MISSING");
+assert(studioUi.includes("opc-content-output-plan:"), "LOCAL_PRODUCTION_PLAN_CACHE_MISSING");
+assert(studioUi.includes('type="file"'), "LOCAL_ASSET_STAGING_MISSING");
+assert(!studioUi.includes("确认预览无误"), "BRIEF_PREVIEW_GATE_REMAINS");
+assert(!studioUi.includes("确认来源无误"), "SOURCE_CONFIRMATION_REMAINS");
+for (const field of ["核心观点", "写给谁", "内容目的", "标签"]) {
+  assert(studioUi.includes(field), "CONTENT_BRIEF_FIELD_MISSING:" + field);
+}
+assert(!studioUi.includes("<span>内容分类</span>"), "LEGACY_CONTENT_CATEGORY_VISIBLE");
+assert(!studioUi.includes("<span>站内去向</span>"), "EARLY_DESTINATION_VISIBLE");
+assert(studioCss.includes("max-height: 180px") && studioCss.includes("overflow-y: auto"), "AUDIT_INTERNAL_SCROLL_MISSING");
 
 assert(routing.includes('content.status !== "PUBLISHED"'), "KNOWLEDGE_REQUIRES_PUBLISHED_CONTENT");
 assert(routing.includes('status: "PUBLISHED"'), "DERIVED_KNOWLEDGE_NOT_PUBLISHED");
-assert(knowledgeUi.includes('content.status !== "PUBLISHED"'), "KNOWLEDGE_UI_PUBLISH_GATE_MISSING");
-assert(!knowledgeUi.includes("<span>Knowledge 状态</span>"), "DIRECT_KNOWLEDGE_STATUS_UI_PRESENT");
 assert(knowledgeSources.includes("contentItemEvidence"), "KNOWLEDGE_PROVENANCE_EVIDENCE_LINK_MISSING");
 assert(knowledgeSources.includes('content.status !== "PUBLISHED"'), "SUPPORTING_CONTENT_PUBLISH_GATE_MISSING");
 assert(knowledgeSources.includes("CONTENT_VERIFIED_EVIDENCE_REQUIRED"), "SUPPORTING_CONTENT_EVIDENCE_GATE_MISSING");

@@ -30,12 +30,36 @@ export function contentWorkbenchError(error: unknown, fallback: string) {
     return NextResponse.json({ error: code }, { status: 400 });
   }
   if (
+    code.startsWith("COLLECTION_URL_") ||
+    code === "COLLECTION_SOURCE_URL_REQUIRED" ||
+    code === "COLLECTION_METHOD_NOT_SUPPORTED" ||
+    code === "SEARCH_QUERY_REQUIRED" ||
+    code === "SEARCH_PROVIDER_NOT_SUPPORTED" ||
+    code === "EXPANSION_QUERY_REQUIRED" ||
+    code === "EXPANSION_PROVIDER_REQUIRED"
+  ) {
+    return NextResponse.json({ error: code }, { status: 400 });
+  }
+  if (
+    code.startsWith("COLLECTION_HTTP_") ||
+    code === "COLLECTION_DNS_FAILED" ||
+    code === "COLLECTION_RESPONSE_TOO_LARGE" ||
+    code === "COLLECTION_JSON_INVALID" ||
+    code === "COLLECTION_REDIRECT_INVALID" ||
+    code === "COLLECTION_REDIRECT_LIMIT" ||
+    code === "RSS_NO_ITEMS" ||
+    code === "COLLECTION_PAGE_TITLE_MISSING"
+  ) {
+    return NextResponse.json({ error: code }, { status: 502 });
+  }
+  if (
     code === "CONTENT_NOT_REVIEW_READY" ||
     code === "CONTENT_APPROVAL_REQUIRED" ||
     code === "CONTENT_REVIEW_STALE" ||
     code === "CONTENT_ALREADY_PUBLISHED" ||
     code === "CONTENT_PUBLISHED_IMMUTABLE" ||
-    code === "CONTENT_ARCHIVED_IMMUTABLE"
+    code === "CONTENT_ARCHIVED_IMMUTABLE" ||
+    code === "DISCOVERY_SOURCE_INACTIVE"
   ) {
     return NextResponse.json({ error: code }, { status: 409 });
   }

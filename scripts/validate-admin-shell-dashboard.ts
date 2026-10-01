@@ -7,11 +7,12 @@ function assert(condition: unknown, code: string): asserts condition {
 const nav = fs.readFileSync("components/AdminWorkspaceNav.tsx", "utf8");
 const layout = fs.readFileSync("app/admin/layout.tsx", "utf8");
 const dashboard = fs.readFileSync("app/admin/page.tsx", "utf8");
+const dashboardData = fs.readFileSync("lib/server/admin/users.ts", "utf8");
 
 for (const token of [
   'label: "运营总览"',
-  'label: "官方内容"',
-  'label: "课程"',
+  'label: "内容采集"',
+  'label: "课程维护"',
   'label: "学习洞察"',
   'label: "用户与权益"'
 ]) {
@@ -45,6 +46,12 @@ for (const token of [
   assert(!dashboard.includes(token), "DASHBOARD_CONCEPT_UI_MUST_NOT_EXIST:" + token);
 }
 
+assert(dashboardData.includes("CURRENT_CURRICULUM_SLUGS"), "DASHBOARD_COURSE_COUNT_MUST_USE_CURRENT_CURRICULUM");
+assert(dashboardData.includes('inArray(contentItems.status, ["DRAFT", "REVIEW"])'), "DASHBOARD_PENDING_CONTENT_MUST_MATCH_WORKBENCH");
+assert(dashboardData.includes('["OPEN", "ANALYSIS_READY", "UNDER_REVIEW"]'), "DASHBOARD_ACTIVE_INSIGHTS_MUST_USE_ACTIONABLE_STATES");
+assert(nav.includes('href: "/admin/content?view=strategy"'), "CONTENT_NAV_MUST_OPEN_STRATEGY");
+assert(dashboard.includes('href: "/admin/content?view=strategy"'), "CONTENT_SHORTCUT_MUST_OPEN_STRATEGY");
+assert(dashboard.includes('href: "/admin/content?view=workbench"'), "PENDING_CONTENT_MUST_OPEN_WORKBENCH");
 console.log("ADMIN_SHELL_NAVIGATION=PASS");
 console.log("ADMIN_DASHBOARD_REAL_DATA=PASS");
 console.log("ADMIN_DASHBOARD_NO_ARCHITECTURE_TEACHING=PASS");

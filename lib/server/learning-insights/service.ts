@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, or } from "drizzle-orm";
+import { and, desc, eq, inArray, or } from "drizzle-orm";
 import { courses, getAllLessons, getCourse, getLesson } from "../../courses";
 import { getDatabase } from "../db";
 import {
@@ -1221,6 +1221,7 @@ export async function listLearningInsightWorkbench() {
       })
       .from(courseInsights)
       .innerJoin(lessons, eq(courseInsights.lessonId, lessons.id))
+      .where(inArray(courseInsights.status, ['OPEN', 'ANALYSIS_READY', 'UNDER_REVIEW']))
       .orderBy(desc(courseInsights.updatedAt))
       .limit(50),
     db
@@ -1254,7 +1255,7 @@ export async function listLearningInsightWorkbench() {
       })
       .from(learningFeedback)
       .innerJoin(lessons, eq(learningFeedback.lessonId, lessons.id))
-      .where(eq(learningFeedback.qualityRisk, true))
+      .where(and(eq(learningFeedback.qualityRisk, true), eq(learningFeedback.reviewStatus, 'OPEN')))
       .orderBy(desc(learningFeedback.createdAt))
       .limit(30)
   ]);

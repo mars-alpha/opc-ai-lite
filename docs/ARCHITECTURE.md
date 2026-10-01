@@ -126,7 +126,7 @@ Web、Mobile、微信小程序、抖音小程序未来只实现 Presentation / C
 
 ### 管理后台
 
-用于平台运营、用户/会员、官方内容、课程、学习洞察、AI 能力配置与系统控制。内部 Workflow / Prompt / Skill Registry、Provider、Connector、Audit、DB 状态只属于 Admin。
+用于平台运营、用户与权益、内容采集、课程维护、学习洞察、AI 能力配置与系统控制。内部 Workflow / Prompt / Skill Registry、Provider、Connector、Audit、DB 状态只属于 Admin。
 
 完整开发边界与阶段规则见 `docs/DEVELOPMENT_OPERATING_MANUAL.md`。
 
