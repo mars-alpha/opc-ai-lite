@@ -125,7 +125,7 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 - 内容工作台唯一 UI owner 为 `AdminContentStudioWorkspace`；旧 AdminContentConsole / Lifecycle / Knowledge Routing 展示层已退出 current tree。
 - 审核状态固定为 DRAFT → REVIEW → PUBLISHED；没有实际结果不得审核通过。
 
-`/admin/courses` 以 `learningTracks` + `formalLessonSpecs` 作为 Track 01～05 共 81 节正式课程的身份源，并使用 Development DB 持久化课程更新 Candidate 与正式版本历史。当前链路为 `DRAFT → REVIEW → 审核通过并上线 → PUBLISHED`；审核与发布是一次 Human 决策，没有中间 `APPROVED` 确认步骤。Candidate 支持刷新恢复、差异对比、最近 6 个正式版本、上一版本对照与恢复历史版本；正式发布使用事务并做基础版本冲突保护。发布后课程正文 Runtime、学习路径课程目录标题/副标题和最近更新时间读取最新正式 snapshot。旧 `AdminCourseEditor`、`listAdminCourseTree` 与 `/api/admin/lessons/[lessonId]` GET/PUT 直接编辑链已退出 current path。Course Builder Workflow 未接入也未修改；新增/删减课程未实现。
+`/admin/courses` 以 `learningTracks` + `formalLessonSpecs` 作为 Track 01～05 共 81 节正式课程的身份源，并使用 Development DB 持久化课程更新 Candidate 与正式版本历史。当前链路为 `DRAFT → REVIEW → 审核通过并上线 → PUBLISHED`；审核与发布是一次 Human 决策，没有中间 `APPROVED` 确认步骤。Candidate 支持刷新恢复、差异对比、最近 6 个正式版本、上一版本对照与恢复历史版本；编辑动作固定为“对比当前 / 保存草稿 / 退出修改 / 提交审核”，“退出修改”结束当前 Candidate 且不影响正式课程；正式发布使用事务并做基础版本冲突保护。发布后课程正文 Runtime、课程目录 · 导航卡片（标题 / 副标题）和最近更新时间读取最新正式 snapshot。旧 `AdminCourseEditor`、`listAdminCourseTree` 与 `/api/admin/lessons/[lessonId]` GET/PUT 直接编辑链已退出 current path。Course Builder Workflow 未接入也未修改；新增/删减课程未实现。
 
 Development `opc_ai_dev` 当前已应用 Drizzle migration `0000`～`0025`（26 条）。本地应用使用最小权限账号 `opc_ai_dev_app`，Migration 使用独立 `DATABASE_MIGRATION_URL`。本地开发固定通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB；`npm run dev` 由 `scripts/start-local-dev.cjs` 统一执行“检查隧道 → 必要时自动建立 → 最小 DB 连通性验证 → 启动 Next.js”，`npm run dev:check` 只做该确定性预检。后续若 Auth Session 查询出现连接类错误，先按此开发基线恢复隧道/DB，不重复推断 Schema、不新增 Auth migration 或认证补丁，除非有独立 Schema 证据。2026-10-01 的 Auth Session 报错已确认是隧道中断。
 

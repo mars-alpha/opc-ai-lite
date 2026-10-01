@@ -148,10 +148,10 @@ function buildCandidateDiff(current: CandidateVersion, candidate: CandidateVersi
   };
 
   add("课程页", "主标题", current.courseHeader.title, candidate.courseHeader.title);
-  add("学习路径", "课程目录标题", current.courseHeader.catalogTitle?.trim() || current.courseHeader.title, candidate.courseHeader.catalogTitle?.trim() || candidate.courseHeader.title);
+  add("课程目录 · 导航卡片", "标题", current.courseHeader.catalogTitle?.trim() || current.courseHeader.title, candidate.courseHeader.catalogTitle?.trim() || candidate.courseHeader.title);
   add("课程页", "顶部说明", current.courseHeader.lessonPageLead, candidate.courseHeader.lessonPageLead);
   add("课程页", "完成后你会获得", current.capability.gain[0] ?? "", candidate.capability.gain[0] ?? "");
-  add("学习路径", "课程卡片副标题", current.courseHeader.catalogSubtitle, candidate.courseHeader.catalogSubtitle);
+  add("课程目录 · 导航卡片", "副标题", current.courseHeader.catalogSubtitle, candidate.courseHeader.catalogSubtitle);
 
   demoSteps.forEach((stepLabel, index) => {
     const section = `${index + 1}. ${stepLabel}`;
@@ -790,11 +790,11 @@ export function AdminCourseRegistry() {
       });
       const next = result.item as CandidateRecord;
       setCandidateRecord(next);
-      setActionMessage("候选版本已保存");
+      setActionMessage("草稿已保存");
       await readRegistry();
       return next;
     } catch (error) {
-      setActionMessage(error instanceof Error ? error.message : "保存候选版本失败");
+      setActionMessage(error instanceof Error ? error.message : "保存草稿失败");
       return null;
     }
   }
@@ -838,10 +838,10 @@ export function AdminCourseRegistry() {
       setCandidate(null);
       setUpdateReason("");
       setView("DETAIL");
-      setActionMessage("本次课程更新已取消");
+      setActionMessage("已退出本次修改");
       await readRegistry();
     } catch (error) {
-      setActionMessage(error instanceof Error ? error.message : "取消课程更新失败");
+      setActionMessage(error instanceof Error ? error.message : "退出修改失败");
     }
   }
 
@@ -1320,6 +1320,16 @@ export function AdminCourseRegistry() {
                       <input value={updateReason} onChange={(event) => setUpdateReason(event.target.value)} />
                     </label>
 
+                    <section className="admin-course-demo-box admin-candidate-auxiliary">
+                      <div className="admin-editor-section-head">
+                        <div><strong>课程目录 · 导航卡片</strong><span>显示位置：学习路径课程卡片，不显示在课程正文页</span></div>
+                      </div>
+                      <div className="admin-candidate-fields">
+                        <CandidateField label="标题" value={candidate.courseHeader.catalogTitle ?? candidate.courseHeader.title} onChange={(value) => updateCandidate((draft) => { draft.courseHeader.catalogTitle = value; })} />
+                        <CandidateField label="副标题" value={candidate.courseHeader.catalogSubtitle} multiline onChange={(value) => updateCandidate((draft) => { draft.courseHeader.catalogSubtitle = value; })} />
+                      </div>
+                    </section>
+
                     <section className="admin-course-demo-box">
                       <div className="admin-editor-section-head">
                         <div><strong>学员实际看到的内容 · 课程页顶部</strong><span>按照学员端从上到下的显示顺序</span></div>
@@ -1336,16 +1346,6 @@ export function AdminCourseRegistry() {
                             else draft.capability.gain[0] = value;
                           })}
                         />
-                      </div>
-                    </section>
-
-                    <section className="admin-course-demo-box admin-candidate-auxiliary">
-                      <div className="admin-editor-section-head">
-                        <div><strong>其它前台入口内容 · 学习路径卡片</strong><span>显示位置：学习路径课程卡片，不显示在课程正文页</span></div>
-                      </div>
-                      <div className="admin-candidate-fields">
-                        <CandidateField label="课程目录标题" value={candidate.courseHeader.catalogTitle ?? candidate.courseHeader.title} onChange={(value) => updateCandidate((draft) => { draft.courseHeader.catalogTitle = value; })} />
-                        <CandidateField label="学习路径副标题" value={candidate.courseHeader.catalogSubtitle} multiline onChange={(value) => updateCandidate((draft) => { draft.courseHeader.catalogSubtitle = value; })} />
                       </div>
                     </section>
 
@@ -1367,9 +1367,8 @@ export function AdminCourseRegistry() {
                       <span>候选版本已持久化 · 当前 {candidateDiffs.length} 项变化</span>
                       <div className="admin-candidate-footer-actions">
                         <button type="button" className="btn btn-secondary" onClick={() => setCandidateCompareOpen(true)}>对比当前</button>
-                        <button type="button" className="btn btn-secondary" disabled={Boolean(busy)} onClick={saveCandidate}>保存候选版本</button>
-                        <button type="button" className="btn btn-secondary" onClick={() => setCandidate(structuredClone(candidateRecord.baseSnapshot))}>重置为本次基线</button>
-                        <button type="button" className="btn btn-secondary" disabled={Boolean(busy)} onClick={cancelCandidate}>取消本次更新</button>
+                        <button type="button" className="btn btn-secondary" disabled={Boolean(busy)} onClick={saveCandidate}>保存草稿</button>
+                        <button type="button" className="btn btn-secondary" disabled={Boolean(busy)} onClick={cancelCandidate}>退出修改</button>
                         <button type="button" className="btn btn-primary" disabled={Boolean(busy)} onClick={submitForReview}>提交审核</button>
                       </div>
                     </div>
@@ -1461,7 +1460,7 @@ export function AdminCourseRegistry() {
                   </section>
 
                   <div className="admin-course-demo-actions admin-course-demo-actions-end">
-                    <button type="button" className="btn btn-secondary" disabled={Boolean(busy)} onClick={cancelCandidate}>取消本次更新</button>
+                    <button type="button" className="btn btn-secondary" disabled={Boolean(busy)} onClick={cancelCandidate}>退出修改</button>
                     <button type="button" className="btn btn-secondary" disabled={Boolean(busy)} onClick={returnToEdit}>退回修改</button>
                     {candidateRecord.status === "REVIEW" && (
                       <button type="button" className="btn btn-primary" disabled={Boolean(busy) || candidateDiffs.length === 0} onClick={approveAndPublishCandidate}>审核通过并上线</button>
