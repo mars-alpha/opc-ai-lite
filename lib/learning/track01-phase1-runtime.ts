@@ -229,6 +229,7 @@ export type Track01Phase1RuntimePresentation = {
   practiceCopyValuesOnly: boolean;
   selfAssessment: readonly string[];
   triggerScenario?: string | null;
+  capabilityTitle?: string | null;
 };
 
 const presentationByLesson = new Map<string, Track01Phase1RuntimePresentation>(
@@ -247,7 +248,8 @@ const presentationByLesson = new Map<string, Track01Phase1RuntimePresentation>(
       reviewCardFill: true,
       practiceHintsGrouped: true,
       practiceCopyValuesOnly: true,
-      selfAssessment: item.draft.selfAssessment
+      selfAssessment: item.draft.selfAssessment,
+      capabilityTitle: "把“学过”变成你现在真的能做的事情"
     }
   ])
 );

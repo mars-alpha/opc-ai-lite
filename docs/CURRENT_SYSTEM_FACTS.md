@@ -48,10 +48,7 @@ Total                     81 lessons
 - 未登录进入课程需要登录；
 - 课程是否可进入由统一 Access / Entitlement 判断。
 
-当前课程内容冻结。后续课程任务默认仅允许：
-1. 修复明确阻断；
-2. 做不改变课程知识与结构的 Runtime 修复；
-3. 产品负责人显式重新开启课程修改。
+课程目录结构与六步 Runtime 继续冻结；课程正文采用正式版本受控更新。所有正文修改必须从 `/admin/courses` 发起 Candidate，经 Human Review 后发布为新正式版本，不能直接覆盖当前正式版本。
 
 ## 4. 课程生产 current owners
 
@@ -80,7 +77,7 @@ Unified Lesson Shell      FROZEN / PASS
 Formal Registry           ACTIVE
 Track 01～05              ALL AVAILABLE
 Learning Path             FROZEN
-Course content            FROZEN
+Course content            VERSIONED / CONTROLLED UPDATE
 Next course gate          NONE — reopen only by explicit product decision
 ```
 
@@ -128,12 +125,13 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 - 内容工作台唯一 UI owner 为 `AdminContentStudioWorkspace`；旧 AdminContentConsole / Lifecycle / Knowledge Routing 展示层已退出 current tree。
 - 审核状态固定为 DRAFT → REVIEW → PUBLISHED；没有实际结果不得审核通过。
 
-Development `opc_ai_dev` 当前已应用 Drizzle migration `0000`～`0025`（26 条）。本地应用使用最小权限账号 `opc_ai_dev_app`，Migration 使用独立 `DATABASE_MIGRATION_URL`。本地通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB；2026-10-01 的 Auth Session 报错已确认是隧道中断，不是 `sessions / users / user_identities` Schema 漂移，因此未新增 Auth migration 或认证补丁。
+`/admin/courses` 以 `learningTracks` + `formalLessonSpecs` 作为 Track 01～05 共 81 节正式课程的身份源，并使用 Development DB 持久化课程更新 Candidate 与正式版本历史。当前链路为 `DRAFT → REVIEW → 审核通过并上线 → PUBLISHED`；审核与发布是一次 Human 决策，没有中间 `APPROVED` 确认步骤。Candidate 支持刷新恢复、差异对比、最近 6 个正式版本、上一版本对照与恢复历史版本；正式发布使用事务并做基础版本冲突保护。发布后课程正文 Runtime、学习路径课程目录标题/副标题和最近更新时间读取最新正式 snapshot。旧 `AdminCourseEditor`、`listAdminCourseTree` 与 `/api/admin/lessons/[lessonId]` GET/PUT 直接编辑链已退出 current path。Course Builder Workflow 未接入也未修改；新增/删减课程未实现。
+
+Development `opc_ai_dev` 当前已应用 Drizzle migration `0000`～`0025`（26 条）。本地应用使用最小权限账号 `opc_ai_dev_app`，Migration 使用独立 `DATABASE_MIGRATION_URL`。本地开发固定通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB；`npm run dev` 由 `scripts/start-local-dev.cjs` 统一执行“检查隧道 → 必要时自动建立 → 最小 DB 连通性验证 → 启动 Next.js”，`npm run dev:check` 只做该确定性预检。后续若 Auth Session 查询出现连接类错误，先按此开发基线恢复隧道/DB，不重复推断 Schema、不新增 Auth migration 或认证补丁，除非有独立 Schema 证据。2026-10-01 的 Auth Session 报错已确认是隧道中断。
 
 用户与权益当前真实能力：用户搜索、ACTIVE / DISABLED、学习概况、会员开始/到期/永久/延长/取消，以及管理员审计。历史 `users.admin_note` 仅作为数据库兼容字段，不属于当前产品 contract。
 
-AI 日报、热点能力练习、实操项目和课程更新候选可以共享 Event / Source，但不共享内容模板；只有课程更新候选进入 Course Builder 六步治理。
-
+AI 日报、热点能力练习、实操项目和课程维护可以共享 Event / Source，但不共享内容模板。当前后台课程更新直接维护现有正式课程 snapshot，不调用 Course Builder Workflow；Course Builder 继续只负责独立的课程生产流程。
 
 ## 8. 会员与公众号
 
@@ -172,9 +170,9 @@ Workbench 当前数据边界：
 
 ## 11. 当前下一步
 
-当前状态：`ADMIN-CONTENT-COLLECTION / FUNCTIONAL_AUDIT_PASS / VISUAL_REVIEW`。
+当前状态：`COURSE MAINTENANCE / VERSIONED UPDATE / HUMAN REVIEW PASS`。
 
-内容采集主链、数据库迁移与 Auth Session 已按当前事实复核。下一步先完成后台视觉审核与 Git Diff 收口；在用户明确确认前不把本轮 UI 标记为 USER_APPROVED，也不提交混杂修改。
+课程维护的 Candidate 持久化、差异审核、一次审核上线、6 版本历史、恢复历史版本、课程正文与学习路径同步已完成并经过产品负责人实际体验。当前不扩展新增/删减课程或 AI 一键构建，下一步回到后台“学习洞察”与整体事实复核。
 
 ## 12. Repository Governance 状态
 

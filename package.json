@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node node_modules/next/dist/bin/next dev",
+    "dev": "node scripts/start-local-dev.cjs",
+    "dev:check": "node scripts/start-local-dev.cjs --check",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -34,6 +35,7 @@
     "admin:users-entitlements:check": "tsx scripts/validate-admin-users-entitlements.ts",
     "admin:role:check": "tsx scripts/validate-admin-role.ts",
     "admin:official-content:check": "tsx scripts/validate-admin-official-content.ts",
+    "admin:course-registry:check": "node --conditions=react-server --import tsx scripts/validate-admin-course-registry.ts",
     "content:discovery:foundation:check": "tsx scripts/validate-content-discovery-foundation.ts",
     "content:discovery:db:accept": "tsx scripts/accept-content-discovery-db.ts",
     "content:collection-runner:check": "tsx scripts/validate-collection-runner-mvp.ts",

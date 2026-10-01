@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { AdminCourseEditor } from "../../../components/AdminCourseEditor";
+import { AdminCourseRegistry } from "../../../components/AdminCourseRegistry";
 import {
   getSessionUser,
   SESSION_COOKIE
@@ -43,23 +43,21 @@ export default async function AdminCoursesPage() {
   }
 
   return (
-    <main className="admin-page">
+    <main className="admin-page admin-course-page">
       <div className="admin-view-head admin-page-titlebar">
         <div>
           <span>PLATFORM / COURSES</span>
           <h1>课程维护</h1>
-          <p>课程属于平台管理域。这里只维护正式 Lesson 数据与发布状态。</p>
+          <p>查看正式课程、发起更新、审核新版，并在需要时恢复最近的历史版本。</p>
         </div>
       </div>
       <div className="admin-platform-flow admin-platform-flow-course">
-        <div><b>01</b><strong>选择课程</strong><span>从左侧目录定位 Lesson</span></div>
-        <div><b>02</b><strong>维护内容</strong><span>编辑标题、摘要和教学内容</span></div>
-        <div><b>03</b><strong>确认状态</strong><span>Draft / Review / Published</span></div>
-        <div><b>04</b><strong>正式生效</strong><span>只有 Published 才进入前台</span></div>
+        <div><b>01</b><strong>选择课程</strong><span>从当前课程目录找到需要维护的课程</span></div>
+        <div><b>02</b><strong>编辑新版</strong><span>基于当前正式版创建更新内容</span></div>
+        <div><b>03</b><strong>审核差异</strong><span>确认本次具体修改后再决定上线</span></div>
+        <div><b>04</b><strong>版本管理</strong><span>保留最近 6 版，可查看、对比或恢复</span></div>
       </div>
-      <AdminCourseEditor />
+      <AdminCourseRegistry />
     </main>
   );
 }
-
-

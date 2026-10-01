@@ -7,6 +7,7 @@ import { PageHero } from "../../components/PageHero";
 import { Reveal } from "../../components/Reveal";
 import { TrackCatalog } from "../../components/TrackCatalog";
 import { getLearningTrack } from "../../lib/learning/track-catalog";
+import { getPublishedAdminCourseOverrides } from "../../lib/server/admin/course-maintenance";
 
 const stages = [
   ["01", "foundation-ai", "AI Foundation", "AI 基础认知", "真正看懂 AI、模型、Prompt、RAG、Tool、Agent 与现代 AI 能力边界"],
@@ -24,7 +25,28 @@ export default async function LearningPathPage({
   const { track: requestedTrack } = await searchParams;
   const cookieStore = await cookies();
   const rememberedTrack = cookieStore.get("opc_learning_track")?.value;
-  const track = getLearningTrack(requestedTrack ?? rememberedTrack);
+  const baseTrack = getLearningTrack(requestedTrack ?? rememberedTrack);
+  const publishedOverrides = await getPublishedAdminCourseOverrides();
+  const track = {
+    ...baseTrack,
+    stages: baseTrack.stages.map((stage) => ({
+      ...stage,
+      lessons: stage.lessons.map((lesson) => {
+        const key =
+          lesson.runtimeCourseSlug && lesson.runtimeLessonId
+            ? lesson.runtimeCourseSlug + "/" + lesson.runtimeLessonId
+            : "";
+        const override = key ? publishedOverrides.get(key) : null;
+        if (!override) return lesson;
+        return {
+          ...lesson,
+          title: override.snapshot.courseHeader.catalogTitle?.trim() || override.snapshot.courseHeader.title,
+          subtitle: override.snapshot.courseHeader.catalogSubtitle,
+          learnerOutcome: override.snapshot.courseHeader.catalogSubtitle
+        };
+      })
+    }))
+  };
 
   return (
     <>

@@ -16,7 +16,7 @@ WeChat / Douyin Mini Programs     FUTURE / SHARED BACKEND
 Official Account Follow           NOT CONNECTED
 Payment                           NOT CONNECTED
 Repository Governance             COMPLETE / PASS
-CURRENT                           CONTENT COLLECTION / FUNCTIONAL AUDIT PASS / VISUAL REVIEW
+CURRENT                           COURSE MAINTENANCE / VERSIONED UPDATE / HUMAN REVIEW PASS
 ```
 
 ## 系统健康
@@ -27,6 +27,7 @@ PostgreSQL + Drizzle              ACTIVE
 Database target                   TENCENTDB POSTGRESQL / DEV TUNNEL ACTIVE
 Formal Lesson Runtime             PASS
 LessonSpec Registry               PASS
+Admin Course Registry             5 TRACKS / 81 LESSONS / PASS
 Check / Practice authority        PASS
 Completion / Rating / Resume      PASS
 Nginx / PM2                       PASS
@@ -37,7 +38,7 @@ Production domain                 https://opcai.fun
 ## 冻结边界
 
 - PC 当前已确认页面不因后台/AI工作顺手改版。
-- Track 01～05 课程目录与内容暂时冻结。
+- Track 01～05 课程目录结构与六步 Runtime 冻结；课程正文只允许通过受控版本更新链修改。
 - Course Runtime 不增加第二 renderer / fallback。
 - 历史 Batch / Brief / acceptance 不恢复为 current path。
 
@@ -50,7 +51,7 @@ Production domain                 https://opcai.fun
 5. 建立统一后台的开发顺序和验收标准。
 
 当前产品开发入口：
-`ADMIN-CONTENT-COLLECTION / FUNCTIONAL_AUDIT_PASS / VISUAL_REVIEW`。`/admin/content` 已收敛为采集策略 / 今日情报 / 内容工作台；内容主链、Development migration 0000～0025 与 Auth Session 数据库结构已复核。2026-10-01 的 Auth 报错源于本地 TencentDB SSH 隧道中断，恢复隧道后后台路由与 Session 查询正常，无需新增 Auth migration。Visual Human Review 通过前不提交本轮 Git。
+`COURSE MAINTENANCE / VERSIONED UPDATE / HUMAN REVIEW PASS`。课程维护后台以 Track Catalog + Formal LessonSpec Registry 为 81 节正式课程身份源；课程内容更新通过持久化 Candidate 完成“编辑 → 审核通过并上线 → 正式版本留档”，保留最近 6 个正式版本并支持查看、上一版本对照和恢复。旧 Development DB 课程树和直接 Lesson JSON 编辑链已退出 current path。课程目录结构、六步 Shell 与 Course Builder Workflow 均未改动；新增/删减课程未实现。
 
 ## Development Governance 已确认基线
 

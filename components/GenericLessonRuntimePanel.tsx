@@ -178,6 +178,7 @@ export type ApprovedPresentation = {
   practiceCopyValuesOnly: boolean;
   selfAssessment: ReadonlyArray<string>;
   triggerScenario?: string | null;
+  capabilityTitle?: string | null;
 };
 
 function emptyPracticeContent(
@@ -261,6 +262,7 @@ export function GenericLessonRuntimePanel({
   previewPracticeCopyValuesOnly = true,
   previewSelfAssessment = null,
   previewTriggerScenario = null,
+  previewCapabilityTitle = null,
   previewIntroComparison = null,
   completionControl = null,
   onRuntimeChange = null
@@ -286,6 +288,7 @@ export function GenericLessonRuntimePanel({
   previewPracticeCopyValuesOnly?: boolean;
   previewSelfAssessment?: ReadonlyArray<string> | null;
   previewTriggerScenario?: string | null;
+  previewCapabilityTitle?: string | null;
   previewIntroComparison?: PreviewIntroComparison | null;
   completionControl?: ReactNode;
   onRuntimeChange?: ((runtime: RuntimeData) => void) | null;
@@ -333,6 +336,9 @@ export function GenericLessonRuntimePanel({
   const presentationTriggerScenario = previewMode
     ? previewTriggerScenario
     : approvedPresentation?.triggerScenario ?? null;
+  const presentationCapabilityTitle = previewMode
+    ? previewCapabilityTitle
+    : approvedPresentation?.capabilityTitle ?? null;
   const richPresentationEnabled = previewMode || Boolean(approvedPresentation);
 
   const [interactive, setInteractive] = useState<InteractiveData | null>(() =>
@@ -978,8 +984,8 @@ export function GenericLessonRuntimePanel({
           <h3>{presentationIntroComparison.title ?? "先看一个常见情况"}</h3>
           <p className="guided-intro-lead">{presentationIntroComparison.situation}</p>
           <div className="guided-intro-approaches">
-            {presentationIntroComparison.approaches.map((item) => (
-              <div key={item.label}>
+            {presentationIntroComparison.approaches.map((item, index) => (
+              <div key={`${index}-${item.label}`}>
                 <span>{item.label}</span>
                 <p>{item.text}</p>
               </div>
@@ -1011,8 +1017,8 @@ export function GenericLessonRuntimePanel({
           )}
           {presentationIntroComparison.bottomDetails?.length ? (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
-              {presentationIntroComparison.bottomDetails.map((item) => (
-                <div key={item.title}>
+              {presentationIntroComparison.bottomDetails.map((item, index) => (
+                <div key={`${index}-${item.title}`}>
                   <strong>{item.title}</strong>
                   <p>{item.text}</p>
                 </div>
@@ -1049,8 +1055,8 @@ export function GenericLessonRuntimePanel({
           <div className="guided-gain"><strong>结果</strong><p>{lesson.example.result}</p></div>
           {presentationKnowledgeDepth?.example.length ? (
             <div className="guided-knowledge-depth">
-              {presentationKnowledgeDepth.example.map((item) => (
-                <div key={item.title}>
+              {presentationKnowledgeDepth.example.map((item, index) => (
+                <div key={`${index}-${item.title}`}>
                   <strong>{item.title}</strong>
                   <p>{item.text}</p>
                 </div>
@@ -1217,7 +1223,7 @@ export function GenericLessonRuntimePanel({
               <strong>提示</strong>
               <div className="guided-numbered-list">
                 {practice.hints.map((hint, index) => (
-                  <div key={hint} className="guided-numbered-item">
+                  <div key={`${index}-${hint}`} className="guided-numbered-item">
                     <span>{index + 1}</span>
                     <p>{hint.replace(/^\s*\d+\s*(?:[｜|、.．]|\))\s*/, "")}</p>
                   </div>
@@ -1388,10 +1394,10 @@ export function GenericLessonRuntimePanel({
           <h3>把这一课真正值得带走的判断留下来</h3>
           {presentationReviewItems?.length ? (
             <div className={`guided-misconception-grid${presentationReviewCardFill ? " is-fill-layout" : ""}`}>
-              {presentationReviewItems.map((item) => {
+              {presentationReviewItems.map((item, index) => {
                 const [title, description] = item.split("｜");
                 return (
-                  <div key={item} className="guided-misconception-card">
+                  <div key={`${index}-${item}`} className="guided-misconception-card">
                     <div>
                       <span>{presentationReviewLabels?.primary ?? "核心判断"}</span>
                       <p><strong>{title}</strong></p>
@@ -1406,10 +1412,10 @@ export function GenericLessonRuntimePanel({
             </div>
           ) : (
             <div className={`guided-misconception-grid${presentationReviewCardFill ? " is-fill-layout" : ""}`}>
-              {lesson.mistakes.map((item) => {
+              {lesson.mistakes.map((item, index) => {
                 const [misconception, correction] = item.split("｜");
                 return (
-                  <div key={item} className="guided-misconception-card">
+                  <div key={`${index}-${item}`} className="guided-misconception-card">
                     <div><span>容易误解</span><p>{misconception.replace(/^误区：/, "")}</p></div>
                     <div><span>正确理解</span><p>{(correction ?? "").replace(/^正确理解：/, "")}</p></div>
                   </div>
@@ -1419,8 +1425,8 @@ export function GenericLessonRuntimePanel({
           )}
           {presentationKnowledgeDepth?.review.length ? (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
-              {presentationKnowledgeDepth.review.map((item) => (
-                <div key={item.title}>
+              {presentationKnowledgeDepth.review.map((item, index) => (
+                <div key={`${index}-${item.title}`}>
                   <strong>{item.title}</strong>
                   <p>{item.text}</p>
                 </div>
@@ -1434,7 +1440,7 @@ export function GenericLessonRuntimePanel({
                 {lesson.mistakes.map((item, index) => {
                   const [misconception, correction] = item.split("｜");
                   return (
-                    <div key={item} className="guided-pitfall-card">
+                    <div key={`${index}-${item}`} className="guided-pitfall-card">
                       <span>{index + 1}</span>
                       <div>
                         <strong>{misconception.replace(/^误区：/, "")}</strong>
@@ -1446,25 +1452,27 @@ export function GenericLessonRuntimePanel({
               </div>
             </div>
           )}
-          <div className="guided-gain">
-            <strong>下一步关联</strong>
-            <p>{lesson.related.join(" · ")}</p>
-          </div>
+          {lesson.related.length > 0 && (
+            <div className="guided-gain">
+              <strong>下一步关联</strong>
+              <p>{lesson.related.join(" · ")}</p>
+            </div>
+          )}
         </div>
       )}
 
       {step.kind === "CAPABILITY" && (
         <div className="guided-step-content">
           <div className="guided-step-label">能力获得</div>
-          <h3>把“学过”变成你现在真的能做的事情</h3>
+          <h3>{presentationCapabilityTitle ?? "把“学过”变成你现在真的能做的事情"}</h3>
           <div className="guided-achievement-list">
-            {plan.capabilityGain.map((item) => <div key={item}><span>✓</span><p>{item}</p></div>)}
+            {plan.capabilityGain.map((item, index) => <div key={`${index}-${item}`}><span>✓</span><p>{item}</p></div>)}
           </div>
           {presentationSelfAssessment?.length ? (
             <div className="guided-knowledge-depth guided-knowledge-depth-review">
               <div>
                 <strong>怎么知道自己真的会了</strong>
-                {presentationSelfAssessment.map((item) => <p key={item}>✓ {item}</p>)}
+                {presentationSelfAssessment.map((item, index) => <p key={`${index}-${item}`}>✓ {item}</p>)}
               </div>
               <div>
                 <strong>遇到什么情况，我应该想到这节课？</strong>

@@ -26,6 +26,7 @@ import {
 } from "../../../../../lib/learning/track-navigation";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
+import { getPublishedAdminCourseOverride } from "../../../../../lib/server/admin/course-maintenance";
 
 export const dynamic = "force-dynamic";
 
@@ -122,18 +123,84 @@ export default async function LessonPage({
       throw new Error("FORMAL_LESSON_PRESENTATION_NOT_REGISTERED:" + course.slug + "/" + lesson.id);
     }
 
+    const publishedOverride = await getPublishedAdminCourseOverride(course.slug, lesson.id);
+    const snapshot = publishedOverride?.snapshot ?? null;
+    const effectiveLesson = snapshot
+      ? {
+          ...lesson,
+          title: snapshot.courseHeader.title,
+          summary: snapshot.courseHeader.catalogSubtitle,
+          whyItMatters: snapshot.courseHeader.lessonPageLead,
+          example: {
+            title: snapshot.example.title,
+            situation: snapshot.example.situation,
+            before: snapshot.example.before,
+            after: snapshot.example.after,
+            result: snapshot.example.result
+          },
+          mistakes: [...snapshot.review.mistakes],
+          related: [...snapshot.review.related]
+        }
+      : lesson;
+    const effectiveSpec = snapshot
+      ? {
+          ...registeredSpec,
+          title: snapshot.courseHeader.title,
+          steps: snapshot.stepMeta.map((step) => ({
+            id: step.id,
+            kind: step.kind,
+            title: step.title,
+            objective: step.objective,
+            navigationDescription: step.navigationDescription
+          })),
+          capabilityGain: [...snapshot.capability.gain],
+          nextLessonValue: snapshot.capability.nextLessonValue
+        }
+      : registeredSpec;
+    const effectivePresentation = snapshot
+      ? {
+          ...approvedPresentation,
+          activity: {
+            title: snapshot.practice.activity.title,
+            instruction: snapshot.practice.activity.instruction,
+            prompt: snapshot.practice.activity.prompt || null,
+            fields: snapshot.practice.instructions.map((item) => ({ ...item })),
+            reflection: snapshot.practice.activity.reflection
+          },
+          introComparison: {
+            ...approvedPresentation.introComparison,
+            title: snapshot.intro.title,
+            situation: snapshot.intro.situation,
+            approaches: snapshot.intro.approaches.map((item) => ({ ...item })),
+            bottomDetails: snapshot.intro.bottomDetails.map((item) => ({ ...item })),
+            takeaway: snapshot.intro.takeaway
+          },
+          referenceAnswer: snapshot.practice.referenceAnswer || null,
+          referenceFill: { ...snapshot.practice.referenceFill },
+          knowledgeDepth: {
+            example: snapshot.example.knowledgeDepth.map((item) => ({ ...item })),
+            review: snapshot.review.knowledgeDepth.map((item) => ({ ...item }))
+          },
+          reviewItems: [...snapshot.review.items],
+          reviewLabels: { ...snapshot.review.labels },
+          selfAssessment: [...snapshot.capability.selfAssessment],
+          triggerScenario: snapshot.capability.triggerScenario,
+          capabilityTitle: snapshot.capability.title
+        }
+      : approvedPresentation;
+
     return (
       <FormalGuidedLessonView
         course={course}
-        lesson={lesson}
-        plan={buildLessonRuntimePlan(registeredSpec)}
-        approvedPresentation={approvedPresentation}
+        lesson={effectiveLesson}
+        plan={buildLessonRuntimePlan(effectiveSpec)}
+        approvedPresentation={effectivePresentation}
         index={index}
         lessonsLength={lessons.length}
         previous={previous}
         next={next}
         lockedLessonIds={lockedLessonIds}
-        learningRecommendation={registeredSpec.learningRecommendation ?? null}
+        learningRecommendation={effectiveSpec.learningRecommendation ?? null}
       />
     );
   }
