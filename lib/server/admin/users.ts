@@ -11,7 +11,6 @@ import {
   contentItems,
   courseInsights,
   entitlements,
-  learningFeedback,
   lessonProgress,
   lessons,
   sessions,
@@ -436,8 +435,7 @@ export async function getAdminPlatformSummary() {
     [activeMembers],
     [expiringMembers],
     [reviewContent],
-    [openInsights],
-    [qualityRisks]
+    [openInsights]
   ] = await Promise.all([
     getDatabase().select({ count: sql<number>`count(*)::int` }).from(users),
     getDatabase()
@@ -469,11 +467,7 @@ export async function getAdminPlatformSummary() {
     getDatabase()
       .select({ count: sql<number>`count(*)::int` })
       .from(courseInsights)
-      .where(inArray(courseInsights.status, ["OPEN", "ANALYSIS_READY", "UNDER_REVIEW"])),
-    getDatabase()
-      .select({ count: sql<number>`count(*)::int` })
-      .from(learningFeedback)
-      .where(and(eq(learningFeedback.qualityRisk, true), eq(learningFeedback.reviewStatus, "OPEN")))
+      .where(inArray(courseInsights.status, ["OPEN", "ANALYSIS_READY", "UNDER_REVIEW"]))
   ]);
 
   return {
@@ -482,7 +476,6 @@ export async function getAdminPlatformSummary() {
     expiringMembers: Number(expiringMembers?.count ?? 0),
     reviewContent: Number(reviewContent?.count ?? 0),
     publishedLessons: currentCurriculumLessonCount(),
-    openInsights: Number(openInsights?.count ?? 0),
-    qualityRisks: Number(qualityRisks?.count ?? 0)
+    openInsights: Number(openInsights?.count ?? 0)
   };
 }

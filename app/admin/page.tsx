@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getSessionUser, SESSION_COOKIE } from "../../lib/server/auth/service";
 import { isAdminUser } from "../../lib/server/admin/service";
 import { getAdminPlatformSummary } from "../../lib/server/admin/users";
+import { listLearningInsightWorkbench } from "../../lib/server/learning-insights/service";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,13 @@ export default async function AdminDashboardPage() {
     );
   }
 
-  const summary = await getAdminPlatformSummary();
+  const [summary, learningInsight] = await Promise.all([
+    getAdminPlatformSummary(),
+    listLearningInsightWorkbench()
+  ]);
+  const attentionCourses = learningInsight.courseHealth.filter(
+    (course) => course.healthStatus === "ATTENTION"
+  ).length;
 
   const metrics = [
     { label: "注册用户", value: summary.users, detail: "当前平台注册账号", href: "/admin/users" },
@@ -60,9 +67,9 @@ export default async function AdminDashboardPage() {
       href: "/admin/learning"
     },
     {
-      label: "课程质量风险",
-      value: summary.qualityRisks,
-      detail: summary.qualityRisks > 0 ? "存在待人工确认的质量风险" : "当前没有开放质量风险",
+      label: "需要检查的课程",
+      value: attentionCourses,
+      detail: attentionCourses > 0 ? "按课程诊断排列顺序检查" : "当前没有需要检查的课程",
       href: "/admin/learning"
     },
     {

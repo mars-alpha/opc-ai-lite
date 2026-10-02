@@ -32,6 +32,9 @@ for (const token of [
 
 assert(!layout.includes('href="/workspace"'), "LAYOUT_WORKSPACE_LINK_MUST_NOT_EXIST");
 assert(dashboard.includes("getAdminPlatformSummary"), "DASHBOARD_MUST_USE_REAL_SUMMARY");
+assert(dashboard.includes("listLearningInsightWorkbench"), "DASHBOARD_MUST_USE_CURRENT_COURSE_HEALTH");
+assert(dashboard.includes('course.healthStatus === "ATTENTION"'), "DASHBOARD_ATTENTION_COURSE_COUNT_REQUIRED");
+assert(dashboard.includes("需要检查的课程"), "DASHBOARD_CURRENT_LEARNING_LABEL_REQUIRED");
 assert(dashboard.includes("待处理"), "DASHBOARD_ATTENTION_REQUIRED");
 assert(dashboard.includes("关键指标"), "DASHBOARD_METRICS_REQUIRED");
 
@@ -49,6 +52,7 @@ for (const token of [
 assert(dashboardData.includes("CURRENT_CURRICULUM_SLUGS"), "DASHBOARD_COURSE_COUNT_MUST_USE_CURRENT_CURRICULUM");
 assert(dashboardData.includes('inArray(contentItems.status, ["DRAFT", "REVIEW"])'), "DASHBOARD_PENDING_CONTENT_MUST_MATCH_WORKBENCH");
 assert(dashboardData.includes('["OPEN", "ANALYSIS_READY", "UNDER_REVIEW"]'), "DASHBOARD_ACTIVE_INSIGHTS_MUST_USE_ACTIONABLE_STATES");
+assert(!dashboardData.includes("qualityRisks"), "DASHBOARD_LEGACY_QUALITY_RISK_SUMMARY_MUST_BE_REMOVED");
 assert(nav.includes('href: "/admin/content?view=strategy"'), "CONTENT_NAV_MUST_OPEN_STRATEGY");
 assert(dashboard.includes('href: "/admin/content?view=strategy"'), "CONTENT_SHORTCUT_MUST_OPEN_STRATEGY");
 assert(dashboard.includes('href: "/admin/content?view=workbench"'), "PENDING_CONTENT_MUST_OPEN_WORKBENCH");

@@ -101,7 +101,7 @@ for (const required of [
   assert(view.includes(required), "WORKBENCH_ORCHESTRATOR_MISSING:" + required);
 }
 
-for (const required of ["课程健康队列", "搜索课程", "全部风险", "需要检查", "关注", "正常"]) {
+for (const required of ["课程诊断", "状态列表", "根据排列顺序检查", "搜索课程", "全部风险", "需要检查", "关注", "正常"]) {
   assert(queue.includes(required), "COURSE_QUEUE_RULE_MISSING:" + required);
 }
 for (const removed of ["全部问题类型", "风险 + 未处理时长", "最近问题", "累计问题", "至少影响人数"]) {

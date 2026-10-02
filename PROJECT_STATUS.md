@@ -32,10 +32,12 @@ Frontend Runtime                  81 / 81 CHECK + PRACTICE READY
 Frontend Lesson Routes            81 / 81 / LEGACY ROUTES 0
 Course Maintenance Sync           FRONTEND PUBLISH / 81 PRACTICE IDs / PASS
 Learning Insight Real Loop        TASK A → TASK B → PUBLISH → FRONTEND / PASS
-Learning Insight Course Queue     FORMAL 81 / REGISTRY ALIGNED / PASS
+Learning Insight Course Diagnosis FORMAL 81 / REGISTRY ALIGNED / PASS
 Learning Insight Learner E2E      INPUT → GATE1 → PUBLISH/NORMAL / PASS
 Learning Insight Issue Cycle      DISMISS / WATCH / PUBLISH → NEW BASELINE / PASS
 Learning Insight Cross-page Sync  PATH / SIDEBAR / NAV / LOCKED VIEW / PASS
+Admin Overview Fact Sync           USERS / MEMBERSHIP / CONTENT / COURSE HEALTH / PASS
+User & Entitlement Test Cleanup    11 TEST USERS REMOVED / REAL USERS PRESERVED / PASS
 Formal Check DB Migration         0010 APPLIED / DB READY
 T1-01 Rebaseline                 VERSION 1 / PUBLISHED / CLEAN
 Check / Practice authority        PASS

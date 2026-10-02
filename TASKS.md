@@ -2,23 +2,18 @@
 
 > 只保留 NOW / NEXT / BACKLOG。实现事实见 `docs/CURRENT_SYSTEM_FACTS.md`；开发方法见 `docs/DEVELOPMENT_OPERATING_MANUAL.md`；历史通过 Git 追溯。
 
-# NOW — LEARNING INSIGHT AI UPDATE COMPARE REVIEW
+# NOW — FINAL PROJECT CLOSEOUT
 
-- Phase 1 已 `USER_APPROVED / PASS`，不再调整已确认的课程队列 / 01 问题汇总 / 02 真实数据 / 03 Human Gate 1。
-- Task A 已实现：Human Gate 1 授权后，Code 组装完整课程 Snapshot、累计 Issue、时间线、确定性学习指标、Evidence Catalog、81 门 Curriculum Catalog 与相邻课程摘要，一次性交给 AI 做 Whole-course Diagnosis。
-- Task A 输出固定为 `learning_issue_diagnosis_v2`，只允许诊断、列课程、指出关注 Step / 区域；不得返回 Patch，不得创建 Course Candidate，不得写 Course Maintenance DRAFT。
-- AI Run 统一复用 `lib/server/ai/configured-chat.ts` 与 `ai_runs`，不新增模型配置系统、不新增 Task A 数据表。
-- Deterministic Validator 已覆盖 Schema、enum、evidence_ref、course_id、Step 1～6、禁止 Patch 内容与 Human Gate 1 前置条件。
-- Development DB mock acceptance 已通过：Gate1 前阻断、81 课程目录 + 完整 6 Step 输入、ai_runs 审计、业务状态不变、无 Candidate、current diagnosis 可读取、测试数据自动清理。
-- Effective Evidence Set 已成为正式 Task A 唯一证据入口。PRODUCTION mode 排除 Acceptance / Human Review / Simulation / Demo / Test，真实 learner 必须 ACTIVE / USER 且存在 identity；反馈、Check、Practice、Hint、Helpfulness 按确定性样本/阈值治理，事件只允许指定 Allowlist。上一轮 Human Review 验收 Issue 与 AI Run 已清理。
+- Learning Insight V2 已完成真实闭环、Issue Cycle、课程维护发布与前台跨页面同步收口；左侧正式命名为“课程诊断”，状态列表按确定性排列顺序检查。
+- “用户与权益”历史测试账号已清除：11 个 `test-*@dev.opcai.local` 测试用户及其测试权益和对应 USER 审计记录已删除，真实管理员账号保留。
+- “运营总览”已重新对齐当前事实：用户 / 会员 / 待处理内容实时读取数据库；正式课程固定读取 5 Track / 81 Lesson；课程提醒直接读取 Learning Insight 当前 Course Health，不再使用旧 qualityRisk 汇总口径。
+- 当前最终回归以 current validators、Typecheck、Production Build、数据库目标检查、跨页面 smoke 与 Git diff 审计为提交 Gate。
+- 本轮不新增 UI、不调整 CSS；历史一次性测试脚本、临时数据与过期描述退出 current tree，由 Git history 追溯。
 
 # NEXT
 
-1. Visual Human Review：审核模拟课程《提示词（Prompt）：把任务说清楚》的 02 学习反馈 / 学习行为视觉、04 整课诊断与“更新对照”弹窗。
-2. 重点验收左右对照是否与正式学员 Runtime 一致、左右 Step 是否同步、AI 改动标注是否清晰、人工编辑后右侧是否实时更新；模拟课程发布按钮必须保持禁用。
-3. 验收真实“人工修正”入口：非模拟课程点击后通过显式 course + intent URL 直接打开目标课程已有 DRAFT/REVIEW，或创建 DRAFT 并进入 EDIT，不停在课程详情页。
-4. Visual Review 通过后清理/保留审核数据按 Human 指令执行，再做全项目回归、staged diff 审计与提交。
-5. 后续真实学习数据达到阈值后，再做首个 Production AI Update 端到端发布验收。
+1. 真实学习数据达到确定性阈值后，执行首个 Production AI Update 端到端发布验收。
+2. 后续功能继续按 `docs/DEVELOPMENT_OPERATING_MANUAL.md` 的 CURRENT 阶段与 BACKLOG 进入，不恢复已清场的模拟数据或历史开发主链。
 
 # BACKLOG
 

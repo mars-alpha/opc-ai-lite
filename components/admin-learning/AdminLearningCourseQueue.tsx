@@ -36,10 +36,10 @@ export function AdminLearningCourseQueue({
     <aside className="admin-learning-queue admin-learning-health-queue">
       <div className="admin-learning-queue-head">
         <div>
-          <span>课程健康队列</span>
-          <strong>{totalCount} 门</strong>
+          <span>课程诊断</span>
+          <strong>状态列表</strong>
         </div>
-        <small>优先看需要检查的课程</small>
+        <small>根据排列顺序检查</small>
       </div>
 
       <div className="admin-learning-queue-filters">
