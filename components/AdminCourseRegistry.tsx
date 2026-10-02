@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type RegistryItem = {
   trackSlug: string;
@@ -589,7 +589,13 @@ function CandidateEditorStep({
   );
 }
 
-export function AdminCourseRegistry() {
+export function AdminCourseRegistry({
+  initialTargetKey = "",
+  initialIntent = ""
+}: {
+  initialTargetKey?: string;
+  initialIntent?: "EDIT" | "";
+}) {
   const [data, setData] = useState<RegistryResponse | null>(null);
   const [selectedKey, setSelectedKey] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -608,6 +614,7 @@ export function AdminCourseRegistry() {
   const [compareOpenedFromOverview, setCompareOpenedFromOverview] = useState(false);
   const [publishedVersion, setPublishedVersion] = useState<number | null>(null);
   const [expandedTracks, setExpandedTracks] = useState<string[]>([]);
+  const initialIntentHandled = useRef(false);
 
   async function readRegistry(preserveSelection = true) {
     const response = await fetch("/api/admin/courses", { cache: "no-store" });
@@ -615,8 +622,11 @@ export function AdminCourseRegistry() {
     const result = (await response.json()) as RegistryResponse;
     setData(result);
     const savedKey =
-      !preserveSelection && typeof window !== "undefined"
-        ? window.sessionStorage.getItem("opc_admin_course_selected_key") ?? ""
+      !preserveSelection
+        ? initialTargetKey ||
+          (typeof window !== "undefined"
+            ? window.sessionStorage.getItem("opc_admin_course_selected_key") ?? ""
+            : "")
         : "";
     const existing = preserveSelection
       ? result.items.find((item) => item.runtimeCourseSlug + "/" + item.runtimeLessonId === selectedKey)
@@ -687,6 +697,31 @@ export function AdminCourseRegistry() {
   const currentVersion = selected?.maintenance?.currentVersion ?? 1;
   const persistedActive = selected?.maintenance?.activeCandidate ?? null;
   const versions = selected?.maintenance?.versions ?? [];
+
+  useEffect(() => {
+    if (!selected || typeof window === "undefined") return;
+    if (initialIntentHandled.current) return;
+    const storedIntent = window.sessionStorage.getItem("opc_admin_course_intent");
+    const intent = initialIntent || storedIntent;
+    const storedTargetKey =
+      window.sessionStorage.getItem("opc_admin_course_selected_key") ?? "";
+    const targetKey = initialTargetKey || storedTargetKey;
+    const currentKey = selected.runtimeCourseSlug + "/" + selected.runtimeLessonId;
+    if (intent !== "EDIT" || targetKey !== currentKey) return;
+
+    initialIntentHandled.current = true;
+    window.sessionStorage.removeItem("opc_admin_course_intent");
+    if (persistedActive) {
+      openCandidate(persistedActive);
+      return;
+    }
+    void startUpdate();
+  }, [
+    initialIntent,
+    initialTargetKey,
+    selectedKey,
+    selected?.maintenance?.activeCandidate?.id
+  ]);
   const versionOverview = versions.map((item) => {
     const version = item.publishedVersion ?? item.baseLessonVersion;
     const diffs = buildCandidateDiff(item.baseSnapshot, item.snapshot);
@@ -1325,7 +1360,16 @@ export function AdminCourseRegistry() {
                         <div><strong>课程目录 · 导航卡片</strong><span>显示位置：学习路径课程卡片，不显示在课程正文页</span></div>
                       </div>
                       <div className="admin-candidate-fields">
-                        <CandidateField label="标题" value={candidate.courseHeader.catalogTitle ?? candidate.courseHeader.title} onChange={(value) => updateCandidate((draft) => { draft.courseHeader.catalogTitle = value; })} />
+                        <CandidateField
+                          label="标题"
+                          value={candidate.courseHeader.catalogTitle ?? candidate.courseHeader.title}
+                          onChange={(value) =>
+                            updateCandidate((draft) => {
+                              draft.courseHeader.catalogTitle = value;
+                              draft.courseHeader.title = value;
+                            })
+                          }
+                        />
                         <CandidateField label="副标题" value={candidate.courseHeader.catalogSubtitle} multiline onChange={(value) => updateCandidate((draft) => { draft.courseHeader.catalogSubtitle = value; })} />
                       </div>
                     </section>
@@ -1335,7 +1379,16 @@ export function AdminCourseRegistry() {
                         <div><strong>学员实际看到的内容 · 课程页顶部</strong><span>按照学员端从上到下的显示顺序</span></div>
                       </div>
                       <div className="admin-candidate-fields">
-                        <CandidateField label="课程页主标题" value={candidate.courseHeader.title} onChange={(value) => updateCandidate((draft) => { draft.courseHeader.title = value; })} />
+                        <CandidateField
+                          label="课程页主标题"
+                          value={candidate.courseHeader.title}
+                          onChange={(value) =>
+                            updateCandidate((draft) => {
+                              draft.courseHeader.title = value;
+                              draft.courseHeader.catalogTitle = value;
+                            })
+                          }
+                        />
                         <CandidateField label="课程页顶部说明" value={candidate.courseHeader.lessonPageLead} multiline onChange={(value) => updateCandidate((draft) => { draft.courseHeader.lessonPageLead = value; })} />
                         <CandidateField
                           label="完成后你会获得（同时是第 6 步“能力获得”的第 1 条）"

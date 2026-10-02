@@ -58,6 +58,24 @@ learning-issue-diagnosis@2
 course-change-generator@2
 ```
 
+## 1.1 Effective Evidence Set
+
+Task A 的正式数据入口固定为 `buildEffectiveLearningEvidenceSet(courseKey)`。
+
+生产模式固定规则：
+- mode = PRODUCTION；
+- Acceptance / Human Review / Simulation / Demo / Test 数据不得进入正式 `evidence_catalog`；
+- 学习者数据只允许 ACTIVE / USER 且存在正式 identity 的账号进入；
+- 学习反馈先去重，再按确定性最小样本规则决定是否可进入 AI；
+- Check / Practice / Hint / Helpfulness 使用既有确定性阈值；
+- `still_confused` 与 `real_ai_evidence_recorded` 当前只能作为 SUPPORTING_ONLY，不能自行生成已确认根因；
+- 只有 VALID / SUPPORTING_ONLY 能进入 AI 的 `evidence_catalog`；
+- INSUFFICIENT_SAMPLE / EXCLUDED / UNAVAILABLE 只进入治理审计，不进入 AI 事实证据；
+- `data_availability` 必须反映真实有效数据是否存在，字段结构存在不等于 available；
+- 正式 Task A 不得绕过 Effective Evidence Set 直接读取 courseInsights / learningFeedback / Evidence Detail 原始行。
+
+Acceptance 模式只允许由内部测试代码显式调用，正式 API 不暴露 mode 参数。Acceptance AI Run 必须与 Production Run 隔离。
+
 ## 2. Task A — Learning Issue Diagnosis
 
 ### 2.1 调用前置条件
@@ -66,8 +84,8 @@ Code 必须确认：
 
 - 当前 Course 已存在至少 1 个真实 Learning Issue；
 - Human Gate 1 = “交给 AI 分析”；
-- `course_issue_bundle` 来自当前课程真实聚合结果，不为空；
-- evidence_catalog 非空；
+- `course_issue_bundle` 只能来自 PRODUCTION Effective Evidence Set，不为空；
+- evidence_catalog 只能包含 Effective Evidence Set 判定为 VALID / SUPPORTING_ONLY 的证据，且非空；
 - current_course_snapshot 已从现有 AdminCourseSnapshot 读取；
 - curriculum_catalog 已从 Formal Curriculum 读取；
 - adjacent_course_summaries 只能来自现有课程目录 / Snapshot，可为空但不得由 AI 补写；
@@ -125,12 +143,15 @@ Task A 必须一次分析当前课程授权范围内的累计问题，不得只�
 - evidence_ref
 - source_type
 - human_readable_source
+- evidence_status = VALID / SUPPORTING_ONLY
 - content / metric
 - occurred_at（如适用）
 - source_owner
 
+该数组已经由 Effective Evidence Set 过滤；AI 不接触被排除的原始行。
+
 **curriculum_catalog**
-至少包含 81 节正式课程：
+包含前台当前已部署的 81 节正式课程；来源必须是当前确定性 Formal Registry / 正式课程目录，不允许从历史 Draft 或测试课程补齐：
 - course_id
 - title
 - track
@@ -141,8 +162,9 @@ Task A 必须一次分析当前课程授权范围内的累计问题，不得只�
 - available_fields[]
 - unavailable_fields[]
 - source_owners{}
+- evidence_governance：mode / eligible_evidence_count / excluded_evidence_count / exclusions / 当前确定性阈值
 
-AI 必须把 unavailable 当作未知，不得补全。
+只有存在有效数据的字段才允许进入 available_fields。AI 必须把 unavailable 当作未知，不得补全。
 
 ### 2.3 Task A System Prompt
 
@@ -171,6 +193,8 @@ AI 必须把 unavailable 当作未知，不得补全。
 8. 不得为了给出答案而强行建议修改；
 9. 不得输出“优化表达、加强案例、说得更清楚”这类不可执行结论，必须说明具体哪里不清楚、缺什么；
 10. 不得生成修改后的课程正文。本阶段只诊断和确定候选课程范围。
+11. 所有会直接显示给运营人员的诊断文案必须使用中文人话，描述“学员发生了什么、课程哪里有问题、建议改成什么”，不得直接暴露内部枚举、Schema、Evidence Set、source owner、数据库字段、文件路径或系统文件名。
+12. 内部证据代码只能存在于结构化字段与校验链中，不能混入 problem_summary、root_causes.description、courses.reason、targets.problem、targets.change_goal。
 
 禁止：
 - 编造证据；
@@ -214,23 +238,28 @@ Code 使用固定区块，不使用自由叙事：
 ...
 
 [OUTPUT_REQUIREMENT]
-Return JSON only. Schema: learning_issue_diagnosis_v2.
+Return JSON only.
+Schema: learning_issue_diagnosis_v2.
+Code 必须同时提供：
+- allowed_top_level_fields；
+- decision enum；
+- root cause type enum；
+- course action enum；
+- exact_shape。
+模型不得返回 Contract 未定义字段。
 ```
 
-## 3. Human Gate 2
+## 3. Task A → Task B Orchestration
 
-Task A 完成且通过 Validator 后，系统展示 AI 建议课程：
+不再设置独立 Human Gate 2。
 
-- 建议修改；
-- 建议检查；
-- 不相关。
+管理员对当前课程点击一次“AI分析”后：
+- Task A 先完成整课诊断；
+- 若 Task A 对当前课程返回 MODIFY，Core 可自动继续 Task B；
+- 若返回 REVIEW_ONLY / NOT_RELEVANT / CONTINUE_OBSERVING / INSUFFICIENT_EVIDENCE，则不得自动生成文本 Patch；
+- Task B 只能处理当前管理员正在处理的这一门课程，不能因为 Task A 提到前置/后续课程而自动修改其它课程。
 
-AI 的 `MODIFY` 只是建议，不等于授权。
-
-Human 必须产生确定性的：
-`approved_course_ids[]`
-
-Task B 只能处理该数组中的课程。
+Human 的下一次明确 Gate 发生在真实学员界面 Before / After Preview。
 
 ## 4. Task B — Course Change Generator
 
@@ -259,11 +288,11 @@ Orchestrator
 ```text
 confirmed_issue
 task_a_diagnosis
-approved_course_id
+current_course_id
 evidence_catalog
 current_course_snapshot
 mutable_path_catalog
-human_scope
+system_scope
 prompt_version
 output_schema_version
 ```
@@ -281,7 +310,7 @@ Human 已确认：
 1. 这个学习问题值得处理；
 2. 当前这门课程允许你生成修改 Proposal。
 
-你只负责为这一门 approved_course_id 生成候选文本 Patch。
+你只负责为当前这一门 current_course_id 生成候选文本 Patch。
 你不负责发布、不负责业务状态、不负责修改其它课程。
 
 你的工作原则：
@@ -321,7 +350,7 @@ Human 已确认：
 [TASK_A_DIAGNOSIS]
 ...
 
-[APPROVED_COURSE]
+[CURRENT_COURSE_ID]
 ...
 
 [EVIDENCE_CATALOG]
@@ -333,7 +362,7 @@ Human 已确认：
 [MUTABLE_PATH_CATALOG]
 ...
 
-[HUMAN_SCOPE]
+[SYSTEM_SCOPE]
 ...
 
 [OUTPUT_REQUIREMENT]
@@ -365,7 +394,7 @@ Task B：
 - Session Token；
 - 数据库连接信息；
 - 无关的全部历史聊天；
-- 未经 Human Gate 2 批准的课程全文；
+- 当前正在处理课程以外、且本次诊断不需要的其它课程全文；
 - Production 内部 Secret；
 - 内部绝对文件路径。
 
@@ -400,7 +429,7 @@ SCOPE_VIOLATION
 - provider；
 - model；
 - input evidence_ref 列表；
-- approved_course_id（Task B）；
+- current_course_id（Task B）；
 - started_at / completed_at；
 - raw output hash；
 - validated output hash；
@@ -416,8 +445,8 @@ raw Prompt 中不得长期保存 Secret。
 2. Task A 对证据不足场景会返回继续观察；
 3. Task A 不能生成课程正文 Patch；
 4. Task A 引用不存在 evidence_ref 必须被拒绝；
-5. 无 Human Gate 2 时不能调用 Task B；
-6. Task B 每次只能一门课程；
+5. Task A 未对当前课程返回 MODIFY 时不能调用 Task B；
+6. Task B 每次只能当前这一门课程；
 7. Task B 不能使用 mutable_path_catalog 之外的 path；
 8. Task B 不能修改 correctAnswer / passScore / ID；
 9. Task B 能生成明确 current_value → proposed_value；

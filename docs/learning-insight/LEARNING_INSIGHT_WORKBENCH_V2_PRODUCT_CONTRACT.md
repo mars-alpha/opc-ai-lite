@@ -20,10 +20,10 @@ Learning Data / Feedback / Check / Practice / Event / Trusted Content Evidence
 → Course-level Human Review
 → Whole-course AI Diagnosis
 → Course Change Proposal
-→ Before / After Course Preview
-→ Human Confirmation
-→ Course Maintenance DRAFT
-→ Existing Review / Publish Flow
+→ Student-facing Before / After Preview
+→ Human Edit + Final Confirmation
+→ Direct Formal Course Publish
+→ Course Maintenance Version History
 ```
 
 管理员首先回答四个问题：
@@ -47,7 +47,7 @@ Learning Data / Feedback / Check / Practice / Event / Trusted Content Evidence
 
 唯一目标：
 
-> 用确定性代码发现和整理真实学习问题，让 Human 基于证据决定是否交给 AI；AI 只在获得授权后诊断问题、列出涉及课程并生成具体修改 Proposal；最终修改只能进入现有 Course Maintenance DRAFT，经 Human 审核后发布。
+> 用确定性代码发现和整理真实学习问题，让 Human 基于证据决定是否交给 AI；AI 在一次“AI分析”动作中完成整课诊断与具体修改 Proposal；Human 必须在真实学员界面对比预览中审核并可再次修改细节，最终确认后由 Core 直接发布新的正式课程版本，并在课程维护留下可追溯历史记录。
 
 完整主链：
 
@@ -58,13 +58,13 @@ LEARNING DATA
 → COURSE HEALTH QUEUE
 → HUMAN GATE 1
 → AI TASK A: WHOLE-COURSE DIAGNOSIS
-→ HUMAN GATE 2
 → AI TASK B: GENERATE COURSE CHANGE PROPOSAL
 → DETERMINISTIC PATCH VALIDATION
-→ BEFORE / AFTER COURSE PREVIEW
-→ HUMAN GATE 3
-→ APPLY ACCEPTED PATCHES TO COURSE MAINTENANCE DRAFT
-→ EXISTING COURSE REVIEW / PUBLISH
+→ STUDENT-FACING BEFORE / AFTER PREVIEW
+→ HUMAN FINAL EDIT + CONFIRMATION
+→ DETERMINISTIC FINAL VALIDATION
+→ DIRECT FORMAL COURSE PUBLISH
+→ COURSE MAINTENANCE VERSION HISTORY
 ```
 
 ## 2. 业务主对象：Course + Learning Issue
@@ -126,6 +126,19 @@ Learning Insight 是消费其它系统事实的分析层，不自行创造底层
 3. 能说明发生时间或快照版本；
 4. 能区分“事实 / 规则计算 / AI 判断”；
 5. 缺失时返回 unavailable / insufficient evidence，不允许 AI 补造。
+
+管理后台展示固定补充规则：
+- 面向运营人员的文案必须翻译为中文业务语言，不直接展示内部 enum、Evidence Set、Schema、数据库字段、文件路径或系统文件名；
+- “可用于 AI 判断 / 已过滤”的数量必须来自当前 Course 的 Effective Evidence 治理结果，不允许写死；
+- Human Review / Simulation / Acceptance 数据必须在界面明确标注为“审核样例”，不得让运营人员误认为真实学员数据；
+- 学习反馈默认展示 5 条，只有超过 5 条时才提供“查看更多 / 收起”；标题使用反馈含义，不使用“学习反馈 #1”这类内部编号；
+- 学习行为说明必须直接解释“已达到统计条件、可用于判断课程问题”，不得要求运营人员理解 Effective Evidence Set 等内部术语。
+- 「真实数据」面板不展示 AI 输入条数、排除条数、Evidence 治理等系统内部判断；这些信息只保留在系统内部与审计链路中。
+- 「真实数据」内容区左右内边距必须与 01、03 面板一致，不允许学习反馈或学习行为内容直接贴边。
+- 「数据说明」必须可解释“这些数字从哪里来”：正式环境说明真实学习数据来源；审核模式说明为本地审核样例；排除项按人话展示原因和数量。
+- 学习反馈正文优先展示学员原话；人数、原因、时间、是否用于判断均为次级信息，不得抢占正文视觉。
+- 学习行为每张卡只回答“哪里发生了什么 / 数值多少 / 涉及多少学员”；阈值、内部事件名、Evidence 归属等治理信息不进入主卡片。
+- 切换「学习反馈 / 学习行为」不得触发重新 AI 分析或改变任何业务状态；「查看更多」和「数据说明」均只影响本地展示状态。
 
 ### 2.3 Learning Issue 时间模型
 
@@ -190,6 +203,21 @@ ATTENTION    需要检查
 5. 最近更新时间不得覆盖“长期未处理优先”；
 6. 任何规则变更必须进入 Deterministic Validator Contract，不允许只改 UI 文案。
 
+### 2.6 问题处理周期（Issue Cycle）
+
+课程风险只计算**当前处理周期仍未处理的问题**，不得把历史问题永久累计为风险。
+
+- Human 选择“无需处理”后，本周期进入 `DISMISSED`；
+- Human 选择“继续观察”后，本周期进入 `WATCHING`；
+- 课程修改正式发布后，本周期进入 `REVIEWED`；
+- `WATCHING / DISMISSED / REVIEWED` 均退出 `open_issue_count`，因此不会继续把课程抬高为黄/红；
+- 学员反馈类问题从处理时刻建立新基线，之后新增 **3 位独立学员**触发下一周期；
+- 学习行为类问题从处理时刻保存样本基线，之后新增 **10 位样本**触发下一周期；
+- 下一周期开启时 `cycleNumber + 1`，并以新周期 `openedAt` 参与“同色最久未处理优先”；
+- 历史 `createdAt`、累计反馈、上一周期样本量继续保留用于追溯，但不得作为当前周期风险数量。
+
+因此“继续观察”不是把问题无限留在 OPEN；它是一个已有人处理决定、等待新增证据达到重新打开条件的旁路状态。
+
 ## 3. Code / Human / AI 分工
 
 ### 3.1 Code 负责的确定性工作
@@ -215,42 +243,39 @@ ATTENTION    需要检查
 - AI 输入组装；
 - AI 输出 Schema 校验；
 - Patch path / baseline / scope 校验；
-- 写入 Course Maintenance DRAFT；
+- 生成真实学员界面 Before / After Preview；
+- 对 Human 最终编辑后的文本重新做 path / baseline / structure 校验；
+- Human 最终确认后发布正式课程版本；
+- 写入 Course Maintenance 历史记录，调整原因固定为“课程反馈更新”；
 - 审计与版本冲突保护。
 
 AI 不负责判断“有没有达到阈值”。
 
 ### 3.2 Human 负责的授权
 
-Human 拥有三次明确 Gate：
+Human 只保留两次明确 Gate，不再要求 AI 诊断后再做一次“是否生成修正方案”的二次判断。
 
 **Human Gate 1 — 是否值得 AI 分析**
 
 可选：
-- 交给 AI 分析
+- AI分析
 - 继续观察
 - 无需处理
+- 人工修正
 
-只有“交给 AI 分析”才允许调用 Task A。
+只有“AI分析”才允许运行 AI Orchestrator。一次点击后，系统内部可连续执行 Task A → Task B；管理员不再额外点击“生成具体修正方案”。
 
-**Human Gate 2 — 允许 AI 修改哪些课程**
+**Human Final Gate — 是否发布这次最终修改**
 
-Task A 可以列出多门可能相关课程，但 AI 不拥有课程修改范围。
+Task A / Task B 完成后必须弹出真实学员界面对比：
+- 左侧：当前正式课程；
+- 右侧：建议修改后的课程；
+- AI 改动位置必须明确标注；
+- Human 可以在右侧直接修改 AI 生成的文字细节；
+- Human 可以取消，不产生正式课程变化；
+- Human 点击“确认并发布”后，Core 才允许直接发布新的正式课程版本。
 
-Human 必须明确选择：
-- 允许生成修改方案的课程；
-- 只检查、不允许修改的课程；
-- 不相关课程。
-
-只有被 Human 勾选的课程才能进入 Task B。
-
-**Human Gate 3 — 采纳哪些具体修改**
-
-Task B 生成 Patch 后，Human 对每项 Patch 逐项：
-- 采纳
-- 不采纳
-
-只有采纳项可写入 Course Maintenance DRAFT。
+该 Final Gate 同时取代历史 Human Gate 2 / Gate 3 与 Course Maintenance 二次提交审核。
 
 ### 3.3 AI 只负责两类语义工作
 
@@ -284,7 +309,7 @@ Task B 生成 Patch 后，Human 对每项 Patch 逐项：
 - 改业务状态；
 - 发布。
 
-固定硬边界：学习洞察 AI **不得直接提交审核或发布**；所有采纳结果只能先进入现有 Course Maintenance DRAFT。
+固定硬边界：AI **永远不得自己发布课程**。只有 Human 在真实学员界面对比预览完成最终确认后，Core 才能执行正式发布；不再要求先进入 Course Maintenance DRAFT 做第二次人工提交。
 
 ## 4. Workbench V2.1 信息架构
 
@@ -346,8 +371,10 @@ Task B 生成 Patch 后，Human 对每项 Patch 逐项：
 3. **真实数据**
    - 02 固定为当前课程级真实数据，不依赖 01 中任何问题分类或 Issue 选择；
    - 只提供“学习反馈 / 学习行为”两个互斥视图按钮，不提供“全部 / Check / Practice / Event”筛选器；
-   - 学习反馈唯一 owner 为课程级 `learningFeedback` 全量记录；顶部“累计反馈”和 02“学习反馈”必须使用同一个课程级口径；默认展示前 5 条，超过 5 条只允许“查看全部 / 收起”；
-   - 学习行为固定由现有稳定数据 owner 聚合 6 项：进入学习（lessonProgress）、完成课程（lessonProgress COMPLETED）、检查重试（lessonCheckResponses attempts）、实操参与（practiceSubmissions）、实操重试（practiceSubmissions attempt > 1）、AI 实操证据（real_ai_evidence_recorded）；
+   - 02 的唯一事实入口为 PRODUCTION `buildEffectiveLearningEvidenceSet(courseKey)`；但 Evidence Set、排除数量、排除原因等系统治理信息不进入运营主界面；
+   - 顶部“累计反馈”继续表示课程收到的全部课程级反馈总量；02 表示治理后的可展示学习反馈与学习行为，两者不要求数量相等；
+   - 学习反馈只展示进入 Effective Evidence Set 的 LEARNER_FEEDBACK / HELPFULNESS / TRUSTED_REVIEW_FEEDBACK；
+   - 学习行为只展示进入 Effective Evidence Set 的 CHECK / PRACTICE / LEARNING_EVENT；被排除或样本不足的数据不得混入 AI 可用列表；
    - 内容治理项只保留在 01 问题汇总统计中，不通过点击切换 02，也不得被解释为学员反馈证据。
 
 4. **趋势与持续性**
@@ -359,26 +386,41 @@ Task B 生成 Patch 后，Human 对每项 Patch 逐项：
    - Human Gate 1 后才能运行；
    - 一次分析整门课程的全部授权问题；
    - 必须读取完整 Step 1～6、累计问题、时间线、Evidence，以及可用的相邻课程上下文。
+   - 运营展示固定为“整课判断 → 核心原因 → 课程判断 → 建议关注范围”，不得把模型内部结构直接平铺到页面。
+   - 核心原因以短标签 + 一句人话解释呈现；证据引用默认收起，按“查看依据”展开，不得阻碍主文阅读。
+   - 建议关注范围必须优先显示具体 Step、具体问题和“建议调整”，内部字段名、文件路径、Schema、Evidence 编号不得进入主文。
 
 6. **课程修改建议**
    - AI 先判断整门课程的学习目标、知识顺序、六步结构、检查理解、实操与能力获得是否需要调整；
    - 明确哪些 Step 建议修改、哪些 Step 保持不变；
    - 不允许“问题 1 改一句、问题 2 再改一句”的碎片化处理。
 
-7. **改前 / 改后预览**
-   - 复用现有 Course Maintenance / Course Preview Runtime；
-   - 左侧为当前正式版；
-   - 右侧为 Course Change Proposal 形成的建议版；
-   - Step 1～6 完整展示；
-   - 只高亮真实发生变化的字段；
-   - Preview 不等于写入正式课程。
+7. **课程更新审核界面**
+   - 不再采用“修改前 / 修改后”双 Runtime 对照；
+   - 直接复用课程维护中的「课程预览」版式，Step 1～6 全部展开；
+   - 页面只保留一份应用 Proposal 后的课程预览；
+   - 顶部固定显示 6 个 Step，并在每个 Step 上显示本步修改数量；点击后滚动到该 Step 第一处修改；
+   - 右侧固定为“本步修改”列表，每一项必须拥有精确定位文案，至少能说明“第几步 / 哪个现有内容块 / 哪一题或哪一项”；
+   - 每一处修改必须直接标记在课程原位，并显示修改编号；点击右侧修改项必须自动滚动到课程中的对应位置并高亮；
+   - 每项修改右侧固定同时显示原文与修改后内容，不再折叠原文；
+   - AI 修改字段保持原位标注，并可通过右侧查看原文、修改后内容与再次人工调整；
+   - 除 AI 已修改字段外，课程预览中课程维护允许编辑的现有文本字段全部开放 Human 直接编辑；Human 编辑范围与 AI mutable path 严格分离；
+   - Human 在课程预览中直接修改后，右侧必须新增对应“人工修改”记录，同时显示原文与修改后内容；
+   - 人工修改记录默认完整展开原文与修改后内容，不要求再次点击展开；
+   - 当前 Step 的修改记录不设 5 条或其它展示上限，必须全部进入右侧列表；超出可视高度时使用右侧独立滚动条浏览；
+   - 页面支持保存本机草稿，关闭后可恢复继续审核；发布仍必须经过正式 Validator；
+   - Human 直接编辑仍只能修改课程维护已有字段值，不允许新增 / 删除 Step、卡片、题目、实操字段或改变数组结构；发布前必须重新经过结构与安全 Validator。
+   - 课程标题、副标题、顶部学习目标、六步步骤名称、步骤卡片、步骤顺序、步骤数量均不可进入 AI mutable path；
+   - AI 只允许修复已经存在且被证据支持的课程正文问题，不允许通过新增字段、增加说明区、增加卡片或扩写课程来“解决问题”。
+   - Task B 必须遵守 Six-Step Semantic Contract：先判断问题属于哪一步的教学职责，再选择该步中最小充分的现有字段进行替换；跨 Step 或与该 Step 教学职责不匹配的修改必须拒绝。
 
-8. **Human 决策**
-   - 返回调整方案；
-   - 保存修改草稿；
-   - 发起课程更新。
-
-其中“发起课程更新”只进入现有 Course Maintenance DRAFT，不自动提交审核、不自动发布。
+8. **Human 最终确认**
+   - 取消：不改变正式课程；
+   - 确认并发布：对 Human 最终编辑值重新校验后，直接生成新的正式课程版本；
+   - 发布按钮固定在更新对照界面内，不要求跳出当前对照界面；
+   - 发布成功后刷新正式 Runtime；
+   - Course Maintenance 只留下历史更新记录，调整原因固定为“课程反馈更新”；
+   - 不再要求管理员跳转课程维护再次保存 / 提交 / 审核。
 
 ### 4.3 AI 整课诊断原则
 
@@ -443,9 +485,10 @@ Learning Issue V2 产品状态固定为：
 DETECTED
 → HUMAN_REVIEW
 → AI_DIAGNOSED
-→ COURSE_SCOPE_CONFIRMED
 → CHANGE_PROPOSAL_READY
-→ DRAFT_APPLIED
+→ PREVIEW_READY
+→ HUMAN_CONFIRMED
+→ PUBLISHED
 → RESOLVED
 ```
 
@@ -463,64 +506,71 @@ VALIDATION_FAILED
 - AI 不返回或控制数据库状态；
 - “AI_DIAGNOSED”必须有通过校验的 Task A 输出；
 - “CHANGE_PROPOSAL_READY”必须有通过校验的 Task B 输出；
-- “DRAFT_APPLIED”必须已成功写入 Course Maintenance DRAFT。
+- “PREVIEW_READY”必须由真实当前 Snapshot + validated Patch 生成；
+- “HUMAN_CONFIRMED”必须保存 Human 最终编辑结果与确认审计；
+- “PUBLISHED”必须已经由 Core 成功写入正式课程版本并留下 Course Maintenance 历史记录。
+- `WATCHING / DISMISSED / REVIEWED` 必须同时建立 Issue Cycle 新基线；后续证据只按新基线后的新增样本判断是否重新进入 OPEN。
 
-## 7. Course Change Proposal 与 Preview 边界
+## 7. Course Change Proposal、Preview 与发布边界
 
-Learning Insight 负责形成 **Course Change Proposal**，不负责拥有正式课程修改状态。
+Learning Insight 负责形成 **Course Change Proposal** 并承载最终 Human Review；正式课程发布仍由 Core Code 执行。
 
 固定职责：
 
 ```text
 Learning Insight
 → 发现问题
-→ 聚合课程健康事实
+→ Effective Evidence Set
 → 整课 AI 诊断
 → 生成 Course Change Proposal
-→ 生成 Before / After Preview
-→ Human 确认
-
-Course Maintenance
-→ 接收确认后的 Proposal
-→ DRAFT
-→ 保存
-→ 提交审核
-→ 审核
-→ 发布
+→ 真实学员 Runtime Before / After Preview
+→ Human 再编辑
+→ Human 最终确认
+→ Core 发布正式课程版本
+→ Course Maintenance 留历史记录
 ```
 
-Preview 必须复用现有课程维护的真实 Snapshot / Runtime Presentation，不创建第二套课程预览模型。
+Preview 必须复用学员正式课程的真实 Snapshot / Runtime Presentation，不创建第二套课程预览模型。
 
-Before / After 的两个版本必须来自：
+Before / After：
 - Before：当前正式 AdminCourseSnapshot；
-- After：在内存或 Proposal 层对当前 Snapshot 应用通过 Validator 的候选 Patch。
+- After：在内存中对同一 Snapshot 应用通过 Validator 的 AI Patch + Human 最终编辑值；
+- 两侧必须使用同一学员 Runtime renderer；
+- AI 修改字段在 After 中必须可识别标注；
+- Human 只能编辑允许的字符串叶子值，不能自由输入 path。
 
 禁止：
-- AI 自己构造一个“完整新课程”作为 After；
-- Preview 使用与 Course Maintenance 不同的字段模型；
-- Learning Insight 直接改正式版本；
-- “保存修改草稿”绕过 Course Maintenance Candidate。
+- AI 自己构造“完整新课程”；
+- Preview 使用和学员端不同的课程模型；
+- AI 自己执行 publish；
+- Human 编辑绕过 mutable_path_catalog、baseline、structure fingerprint；
+- 发布后不留历史版本。
 
 ## 8. Course Maintenance 接入规则
 
-学习洞察不创建第二套课程编辑器。
+学习洞察不创建第二套课程编辑器，也不再把 AI 更新链强制送到 Course Maintenance DRAFT 做二次提交。
 
-最终落点固定为现有 Course Maintenance：
+最终落点：
 
 ```text
-accepted patches
-→ existing AdminCourseSnapshot
-→ existing DRAFT Candidate
-→ 保存草稿
-→ 提交审核
-→ 审核通过并上线
+validated AI patches
++ Human final text edits
+→ current AdminCourseSnapshot
+→ final deterministic validation
+→ publish new formal lesson version
+→ Course Maintenance PUBLISHED history record
 ```
 
-边界：
-- 一门课程同时只允许一个活动 DRAFT / REVIEW；
-- 已有活动 Candidate 时不得静默合并新的 Learning Issue；
-- 必须提示 Human 先处理已有草稿；
-- AI Patch 不允许直接写正式版本；
+历史记录固定要求：
+- updateReason = “课程反馈更新”；
+- 保留 Before / After Snapshot；
+- 保留 Learning Insight / Task A / Task B / evidence refs / Human actor / 时间；
+- 新版本出现在课程维护历史列表，可用于查看和恢复；
+- 不额外生成需要再次提交的 DRAFT。
+
+冲突保护：
+- 若课程已有活动人工 DRAFT / REVIEW，直接发布必须 fail-closed 并提示先处理人工维护；
+- 发布前必须重新核对当前正式 baseline；
 - Course Builder Workflow 不参与本链。
 
 ## 9. V2.1 Patch 能力边界
@@ -555,10 +605,10 @@ V2.1 禁止 AI 自动：
 
 ## 10. AI 调用策略
 
-- 只有 Human Gate 1 后才调用 Task A；
-- 只有 Human Gate 2 后才调用 Task B；
-- Task B 每次只处理一门课程；
-- 多课程由 Orchestrator 按 Human 选择逐课程调用；
+- 只有 Human Gate 1 后才调用 AI Orchestrator；
+- 单次“AI分析”内部允许连续执行 Task A → Task B，不再增加第二个用户按钮；
+- Task B 只处理当前管理员正在处理的这一门课程；
+- 若 Task A 判断当前课程不应修改、证据不足或需要结构变化，则不得强行生成文本 Patch；
 - 模型通过 Provider Adapter / Model Gateway；
 - 不在业务代码绑定厂商；
 - Prompt 使用固定版本；
@@ -583,7 +633,7 @@ V2.1 当前不做：
 - 自动课程评分；
 - AI 自动发现阈值；
 - AI 自动选择最终课程；
-- AI 自动发布；
+- AI 无 Human 最终确认自动发布；
 - AI 脱离现有 Snapshot 的整课自由重写；
 - 第二套 Course Builder；
 - 第二套 Course Maintenance；
@@ -599,18 +649,19 @@ V2.1 当前不做：
 2. 左侧只保留“搜索课程 + 风险筛选”，默认排序固定为红 > 黄 > 绿、同色按最老未处理时间；
 3. 每门课程能看到当前未处理问题数、风险等级、最老未处理时间；有真实学习侧数据时显示学员影响；
 4. 01 问题汇总只做静态课程级统计，不可点击；每类能看到次数、首次、最近、学员影响；
-5. 02 真实数据固定为课程级学习反馈 / 学习行为，不能由 01 某一问题类型切换；
-6. 顶部累计反馈与 02 学习反馈必须使用同一课程级 `learningFeedback` owner；
+5. 02 真实数据固定读取 PRODUCTION Effective Evidence Set，不能由 01 某一问题类型切换；有效 / 仅供参考 / 排除原因必须与 AI 输入一致；
+6. 顶部累计反馈表示原始反馈总量，02 表示治理后的有效证据，两者用途明确区分且不得伪造相同数量；
 7. 风险等级和排序完全由确定性 Code 计算，AI 不参与；
 8. Human Gate 1 前没有 AI 调用；
 9. Task A 一次读取完整课程 + 当前累计问题 + 时间线 + 可用行为数据，并从整课角度诊断；
 10. Task A 明确哪些 Step 建议修改、哪些 Step 保持不变，并考虑前后课程衔接；
-11. Human Gate 2 可以限制 AI 只对指定课程生成 Course Change Proposal；
+11. 单次“AI分析”在 Task A 建议修改当前课程时自动进入 Task B，不再要求 Human 第二次点击生成修正方案；
 12. Task B 输出具体 current_value → proposed_value，而不是“优化一下”；
 13. Validator 能拒绝越权课程、非法 path、伪造 evidence_ref、过期 baseline；
-14. Before / After Preview 使用同一 AdminCourseSnapshot / Course Maintenance Preview 能力完整展示 Step 1～6；
-15. Human 可以返回调整方案、保存修改草稿或发起课程更新；
-16. “发起课程更新”只进入 Course Maintenance DRAFT，不自动 submit review、不直接 publish；
-17. 正式课程仍必须经过现有审核发布链；
-18. 当前不存在的数据明确 unavailable，不允许 UI 或 AI 补造；
-19. 全流程无内部英文状态、数据库 ID、内部文件路径暴露给管理员。
+14. Before / After Preview 必须使用学员正式 Runtime Presentation 完整展示 Step 1～6，左当前正式版、右建议版；
+15. AI 修改字段必须有明显标注，Human 可以在右侧直接编辑文字细节；
+16. Human 点击“确认并发布”后，Core 重新校验 baseline / path / structure，再直接发布正式课程新版本；
+17. 课程维护自动留下 PUBLISHED 历史记录，调整原因固定为“课程反馈更新”，无需再次进入课程维护提交；
+18. 有活动人工 DRAFT / REVIEW 时必须冲突退出，不允许静默覆盖；
+19. 当前不存在的数据明确 unavailable，不允许 UI 或 AI 补造；
+20. 全流程无内部英文状态、数据库 ID、内部文件路径暴露给管理员。

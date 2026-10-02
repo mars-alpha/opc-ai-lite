@@ -2,22 +2,23 @@
 
 > 只保留 NOW / NEXT / BACKLOG。实现事实见 `docs/CURRENT_SYSTEM_FACTS.md`；开发方法见 `docs/DEVELOPMENT_OPERATING_MANUAL.md`；历史通过 Git 追溯。
 
-# NOW — LEARNING INSIGHT WORKBENCH V2.1 REGRESSION
+# NOW — LEARNING INSIGHT AI UPDATE COMPARE REVIEW
 
-- Phase 1 界面已经产品负责人确认，当前不再调整 UI 方案；本轮只做全项目回归、错误修正、旧事实清场、冗余文件治理和最终 Git Diff 审计。
-- Product Surface：`/admin/learning`。当前结构固定为 Course First：左侧课程队列；右侧课程概况 → 01 静态问题汇总 → 02 课程级真实数据 → 03 Human Gate 1。
-- 左侧只保留“搜索课程 + 风险筛选”；风险筛选为全部风险 / 需要检查 / 关注 / 正常。默认排序由确定性 Core 固定执行：红 > 黄 > 绿；同色只按最老未处理时间。
-- 01 问题汇总只做课程级统计，不可点击；02 固定读取课程级 `learningFeedback` 与学习行为，不受单 Issue 选择影响。
-- 当前风险区间实现为红 `>=10`、黄 `5～9`、绿 `0～4`。Learning Insight 不使用 AI 参与阈值、排序、状态或发布。
-- 当前 Phase 1 只允许 Human Gate 1；AI Task A / Task B、Human Gate 2 / 3、自动提交审核、自动发布、Course Builder Workflow 均不在本轮范围。
-- 本轮 Acceptance 已完成：Learning Insight 四份 Contract、Phase 1 / Evidence / Bridge / Formal Identity / Course Registry Validators、Development Governance、Repository Governance、current scripts、Typecheck、Production Build、Development DB acceptances 均通过；Visual Review 模拟数据已清零。当前只剩最终 Git Diff / Hygiene 收口。
+- Phase 1 已 `USER_APPROVED / PASS`，不再调整已确认的课程队列 / 01 问题汇总 / 02 真实数据 / 03 Human Gate 1。
+- Task A 已实现：Human Gate 1 授权后，Code 组装完整课程 Snapshot、累计 Issue、时间线、确定性学习指标、Evidence Catalog、81 门 Curriculum Catalog 与相邻课程摘要，一次性交给 AI 做 Whole-course Diagnosis。
+- Task A 输出固定为 `learning_issue_diagnosis_v2`，只允许诊断、列课程、指出关注 Step / 区域；不得返回 Patch，不得创建 Course Candidate，不得写 Course Maintenance DRAFT。
+- AI Run 统一复用 `lib/server/ai/configured-chat.ts` 与 `ai_runs`，不新增模型配置系统、不新增 Task A 数据表。
+- Deterministic Validator 已覆盖 Schema、enum、evidence_ref、course_id、Step 1～6、禁止 Patch 内容与 Human Gate 1 前置条件。
+- Development DB mock acceptance 已通过：Gate1 前阻断、81 课程目录 + 完整 6 Step 输入、ai_runs 审计、业务状态不变、无 Candidate、current diagnosis 可读取、测试数据自动清理。
+- Effective Evidence Set 已成为正式 Task A 唯一证据入口。PRODUCTION mode 排除 Acceptance / Human Review / Simulation / Demo / Test，真实 learner 必须 ACTIVE / USER 且存在 identity；反馈、Check、Practice、Hint、Helpfulness 按确定性样本/阈值治理，事件只允许指定 Allowlist。上一轮 Human Review 验收 Issue 与 AI Run 已清理。
 
 # NEXT
 
-1. Phase 1 已 `USER_APPROVED / PASS`；下一开发阶段从 AI Task A 开始。
-2. 实现 AI Task A：完整课程 + 当前累计问题 + 时间事实 + 可用行为数据 + 相邻课程上下文 → Whole-course Diagnosis；Human Gate 1 前仍不得调用 AI。
-3. Task A 通过后实现 Human Gate 2 + Task B Course Change Proposal + Before / After Course Preview。
-4. Human Gate 3 后仅把确认 Proposal 写入现有 Course Maintenance DRAFT；不自动 submit review，不直接 publish。
+1. Visual Human Review：审核模拟课程《提示词（Prompt）：把任务说清楚》的 02 学习反馈 / 学习行为视觉、04 整课诊断与“更新对照”弹窗。
+2. 重点验收左右对照是否与正式学员 Runtime 一致、左右 Step 是否同步、AI 改动标注是否清晰、人工编辑后右侧是否实时更新；模拟课程发布按钮必须保持禁用。
+3. 验收真实“人工修正”入口：非模拟课程点击后通过显式 course + intent URL 直接打开目标课程已有 DRAFT/REVIEW，或创建 DRAFT 并进入 EDIT，不停在课程详情页。
+4. Visual Review 通过后清理/保留审核数据按 Human 指令执行，再做全项目回归、staged diff 审计与提交。
+5. 后续真实学习数据达到阈值后，再做首个 Production AI Update 端到端发布验收。
 
 # BACKLOG
 

@@ -23,19 +23,23 @@ export type LearningIssueGroupView = {
 
 export type CourseLearningHealthView = {
   courseKey: string;
+  lessonId: string;
   lessonTitle: string;
+  maintenanceKey: string;
+  curriculumOrder: number;
   issueCount: number;
   feedbackCount: number;
   openIssueCount: number;
   affectedUserCount: number;
   updateCount: number;
-  firstIssueAt: string;
+  firstIssueAt: string | null;
   oldestOpenIssueAt: string | null;
-  latestIssueAt: string;
+  latestIssueAt: string | null;
   healthStatus: "ATTENTION" | "WATCH" | "NORMAL";
   issueGroups: LearningIssueGroupView[];
   issues: LearningIssueView[];
   simulation?: boolean;
+  acceptanceTest?: boolean;
 };
 
 export function issueLabel(category: string) {
@@ -73,6 +77,7 @@ export function statusLabel(status: string) {
     REVIEW_REQUIRED: "待处理",
     ANALYSIS_READY: "已授权 AI 分析",
     UNDER_REVIEW: "处理中",
+    WATCHING: "继续观察",
     REVIEWED: "已处理",
     DISMISSED: "无需处理"
   };
@@ -91,6 +96,9 @@ export function courseStatus(course: CourseLearningHealthView) {
   }
   if (course.issues.length > 0 && course.issues.every((issue) => issue.status === "DISMISSED")) {
     return "无需处理";
+  }
+  if (course.issues.some((issue) => issue.status === "WATCHING")) {
+    return "继续观察";
   }
   return "待判断";
 }

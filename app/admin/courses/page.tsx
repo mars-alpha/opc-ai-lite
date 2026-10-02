@@ -9,7 +9,14 @@ import { isAdminUser } from "../../../lib/server/admin/service";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminCoursesPage() {
+export default async function AdminCoursesPage({
+  searchParams
+}: {
+  searchParams: Promise<{ course?: string; intent?: string }>;
+}) {
+  const params = await searchParams;
+  const initialTargetKey = typeof params.course === "string" ? params.course : "";
+  const initialIntent = params.intent === "edit" ? "EDIT" : "";
   const cookieStore = await cookies();
   const user = await getSessionUser(cookieStore.get(SESSION_COOKIE)?.value ?? null);
 
@@ -57,7 +64,10 @@ export default async function AdminCoursesPage() {
         <div><b>03</b><strong>审核差异</strong><span>确认本次具体修改后再决定上线</span></div>
         <div><b>04</b><strong>版本管理</strong><span>保留最近 6 版，可查看、对比或恢复</span></div>
       </div>
-      <AdminCourseRegistry />
+      <AdminCourseRegistry
+        initialTargetKey={initialTargetKey}
+        initialIntent={initialIntent}
+      />
     </main>
   );
 }

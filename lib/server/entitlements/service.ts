@@ -8,10 +8,10 @@ import { getDatabase } from "../db";
 import { entitlements, lessonProgress, lessons, modules, stages, userIdentities, users } from "../db/schema";
 
 export const OFFICIAL_FOLLOW_UNLOCK = {
-  courseSlug: "ai-literacy",
-  moduleId: "foundation",
+  courseSlug: "foundation-ai",
+  moduleId: "phase1",
   resourceType: "MODULE",
-  resourceId: "module_ai_literacy_foundation",
+  resourceId: "module_foundation_ai_phase1",
   freeLessonCount: 3
 } as const;
 

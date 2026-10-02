@@ -13,9 +13,7 @@ export const metadata: Metadata = {
   description: "面向普通人的持续更新型 AI 学习与知识平台。"
 };
 
-const primaryLearningCourses = courses.filter((course) => course.slug !== "ai-literacy");
-
-const headerCatalog = primaryLearningCourses.map((course) => ({
+const headerCatalog = courses.map((course) => ({
   slug: course.slug,
   title: course.title,
   stageLabel: course.stageLabel,

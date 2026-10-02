@@ -3,7 +3,10 @@ import "server-only";
 import { and, desc, eq, ne, notInArray, sql } from "drizzle-orm";
 import type { AuthUser } from "../auth/service";
 import type { AdminCourseSnapshot } from "./course-snapshot";
-import { ensureFormalLearningIdentity } from "../learning/formal-identity";
+import {
+  ensureFormalLearningIdentity,
+  formalRuntimePracticeId
+} from "../learning/formal-identity";
 import { getDatabase } from "../db";
 import {
   courseUpdateCandidates,
@@ -443,7 +446,10 @@ export async function saveAdminCourseCandidate(
     typeof input.updateReason === "string"
       ? input.updateReason.trim().slice(0, 4000)
       : proposal.updateReason;
-  const snapshot = input.snapshot ?? proposal.snapshot;
+  const snapshot = structuredClone(
+    (input.snapshot ?? proposal.snapshot) as AdminCourseSnapshot
+  );
+  snapshot.courseHeader.catalogTitle = snapshot.courseHeader.title;
   assertSnapshot(snapshot);
 
   const nextProposal: CandidateProposal = {
@@ -639,10 +645,32 @@ export async function publishAdminCourseCandidate(candidateId: string, user: Aut
     }
 
     const practice = snapshot.practice;
+    const runtimePracticeId = formalRuntimePracticeId(
+      proposal.runtimeCourseSlug,
+      proposal.runtimeLessonId
+    );
+    const [runtimePractice] = await tx
+      .select({
+        id: practices.id,
+        submissionSchema: practices.submissionSchema
+      })
+      .from(practices)
+      .where(
+        and(
+          eq(practices.lessonId, identity.id),
+          eq(practices.id, runtimePracticeId),
+          eq(practices.type, "LESSON_PRACTICE"),
+          eq(practices.status, "PUBLISHED")
+        )
+      )
+      .limit(1);
+    if (!runtimePractice) {
+      throw new Error("CANDIDATE_RUNTIME_PRACTICE_NOT_FOUND");
+    }
     await tx
       .insert(practices)
       .values({
-        id: practice.id,
+        id: runtimePractice.id,
         type: "LESSON_PRACTICE",
         accessTier: "INHERIT",
         lessonId: identity.id,
@@ -651,7 +679,7 @@ export async function publishAdminCourseCandidate(candidateId: string, user: Aut
         instructions: practice.instructions,
         hints: practice.hints,
         rubric: practice.rubric,
-        submissionSchema: { kind: "TASK_BRIEF_V1" },
+        submissionSchema: runtimePractice.submissionSchema,
         passScore: practice.passScore,
         required: true,
         status: "PUBLISHED",
@@ -668,6 +696,7 @@ export async function publishAdminCourseCandidate(candidateId: string, user: Aut
           instructions: practice.instructions,
           hints: practice.hints,
           rubric: practice.rubric,
+          submissionSchema: runtimePractice.submissionSchema,
           passScore: practice.passScore,
           required: true,
           status: "PUBLISHED",
@@ -683,7 +712,7 @@ export async function publishAdminCourseCandidate(candidateId: string, user: Aut
           eq(practices.lessonId, identity.id),
           eq(practices.type, "LESSON_PRACTICE"),
           eq(practices.status, "PUBLISHED"),
-          ne(practices.id, practice.id)
+          ne(practices.id, runtimePractice.id)
         )
       );
 

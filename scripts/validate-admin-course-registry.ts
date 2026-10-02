@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { listAdminCourseRegistry } from "../lib/server/admin/course-registry";
+import { formalRuntimePracticeId } from "../lib/server/learning/formal-identity";
 
 function assert(condition: unknown, code: string): asserts condition {
   if (!condition) throw new Error("ADMIN_COURSE_REGISTRY_FAILED:" + code);
@@ -27,6 +28,14 @@ assert(registry.summary.frozenLessons === 81, "ALL_LESSONS_FROZEN");
 assert(new Set(keys).size === 81, "LESSON_IDENTITY_DUPLICATE");
 assert(registry.items.every((item) => Boolean(item.preview)), "ALL_FORMAL_ADMIN_SNAPSHOTS_REQUIRED");
 assert(registry.items.every((item) => item.preview.stepMeta.length === 6), "ALL_FORMAL_ADMIN_SNAPSHOTS_SIX_STEPS_REQUIRED");
+assert(
+  registry.items.every(
+    (item) =>
+      item.preview.practice.id ===
+      formalRuntimePracticeId(item.runtimeCourseSlug, item.runtimeLessonId)
+  ),
+  "ALL_FORMAL_ADMIN_PRACTICE_IDS_MUST_MATCH_RUNTIME"
+);
 assert(route.includes("getAdminCourseMaintenanceRegistry"), "API_NOT_USING_COURSE_MAINTENANCE_REGISTRY");
 assert(page.includes("AdminCourseRegistry"), "PAGE_NOT_USING_REGISTRY_VIEW");
 assert(!legacyEditorExists, "LEGACY_DB_EDITOR_STILL_PRESENT");
@@ -91,8 +100,15 @@ assert(maintenance.includes(".slice(0, 6)"), "CANDIDATE_SIX_VERSION_HISTORY_REQU
 assert(maintenance.includes("CANDIDATE_BASE_VERSION_CONFLICT"), "CANDIDATE_VERSION_CONFLICT_GUARD_MISSING");
 assert(maintenance.includes("explanation: check.correctFeedback"), "CANDIDATE_CORRECT_FEEDBACK_MAPPING_MISSING");
 assert(maintenance.includes("incorrectExplanation: check.incorrectFeedback"), "CANDIDATE_INCORRECT_FEEDBACK_MAPPING_MISSING");
+assert(maintenance.includes("CANDIDATE_RUNTIME_PRACTICE_NOT_FOUND"), "CANDIDATE_RUNTIME_PRACTICE_GUARD_MISSING");
+assert(maintenance.includes("submissionSchema: runtimePractice.submissionSchema"), "CANDIDATE_RUNTIME_PRACTICE_SCHEMA_PRESERVATION_MISSING");
+assert(!maintenance.includes('submissionSchema: { kind: "TASK_BRIEF_V1" }'), "CANDIDATE_PRACTICE_SCHEMA_MUST_NOT_BE_HARDCODED");
 assert(!maintenance.includes("course-production-workflow"), "CANDIDATE_MUST_NOT_IMPORT_COURSE_BUILDER_WORKFLOW");
-assert(lessonPage.includes("getPublishedAdminCourseOverride"), "PUBLISHED_CANDIDATE_RUNTIME_OVERRIDE_MISSING");
+assert(lessonPage.includes("getPublishedAdminCourseOverrides"), "PUBLISHED_CANDIDATE_RUNTIME_OVERRIDE_MISSING");
+assert(lessonPage.includes("course={effectiveCourse}"), "PUBLISHED_CANDIDATE_RUNTIME_SIDEBAR_TITLE_SYNC_MISSING");
+assert(lessonPage.includes("const lessons = getAllLessons(effectiveCourse)"), "PUBLISHED_CANDIDATE_RUNTIME_NAV_TITLE_SYNC_MISSING");
+assert(lessonPage.includes("crossTrackNextOverride"), "PUBLISHED_CANDIDATE_CROSS_TRACK_NAV_TITLE_SYNC_MISSING");
+assert(lessonPage.includes("course={effectiveCourse}") && lessonPage.includes("lesson={effectiveCurrentLesson}"), "PUBLISHED_CANDIDATE_LOCKED_VIEW_TITLE_SYNC_MISSING");
 assert(learningPathPage.includes("getPublishedAdminCourseOverrides"), "PUBLISHED_CANDIDATE_LEARNING_PATH_OVERRIDE_MISSING");
 assert(learningPathPage.includes("override.snapshot.courseHeader.catalogSubtitle"), "PUBLISHED_CANDIDATE_LEARNING_PATH_SUBTITLE_SYNC_MISSING");
 assert(learningPathPage.includes("override.snapshot.courseHeader.catalogTitle?.trim() || override.snapshot.courseHeader.title"), "PUBLISHED_CANDIDATE_LEARNING_PATH_TITLE_SYNC_MISSING");
@@ -158,3 +174,4 @@ console.log("ADMIN_COURSE_T101_ADMIN_RUNTIME_PARITY=PASS");
 console.log("ADMIN_COURSE_CANDIDATE_PERSISTENCE_CHAIN=PASS");
 console.log("ADMIN_COURSE_PUBLISH_RUNTIME_OVERRIDE=PASS");
 console.log("ADMIN_COURSE_LEARNING_PATH_SYNC=PASS");
+console.log("ADMIN_COURSE_81_PRACTICE_RUNTIME_IDENTITY=PASS");

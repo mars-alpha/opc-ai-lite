@@ -17,6 +17,10 @@ Validator 需要同时验证课程聚合链路，而不是只验证单个 Issue�
 - Learning Issue 必须关联有效课程 identity；
 - 课程累计问题数量、最老未处理时间、状态与排序必须由 Code 计算；
 - 默认风险排序固定为红 > 黄 > 绿；同颜色只允许 oldest_open_issue_at 升序，问题数量、学员影响、最近更新时间不得参与默认排序；
+- `WATCHING / DISMISSED / REVIEWED` 不属于当前未处理问题，必须退出 open_issue_count；
+- 同一 Issue 关闭/观察/发布后必须记录 Issue Cycle baseline，历史样本不得直接把下一周期重新判红；
+- 学员反馈类新周期阈值固定为处理基线后新增 3 位独立学员；学习行为类固定为新增 10 位样本；
+- 新周期开启后 oldest_open_issue_at 必须使用本周期 openedAt，而不是历史首次 createdAt；
 - AI 输入必须包含经过聚合后的课程上下文；
 - AI 不得绕过课程范围直接生成更新；
 - Preview Diff 必须基于真实 Course Snapshot；
@@ -26,14 +30,18 @@ Validator 需要同时验证课程聚合链路，而不是只验证单个 Issue�
 
 ```text
 Issue Evidence
+→ Effective Evidence Set
 → Course Aggregation
-→ AI Diagnosis
-→ Preview Diff
-→ Human Acceptance
-→ Course Maintenance DRAFT
+→ AI Diagnosis + Change Proposal
+→ Student-facing Preview Diff
+→ Human Final Edit + Confirmation
+→ Direct Formal Publish
+→ Course Maintenance Version History
 ```
 
 任何 Validator FAIL 都不得自动应用部分结果。
+
+模型输出通过 Schema 但未通过 path / semantic / expansion 等确定性校验时，Task A / Task B 最多允许一次**自动校验重试**。第二次请求必须携带上一轮 Validator fail code，只允许修正导致失败的局部输出，禁止扩大范围；第二次仍失败则本次 AI Run 正式 FAILED，不允许要求 Human 通过重复点击绕过 Validator。
 
 ## 1. Validator 分层
 
@@ -43,7 +51,7 @@ Issue Evidence
 V0_INPUT
 V1_TASK_A_SCHEMA
 V2_TASK_A_SEMANTIC_REFERENCES
-V3_HUMAN_SCOPE
+V3_COURSE_SCOPE
 V4_TASK_B_SCHEMA
 V5_PATCH_SCOPE
 V6_PATCH_BASELINE
@@ -65,12 +73,35 @@ Task A 前检查：
 - prompt_version 正确；
 - schema_version 正确。
 
+## 2.1 Effective Evidence Gate
+
+Task A 在 V0_INPUT 前必须先经过 Effective Evidence Gate。
+
+生产固定规则：
+- 正式调用只允许 `mode=PRODUCTION`；
+- issueKey / evidence / event properties 含 Acceptance / Simulation / Human Review / Visual Review / Demo / Test 标记时 fail-closed 排除；
+- 学习者原始行只接受 ACTIVE / USER 且具有正式 identity 的用户；
+- 学习反馈同一用户 / issue 只取最新记录；非帮助度文本反馈至少 3 个独立用户才可进入 AI；
+- Check：至少 10 个独立用户；错误率 >=35% 为 VALID，否则足样本数据只可 SUPPORTING_ONLY；
+- Practice：至少 10 个独立用户；首次通过率 <50% 为 VALID，否则足样本数据只可 SUPPORTING_ONLY；
+- Hint：至少 10 个实操用户；使用率 >=50% 为 VALID，否则足样本数据只可 SUPPORTING_ONLY；
+- Helpfulness：每用户只取最新一次，至少 10 人；NOT_HELPFUL >=25% 为 VALID，否则足样本数据只可 SUPPORTING_ONLY；
+- `still_confused` / `real_ai_evidence_recorded` 只在至少 3 个独立用户时作为 SUPPORTING_ONLY；
+- learningEvents 只允许 `hint_revealed / still_confused / real_ai_evidence_recorded` 三类进入 AI Evidence；
+- INSUFFICIENT_SAMPLE / EXCLUDED / UNAVAILABLE 不进入 `evidence_catalog`；
+- available_fields 必须依据“有效数据真实存在”计算，禁止把空集合标为 available。
+
+正式 Task A 源码不得直接查询原始 courseInsights / learningFeedback 作为 AI Evidence；唯一入口为 `buildEffectiveLearningEvidenceSet(courseKey)`。
+
+Fail code / 治理原因至少包含：
+`NON_PRODUCTION_ORIGIN / INELIGIBLE_USER / INSUFFICIENT_SAMPLE / EVENT_NOT_ALLOWED / EMPTY_CONTENT`。
+
 Task B 前额外检查：
 
 - Task A 已通过；
-- Human Gate 2 已产生 approved_course_ids；
-- 当前 approved_course_id 在其中；
-- 一次只允许一个 approved_course_id；
+- 当前 Task A 对当前 course_id 的 action = MODIFY；
+- Task B course_id 必须等于当前管理员正在处理的 course_id；
+- 一次只允许一个 course_id；
 - mutable_path_catalog 来自当前最新 AdminCourseSnapshot；
 - mutable_path_catalog 只含允许的字符串叶子。
 
@@ -123,18 +154,16 @@ TASK_A_PATCH_CONTENT_FORBIDDEN
 DECISION_CONTRADICTION
 ```
 
-## 5. V3 — Human Scope
+## 5. V3 — Course Scope
 
-Human Gate 2 后检查：
+不再存在额外 Human Gate 2。管理员在当前课程点击一次“AI分析”后，Orchestrator 可以在 Task A 成功且当前课程 action=MODIFY 时自动进入 Task B。
 
-- approved_course_ids 只能从 Task A courses 中选择；
-- Human 可以批准 AI 标记 MODIFY 或 REVIEW_ONLY 的课程；
-- AI 标记 NOT_RELEVANT 的课程若 Human 强制选择，必须记录 explicit_override；
-- approved_course_ids 去重；
-- 最多 5 门；
-- 每门课程 Task B 独立调用。
-
-Human Scope 是 Core 事实，不能接受 AI 自报。
+Core 必须确认：
+- Task B 只处理当前管理员正在查看的 course_id；
+- Task A 必须明确该课程为 MODIFY；
+- REVIEW_ONLY / NOT_RELEVANT / INSUFFICIENT_EVIDENCE 不得自动进入文本 Patch；
+- Task B 一次只处理一门课程；
+- AI 不能把前置 / 后续课程诊断结果自动扩张为修改范围。
 
 ## 6. V4 — Task B JSON / Schema
 
@@ -204,7 +233,7 @@ sourceContext
 patch.current_value === mutable_path_catalog[path].current_value
 ```
 
-在 Human Gate 3 之后、真正 apply 前，再次读取最新 Course Maintenance baseline：
+在 Human Final Preview Gate 之后、真正 publish 前，再次读取最新正式课程 baseline：
 
 ```text
 latest_current_value === patch.current_value
@@ -235,7 +264,7 @@ Validator 必须阻止：
 - passScore / 分值变化；
 - 课程 identity 变化；
 - 状态变化；
-- 发布动作；
+- AI 输出或 Patch 自带发布动作；
 - Course Builder Workflow 改动。
 
 V2 Patch apply 前后对 snapshot 做结构 fingerprint：
@@ -258,28 +287,33 @@ PATCH_STRUCTURE_DRIFT
 
 整次 apply 失败。
 
-## 10. V8 — Human Gate 3
+## 10. V8 — Human Final Preview Gate
 
 Core 必须确认：
+- Preview 的 Before 来自当前正式 Snapshot；
+- After 来自同一 Snapshot + validated AI Patch；
+- 左右两侧使用同一学员 Runtime Presentation；
+- AI 改动位置有确定性标记；
+- Human 可修改 proposed text，但不能修改 path、ID、结构字段；
+- Human 最终编辑值必须再次经过 V5 / V6 / V7；
+- Human 明确点击“确认并发布”前不得改正式课程；
+- final values、AI original proposed values、Human actor 写入审计。
 
-- accepted_patch_ids 全部存在于 validated Task B output；
-- rejected_patch_ids 与 accepted_patch_ids 不重叠；
-- 未明确 accepted 的 Patch 默认不应用；
-- Human 不能通过手工填写任意 path 绕过 Validator；
-- accepted_patch_ids 写入审计。
+## 11. V9 — Direct Publish Preconditions
 
-## 11. V9 — Apply Preconditions
-
-写 Course Maintenance DRAFT 前必须：
+正式发布前必须：
 
 1. 当前课程仍存在；
-2. 当前课程没有冲突的活动 Candidate，或当前 Issue 已明确绑定到同一个 Candidate；
-3. 所有 accepted Patch 重新通过 V5 / V6 / V7；
-4. Course Maintenance Candidate 状态为 DRAFT；
-5. sourceContext 记录 Learning Issue / AI Run / accepted patch IDs；
-6. apply 事务失败时不修改正式课程；
-7. 不调用 publish；
-8. 不自动 submit review。
+2. 当前正式 baseline 与 Preview Before 完全一致；
+3. 当前课程不存在活动人工 DRAFT / REVIEW；
+4. 所有最终 Human 文本重新通过 V5 / V6 / V7；
+5. 通过现有 Course Maintenance 发布事务生成新的正式课程版本；
+6. 正式 Runtime 读取新版本后才算发布成功；
+7. 同一次 publish 操作写入 Course Maintenance PUBLISHED 历史记录；
+8. history.updateReason 固定为“课程反馈更新”；
+9. history sourceContext 记录 Learning Insight / Task A / Task B / evidence refs / Human actor；
+10. START / SAVE / SUBMIT 任一步失败时，自动取消本次 Learning Insight 新建的候选；不得触碰任务开始前已存在的人工候选；
+11. publish 失败时正式课程与 PUBLISHED 历史不得部分成功，本次候选进入失败清理。
 
 ## 12. Fail-Closed
 
@@ -302,7 +336,7 @@ ACTIVE_CANDIDATE_CONFLICT
 ```text
 STOP
 → record validation failure
-→ keep issue/candidate unchanged
+→ keep formal course/version history unchanged
 → show Human-readable error
 ```
 
@@ -350,7 +384,7 @@ API 返回给管理页面前必须确保：
 项目 validator 至少检查四份 contract 同时存在，并包含：
 
 - Code First；
-- Human Gate 1 / 2 / 3；
+- Human Gate 1 / Human Final Preview Gate；
 - Task A / Task B；
 - Task B 单课程；
 - evidence_ref；
@@ -358,8 +392,11 @@ API 返回给管理页面前必须确保：
 - permanent denylist；
 - current_value baseline；
 - Fail Closed；
-- Course Maintenance DRAFT；
-- no direct publish；
+- student-facing Before / After Preview；
+- Human editable proposed text；
+- direct publish only after Human confirmation；
+- Course Maintenance PUBLISHED history；
+- updateReason = 课程反馈更新；
 - Course Builder Workflow untouched。
 
 ## 16. Runtime / DB Acceptance
@@ -370,12 +407,23 @@ API 返回给管理页面前必须确保：
 2. Human Gate 1 前 AI 不调用；
 3. Task A 伪造 evidence_ref 被拒；
 4. Task A 非法 course_id 被拒；
-5. Human Gate 2 限制 Task B course；
+5. Task B 只能处理 Task A 标记 MODIFY 的当前课程；
 6. Task B 越权 path 被拒；
 7. current_value 过期被拒；
 8. correctValues / passScore 修改被拒；
 9. 数组长度变化被拒；
-10. Human 只采纳部分 Patch 时只应用采纳项；
-11. apply 后正式课程未直接发布；
-12. sourceContext 可追溯；
-13. 测试数据自动清理。
+10. Human 在 After 预览中修改文字后再次通过 Validator；
+11. 未点击确认发布前正式课程不变；
+12. 点击确认后，现有 Course Maintenance publish 操作保证正式版本与 PUBLISHED 历史一致；
+13. START / SAVE / SUBMIT / publish 中途失败时，本次 Learning Insight 创建的临时候选被清理，已有人工候选不受影响；
+14. 历史 updateReason = 课程反馈更新；
+15. sourceContext 可追溯；
+16. 测试数据自动清理。
+
+## Task A Provider / Validator Failure Audit
+
+- Task A 整课输入允许显式使用更长模型请求超时；当前实现为 120 秒，其他通用 AI 调用继续使用 Adapter 默认超时；
+- Provider 成功返回但 Structured Output Validator 失败时，ai_runs.status 必须为 FAILED；
+- 失败 ai_runs 必须保存 rawOutput 供内部审计，但 rawOutput 不得进入正式诊断 UI、Candidate 或 Course Maintenance；
+- Validator 通过前不得创建 Course Candidate，不得改变 Learning Issue 业务状态；
+- 模型输出顶层必须严格只有 learning_issue_diagnosis_v2 定义的 7 个字段，额外字段一律拒绝。

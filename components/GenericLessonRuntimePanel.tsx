@@ -264,6 +264,9 @@ export function GenericLessonRuntimePanel({
   previewTriggerScenario = null,
   previewCapabilityTitle = null,
   previewIntroComparison = null,
+  previewFreeNavigation = false,
+  previewCurrentStep = null,
+  onPreviewStepChange = null,
   completionControl = null,
   onRuntimeChange = null
 }: {
@@ -290,6 +293,9 @@ export function GenericLessonRuntimePanel({
   previewTriggerScenario?: string | null;
   previewCapabilityTitle?: string | null;
   previewIntroComparison?: PreviewIntroComparison | null;
+  previewFreeNavigation?: boolean;
+  previewCurrentStep?: number | null;
+  onPreviewStepChange?: ((stepIndex: number) => void) | null;
   completionControl?: ReactNode;
   onRuntimeChange?: ((runtime: RuntimeData) => void) | null;
 }) {
@@ -426,13 +432,18 @@ export function GenericLessonRuntimePanel({
   const [message, setMessage] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(() =>
     previewMode
-      ? 0
+      ? Math.max(0, Math.min(plan.steps.length - 1, previewCurrentStep ?? 0))
       : initialRuntime?.progress
         ? Math.max(0, Math.min(plan.steps.length - 1, initialRuntime.progress.currentStep - 1))
         : cachedResumeStep
           ? Math.max(0, Math.min(plan.steps.length - 1, cachedResumeStep - 1))
           : 0
   );
+  useEffect(() => {
+    if (!previewMode || previewCurrentStep === null || previewCurrentStep === undefined) return;
+    setCurrentStep(Math.max(0, Math.min(plan.steps.length - 1, previewCurrentStep)));
+  }, [plan.steps.length, previewCurrentStep, previewMode]);
+
   useEffect(() => {
     if (previewMode || runtime || !cachedResumeStep) return;
     setCurrentStep(
@@ -672,7 +683,11 @@ export function GenericLessonRuntimePanel({
     setConfusedOpen(false);
     setMessage(null);
 
-    if (previewMode || !interactive?.authenticated) return;
+    if (previewMode) {
+      onPreviewStepChange?.(boundedIndex);
+      return;
+    }
+    if (!interactive?.authenticated) return;
     markCurrentStep(courseSlug, lessonSlug, boundedIndex + 1);
     if (getStatus(courseSlug, lessonSlug) !== "COMPLETED") {
       markLessonStatus(courseSlug, lessonSlug, "IN_PROGRESS");
@@ -957,7 +972,11 @@ export function GenericLessonRuntimePanel({
             key={item.id}
             className={index === currentStep ? "is-current" : index < currentStep ? "is-done" : ""}
             onClick={() => {
-              if (index <= currentStep || (index === currentStep + 1 && canAdvance)) {
+              if (
+                (previewMode && previewFreeNavigation) ||
+                index <= currentStep ||
+                (index === currentStep + 1 && canAdvance)
+              ) {
                 void moveToStep(index);
               }
             }}

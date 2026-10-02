@@ -16,7 +16,7 @@ WeChat / Douyin Mini Programs     FUTURE / SHARED BACKEND
 Official Account Follow           NOT CONNECTED
 Payment                           NOT CONNECTED
 Repository Governance             COMPLETE / PASS
-CURRENT                           LEARNING INSIGHT WORKBENCH V2.1 / PHASE1 USER_APPROVED / PASS
+CURRENT                           LEARNING INSIGHT V2 / CLOSED LOOP / PASS
 ```
 
 ## 系统健康
@@ -28,6 +28,16 @@ Database target                   TENCENTDB POSTGRESQL / DEV TUNNEL ACTIVE
 Formal Lesson Runtime             PASS
 LessonSpec Registry               PASS
 Admin Course Registry             5 TRACKS / 81 LESSONS / PASS
+Frontend Runtime                  81 / 81 CHECK + PRACTICE READY
+Frontend Lesson Routes            81 / 81 / LEGACY ROUTES 0
+Course Maintenance Sync           FRONTEND PUBLISH / 81 PRACTICE IDs / PASS
+Learning Insight Real Loop        TASK A → TASK B → PUBLISH → FRONTEND / PASS
+Learning Insight Course Queue     FORMAL 81 / REGISTRY ALIGNED / PASS
+Learning Insight Learner E2E      INPUT → GATE1 → PUBLISH/NORMAL / PASS
+Learning Insight Issue Cycle      DISMISS / WATCH / PUBLISH → NEW BASELINE / PASS
+Learning Insight Cross-page Sync  PATH / SIDEBAR / NAV / LOCKED VIEW / PASS
+Formal Check DB Migration         0010 APPLIED / DB READY
+T1-01 Rebaseline                 VERSION 1 / PUBLISHED / CLEAN
 Check / Practice authority        PASS
 Completion / Rating / Resume      PASS
 Nginx / PM2                       PASS
@@ -51,7 +61,7 @@ Production domain                 https://opcai.fun
 5. 建立统一后台的开发顺序和验收标准。
 
 当前产品开发入口：
-`LEARNING INSIGHT WORKBENCH V2.1 / PHASE1 USER_APPROVED / PASS`。81 节正式课程 Identity、统一 AdminCourseSnapshot、课程级 Evidence Detail 与 Course Maintenance Bridge 已具备；Phase 1 已实现学习洞察课程队列、课程详情、01 静态问题聚合、02 课程级真实数据、first/last / oldest-open 时间事实与课程级 Human Gate 1，并通过 V2.1 Validator、Typecheck、Build 与 Development DB acceptance。Phase 1 界面已经产品负责人明确确认；全项目静态回归、核心 Development DB acceptances、Production Build 与模拟数据清场均已通过。下一阶段进入 AI Task A；Human Gate 2 / Task B / Human Gate 3 仍按 Contract 顺序逐阶段开放。
+`LEARNING INSIGHT V2 / CLOSED LOOP / PASS`。课程维护与学习洞察统一读取前台当前已部署的 81 节正式课程；正式处理采用 Issue Cycle 新基线，不再让历史问题永久累计为风险。临时人工验收 / simulation 数据已清场；保留的 acceptance 仅作为可重跑自动验收，不进入正式课程身份源。
 
 ## Development Governance 已确认基线
 

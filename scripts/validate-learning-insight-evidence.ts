@@ -12,10 +12,6 @@ const route = fs.readFileSync(
   "app/api/admin/learning/insights/[insightId]/route.ts",
   "utf8"
 );
-const detailView = fs.readFileSync(
-  "components/AdminLearningEvidenceDetail.tsx",
-  "utf8"
-);
 const evidencePanel = fs.readFileSync(
   "components/admin-learning/AdminLearningEvidencePanel.tsx",
   "utf8"
@@ -41,27 +37,21 @@ assert(
 );
 assert(!route.includes("export async function POST"), "EVIDENCE_ROUTE_MUST_BE_READ_ONLY");
 
-assert(
-  evidencePanel.includes("AdminLearningEvidenceDetail"),
-  "EVIDENCE_PANEL_ENTRY_MISSING"
-);
-assert(detailView.includes("查看真实数据"), "EVIDENCE_ACTION_MISSING");
-assert(detailView.includes("学习反馈"), "FEEDBACK_SECTION_MISSING");
-assert(detailView.includes("学习行为"), "BEHAVIOR_SECTION_MISSING");
-for (const required of [
-  "进入学习",
-  "完成课程",
-  "检查重试",
-  "实操参与",
-  "实操重试",
-  "AI 实操证据"
-]) {
-  assert(detailView.includes(required), "BEHAVIOR_CARD_MISSING:" + required);
-}
-assert(detailView.includes("暂无直接学习反馈"), "REAL_EMPTY_STATE_MISSING");
-assert(!detailView.includes("userId"), "USER_ID_MUST_NOT_BE_EXPOSED");
+assert(evidencePanel.includes("/effective-evidence"), "EVIDENCE_PANEL_ENTRY_MISSING");
+assert(evidencePanel.includes("学习反馈"), "FEEDBACK_SECTION_MISSING");
+assert(evidencePanel.includes("学习行为"), "BEHAVIOR_SECTION_MISSING");
+assert(evidencePanel.includes("直接看学员说了什么"), "FEEDBACK_OPERATOR_COPY_MISSING");
+assert(evidencePanel.includes("看学员在哪些步骤明显遇到困难"), "BEHAVIOR_OPERATOR_COPY_MISSING");
+assert(evidencePanel.includes("用于判断"), "VALID_STATUS_OPERATOR_COPY_MISSING");
+assert(evidencePanel.includes("辅助参考"), "SUPPORTING_STATUS_OPERATOR_COPY_MISSING");
+assert(evidencePanel.includes("查看更多"), "FEEDBACK_MORE_ACTION_MISSING");
+assert(evidencePanel.includes("feedback.length > 5"), "FEEDBACK_MORE_THRESHOLD_MISSING");
+assert(evidencePanel.includes("当前没有可查看的学习反馈"), "REAL_EMPTY_STATE_MISSING");
+assert(!evidencePanel.includes("userId"), "USER_ID_MUST_NOT_BE_EXPOSED");
+assert(!evidencePanel.includes("Effective Evidence Set"), "INTERNAL_EVIDENCE_TERM_EXPOSED");
+assert(!evidencePanel.includes("AI 可用证据"), "INTERNAL_AI_EVIDENCE_COUNT_EXPOSED");
 
 console.log("LEARNING_INSIGHT_EVIDENCE_READ_ONLY_OWNER=PASS");
 console.log("LEARNING_INSIGHT_EVIDENCE_FOUR_SOURCES=PASS");
-console.log("LEARNING_INSIGHT_EVIDENCE_ON_DEMAND_UI=PASS");
+console.log("LEARNING_INSIGHT_EVIDENCE_EFFECTIVE_PANEL=PASS");
 console.log("LEARNING_INSIGHT_EVIDENCE_NO_USER_ID_EXPOSURE=PASS");

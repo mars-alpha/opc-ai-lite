@@ -1,6 +1,8 @@
 import "server-only";
 
+import { getCourse, getLesson } from "../../courses";
 import type { CourseBuilderBuildDraft } from "../../learning/course-builder";
+import { formalLessonSpecs } from "../../learning/lesson-spec-registry";
 import {
   track01T101Draft,
   track01T102Draft,
@@ -44,6 +46,7 @@ import { getTrack03BatchesBERuntimePresentation } from "../../learning/track03-b
 import { getTrack04RuntimePresentation } from "../../learning/track04-runtime";
 import { getTrack05RuntimePresentation } from "../../learning/track05-runtime";
 import type { LessonSpec } from "../../learning/lesson-spec";
+import { formalRuntimePracticeId } from "../learning/formal-identity";
 
 export type AdminCourseSnapshot = {
   courseHeader: {
@@ -230,6 +233,18 @@ export function getFormalAdminCourseSnapshot(
     throw new Error("ADMIN_COURSE_PRACTICE_MISSING:" + courseSlug + "/" + lessonSlug);
   }
 
+  const formalSpec = formalLessonSpecs.find(
+    (spec) => spec.courseSlug === courseSlug && spec.lessonId === lessonSlug
+  );
+  if (!formalSpec) {
+    throw new Error("ADMIN_COURSE_FORMAL_SPEC_MISSING:" + courseSlug + "/" + lessonSlug);
+  }
+  const course = getCourse(courseSlug);
+  const lesson = course ? getLesson(course, lessonSlug) : null;
+  if (!lesson) {
+    throw new Error("ADMIN_COURSE_FRONTEND_LESSON_MISSING:" + courseSlug + "/" + lessonSlug);
+  }
+
   const presentation = presentationFor(courseSlug, lessonSlug);
   if (!presentation?.introComparison) {
     throw new Error("ADMIN_COURSE_PRESENTATION_MISSING:" + courseSlug + "/" + lessonSlug);
@@ -243,22 +258,17 @@ export function getFormalAdminCourseSnapshot(
   const triggerScenario =
     presentation.triggerScenario ??
     "当真实任务中再次出现本课解决的问题时，这节课学到的能力就适用于识别问题、判断边界并完成对应处理。";
-  const nextLessonValue = draft.lessonSpec.nextLessonValue;
+  const nextLessonValue = formalSpec.nextLessonValue;
   if (!nextLessonValue) throw new Error("ADMIN_COURSE_NEXT_LESSON_VALUE_MISSING:" + courseSlug + "/" + lessonSlug);
-
-  const capabilityStep = draft.lessonSpec.steps.find((step) => step.kind === "CAPABILITY");
-  if (!capabilityStep) {
-    throw new Error("ADMIN_COURSE_CAPABILITY_STEP_MISSING:" + courseSlug + "/" + lessonSlug);
-  }
 
   return {
     courseHeader: {
-      title: draft.lessonSpec.title,
-      catalogTitle: draft.lessonSpec.title,
+      title: lesson.title,
+      catalogTitle: lesson.title,
       catalogSubtitle,
-      lessonPageLead: draft.content.whyItMatters || draft.content.summary
+      lessonPageLead: lesson.whyItMatters || lesson.summary
     },
-    stepMeta: draft.lessonSpec.steps.map((step) => ({
+    stepMeta: formalSpec.steps.map((step) => ({
       id: step.id,
       kind: step.kind,
       title: step.title,
@@ -273,11 +283,11 @@ export function getFormalAdminCourseSnapshot(
       bottomDetails: presentation.introComparison.bottomDetails.map((item) => ({ ...item }))
     },
     example: {
-      title: draft.content.example.title,
-      situation: draft.content.example.situation,
-      before: draft.content.example.before ?? "",
-      after: draft.content.example.after ?? "",
-      result: draft.content.example.result,
+      title: lesson.example.title,
+      situation: lesson.example.situation,
+      before: lesson.example.before ?? "",
+      after: lesson.example.after ?? "",
+      result: lesson.example.result,
       knowledgeDepth: presentation.knowledgeDepth.example.map((item) => ({ ...item }))
     },
     checks: draft.checkSequence.map((check) => ({
@@ -292,7 +302,7 @@ export function getFormalAdminCourseSnapshot(
       incorrectFeedback: check.incorrectFeedback
     })),
     practice: {
-      id: draft.practice.id,
+      id: formalRuntimePracticeId(courseSlug, lessonSlug),
       title: draft.practice.title,
       goal: draft.practice.goal,
       instructions: draft.practice.instructions.map((item) => ({ ...item })),
@@ -315,12 +325,12 @@ export function getFormalAdminCourseSnapshot(
         secondary: "AI不应该替你做什么"
       },
       knowledgeDepth: presentation.knowledgeDepth.review.map((item) => ({ ...item })),
-      mistakes: [...draft.content.mistakes],
-      related: [...draft.content.related]
+      mistakes: [...lesson.mistakes],
+      related: [...lesson.related]
     },
     capability: {
-      title: presentation.capabilityTitle ?? capabilityStep.title,
-      gain: [...draft.lessonSpec.capabilityGain],
+      title: presentation.capabilityTitle ?? "把“学过”变成你现在真的能做的事情",
+      gain: [...formalSpec.capabilityGain],
       selfAssessment: [...presentation.selfAssessment],
       triggerScenario,
       nextLessonValue

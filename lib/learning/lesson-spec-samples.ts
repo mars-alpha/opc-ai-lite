@@ -9,7 +9,7 @@ const accessPresentation = {
 export const lessonSpecValidationSamples: LessonSpec[] = [
   {
     version: "0.2",
-    courseSlug: "chatgpt-worker",
+    courseSlug: "validation-course",
     lessonId: "task-brief",
     title: "用任务简报替代“神奇 Prompt”",
     lessonType: "APPLICATION",
@@ -46,7 +46,7 @@ export const lessonSpecValidationSamples: LessonSpec[] = [
   },
   {
     version: "0.2",
-    courseSlug: "ai-literacy",
+    courseSlug: "validation-course",
     lessonId: "memory-rag",
     title: "Memory 与 RAG",
     lessonType: "CONCEPT",
@@ -79,7 +79,7 @@ export const lessonSpecValidationSamples: LessonSpec[] = [
   },
   {
     version: "0.2",
-    courseSlug: "chatgpt-worker",
+    courseSlug: "validation-course",
     lessonId: "writing-files",
     title: "写作与文件处理",
     lessonType: "APPLICATION",
@@ -122,7 +122,7 @@ export const lessonSpecValidationSamples: LessonSpec[] = [
       "为每个节点定义输入、输出、处理方式和失败边界"
     ],
     knowledgePoints: ["workflow-node", "input-output", "control-boundary"],
-    prerequisites: ["chatgpt-worker"],
+    prerequisites: ["validation-prerequisite"],
     requiresExample: true,
     requiresCheck: false,
     practiceMode: "INDEPENDENT",
@@ -150,8 +150,8 @@ export const currentLessonRuntimeCapabilities = {
   requiredCheckCompletionGate: true,
   requiredPracticeCompletionGate: true,
   publishedInteractiveLessonKeys: [
-    "chatgpt-worker/task-brief",
-    "ai-literacy/memory-rag",
+    "validation-course/task-brief",
+    "validation-course/memory-rag",
     "ai-workflow/task-decomposition"
   ],
   supportedPracticeSubmissionKinds: ["TASK_BRIEF_V1", "STRUCTURED_TEXT_V1"],

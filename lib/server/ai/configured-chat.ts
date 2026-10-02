@@ -11,6 +11,7 @@ type ChatInput = {
   systemPrompt: string;
   userPayload: unknown;
   temperature?: number;
+  timeoutMs?: number;
 };
 
 type ChatDependencies = {
@@ -72,7 +73,7 @@ export async function callConfiguredChatJson(
         { role: "user", content: JSON.stringify(input.userPayload) }
       ]
     }),
-    signal: AbortSignal.timeout(45000)
+    signal: AbortSignal.timeout(input.timeoutMs ?? 45000)
   });
 
   if (!response.ok) throw new Error("AI_ANALYSIS_PROVIDER_FAILED");

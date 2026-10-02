@@ -23,11 +23,11 @@ const validator = fs.readFileSync(files.validator, "utf8");
 
 for (const required of [
   "Human Gate 1",
-  "Human Gate 2",
-  "Human Gate 3",
+  "Human Final Gate",
   "Task A",
   "Task B",
-  "Course Maintenance DRAFT",
+  "真实学员界面对比",
+  "课程反馈更新",
   "机械代码",
   "Learning Issue"
 ]) {
@@ -39,7 +39,12 @@ assert(product.includes("固定双栏"), "PRODUCT_TWO_PANE_WORKBENCH_MISSING");
 assert(product.includes("Learning Issue Source Matrix"), "PRODUCT_SOURCE_MATRIX_MISSING");
 assert(product.includes("学员反馈不得直接生成该类型"), "PRODUCT_STUDENT_OUTDATED_BOUNDARY_MISSING");
 assert(product.includes("已采集未聚合"), "PRODUCT_DATA_AVAILABILITY_STATE_MISSING");
-assert(product.includes("不得直接提交审核或发布") || product.includes("不自动提交审核"), "PRODUCT_NO_DIRECT_PUBLISH_MISSING");
+assert(product.includes("AI **永远不得自己发布课程**"), "PRODUCT_AI_NO_SELF_PUBLISH_MISSING");
+assert(product.includes("确认并发布"), "PRODUCT_HUMAN_FINAL_PUBLISH_MISSING");
+assert(product.includes("PUBLISHED 历史记录"), "PRODUCT_HISTORY_RECORD_MISSING");
+assert(product.includes("问题处理周期（Issue Cycle）"), "PRODUCT_ISSUE_CYCLE_MISSING");
+assert(product.includes("新增 **3 位独立学员**"), "PRODUCT_FEEDBACK_REOPEN_THRESHOLD_MISSING");
+assert(product.includes("新增 **10 位样本**"), "PRODUCT_BEHAVIOR_REOPEN_THRESHOLD_MISSING");
 
 for (const required of [
   "learning-issue-diagnosis@2",
@@ -50,7 +55,7 @@ for (const required of [
   "data_availability",
   "mutable_path_catalog",
   "Human Gate 1",
-  "Human Gate 2",
+  "Task A → Task B Orchestration",
   "每次只允许一门课程",
   "Return JSON only"
 ]) {
@@ -86,15 +91,21 @@ for (const required of [
   "UNKNOWN_EVIDENCE_REF",
   "PATCH_BASELINE_CONFLICT",
   "PATCH_STRUCTURE_DRIFT",
-  "accepted_patch_ids",
-  "sourceContext",
-  "不自动 submit review"
+  "Human Final Preview Gate",
+  "确认并发布",
+  "PUBLISHED 历史记录",
+  "课程反馈更新",
+  "sourceContext"
 ]) {
   assert(validator.includes(required), "VALIDATOR_RULE_MISSING:" + required);
 }
 
 assert(validator.includes("current_value ==="), "VALIDATOR_BASELINE_EQUALITY_MISSING");
 assert(validator.includes("UI 必须通过确定性映射显示中文"), "VALIDATOR_CHINESE_UI_MAPPING_MISSING");
+assert(validator.includes("Issue Cycle baseline"), "VALIDATOR_ISSUE_CYCLE_BASELINE_MISSING");
+assert(validator.includes("自动校验重试"), "VALIDATOR_AI_RETRY_RULE_MISSING");
+assert(!validator.includes("写 Course Maintenance DRAFT 前必须"), "VALIDATOR_OLD_DRAFT_APPLY_FLOW_PRESENT");
+assert(!product.includes("其中“发起课程更新”只进入现有 Course Maintenance DRAFT"), "PRODUCT_OLD_DRAFT_FLOW_PRESENT");
 
 const ownerSet = new Set(Object.values(files).map((file) => file.split("/").pop()));
 const actual = fs.readdirSync(dir);

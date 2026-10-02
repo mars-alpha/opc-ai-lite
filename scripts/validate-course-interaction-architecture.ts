@@ -14,13 +14,12 @@ const formalView = read("components/FormalGuidedLessonView.tsx");
 const asyncShell = read("components/AsyncLessonRuntimeShell.tsx");
 const panel = read("components/GenericLessonRuntimePanel.tsx");
 const boundaries = read("lib/learning/course-runtime-boundaries.ts");
-const legacyView = read("components/legacy-learning/LegacyStaticLessonView.tsx");
 
 assert(page.includes("<FormalGuidedLessonView"), "FORMAL_VIEW_ROUTE_MISSING");
 assert(page.includes("<LessonLockedView"), "LOCKED_VIEW_ROUTE_MISSING");
-assert(page.includes("<LegacyStaticLessonView"), "LEGACY_VIEW_ROUTE_MISSING");
 assert(page.includes("isFormalRuntimeCourse"), "FORMAL_BOUNDARY_CHECK_MISSING");
-assert(page.includes("isLegacyStaticCourse"), "LEGACY_BOUNDARY_CHECK_MISSING");
+assert(!page.includes("LegacyStaticLessonView"), "LEGACY_VIEW_ROUTE_PRESENT");
+assert(!page.includes("isLegacyStaticCourse"), "LEGACY_BOUNDARY_CHECK_PRESENT");
 
 for (const oldInline of [
   "lesson-reading",
@@ -44,12 +43,8 @@ assert(asyncShell.includes("<LessonFeedbackPrompt"), "FORMAL_FEEDBACK_NAV_MISSIN
 assert(asyncShell.includes("正在读取学习进度…"), "FORMAL_PRELOAD_HINT_MISSING");
 
 assert(boundaries.includes('"foundation-ai"'), "FOUNDATION_FORMAL_BOUNDARY_MISSING");
-for (const legacySlug of ["ai-literacy", "chatgpt-worker", "ai-workflow"]) {
-  assert(boundaries.includes('"' + legacySlug + '"'), "LEGACY_BOUNDARY_MISSING:" + legacySlug);
-}
-assert(legacyView.includes("Historical static renderer only"), "LEGACY_WARNING_MISSING");
-assert(legacyView.includes("<LegacyLessonHelpPanel"), "LEGACY_HELP_ISOLATION_MISSING");
-assert(legacyView.includes("<LegacyCopyableGuide"), "LEGACY_COPY_ISOLATION_MISSING");
+assert(!boundaries.includes("LEGACY_STATIC_COURSE_SLUGS"), "LEGACY_BOUNDARY_PRESENT");
+assert(!fs.existsSync("components/legacy-learning"), "LEGACY_LEARNING_COMPONENTS_PRESENT");
 
 for (const removed of [
   "components/StageProgress.tsx",

@@ -6,6 +6,8 @@ import {
   SESSION_COOKIE
 } from "../../../lib/server/auth/service";
 import { isAdminUser } from "../../../lib/server/admin/service";
+import { listAdminCourseRegistry } from "../../../lib/server/admin/course-registry";
+import { formalRuntimeLessonId } from "../../../lib/server/learning/formal-identity";
 import { listLearningInsightWorkbench } from "../../../lib/server/learning-insights/service";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +45,12 @@ export default async function AdminLearningPage() {
 
   const data = await listLearningInsightWorkbench();
   const serializeDate = (value: Date) => value.toISOString();
+  const registryByCourseKey = new Map(
+    listAdminCourseRegistry().items.map((item) => [
+      formalRuntimeLessonId(item.runtimeCourseSlug, item.runtimeLessonId),
+      item
+    ])
+  );
 
   return (
     <main className="admin-page">
@@ -50,22 +58,26 @@ export default async function AdminLearningPage() {
         <div>
           <span>平台运营 / 学习洞察</span>
           <h1>学习洞察</h1>
-          <p>用真实学习数据持续观察课程健康，先综合判断整门课程，再决定是否进入 AI 诊断与课程维护。</p>
+          <p>用真实学习数据持续观察课程健康，先综合判断整门课程，再由 AI 给出诊断与更新对照，人工确认后发布。</p>
         </div>
       </div>
       <div className="admin-platform-flow admin-platform-flow-learning">
         <div><b>01</b><strong>系统发现</strong><span>机械规则聚合真实学习问题</span></div>
         <div><b>02</b><strong>人工确认</strong><span>交给 AI / 继续观察 / 无需处理</span></div>
-        <div><b>03</b><strong>AI 诊断</strong><span>下一阶段：诊断问题并列课程</span></div>
-        <div><b>04</b><strong>课程维护</strong><span>采纳后才进入课程草稿</span></div>
+        <div><b>03</b><strong>AI 诊断</strong><span>整课诊断并生成更新对照</span></div>
+        <div><b>04</b><strong>确认发布</strong><span>学员观感对照确认后发布并留历史</span></div>
       </div>
 
       <AdminLearningWorkbenchV2
         courses={data.courseHealth.map((course) => ({
           ...course,
-          firstIssueAt: serializeDate(course.firstIssueAt),
+          lessonId: registryByCourseKey.get(course.courseKey)?.lessonId ?? course.lessonTitle,
+          maintenanceKey: registryByCourseKey.has(course.courseKey)
+            ? registryByCourseKey.get(course.courseKey)!.runtimeCourseSlug + "/" + registryByCourseKey.get(course.courseKey)!.runtimeLessonId
+            : "",
+          firstIssueAt: course.firstIssueAt ? serializeDate(course.firstIssueAt) : null,
           oldestOpenIssueAt: course.oldestOpenIssueAt ? serializeDate(course.oldestOpenIssueAt) : null,
-          latestIssueAt: serializeDate(course.latestIssueAt),
+          latestIssueAt: course.latestIssueAt ? serializeDate(course.latestIssueAt) : null,
           issueGroups: course.issueGroups.map((group) => ({
             ...group,
             firstSeenAt: serializeDate(group.firstSeenAt),

@@ -2,6 +2,7 @@ import "server-only";
 
 import { and, count, desc, eq, inArray, or } from "drizzle-orm";
 import { courses, getAllLessons, getCourse, getLesson } from "../../courses";
+import { listAdminCourseRegistry } from "../admin/course-registry";
 import type { AuthUser } from "../auth/service";
 import { startAdminCourseCandidate } from "../admin/course-maintenance";
 import { getDatabase } from "../db";
@@ -24,6 +25,13 @@ import {
   practices,
   stages
 } from "../db/schema";
+import { formalRuntimeLessonId } from "../learning/formal-identity";
+import {
+  behaviorCycleState,
+  closeIssueCycleEvidence,
+  currentIssueCycleOpenedAt,
+  feedbackCycleState
+} from "./issue-cycle";
 
 export const CLIENT_LEARNING_EVENTS = [
   "hint_revealed",
@@ -595,7 +603,10 @@ async function refreshInsight(
 ) {
   const db = getDatabase();
   const rows = await db
-    .select({ userId: learningFeedback.userId })
+    .select({
+      userId: learningFeedback.userId,
+      createdAt: learningFeedback.createdAt
+    })
     .from(learningFeedback)
     .where(
       and(
@@ -604,10 +615,10 @@ async function refreshInsight(
       )
     );
 
-  const distinctUserCount = new Set(rows.map((row) => row.userId)).size;
   const [existing] = await db
     .select({
       id: courseInsights.id,
+      status: courseInsights.status,
       evidence: courseInsights.evidence
     })
     .from(courseInsights)
@@ -619,21 +630,22 @@ async function refreshInsight(
     )
     .limit(1);
 
-  const previousEvidence =
-    existing?.evidence && typeof existing.evidence === "object" && !Array.isArray(existing.evidence)
-      ? (existing.evidence as Record<string, unknown>)
-      : {};
-  const status = "OPEN";
-
+  const cycle = feedbackCycleState({
+    evidence: existing?.evidence,
+    status: existing?.status ?? null,
+    issueKey,
+    rows,
+    now: new Date()
+  });
   const evidence = {
-    ...previousEvidence,
-    distinctUserCount,
+    ...cycle.evidence,
+    distinctUserCount: cycle.distinctUserCount,
     analysisThreshold: 3,
     highPriorityThreshold: 5,
     priority:
-      distinctUserCount >= 5 || qualityRisk
+      cycle.distinctUserCount >= 5 || qualityRisk
         ? "HIGH"
-        : distinctUserCount >= 3
+        : cycle.distinctUserCount >= 3
           ? "MEDIUM"
           : "LOW"
   };
@@ -644,8 +656,8 @@ async function refreshInsight(
       .update(courseInsights)
       .set({
         issueCategory,
-        distinctUserCount,
-        status,
+        distinctUserCount: cycle.distinctUserCount,
+        status: cycle.status,
         evidence,
         updatedAt: new Date()
       })
@@ -657,8 +669,8 @@ async function refreshInsight(
         lessonId,
         issueKey,
         issueCategory,
-        distinctUserCount,
-        status,
+        distinctUserCount: cycle.distinctUserCount,
+        status: cycle.status,
         evidence,
         analysisMode: "RULE"
       })
@@ -678,7 +690,11 @@ async function upsertBehaviorInsight(input: {
 }) {
   const db = getDatabase();
   const [existing] = await db
-    .select({ id: courseInsights.id, evidence: courseInsights.evidence })
+    .select({
+      id: courseInsights.id,
+      status: courseInsights.status,
+      evidence: courseInsights.evidence
+    })
     .from(courseInsights)
     .where(
       and(
@@ -688,16 +704,18 @@ async function upsertBehaviorInsight(input: {
     )
     .limit(1);
 
-  const previousEvidence =
-    existing?.evidence && typeof existing.evidence === "object" && !Array.isArray(existing.evidence)
-      ? (existing.evidence as Record<string, unknown>)
-      : {};
-  const evidence = {
-    ...previousEvidence,
-    ...input.evidence,
+  const cycle = behaviorCycleState({
+    evidence: existing?.evidence,
+    status: existing?.status ?? null,
+    issueKey: input.issueKey,
     sampleSize: input.sampleSize,
-    analysisThreshold: 10
-  };
+    signalEvidence: {
+      ...input.evidence,
+      sampleSize: input.sampleSize,
+      analysisThreshold: 10
+    },
+    now: new Date()
+  });
 
   let insightId = existing?.id;
   if (insightId) {
@@ -705,9 +723,9 @@ async function upsertBehaviorInsight(input: {
       .update(courseInsights)
       .set({
         issueCategory: input.issueCategory,
-        status: "OPEN",
-        distinctUserCount: input.sampleSize,
-        evidence,
+        status: cycle.status,
+        distinctUserCount: cycle.distinctUserCount,
+        evidence: cycle.evidence,
         updatedAt: new Date()
       })
       .where(eq(courseInsights.id, insightId));
@@ -720,7 +738,7 @@ async function upsertBehaviorInsight(input: {
         issueCategory: input.issueCategory,
         status: "OPEN",
         distinctUserCount: input.sampleSize,
-        evidence,
+        evidence: cycle.evidence,
         analysisMode: "RULE"
       })
       .returning({ id: courseInsights.id });
@@ -1122,18 +1140,41 @@ export async function reviewCourseUpdateCandidate(
       .where(eq(courseUpdateCandidates.id, candidateId));
 
     if (candidate.sourceType === "LEARNING_INSIGHT" && candidate.insightId) {
-      await tx
-        .update(courseInsights)
-        .set({
-          status:
-            input.status === "DISMISSED"
-              ? "DISMISSED"
-              : input.status === "APPROVED"
-                ? "REVIEWED"
-                : "UNDER_REVIEW",
-          updatedAt: new Date()
+      const [insight] = await tx
+        .select({
+          issueKey: courseInsights.issueKey,
+          distinctUserCount: courseInsights.distinctUserCount,
+          evidence: courseInsights.evidence
         })
-        .where(eq(courseInsights.id, candidate.insightId));
+        .from(courseInsights)
+        .where(eq(courseInsights.id, candidate.insightId))
+        .limit(1);
+      if (insight) {
+        const nextStatus =
+          input.status === "DISMISSED"
+            ? "DISMISSED"
+            : input.status === "APPROVED"
+              ? "REVIEWED"
+              : "UNDER_REVIEW";
+        const reviewedAt = new Date();
+        await tx
+          .update(courseInsights)
+          .set({
+            status: nextStatus,
+            evidence:
+              nextStatus === "DISMISSED" || nextStatus === "REVIEWED"
+                ? closeIssueCycleEvidence({
+                    evidence: insight.evidence,
+                    issueKey: insight.issueKey,
+                    state: nextStatus,
+                    sampleSize: insight.distinctUserCount,
+                    at: reviewedAt
+                  })
+                : insight.evidence,
+            updatedAt: reviewedAt
+          })
+          .where(eq(courseInsights.id, candidate.insightId));
+      }
     }
   });
 }
@@ -1256,6 +1297,8 @@ export async function decideLearningIssueGate1(input: {
     const [current] = await db
       .select({
         id: courseInsights.id,
+        issueKey: courseInsights.issueKey,
+        distinctUserCount: courseInsights.distinctUserCount,
         evidence: courseInsights.evidence
       })
       .from(courseInsights)
@@ -1272,15 +1315,26 @@ export async function decideLearningIssueGate1(input: {
       input.decision === "ANALYZE"
         ? "ANALYSIS_READY"
         : input.decision === "WATCH"
-          ? "OPEN"
+          ? "WATCHING"
           : "DISMISSED";
+
+    const nextEvidence =
+      input.decision === "ANALYZE"
+        ? currentEvidence
+        : closeIssueCycleEvidence({
+            evidence: currentEvidence,
+            issueKey: current.issueKey,
+            state: input.decision === "WATCH" ? "WATCHING" : "DISMISSED",
+            sampleSize: current.distinctUserCount,
+            at: decidedAt
+          });
 
     await db
       .update(courseInsights)
       .set({
         status,
         evidence: {
-          ...currentEvidence,
+          ...nextEvidence,
           humanGate1: {
             decision: input.decision,
             decidedBy: input.decidedBy,
@@ -1306,12 +1360,12 @@ export async function decideLearningIssueGate1(input: {
     .limit(1);
   if (!risk) throw new Error("LEARNING_ISSUE_NOT_FOUND");
 
-  const reviewStatus =
-    input.decision === "ANALYZE"
-      ? "UNDER_REVIEW"
-      : input.decision === "WATCH"
-        ? "OPEN"
-        : "DISMISSED";
+    const reviewStatus =
+      input.decision === "ANALYZE"
+        ? "UNDER_REVIEW"
+        : input.decision === "WATCH"
+          ? "WATCHING"
+          : "DISMISSED";
 
   await db
     .update(learningFeedback)
@@ -1328,6 +1382,7 @@ export async function decideLearningCourseGate1(input: {
   courseKey: string;
   decision: LearningIssueGate1Decision;
   decidedBy: string;
+  allowSimulationReview?: boolean;
 }) {
   const db = getDatabase();
   const [insightRows, riskRows] = await Promise.all([
@@ -1344,7 +1399,7 @@ export async function decideLearningCourseGate1(input: {
       .where(and(
         eq(learningFeedback.lessonId, input.courseKey),
         eq(learningFeedback.qualityRisk, true),
-        inArray(learningFeedback.reviewStatus, ["OPEN", "UNDER_REVIEW"])
+          inArray(learningFeedback.reviewStatus, ["OPEN", "UNDER_REVIEW"])
       ))
   ]);
 
@@ -1360,7 +1415,9 @@ export async function decideLearningCourseGate1(input: {
           : null;
       return evidence?.simulation === true;
     }) || riskRows.some((row) => row.issueKey.startsWith("demo-learning-"));
-  if (containsSimulation) throw new Error("SIMULATION_ACTION_DISABLED");
+  if (containsSimulation && !input.allowSimulationReview) {
+    throw new Error("SIMULATION_ACTION_DISABLED");
+  }
 
   const issueStatuses: Array<{ id: string; sourceType: LearningIssueSourceType; status: string }> = [];
   for (const row of insightRows) {
@@ -1387,7 +1444,7 @@ export async function decideLearningCourseGate1(input: {
 
 export async function listLearningInsightWorkbench() {
   const db = getDatabase();
-  const [insights, candidates, feedbackRows, feedbackCounts] = await Promise.all([
+  const [insights, candidates, feedbackRows, feedbackCounts, lessonVersions] = await Promise.all([
     db
       .select({
         id: courseInsights.id,
@@ -1406,7 +1463,7 @@ export async function listLearningInsightWorkbench() {
       })
       .from(courseInsights)
       .innerJoin(lessons, eq(courseInsights.lessonId, lessons.id))
-      .where(inArray(courseInsights.status, ['OPEN', 'ANALYSIS_READY', 'UNDER_REVIEW', 'REVIEW_REQUIRED']))
+      .where(inArray(courseInsights.status, ['OPEN', 'WATCHING', 'ANALYSIS_READY', 'UNDER_REVIEW', 'REVIEW_REQUIRED']))
       .orderBy(desc(courseInsights.updatedAt))
       .limit(200),
     db
@@ -1446,7 +1503,7 @@ export async function listLearningInsightWorkbench() {
       .where(
         and(
           eq(learningFeedback.qualityRisk, true),
-          inArray(learningFeedback.reviewStatus, ['OPEN', 'UNDER_REVIEW'])
+          inArray(learningFeedback.reviewStatus, ['OPEN', 'WATCHING', 'UNDER_REVIEW'])
         )
       )
       .orderBy(desc(learningFeedback.createdAt))
@@ -1457,7 +1514,13 @@ export async function listLearningInsightWorkbench() {
         count: count()
       })
       .from(learningFeedback)
-      .groupBy(learningFeedback.lessonId)
+      .groupBy(learningFeedback.lessonId),
+    db
+      .select({
+        lessonId: lessons.id,
+        version: lessons.version
+      })
+      .from(lessons)
   ]);
 
   const issueRows = [
@@ -1480,6 +1543,12 @@ export async function listLearningInsightWorkbench() {
           typeof item.evidence === "object" &&
           !Array.isArray(item.evidence) &&
           (item.evidence as Record<string, unknown>).simulation === true
+      ),
+      acceptanceTest: Boolean(
+        item.evidence &&
+          typeof item.evidence === "object" &&
+          !Array.isArray(item.evidence) &&
+          (item.evidence as Record<string, unknown>).manualAcceptance === true
       )
     })),
     ...feedbackRows.map((item) => ({
@@ -1496,7 +1565,8 @@ export async function listLearningInsightWorkbench() {
       directComment: item.comment,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
-      simulation: item.issueKey.startsWith("demo-learning-")
+      simulation: item.issueKey.startsWith("demo-learning-"),
+      acceptanceTest: false
     }))
   ];
 
@@ -1507,19 +1577,20 @@ export async function listLearningInsightWorkbench() {
     feedbackCounts.map((row) => [row.lessonId, Number(row.count)])
   );
   const issueIsOpen = (issue: (typeof issueRows)[number]) =>
-    !["REVIEWED", "DISMISSED"].includes(issue.status);
+    ["OPEN", "ANALYSIS_READY", "UNDER_REVIEW", "REVIEW_REQUIRED"].includes(issue.status);
 
   const courseMap = new Map<string, {
     courseKey: string;
     lessonTitle: string;
+    curriculumOrder: number;
     issueCount: number;
     feedbackCount: number;
     openIssueCount: number;
     affectedUserCount: number;
     updateCount: number;
-    firstIssueAt: Date;
+    firstIssueAt: Date | null;
     oldestOpenIssueAt: Date | null;
-    latestIssueAt: Date;
+    latestIssueAt: Date | null;
     healthStatus: LearningCourseHealthStatus;
     issues: typeof issueRows;
     issueGroups: Array<{
@@ -1531,43 +1602,55 @@ export async function listLearningInsightWorkbench() {
       issueIds: string[];
     }>;
     simulation: boolean;
+    acceptanceTest: boolean;
   }>();
+  const versionByLesson = new Map(
+    lessonVersions.map((row) => [row.lessonId, row.version])
+  );
+  listAdminCourseRegistry().items.forEach((item, index) => {
+    const courseKey = formalRuntimeLessonId(
+      item.runtimeCourseSlug,
+      item.runtimeLessonId
+    );
+    courseMap.set(courseKey, {
+      courseKey,
+      lessonTitle: item.lessonTitle,
+      curriculumOrder: index,
+      issueCount: 0,
+      feedbackCount: feedbackCountByLesson.get(courseKey) ?? 0,
+      openIssueCount: 0,
+      affectedUserCount: 0,
+      updateCount: Math.max(0, (versionByLesson.get(courseKey) ?? 1) - 1),
+      firstIssueAt: null,
+      oldestOpenIssueAt: null,
+      latestIssueAt: null,
+      healthStatus: "NORMAL",
+      issues: [],
+      issueGroups: [],
+      simulation: false,
+      acceptanceTest: false
+    });
+  });
 
   for (const issue of issueRows) {
     const current = courseMap.get(issue.lessonId);
-    if (!current) {
-      courseMap.set(issue.lessonId, {
-        courseKey: issue.lessonId,
-        lessonTitle: issue.lessonTitle,
-        issueCount: 1,
-        feedbackCount: feedbackCountByLesson.get(issue.lessonId) ?? 0,
-        openIssueCount: issueIsOpen(issue) ? 1 : 0,
-        affectedUserCount: learnerBackedIssue(issue) ? issue.distinctUserCount : 0,
-        updateCount: Math.max(0, issue.lessonVersion - 1),
-        firstIssueAt: issue.createdAt,
-        oldestOpenIssueAt: issueIsOpen(issue) ? issue.createdAt : null,
-        latestIssueAt: issue.updatedAt,
-        healthStatus: "NORMAL",
-        issues: [issue],
-        issueGroups: [],
-        simulation: issue.simulation
-      });
-      continue;
-    }
+    if (!current) continue;
     current.issueCount += 1;
     if (issueIsOpen(issue)) {
       current.openIssueCount += 1;
-      if (!current.oldestOpenIssueAt || issue.createdAt.getTime() < current.oldestOpenIssueAt.getTime()) {
-        current.oldestOpenIssueAt = issue.createdAt;
+      const cycleOpenedAt = currentIssueCycleOpenedAt(issue.evidence, issue.createdAt);
+      if (!current.oldestOpenIssueAt || cycleOpenedAt.getTime() < current.oldestOpenIssueAt.getTime()) {
+        current.oldestOpenIssueAt = cycleOpenedAt;
       }
     }
     if (learnerBackedIssue(issue)) {
       current.affectedUserCount = Math.max(current.affectedUserCount, issue.distinctUserCount);
     }
-    if (issue.createdAt.getTime() < current.firstIssueAt.getTime()) current.firstIssueAt = issue.createdAt;
-    if (issue.updatedAt.getTime() > current.latestIssueAt.getTime()) current.latestIssueAt = issue.updatedAt;
+    if (!current.firstIssueAt || issue.createdAt.getTime() < current.firstIssueAt.getTime()) current.firstIssueAt = issue.createdAt;
+    if (!current.latestIssueAt || issue.updatedAt.getTime() > current.latestIssueAt.getTime()) current.latestIssueAt = issue.updatedAt;
     current.issues.push(issue);
     current.simulation = current.simulation || issue.simulation;
+    current.acceptanceTest = current.acceptanceTest || issue.acceptanceTest;
   }
 
   const courseHealth = [...courseMap.values()]
@@ -1619,7 +1702,7 @@ export async function listLearningInsightWorkbench() {
       const leftOpenAt = left.oldestOpenIssueAt?.getTime() ?? Number.POSITIVE_INFINITY;
       const rightOpenAt = right.oldestOpenIssueAt?.getTime() ?? Number.POSITIVE_INFINITY;
       if (leftOpenAt !== rightOpenAt) return leftOpenAt - rightOpenAt;
-      return left.courseKey.localeCompare(right.courseKey);
+      return left.curriculumOrder - right.curriculumOrder;
     });
 
   return {

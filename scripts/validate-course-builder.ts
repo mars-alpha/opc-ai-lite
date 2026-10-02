@@ -9,7 +9,7 @@ function assert(condition: unknown, code: string) {
 }
 
 const sourceSpec = lessonSpecValidationSamples.find(
-  (item) => item.courseSlug === "chatgpt-worker" && item.lessonId === "task-brief"
+  (item) => item.courseSlug === "validation-course" && item.lessonId === "task-brief"
 );
 if (!sourceSpec) throw new Error("SOURCE_SPEC_NOT_FOUND");
 
@@ -108,7 +108,7 @@ assert(
 
 const improve = createCourseBuilderReviewPacket({
   mode: "IMPROVE",
-  lessonKey: "chatgpt-worker/task-brief",
+  lessonKey: "validation-course/task-brief",
   changeSummary: "减少 Explain 冗余并加强 Practice 验收说明。",
   evidence: ["still_confused 在 Explain Step 集中出现"],
   affectedSteps: ["EXPLAIN", "PRACTICE"],
@@ -126,7 +126,7 @@ let authorityRejected = false;
 try {
   createCourseBuilderReviewPacket({
     mode: "IMPROVE",
-    lessonKey: "chatgpt-worker/task-brief",
+    lessonKey: "validation-course/task-brief",
     changeSummary: "非法状态修改",
     evidence: ["none"],
     affectedSteps: ["EXPLAIN"],

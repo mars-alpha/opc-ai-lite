@@ -25,8 +25,8 @@ export const knowledgeItems: KnowledgeItem[] = [
     impactLabel: "可能影响课程",
     stage: "AI Literacy",
     stageLabel: "Stage 1 · 看懂 AI",
-    courseSlug: "ai-literacy",
-    lessonId: "context-token",
+    courseSlug: "foundation-ai",
+    lessonId: "t1-03-minimum-context",
     readingTime: "5 分钟"
   },
   {
@@ -39,8 +39,6 @@ export const knowledgeItems: KnowledgeItem[] = [
     impactLabel: "形成知识胶囊",
     stage: "AI Worker",
     stageLabel: "Stage 2 · 用好 AI",
-    courseSlug: "chatgpt-worker",
-    lessonId: "task-brief",
     readingTime: "4 分钟"
   },
   {

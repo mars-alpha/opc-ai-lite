@@ -2,12 +2,8 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { FormalGuidedLessonView } from "../../../../../components/FormalGuidedLessonView";
 import { LessonLockedView } from "../../../../../components/LessonLockedView";
-import { LegacyStaticLessonView } from "../../../../../components/legacy-learning/LegacyStaticLessonView";
 import { courses, getAllLessons, getCourse, getLesson } from "../../../../../lib/courses";
-import {
-  isFormalRuntimeCourse,
-  isLegacyStaticCourse
-} from "../../../../../lib/learning/course-runtime-boundaries";
+import { isFormalRuntimeCourse } from "../../../../../lib/learning/course-runtime-boundaries";
 import { getLessonSpec } from "../../../../../lib/learning/lesson-spec-registry";
 import { buildLessonRuntimePlan } from "../../../../../lib/learning/lesson-runtime";
 import { getTrack01Phase1RuntimePresentation } from "../../../../../lib/learning/track01-phase1-runtime";
@@ -26,7 +22,7 @@ import {
 } from "../../../../../lib/learning/track-navigation";
 import { SESSION_COOKIE } from "../../../../../lib/server/auth/service";
 import { getLessonPageContext } from "../../../../../lib/server/lesson-page/service";
-import { getPublishedAdminCourseOverride } from "../../../../../lib/server/admin/course-maintenance";
+import { getPublishedAdminCourseOverrides } from "../../../../../lib/server/admin/course-maintenance";
 
 export const dynamic = "force-dynamic";
 
@@ -65,8 +61,31 @@ export default async function LessonPage({
     preferStaticLesson: formalRuntimeCourse
   });
 
-  const lessons = getAllLessons(course);
+  const publishedOverrides = await getPublishedAdminCourseOverrides();
+  const effectiveCourse = formalRuntimeCourse
+    ? {
+        ...course,
+        modules: course.modules.map((module) => ({
+          ...module,
+          lessons: module.lessons.map((item) => {
+            const override = publishedOverrides.get(course.slug + "/" + item.id);
+            return override
+              ? {
+                  ...item,
+                  title:
+                    override.snapshot.courseHeader.catalogTitle?.trim() ||
+                    override.snapshot.courseHeader.title,
+                  summary: override.snapshot.courseHeader.catalogSubtitle
+                }
+              : item;
+          })
+        }))
+      }
+    : course;
+  const lessons = getAllLessons(effectiveCourse);
   const index = lessons.findIndex((item) => item.id === lesson.id);
+  const effectiveCurrentLesson =
+    lessons.find((item) => item.id === lesson.id) ?? lesson;
   const previousLesson = index > 0 ? lessons[index - 1] : null;
   const nextLesson = index < lessons.length - 1 ? lessons[index + 1] : null;
   const previous =
@@ -80,10 +99,26 @@ export default async function LessonPage({
             label: "上一项"
           }
         : null;
-  const next =
-    nextLesson
-      ? { id: nextLesson.id, title: nextLesson.title }
-      : getCrossTrackNextLesson(course.slug, lesson.id);
+  const crossTrackNext = nextLesson
+    ? null
+    : getCrossTrackNextLesson(course.slug, lesson.id);
+  const crossTrackNextOverride = crossTrackNext?.href
+    ? (() => {
+        const match = /^\/courses\/([^/]+)\/lessons\/([^/]+)$/.exec(crossTrackNext.href);
+        return match ? publishedOverrides.get(match[1] + "/" + match[2]) ?? null : null;
+      })()
+    : null;
+  const next = nextLesson
+    ? { id: nextLesson.id, title: nextLesson.title }
+    : crossTrackNext
+      ? {
+          ...crossTrackNext,
+          title:
+            crossTrackNextOverride?.snapshot.courseHeader.catalogTitle?.trim() ||
+            crossTrackNextOverride?.snapshot.courseHeader.title ||
+            crossTrackNext.title
+        }
+      : null;
   const currentPath = "/courses/" + course.slug + "/lessons/" + lesson.id;
 
   if (!user) {
@@ -93,8 +128,8 @@ export default async function LessonPage({
   if (!access.allowed) {
     return (
       <LessonLockedView
-        course={course}
-        lesson={lesson}
+        course={effectiveCourse}
+        lesson={effectiveCurrentLesson}
         index={index}
         lessonsLength={lessons.length}
         lockedLessonIds={lockedLessonIds}
@@ -123,7 +158,7 @@ export default async function LessonPage({
       throw new Error("FORMAL_LESSON_PRESENTATION_NOT_REGISTERED:" + course.slug + "/" + lesson.id);
     }
 
-    const publishedOverride = await getPublishedAdminCourseOverride(course.slug, lesson.id);
+    const publishedOverride = publishedOverrides.get(course.slug + "/" + lesson.id) ?? null;
     const snapshot = publishedOverride?.snapshot ?? null;
     const effectiveLesson = snapshot
       ? {
@@ -191,7 +226,7 @@ export default async function LessonPage({
 
     return (
       <FormalGuidedLessonView
-        course={course}
+        course={effectiveCourse}
         lesson={effectiveLesson}
         plan={buildLessonRuntimePlan(effectiveSpec)}
         approvedPresentation={effectivePresentation}
@@ -205,20 +240,5 @@ export default async function LessonPage({
     );
   }
 
-  if (!isLegacyStaticCourse(course.slug)) {
-    throw new Error("LESSON_RENDERER_NOT_REGISTERED:" + course.slug + "/" + lesson.id);
-  }
-
-  return (
-    <LegacyStaticLessonView
-      course={course}
-      lesson={lesson}
-      lessons={lessons}
-      index={index}
-      previous={previousLesson}
-      next={nextLesson}
-      lockedLessonIds={lockedLessonIds}
-      authenticated
-    />
-  );
+  throw new Error("LESSON_RENDERER_NOT_REGISTERED:" + course.slug + "/" + lesson.id);
 }

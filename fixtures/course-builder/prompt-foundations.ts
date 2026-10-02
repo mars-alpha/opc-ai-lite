@@ -94,7 +94,7 @@ export const promptFoundationsBuildDraft = {
   },
   lessonSpec: {
     version: "1.0.0",
-    courseSlug: "ai-literacy",
+    courseSlug: "validation-course",
     lessonId: "prompt-foundations",
     title: "Prompt（提示词）怎么写，AI 才更容易理解你",
     lessonType: "APPLICATION",

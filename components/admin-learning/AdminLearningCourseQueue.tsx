@@ -84,7 +84,7 @@ export function AdminLearningCourseQueue({
                 <i className={"admin-learning-health-dot health-" + course.healthStatus.toLowerCase()} aria-hidden="true" />
                 {healthLabel(course.healthStatus)}
               </span>
-              {courseStatus(course) === "已进入分析" && <i>已进入分析</i>}
+              {courseStatus(course) !== "待判断" && <i>{courseStatus(course)}</i>}
             </div>
             <small>
               {course.oldestOpenIssueAt ? "未处理自 " + formatDate(course.oldestOpenIssueAt) : "暂无未处理问题"}

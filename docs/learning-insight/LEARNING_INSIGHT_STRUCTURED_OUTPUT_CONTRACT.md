@@ -108,7 +108,7 @@ OTHER
 
 ```json
 {
-  "course_id": "T1-02",
+  "course_id": "COURSE-EXAMPLE",
   "action": "MODIFY",
   "reason": "问题直接发生在本课核心知识点。",
   "evidence_refs": ["feedback:1", "check:2"]
@@ -126,7 +126,7 @@ NOT_RELEVANT
 约束：
 - 最多 5 门；
 - course_id 唯一；
-- MODIFY 只是 AI 建议，不是 Human 授权；
+- MODIFY 是 Task B 是否可以继续处理当前课程的系统前置事实，不代表最终发布授权；
 - MODIFY / REVIEW_ONLY 至少 1 个 evidence_ref。
 
 ### 2.4 targets
@@ -135,7 +135,7 @@ NOT_RELEVANT
 
 ```json
 {
-  "course_id": "T1-02",
+  "course_id": "COURSE-EXAMPLE",
   "step": 2,
   "area": "example.knowledgeDepth",
   "problem": "目标、背景、输出要求缺少对照。",
@@ -167,7 +167,7 @@ Task B 每次只针对一门课程。
 ```json
 {
   "schema_version": "course_change_patch_v2",
-  "course_id": "T1-02",
+  "course_id": "COURSE-EXAMPLE",
   "decision": "PATCH_PROPOSED",
   "changes": [],
   "manual_structure_reason": null
@@ -334,7 +334,7 @@ sourceContext
 ```json
 {
   "schema_version": "course_change_patch_v2",
-  "course_id": "T1-02",
+  "course_id": "COURSE-EXAMPLE",
   "decision": "REQUIRES_MANUAL_STRUCTURE_CHANGE",
   "changes": [],
   "manual_structure_reason": "当前问题需要新增一张对照卡片，V2 字符串替换无法安全表达。"
@@ -356,7 +356,7 @@ AI 原始 JSON 通过 Validator 后，Core 才可以包装成持久化 envelope�
   "provider": "system-recorded",
   "model": "system-recorded",
   "input_evidence_refs": [],
-  "approved_course_id": "T1-02",
+  "current_course_id": "COURSE-EXAMPLE",
   "validated_output": {},
   "validated_at": "system-generated"
 }
@@ -364,9 +364,9 @@ AI 原始 JSON 通过 Validator 后，Core 才可以包装成持久化 envelope�
 
 这些 provenance 字段由 Core 添加，不让 AI 自报。
 
-## 7. Human Gate 3 数据
+## 7. Human Final Preview Gate 数据
 
-Human 逐项审核后，Core 生成：
+Human 在学员界面对比 Preview 中审核并可编辑后，Core 生成：
 
 ```json
 {

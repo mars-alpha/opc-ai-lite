@@ -24,10 +24,14 @@ export async function POST(
       return NextResponse.json({ error: "INVALID_GATE1_DECISION" }, { status: 400 });
     }
 
+    const visualReview =
+      process.env.NODE_ENV !== "production" &&
+      new URL(request.url).searchParams.get("review") === "1";
     const result = await decideLearningCourseGate1({
       courseKey,
       decision,
-      decidedBy: user.email
+      decidedBy: user.email,
+      allowSimulationReview: visualReview
     });
     return NextResponse.json({ ok: true, result });
   } catch (error) {

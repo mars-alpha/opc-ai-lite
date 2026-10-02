@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminLearningCourseDecision } from "./AdminLearningCourseDecision";
+import { AdminLearningCourseDiagnosis } from "./AdminLearningCourseDiagnosis";
 import { AdminLearningCourseHeader } from "./AdminLearningCourseHeader";
 import { AdminLearningEvidencePanel } from "./AdminLearningEvidencePanel";
 import { AdminLearningIssueSummary } from "./AdminLearningIssueSummary";
@@ -10,12 +11,34 @@ export function AdminLearningCourseHealthDetail({
   course,
   busy,
   message,
-  onDecision
+  onDecision,
+  onManualEdit,
+  analysisRunning,
+  comparisonReady,
+  analysisCompleted,
+  analysisRunToken,
+  analysisRunCourseKey,
+  compareOpenToken,
+  compareOpenCourseKey,
+  onOpenCompare,
+  onAnalysisStateChange,
+  onPublished
 }: {
   course: CourseLearningHealthView | null;
   busy: boolean;
   message: string | null;
   onDecision: (decision: "ANALYZE" | "WATCH" | "DISMISS") => void;
+  onManualEdit: () => void;
+  analysisRunning: boolean;
+  comparisonReady: boolean;
+  analysisCompleted: boolean;
+  analysisRunToken: number;
+  analysisRunCourseKey: string | null;
+  compareOpenToken: number;
+  compareOpenCourseKey: string | null;
+  onOpenCompare: () => void;
+  onAnalysisStateChange: (state: { running: boolean; ready: boolean; completed: boolean }) => void;
+  onPublished: () => void;
 }) {
   if (!course) {
     return (
@@ -39,7 +62,22 @@ export function AdminLearningCourseHealthDetail({
           busy={busy}
           message={message}
           onDecision={onDecision}
+          onManualEdit={onManualEdit}
+        analysisRunning={analysisRunning}
+        comparisonReady={comparisonReady}
+        analysisCompleted={analysisCompleted}
+          onOpenCompare={onOpenCompare}
         />
+
+      <AdminLearningCourseDiagnosis
+        course={course}
+        analysisRunToken={analysisRunToken}
+        analysisRunCourseKey={analysisRunCourseKey}
+        compareOpenToken={compareOpenToken}
+        compareOpenCourseKey={compareOpenCourseKey}
+        onAnalysisStateChange={onAnalysisStateChange}
+        onPublished={onPublished}
+      />
       </div>
     </section>
   );

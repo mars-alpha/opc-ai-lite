@@ -22,6 +22,13 @@ export function formalRuntimeLessonId(courseSlug: string, lessonSlug: string) {
   return "lesson_" + courseSlug.replace(/-/g, "_") + "_" + lessonSlug.replace(/-/g, "_");
 }
 
+export function formalRuntimePracticeId(courseSlug: string, lessonSlug: string) {
+  const lessonPart = lessonSlug.replace(/-/g, "_");
+  return courseSlug === "foundation-ai"
+    ? "practice_" + lessonPart
+    : "practice_" + courseSlug.replace(/-/g, "_") + "_" + lessonPart;
+}
+
 function durationMinutes(duration: string) {
   const match = duration.match(/(\d+)\s*分钟/);
   return match ? Number(match[1]) : null;
