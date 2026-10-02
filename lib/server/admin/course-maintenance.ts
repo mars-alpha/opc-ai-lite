@@ -2,7 +2,8 @@ import "server-only";
 
 import { and, desc, eq, ne, notInArray, sql } from "drizzle-orm";
 import type { AuthUser } from "../auth/service";
-import { courses } from "../../courses";
+import type { AdminCourseSnapshot } from "./course-snapshot";
+import { ensureFormalLearningIdentity } from "../learning/formal-identity";
 import { getDatabase } from "../db";
 import {
   courseUpdateCandidates,
@@ -17,12 +18,19 @@ import {
   type AdminCourseRegistryItem
 } from "./course-registry";
 
-export type AdminCourseSnapshot = NonNullable<AdminCourseRegistryItem["preview"]>;
+export type { AdminCourseSnapshot } from "./course-snapshot";
 export type AdminCourseCandidateStatus =
   | "DRAFT"
   | "REVIEW"
   | "PUBLISHED"
   | "CANCELLED";
+
+type CandidateSourceContext = {
+  type: "LEARNING_INSIGHT" | "KNOWLEDGE";
+  sourceCandidateId: string;
+  insightId?: string | null;
+  sourceKnowledgeId?: string | null;
+};
 
 type CandidateProposal = {
   schemaVersion: "ADMIN_COURSE_CANDIDATE_V1";
@@ -35,6 +43,7 @@ type CandidateProposal = {
   baseSnapshot: AdminCourseSnapshot;
   snapshot: AdminCourseSnapshot;
   publishedVersion?: number;
+  sourceContext?: CandidateSourceContext;
 };
 
 const ACTIVE_STATUSES: AdminCourseCandidateStatus[] = ["DRAFT", "REVIEW"];
@@ -124,23 +133,6 @@ async function resolveLessonIdentity(courseSlug: string, lessonSlug: string) {
   return row;
 }
 
-function runtimeStageId(slug: string) {
-  return "stage_" + slug.replace(/-/g, "_");
-}
-
-function runtimeModuleId(courseSlug: string, moduleSlug: string) {
-  return "module_" + courseSlug.replace(/-/g, "_") + "_" + moduleSlug.replace(/-/g, "_");
-}
-
-function runtimeLessonId(courseSlug: string, lessonSlug: string) {
-  return "lesson_" + courseSlug.replace(/-/g, "_") + "_" + lessonSlug.replace(/-/g, "_");
-}
-
-function durationMinutes(duration: string) {
-  const match = duration.match(/(\d+)\s*分钟/);
-  return match ? Number(match[1]) : null;
-}
-
 async function ensureLessonIdentity(courseSlug: string, lessonSlug: string) {
   try {
     return await resolveLessonIdentity(courseSlug, lessonSlug);
@@ -148,81 +140,7 @@ async function ensureLessonIdentity(courseSlug: string, lessonSlug: string) {
     if (!(error instanceof Error) || error.message !== "LESSON_NOT_FOUND") throw error;
   }
 
-  const courseIndex = courses.findIndex((item) => item.slug === courseSlug);
-  const course = courses[courseIndex];
-  if (!course) throw new Error("FORMAL_COURSE_SOURCE_NOT_FOUND");
-
-  let matchedModule: (typeof course.modules)[number] | null = null;
-  let matchedLesson: (typeof course.modules)[number]["lessons"][number] | null = null;
-  let moduleIndex = -1;
-  let lessonIndex = -1;
-
-  for (const [currentModuleIndex, courseModule] of course.modules.entries()) {
-    const currentLessonIndex = courseModule.lessons.findIndex((item) => item.id === lessonSlug);
-    if (currentLessonIndex >= 0) {
-      matchedModule = courseModule;
-      matchedLesson = courseModule.lessons[currentLessonIndex];
-      moduleIndex = currentModuleIndex;
-      lessonIndex = currentLessonIndex;
-      break;
-    }
-  }
-
-  if (!matchedModule || !matchedLesson) throw new Error("FORMAL_LESSON_SOURCE_NOT_FOUND");
-
-  const stageId = runtimeStageId(course.slug);
-  const moduleId = runtimeModuleId(course.slug, matchedModule.id);
-  const lessonId = runtimeLessonId(course.slug, matchedLesson.id);
-
-  await getDatabase().transaction(async (tx) => {
-    await tx.insert(stages).values({
-      id: stageId,
-      slug: course.slug,
-      title: course.title,
-      summary: course.summary,
-      outcome: course.outcome,
-      order: courseIndex + 1,
-      status: "PUBLISHED",
-      version: 1,
-      updatedAt: sql`now()`
-    }).onConflictDoNothing();
-
-    await tx.insert(modules).values({
-      id: moduleId,
-      stageId,
-      slug: matchedModule.id,
-      title: matchedModule.title,
-      summary: matchedModule.description,
-      order: moduleIndex + 1,
-      status: "PUBLISHED",
-      updatedAt: sql`now()`
-    }).onConflictDoNothing();
-
-    await tx.insert(lessons).values({
-      id: lessonId,
-      moduleId,
-      slug: matchedLesson.id,
-      title: matchedLesson.title,
-      summary: matchedLesson.summary,
-      durationMinutes: durationMinutes(matchedLesson.duration),
-      content: {
-        plainExplanation: matchedLesson.plainExplanation,
-        whyItMatters: matchedLesson.whyItMatters,
-        points: matchedLesson.points,
-        content: matchedLesson.content,
-        example: matchedLesson.example,
-        guides: matchedLesson.guides,
-        practice: matchedLesson.practice,
-        mistakes: matchedLesson.mistakes,
-        related: matchedLesson.related
-      },
-      order: lessonIndex + 1,
-      status: "PUBLISHED",
-      version: 1,
-      updatedAt: sql`now()`
-    }).onConflictDoNothing();
-  });
-
+  await ensureFormalLearningIdentity(courseSlug, lessonSlug);
   return resolveLessonIdentity(courseSlug, lessonSlug);
 }
 
@@ -338,7 +256,11 @@ export async function getAdminCourseMaintenanceRegistry() {
 export async function startAdminCourseCandidate(
   user: AuthUser,
   courseSlug: string,
-  lessonSlug: string
+  lessonSlug: string,
+  options?: {
+    updateReason?: string;
+    sourceContext?: CandidateSourceContext;
+  }
 ) {
   const item = registryItem(courseSlug, lessonSlug);
   if (!item.preview) throw new Error("COURSE_PREVIEW_NOT_AVAILABLE");
@@ -383,10 +305,11 @@ export async function startAdminCourseCandidate(
     runtimeLessonId: lessonSlug,
     baseSpecVersion: item.specVersion,
     baseLessonVersion: identity.version,
-    updateReason: "",
+    updateReason: options?.updateReason?.trim().slice(0, 4000) ?? "",
     createdBy: user.email,
     baseSnapshot: snapshot,
-    snapshot
+    snapshot,
+    sourceContext: options?.sourceContext
   };
 
   const [created] = await db

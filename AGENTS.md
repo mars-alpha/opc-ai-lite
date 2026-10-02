@@ -147,7 +147,26 @@ Skill 必须版本化、有输入/输出 Schema，不直接拥有核心状态、
 ### Workflow
 Workflow 按确定顺序调用 Core 与 Skill 并控制 Gate。AI 不自行决定业务状态流。
 
-## 8. 三产品边界
+## 8. 学习洞察 V2 current owners
+
+学习洞察 / 课程反馈优化任务先读取：
+
+```text
+docs/learning-insight/LEARNING_INSIGHT_WORKBENCH_V2_PRODUCT_CONTRACT.md
+docs/learning-insight/LEARNING_INSIGHT_AI_PROMPT_CONTRACT.md
+docs/learning-insight/LEARNING_INSIGHT_STRUCTURED_OUTPUT_CONTRACT.md
+docs/learning-insight/LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md
+```
+
+固定边界：
+- 机械代码先完成采集、聚合、阈值、去重、课程定位、状态与校验；
+- Human 拥有三次 Gate；
+- AI 只做 Task A“诊断 + 列课程”和 Task B“单课程文本 Patch”；
+- AI 不直接拥有 Learning Issue 状态、不直接写正式课程、不直接提交审核或发布；
+- 最终只进入现有 Course Maintenance DRAFT；
+- 不接入、不修改 Course Builder Workflow。
+
+## 9. 三产品边界
 
 固定分为：
 - OPC AI 前台：学习与官方内容消费；
@@ -158,7 +177,7 @@ Workflow 按确定顺序调用 Core 与 Skill 并控制 Gate。AI 不自行决�
 
 完整需求、边界、技术选择、推荐理由、阶段顺序和验收规则只见 `docs/DEVELOPMENT_OPERATING_MANUAL.md`。
 
-## 9. UI 边界
+## 10. UI 边界
 
 Runtime、API、Schema、Skill、AI、后台任务默认冻结已确认前端。
 
@@ -193,20 +212,20 @@ IMPLEMENT
 - 用户审核提出修改后，修正并重新提供体验，直到明确确认；
 - 非可视化 Core / Schema / Validator 工作可以继续完成当前同一任务的必要闭环，但不得借此绕过 UI Review Gate。
 
-## 10. Secret / Provider
+## 11. Secret / Provider
 
 - API Key 不进入 Git、Prompt、日志、Analytics 或错误正文。
 - 平台 Secret 优先环境变量 / 云 Secret Manager。
 - 学员 BYOK 第一阶段默认不持久保存。
 - 外部 Provider 通过 Adapter / Model Gateway，不在业务代码写死厂商。
 
-## 11. Task Contract
+## 12. Task Contract
 
 每个实现任务必须先完成 `docs/DEVELOPMENT_OPERATING_MANUAL.md` 定义的 Decision Brief，至少明确角色、Product Surface、边界、Code / AI / Skill / Workflow / Human 分工、推荐方案与理由、Validation、Acceptance、Rollback 和 Owner。
 
 当前闭环必需才实现；其余进入 Backlog。
 
-## 12. 验收
+## 13. 验收
 
 业务代码至少：
 

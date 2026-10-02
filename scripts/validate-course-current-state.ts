@@ -38,7 +38,8 @@ for (const lesson of catalogLessons) {
 }
 
 assert(facts.includes("Track 01～05 共 81 节正式课程"), "CURRENT_FACTS_81_LESSONS_MISSING");
-assert(facts.includes("课程内容冻结"), "CURRENT_FACTS_FREEZE_MISSING");
+assert(facts.includes("课程目录结构与六步 Runtime 继续冻结"), "CURRENT_FACTS_FREEZE_MISSING");
+assert(facts.includes("课程正文采用正式版本受控更新"), "CURRENT_FACTS_VERSIONED_CONTENT_MISSING");
 assert(status.includes("81 LESSONS / FROZEN"), "PROJECT_STATUS_FREEZE_MISSING");
 assert(entry.includes("Track 01～05 已正式上线并冻结"), "COURSE_ENTRY_FREEZE_MISSING");
 

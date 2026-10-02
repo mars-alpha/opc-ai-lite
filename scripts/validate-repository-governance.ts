@@ -18,7 +18,11 @@ const required = [
   "docs/learning/FORMAL_CURRICULUM_V1.md",
   "docs/learning/FIVE_TRACK_CAPABILITY_CONTINUITY_V1.md",
   "docs/learning/TRACK_CONTEXTS_V1.md",
-  "docs/learning/UNIFIED_LESSON_SHELL_V1.md"
+  "docs/learning/UNIFIED_LESSON_SHELL_V1.md",
+  "docs/learning-insight/LEARNING_INSIGHT_WORKBENCH_V2_PRODUCT_CONTRACT.md",
+  "docs/learning-insight/LEARNING_INSIGHT_AI_PROMPT_CONTRACT.md",
+  "docs/learning-insight/LEARNING_INSIGHT_STRUCTURED_OUTPUT_CONTRACT.md",
+  "docs/learning-insight/LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md"
 ];
 for (const file of required) assert(fs.existsSync(file), "REQUIRED_OWNER_MISSING:" + file);
 
@@ -42,6 +46,18 @@ const learningWhitelist = new Set([
 for (const file of fs.readdirSync("docs/learning")) {
   assert(learningWhitelist.has(file), "NON_CURRENT_LEARNING_DOC:" + file);
 }
+
+const learningInsightWhitelist = new Set([
+  "LEARNING_INSIGHT_WORKBENCH_V2_PRODUCT_CONTRACT.md",
+  "LEARNING_INSIGHT_AI_PROMPT_CONTRACT.md",
+  "LEARNING_INSIGHT_STRUCTURED_OUTPUT_CONTRACT.md",
+  "LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md"
+]);
+assert(fs.existsSync("docs/learning-insight"), "LEARNING_INSIGHT_OWNER_DIR_MISSING");
+for (const file of fs.readdirSync("docs/learning-insight")) {
+  assert(learningInsightWhitelist.has(file), "NON_CURRENT_LEARNING_INSIGHT_DOC:" + file);
+}
+assert(fs.readdirSync("docs/learning-insight").length === 4, "LEARNING_INSIGHT_OWNER_COUNT_DRIFT");
 
 assert(!fs.existsSync("docs/task-results"), "TASK_RESULTS_SHOULD_USE_GIT_HISTORY");
 
@@ -99,6 +115,7 @@ for (const file of scriptFiles) {
 
 console.log("REPOSITORY_GOVERNANCE_CURRENT_OWNERS=PASS");
 console.log("REPOSITORY_GOVERNANCE_LEARNING_DOC_WHITELIST=PASS");
+console.log("REPOSITORY_GOVERNANCE_LEARNING_INSIGHT_OWNER_SET=PASS");
 console.log("REPOSITORY_GOVERNANCE_GIT_HISTORY_BOUNDARY=PASS");
 console.log("REPOSITORY_GOVERNANCE_NO_LEGACY_ROOT_PROTOTYPE=PASS");
 console.log("REPOSITORY_GOVERNANCE_NO_SUPERSEDED_COURSE_RULES=PASS");

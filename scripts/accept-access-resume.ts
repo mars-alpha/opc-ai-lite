@@ -16,7 +16,7 @@ import {
 
 const BASE_URL =
   process.argv.find((item) => item.startsWith("--base-url="))?.slice("--base-url=".length) ||
-  "http://127.0.0.1:3001";
+  "http://127.0.0.1:3000";
 
 function assert(condition: unknown, code: string): asserts condition {
   if (!condition) throw new Error("ACCEPTANCE_FAILED:" + code);

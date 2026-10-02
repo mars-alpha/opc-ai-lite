@@ -8,7 +8,6 @@ type IssueType =
   | "DONT_KNOW_HOW"
   | "EVALUATION_DISPUTE"
   | "FIND_RELATED_COURSE"
-  | "CONTENT_OUTDATED"
   | "OTHER";
 
 type Resolution = {
@@ -25,7 +24,6 @@ const issueOptions: Array<{ value: IssueType; label: string }> = [
   { value: "DONT_KNOW_HOW", label: "知道概念，但不知道怎么做" },
   { value: "EVALUATION_DISPUTE", label: "评分 / 反馈看起来不对" },
   { value: "FIND_RELATED_COURSE", label: "想找相关课程" },
-  { value: "CONTENT_OUTDATED", label: "内容可能错误或过时" },
   { value: "OTHER", label: "其他问题" }
 ];
 

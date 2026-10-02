@@ -16,7 +16,7 @@ WeChat / Douyin Mini Programs     FUTURE / SHARED BACKEND
 Official Account Follow           NOT CONNECTED
 Payment                           NOT CONNECTED
 Repository Governance             COMPLETE / PASS
-CURRENT                           COURSE MAINTENANCE / VERSIONED UPDATE / HUMAN REVIEW PASS
+CURRENT                           LEARNING INSIGHT WORKBENCH V2.1 / PHASE1 USER_APPROVED / PASS
 ```
 
 ## 系统健康
@@ -51,7 +51,7 @@ Production domain                 https://opcai.fun
 5. 建立统一后台的开发顺序和验收标准。
 
 当前产品开发入口：
-`COURSE MAINTENANCE / VERSIONED UPDATE / HUMAN REVIEW PASS`。课程维护后台以 Track Catalog + Formal LessonSpec Registry 为 81 节正式课程身份源；课程内容更新通过持久化 Candidate 完成“编辑 → 审核通过并上线 → 正式版本留档”，保留最近 6 个正式版本并支持查看、上一版本对照和恢复。旧 Development DB 课程树和直接 Lesson JSON 编辑链已退出 current path。课程目录结构、六步 Shell 与 Course Builder Workflow 均未改动；新增/删减课程未实现。
+`LEARNING INSIGHT WORKBENCH V2.1 / PHASE1 USER_APPROVED / PASS`。81 节正式课程 Identity、统一 AdminCourseSnapshot、课程级 Evidence Detail 与 Course Maintenance Bridge 已具备；Phase 1 已实现学习洞察课程队列、课程详情、01 静态问题聚合、02 课程级真实数据、first/last / oldest-open 时间事实与课程级 Human Gate 1，并通过 V2.1 Validator、Typecheck、Build 与 Development DB acceptance。Phase 1 界面已经产品负责人明确确认；全项目静态回归、核心 Development DB acceptances、Production Build 与模拟数据清场均已通过。下一阶段进入 AI Task A；Human Gate 2 / Task B / Human Gate 3 仍按 Contract 顺序逐阶段开放。
 
 ## Development Governance 已确认基线
 

@@ -127,9 +127,33 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 
 `/admin/courses` 以 `learningTracks` + `formalLessonSpecs` 作为 Track 01～05 共 81 节正式课程的身份源，并使用 Development DB 持久化课程更新 Candidate 与正式版本历史。当前链路为 `DRAFT → REVIEW → 审核通过并上线 → PUBLISHED`；审核与发布是一次 Human 决策，没有中间 `APPROVED` 确认步骤。Candidate 支持刷新恢复、差异对比、最近 6 个正式版本、上一版本对照与恢复历史版本；编辑动作固定为“对比当前 / 保存草稿 / 退出修改 / 提交审核”，“退出修改”结束当前 Candidate 且不影响正式课程；正式发布使用事务并做基础版本冲突保护。发布后课程正文 Runtime、课程目录 · 导航卡片（标题 / 副标题）和最近更新时间读取最新正式 snapshot。旧 `AdminCourseEditor`、`listAdminCourseTree` 与 `/api/admin/lessons/[lessonId]` GET/PUT 直接编辑链已退出 current path。Course Builder Workflow 未接入也未修改；新增/删减课程未实现。
 
+Formal Learning Identity 已收敛为共享 owner `lib/server/learning/formal-identity.ts`：81 节 Formal LessonSpec 均可解析到现有正式课程源并生成确定性的 stage / module / lesson ID。Development DB 已执行可重跑 provision 并验收 81/81。这里的 DB 记录是 Runtime Materialization，不取代 Code/Formal Registry 的课程基线事实源；使用 `onConflictDoNothing`，不会覆盖已有课程版本。Identity provision 只建立 stage / module / lesson materialization，不批量生成 Check / Practice，因此不会伪造学习交互数据；Check / Practice 仍只在真实正式内容已经 provision 时参与行为洞察。
+
+课程维护可编辑 snapshot 已从 T1-01 特例收敛为共享 owner `lib/server/admin/course-snapshot.ts`。Track 01～05 共 81 节均直接复用已有正式 CourseBuilder Draft + Runtime Presentation 解析为同一 `AdminCourseSnapshot`，保留正式 Check ID、Practice ID、六步 metadata、讲解与复盘内容；不调用 Course Builder Workflow，也不重新生成课程内容。`Admin Course Registry` 已校验 81/81 均有六步可编辑 snapshot。
+
+学习洞察已接通 `Insight / Knowledge Proposal → Human 发起课程更新 → Course Maintenance DRAFT Candidate`。批准动作必须先成功创建课程维护 DRAFT，再把来源 Proposal 记为已处理；Candidate 保存 `sourceContext` 追踪来源，前端把课程 key 交给 `/admin/courses` 并直接进入对应草稿。洞察层不得直接提交审核或发布。若同一课程已有 DRAFT / REVIEW，Bridge 返回冲突并保留原 Proposal 待处理，不把不同问题静默合并进已有 Candidate。该闭环已有可重跑 validator 与 Development DB acceptance，测试记录自动清理。
+
+学习洞察 V2 current owners 固定为 `docs/learning-insight/` 下四份契约：`LEARNING_INSIGHT_WORKBENCH_V2_PRODUCT_CONTRACT.md`、`LEARNING_INSIGHT_AI_PROMPT_CONTRACT.md`、`LEARNING_INSIGHT_STRUCTURED_OUTPUT_CONTRACT.md`、`LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md`。Repository Governance 只允许这四份 current owner。
+
+V2 的职责边界固定为：机械代码负责采集、聚合、阈值、去重、课程定位、状态和 Validator；Human 拥有三次 Gate；AI 只做 Task A“诊断问题 + 列课程”和 Task B“针对 Human 批准的单一课程生成文本替换 Patch”。Task A / Task B 均使用固定 Prompt 与纯 JSON Schema，所有 evidence_ref / course_id / path / current_value 必须通过确定性校验；AI 不直接拥有 Learning Issue 状态、不直接写正式课程、不直接提交审核或发布。
+
+Learning Insight 数据边界已增加 Source Matrix：当前确定性自动聚合只包括 Step 3 Check 异常、Step 4 Practice 困难、提示使用率高和帮助度低；`still_confused` 当前属于“已有事件采集但尚未形成聚合规则”。内容疑似错误 / 内容待更新核查当前没有统一自动入口，必须来自管理员、知识更新、内容采集或可信来源 Evidence，不能由学员反馈直接生成，也不能由 AI 凭模型常识自行声明。Task A 输入已收敛为课程级 `course_issue_bundle + course_issue_timeline + data_availability`，必须一次分析当前课程累计问题；缺失数据明确 unavailable，不允许补造。
+
+Learning Insight Workbench 已按 V2.1「学习洞察」重构 Phase 1：左侧为课程健康队列，一行只代表一门课程；右侧为主工作区，按“课程抬头 → 01 问题汇总 → 02 真实数据 → 03 课程处理”组织，不再把原始 Issue 时间线作为主要运营视图。01 问题汇总现在只做课程级统计，不可点击、不保存问题选中状态，也不再驱动 02。02 固定读取当前课程级真实数据，只提供“学习反馈 / 学习行为”两个互斥视图按钮；学习反馈默认前 5 条，可查看全部；学习行为固定展示 6 个稳定指标，由 lessonProgress、lessonCheckResponses、practiceSubmissions 与 real_ai_evidence_recorded 确定性聚合。内容治理项只保留在 01 统计中，学员影响显示 unavailable / —，不再通过点击切换 02。顶部四阶段流程条继续沿用已批准的“系统发现 → 人工确认 → AI 诊断 → 课程维护”四卡结构。课程健康队列当前只保留“搜索课程 + 风险筛选”两项：搜索用于快速定位课程；风险筛选为全部风险 / 需要检查 / 关注 / 正常。问题类型和排序控件退出当前 V2.1，默认排序继续由确定性 Core 固定执行。前端已进一步拆分为 Queue / Course Header / Issue Summary / Evidence Panel / Course Decision / View Model，主 Workbench 只负责筛选、选择与课程级 Human Gate 1 状态协调；双栏视觉采用左窄右宽，右侧优先承载阅读与判断。
+
+当前 Course Health Core 使用现有真实数据生成：累计反馈数、累计问题数、未处理问题数、最老未处理问题时间、学习问题的学员影响人数、课程首次问题时间、最近问题时间、正式处理次数，以及按 issueCategory 聚合的 occurrenceCount / firstSeenAt / lastSeenAt / affectedUserCount；内容治理项不计入学员影响人数。累计反馈唯一 owner 为课程级 `learningFeedback` 全量记录按 lessonId 统计，不使用 Course Insight 数量代替反馈数；02“学习反馈”与顶部“累计反馈”必须使用相同课程级口径，不再按当前 Issue 过滤。正式处理次数唯一 owner 为 `lessons.version`，规则固定为 `max(0, version - 1)`，只代表已正式发布的课程更新，不统计 DRAFT / REVIEW / CANCELLED。时间来源固定为现有 courseInsights / learningFeedback 的 createdAt / updatedAt；不使用 updatedAt 冒充首次时间。当前仍没有统一 owner 的上线时间、学习人数、完成率、近 7/30 天趋势，因此不会在 UI 中预造。
+
+课程风险排序由确定性 Core 完成，并固定使用“当前未处理问题”而不是历史累计问题：未处理问题 ≥10 → ATTENTION（红）；未处理问题 5～9 → WATCH（黄）；未处理问题 0～4 → NORMAL（绿）；Visual Review 绿色样本固定使用 ≤1。REVIEWED / DISMISSED 不继续抬高风险。默认排序权重固定为红 > 黄 > 绿；同颜色内只按 oldestOpenIssueAt 从早到晚排序，积压越久越靠前；时间完全一致时仅按 courseKey 稳定排序。openIssueCount、affectedUserCount、最近更新时间均不得参与同颜色默认排序。该规则只用于当前 Course Health 排序与提示，不属于 AI 自动评分。
+
+V2 Patch 当前只允许替换现有 AdminCourseSnapshot 的字符串叶子字段；不允许 AI 增删 Step / 卡片 / Check / Practice，不允许修改 ID、questionType、correctValues / correctAnswer、passScore / 分值、权限、状态或版本。需要结构变化时必须返回 `REQUIRES_MANUAL_STRUCTURE_CHANGE`，另开明确人工任务。
+
+Development DB 当前临时保留一组明确标记“模拟测试”的学习洞察数据用于 Phase 1 回归。模拟数据真实业务按钮已禁用；这些数据不属于正式事实，本轮回归完成后必须通过当前清理脚本精准删除，且不得进入 Production 或正式统计。
+
 Development `opc_ai_dev` 当前已应用 Drizzle migration `0000`～`0025`（26 条）。本地应用使用最小权限账号 `opc_ai_dev_app`，Migration 使用独立 `DATABASE_MIGRATION_URL`。本地开发固定通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB；`npm run dev` 由 `scripts/start-local-dev.cjs` 统一执行“检查隧道 → 必要时自动建立 → 最小 DB 连通性验证 → 启动 Next.js”，`npm run dev:check` 只做该确定性预检。后续若 Auth Session 查询出现连接类错误，先按此开发基线恢复隧道/DB，不重复推断 Schema、不新增 Auth migration 或认证补丁，除非有独立 Schema 证据。2026-10-01 的 Auth Session 报错已确认是隧道中断。
 
 用户与权益当前真实能力：用户搜索、ACTIVE / DISABLED、学习概况、会员开始/到期/永久/延长/取消，以及管理员审计。历史 `users.admin_note` 仅作为数据库兼容字段，不属于当前产品 contract。
+
+Phase 1 Visual Review / 回归使用的模拟课程健康数据已全部清理：当前 Workbench `simulation=true` 课程为 0，本轮 8 门 / 60 条模拟 Issue、35 条模拟 learningFeedback、专用测试用户，以及更早遗留的 2 条 `demo-learning-*` 模拟 Insight 均已删除。一次性 Visual Review provisioning 脚本已退出 current tree。
 
 AI 日报、热点能力练习、实操项目和课程维护可以共享 Event / Source，但不共享内容模板。当前后台课程更新直接维护现有正式课程 snapshot，不调用 Course Builder Workflow；Course Builder 继续只负责独立的课程生产流程。
 
@@ -170,9 +194,9 @@ Workbench 当前数据边界：
 
 ## 11. 当前下一步
 
-当前状态：`COURSE MAINTENANCE / VERSIONED UPDATE / HUMAN REVIEW PASS`。
+当前状态：`LEARNING INSIGHT WORKBENCH V2.1 / PHASE 1 IMPLEMENTED / UI REVIEW PENDING`。
 
-课程维护的 Candidate 持久化、差异审核、一次审核上线、6 版本历史、恢复历史版本、课程正文与学习路径同步已完成并经过产品负责人实际体验。当前不扩展新增/删减课程或 AI 一键构建，下一步回到后台“学习洞察”与整体事实复核。
+课程维护、81/81 Learning Identity、81/81 AdminCourseSnapshot、Evidence Detail 与 Insight → Course Maintenance Bridge 均已具备。Workbench V2.1 Phase 1 已完成课程健康队列、课程健康详情、问题分类聚合、真实 first/last 时间、至少影响人数、确定性风险排序、Evidence drill-down、模拟数据动作保护与课程级 Human Gate 1；Contract / V2.1 Phase 1 Validator、Typecheck、Build 与 Development DB acceptance 已通过。当前必须停在 Visual Human Review Gate，等待产品负责人实际体验并明确 USER_APPROVED；未批准前不进入 AI Task A / Human Gate 2 / Task B / Human Gate 3。
 
 ## 12. Repository Governance 状态
 
@@ -183,3 +207,5 @@ Workbench 当前数据边界：
 - 历史 task-results / Track-Batch 一次性脚本 / legacy static prototype / Course Builder Preview 路由：退出 current tree，使用 Git history 追溯；
 - 正式课程内容已从 `fixtures` 迁至 `lib/learning/course-content/*`；`fixtures/course-builder` 只保留 Validator/Acceptance 测试样例；
 - 已删除 Brief / Audit / Research 文件若作为冻结课程历史 provenance 保留，只允许使用 `git-history:` 前缀，不得作为 current context。
+Learning Insight V2.1 当前 Evidence 导航事实：学习问题的上一条 / 下一条导航已从 02 标题右侧退出，只在“学习反馈”内容下方显示；内容治理项若同类存在多条，则导航位于治理说明下方。
+学习反馈当前规则：课程级反馈默认显示前 5 条，超过 5 条只使用“查看全部 / 收起”；学习反馈区域不再使用 Issue 的上一条 / 下一条导航，避免与反馈总数形成第二套计数。03 Human Gate 1 操作顺序固定为“无需处理 → 继续观察 → AI 综合分析课程”，决策说明与按钮整体靠右；“无需处理”在模拟禁用状态下仍保持完整红底白字，不使用透明度弱化。

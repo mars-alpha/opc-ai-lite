@@ -25,6 +25,8 @@ assert(registry.summary.lessons === 81, "EIGHTY_ONE_LESSONS_REQUIRED");
 assert(registry.summary.availableLessons === 81, "ALL_LESSONS_AVAILABLE");
 assert(registry.summary.frozenLessons === 81, "ALL_LESSONS_FROZEN");
 assert(new Set(keys).size === 81, "LESSON_IDENTITY_DUPLICATE");
+assert(registry.items.every((item) => Boolean(item.preview)), "ALL_FORMAL_ADMIN_SNAPSHOTS_REQUIRED");
+assert(registry.items.every((item) => item.preview.stepMeta.length === 6), "ALL_FORMAL_ADMIN_SNAPSHOTS_SIX_STEPS_REQUIRED");
 assert(route.includes("getAdminCourseMaintenanceRegistry"), "API_NOT_USING_COURSE_MAINTENANCE_REGISTRY");
 assert(page.includes("AdminCourseRegistry"), "PAGE_NOT_USING_REGISTRY_VIEW");
 assert(!legacyEditorExists, "LEGACY_DB_EDITOR_STILL_PRESENT");
@@ -146,6 +148,7 @@ assert(t101.preview.capability.nextLessonValue.length > 0, "T101_NEXT_LESSON_VAL
 
 console.log("ADMIN_COURSE_REGISTRY_5_TRACKS_81_LESSONS=PASS");
 console.log("ADMIN_COURSE_REGISTRY_FORMAL_SOURCE=PASS");
+console.log("ADMIN_COURSE_REGISTRY_81_EDITABLE_SNAPSHOTS=PASS");
 console.log("ADMIN_COURSE_REGISTRY_FORMAL_BASELINE_FROZEN=PASS");
 console.log("ADMIN_COURSE_REGISTRY_LEGACY_DB_EDITOR_REMOVED=PASS");
 console.log("ADMIN_COURSE_T101_VISIBLE_FIELD_PARITY=PASS");
