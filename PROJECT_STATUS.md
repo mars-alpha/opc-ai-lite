@@ -24,7 +24,7 @@ CURRENT                           LEARNING INSIGHT V2 / CLOSED LOOP / PASS
 ```text
 Next.js App Router                ACTIVE
 PostgreSQL + Drizzle              ACTIVE
-Database target                   TENCENTDB POSTGRESQL / DEV TUNNEL ACTIVE
+Database target                   PROD LOCAL POSTGRESQL / DEV TENCENTDB TUNNEL
 Formal Lesson Runtime             PASS
 LessonSpec Registry               PASS
 Admin Course Registry             5 TRACKS / 81 LESSONS / PASS
@@ -38,6 +38,8 @@ Learning Insight Issue Cycle      DISMISS / WATCH / PUBLISH → NEW BASELINE / P
 Learning Insight Cross-page Sync  PATH / SIDEBAR / NAV / LOCKED VIEW / PASS
 Admin Overview Fact Sync           USERS / MEMBERSHIP / CONTENT / COURSE HEALTH / PASS
 User & Entitlement Test Cleanup    11 TEST USERS REMOVED / REAL USERS PRESERVED / PASS
+Content Collection Data Cleanup    DEV + PROD CONTENT_* TEST DATA / CLEAN
+Production DB Migration            LOCAL POSTGRESQL / BACKUP TIMER / PASS
 Formal Check DB Migration         0010 APPLIED / DB READY
 T1-01 Rebaseline                 VERSION 1 / PUBLISHED / CLEAN
 Check / Practice authority        PASS

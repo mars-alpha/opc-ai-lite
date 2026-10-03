@@ -445,8 +445,7 @@ MVP 推荐：
 
 ### 9.3 数据库
 
-继续标准 PostgreSQL + Drizzle。
-正式托管目标 TencentDB for PostgreSQL。
+继续标准 PostgreSQL + Drizzle。当前 Development 使用 TencentDB `opc_ai_dev`；Production 使用轻量服务器本机 PostgreSQL `opc_ai_prod`。部署位置不是产品 contract，数据库边界必须保持可迁移。
 
 不因为工作台新增：
 - MongoDB；
@@ -462,6 +461,7 @@ MVP 推荐：
 - Migration 连接必须经过同一 `DATABASE_ENVIRONMENT` / database name 校验；
 - 不得为了跑 Migration 给 App Role 临时或永久增加 DDL 权限；
 - Production Migration 继续要求备份确认。
+- Production PostgreSQL 只监听 loopback；当前自动备份每天 03:30 执行并保留 7 天。
 
 ### 9.4 AI Provider
 

@@ -36,7 +36,7 @@ External Evidence ──► Content Workbench
 - Next.js App Router；
 - TypeScript；
 - PostgreSQL + Drizzle；
-- 标准 PostgreSQL 作为数据库边界；正式目标优先 TencentDB for PostgreSQL；
+- 标准 PostgreSQL 作为数据库边界；当前 Production 与 Web/API 同机运行 PostgreSQL；
 - Nginx + PM2；
 - 腾讯云 Ubuntu 生产服务器。
 
@@ -169,13 +169,13 @@ COS 只服务于 OPC AI 官方内容或未来用户显式选择的云存储能�
 
 ### Database Deployment
 
-- Supabase 仅保留为历史测试环境，不再是 current production target；
-- 正式目标：TencentDB for PostgreSQL，与 Web/API 腾讯云环境同地域；
-- 初期允许同一 TencentDB 实例建立两个逻辑数据库：`opc_ai_dev` 与 `opc_ai_prod`；
-- Development / Production 使用不同数据库账号，最小权限隔离；
-- Production Web/API 优先通过 VPC 内网连接数据库；
+- Supabase 已退出 current path；
+- Production：轻量服务器本机 PostgreSQL，数据库 `opc_ai_prod`，仅监听 loopback；
+- Development：TencentDB for PostgreSQL `opc_ai_dev`，本地通过 SSH tunnel 访问；
+- Development / Production 使用不同数据库与账号，最小权限隔离；
 - 本地开发不得持有 Production 数据库账号；
 - Drizzle Schema / Migration 保持标准 PostgreSQL 可迁移，不依赖腾讯云专有 SQL。
+- Production 每日自动备份并保留 7 天；真实负载超过单机资源边界后再迁回托管 PostgreSQL。
 
 ## 8. Worker
 

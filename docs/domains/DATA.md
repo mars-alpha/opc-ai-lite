@@ -147,14 +147,12 @@ AI Context Assembly 必须区分：
 
 第一阶段继续标准 PostgreSQL + 现有服务器。
 
-数据库部署目标：
-- Supabase：LEGACY TEST ONLY，不再接收 current migration；
-- Development：`opc_ai_dev`；
-- Production：`opc_ai_prod`；
-- 正式托管数据库优先 TencentDB for PostgreSQL；
-- Production 与 Web/API 同地域，优先 VPC 内网；
-- Dev / Prod 账号隔离；
-- Drizzle migration 保持 provider-neutral PostgreSQL。
+当前数据库部署：
+- Development：TencentDB `opc_ai_dev`，本地经 SSH tunnel；
+- Production：轻量服务器本机 PostgreSQL `opc_ai_prod`，仅 loopback；
+- Dev / Prod 数据库与账号隔离；
+- Production 每日自动备份，保留 7 天；
+- Drizzle migration 保持 provider-neutral PostgreSQL，未来可按负载迁回托管 PostgreSQL。
 
 暂不增加：
 - 独立 Vector DB；

@@ -1,30 +1,25 @@
-# TencentDB PostgreSQL — OPC AI 数据库操作手册
+# PostgreSQL — OPC AI 当前数据库操作手册
 
 本文件是操作 Runbook，不是产品事实 owner。数据库长期边界见 `docs/domains/DATA.md`，当前状态见 `docs/CURRENT_SYSTEM_FACTS.md`。
 
 ## 1. 目标
 
-正式项目数据库使用标准 PostgreSQL，优先 TencentDB for PostgreSQL。
-
-第一阶段建议：
+正式项目数据库边界是标准 PostgreSQL + Drizzle。当前部署：
 
 ```text
-TencentDB PostgreSQL
-├─ opc_ai_dev
-└─ opc_ai_prod
+Development  TencentDB / opc_ai_dev
+Production   Local PostgreSQL 14 / opc_ai_prod / 127.0.0.1:5432
 ```
 
-两个数据库使用不同账号。Production 账号绝不放进本地开发环境。
+两个环境使用不同数据库和账号。Production 凭据不进入本地开发环境。
 
-## 2. 云端创建原则
+## 2. 当前运行原则
 
-1. 与当前 Web/API 服务器选择同地域，优先当前生产服务器所在广州地域；
-2. 选择 PostgreSQL；
-3. 初期使用满足 MVP 的最小稳定规格，不提前为 AI/视频任务扩容数据库；
-4. 开启自动备份；
-5. Production 连接优先 VPC 内网；
-6. 如 Dev 需要公网连接，只给 Dev 数据库账号开放最小 IP 白名单；
-7. 不给本地环境 Production 数据库凭据。
+1. Production PostgreSQL 只监听 `127.0.0.1`，不开放公网；
+2. 2C2G 阶段控制连接数与内存，不在服务器执行重型 AI / 媒体计算；
+3. Production 每天 03:30 自动备份，保留 7 天；
+4. Development 继续通过 SSH tunnel 访问 TencentDB；
+5. 数据库保持标准 PostgreSQL，可随负载增长迁回托管服务。
 
 ## 3. 数据库与账号
 
@@ -57,7 +52,7 @@ DATABASE_URL=postgresql://<dev-user>:<password>@<host>:<port>/opc_ai_dev?sslmode
 
 ```text
 DATABASE_ENVIRONMENT=production
-DATABASE_URL=postgresql://<prod-user>:<password>@<private-host>:<port>/opc_ai_prod
+DATABASE_URL=postgresql://<prod-user>@127.0.0.1:5432/opc_ai_prod
 ```
 
 仓库模板位于 `config/examples/`；真实密码永远不提交 Git。
@@ -72,20 +67,9 @@ npm run governance:repository:check
 
 如果检测到 Supabase hostname，current migration 必须停止。
 
-## 6. Development 首次初始化
+## 6. Migration
 
-创建空的 `opc_ai_dev` 后：
-
-```bash
-npm run db:migrate -- --confirm=development
-npm run content:workbench:db:accept
-```
-
-`content:workbench:db:accept` 使用事务强制回滚，不保留 Acceptance 测试数据。
-
-## 7. Production 初始化
-
-只有 Dev Migration + Acceptance + Manual Acceptance 全部 PASS 后才允许 Production：
+只有 Dev Migration + Acceptance PASS 后才允许 Production：
 
 ```bash
 npm run db:target:check
@@ -99,27 +83,18 @@ npm run db:migrate -- --confirm=production --backup-confirmed
 - 当前 migration 已经过 Dev 验证；
 - Production 凭据只存在服务器 Secret / env。
 
-## 8. 回滚原则
+## 7. 回滚原则
 
 当前 Drizzle migration 以向前修复为主，不依赖自动 destructive rollback。
 
 Production 出现异常时：
 1. 停止新的 migration / publish；
 2. 保留错误日志但不得记录 Secret；
-3. 优先从 TencentDB 自动/手工备份恢复；
+3. Production 优先从 `/var/backups/opc-ai-db` 的最近备份恢复；
 4. 在 Dev 重现并创建新的 forward-fix migration；
 5. 不在 Production 手工临时改 Schema 后再补文件。
 
-## 9. Supabase 退出
-
-旧 Supabase：
-- 只用于历史测试数据查询/迁移参考；
-- 不再执行新 migration；
-- 不作为 Production fallback；
-- 新 TencentDB Acceptance 完成后再决定是否删除旧测试项目；
-- 删除前确认没有唯一数据仍只存在 Supabase。
-
-## 10. Visual Gate
+## 8. Visual Gate
 
 Content Workbench 数据库就绪并可真实使用后，必须先把 `/admin/content` 提供给产品负责人体验。
 

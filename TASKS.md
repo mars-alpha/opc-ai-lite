@@ -2,18 +2,17 @@
 
 > 只保留 NOW / NEXT / BACKLOG。实现事实见 `docs/CURRENT_SYSTEM_FACTS.md`；开发方法见 `docs/DEVELOPMENT_OPERATING_MANUAL.md`；历史通过 Git 追溯。
 
-# NOW — FINAL PROJECT CLOSEOUT
+# NOW — CONTENT FOUNDATION
 
-- Learning Insight V2 已完成真实闭环、Issue Cycle、课程维护发布与前台跨页面同步收口；左侧正式命名为“课程诊断”，状态列表按确定性排列顺序检查。
-- “用户与权益”历史测试账号已清除：11 个 `test-*@dev.opcai.local` 测试用户及其测试权益和对应 USER 审计记录已删除，真实管理员账号保留。
-- “运营总览”已重新对齐当前事实：用户 / 会员 / 待处理内容实时读取数据库；正式课程固定读取 5 Track / 81 Lesson；课程提醒直接读取 Learning Insight 当前 Course Health，不再使用旧 qualityRisk 汇总口径。
-- 当前最终回归以 current validators、Typecheck、Production Build、数据库目标检查、跨页面 smoke 与 Git diff 审计为提交 Gate。
-- 本轮不新增 UI、不调整 CSS；历史一次性测试脚本、临时数据与过期描述退出 current tree，由 Git history 追溯。
+- Production 已迁到轻量服务器本机 PostgreSQL `opc_ai_prod`；Development 暂时保留 TencentDB `opc_ai_dev`。
+- 内容采集历史 E2E / acceptance / 演示数据已清场，Development 与 Production 的 `content_*` 表从空基线重新开始。
+- Learning Insight、课程维护、用户与权益的正式数据边界保持不变；历史测试过程不再进入 current facts。
+- 当前开发只从“采集策略 → 今日情报 → 内容工作台”的真实运营数据继续，不恢复旧模拟数据。
 
 # NEXT
 
-1. 真实学习数据达到确定性阈值后，执行首个 Production AI Update 端到端发布验收。
-2. 后续功能继续按 `docs/DEVELOPMENT_OPERATING_MANUAL.md` 的 CURRENT 阶段与 BACKLOG 进入，不恢复已清场的模拟数据或历史开发主链。
+1. 用真实采集策略产生第一批正式 Source / Raw Item / Event，人工检查“今日情报”与内容工作台链路。
+2. 观察本机 PostgreSQL 稳定性后再释放 TencentDB；释放前确认 Development 数据是否仍需要保留或迁移。
 
 # BACKLOG
 

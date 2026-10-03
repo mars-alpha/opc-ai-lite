@@ -11,7 +11,7 @@
 - 当前生产服务器：`1.14.180.16`。
 - 生产链路：Nginx → PM2 `opc-ai` → Next.js:3000。
 - HTTP 已跳转 HTTPS；Let’s Encrypt 自动续期已配置。
-- 当前生产应用代码基线：`0b5f0b0`；部署事实治理提交：`4a8155d`。
+- 当前生产应用已重新部署到 main 基线 `89a58c3`；部署目录为 `/var/www/opc-ai`。
 
 ## 2. 技术基线
 
@@ -19,7 +19,8 @@
 Frontend / Web        Next.js 15 App Router
 Runtime               Node.js 20
 Database              PostgreSQL + Drizzle
-DB target             TencentDB for PostgreSQL (Supabase target blocked)
+Production DB         Local PostgreSQL 14 / opc_ai_prod / 127.0.0.1:5432
+Development DB        TencentDB PostgreSQL / opc_ai_dev / SSH tunnel 127.0.0.1:15432
 Process manager       PM2
 Reverse proxy         Nginx
 Production OS         Ubuntu 22.04
@@ -125,35 +126,11 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 - 内容工作台唯一 UI owner 为 `AdminContentStudioWorkspace`；旧 AdminContentConsole / Lifecycle / Knowledge Routing 展示层已退出 current tree。
 - 审核状态固定为 DRAFT → REVIEW → PUBLISHED；没有实际结果不得审核通过。
 
-`/admin/courses` 以 `learningTracks` + `formalLessonSpecs` 作为 Track 01～05 共 81 节正式课程的身份源，并使用 Development DB 持久化课程更新 Candidate 与正式版本历史。当前链路为 `DRAFT → REVIEW → 审核通过并上线 → PUBLISHED`；审核与发布是一次 Human 决策，没有中间 `APPROVED` 确认步骤。Candidate 支持刷新恢复、差异对比、最近 6 个正式版本、上一版本对照与恢复历史版本；编辑动作固定为“对比当前 / 保存草稿 / 退出修改 / 提交审核”，“退出修改”结束当前 Candidate 且不影响正式课程；正式发布使用事务并做基础版本冲突保护。发布后课程正文 Runtime、课程目录 · 导航卡片（标题 / 副标题）和最近更新时间读取最新正式 snapshot。旧 `AdminCourseEditor`、`listAdminCourseTree` 与 `/api/admin/lessons/[lessonId]` GET/PUT 直接编辑链已退出 current path。Course Builder Workflow 未接入也未修改；新增/删减课程未实现。
+`/admin/courses` 以 `learningTracks` + `formalLessonSpecs` 作为 5 Track / 81 Lesson 正式身份源。课程更新固定走 `DRAFT → REVIEW → PUBLISHED`；正式发布通过 Course Maintenance version 能力写入历史，并同步 Learning Path / Lesson Runtime / 目录标题。81/81 Lesson 的 Published Check、Practice 与 Admin Snapshot identity 已对齐；课程维护不调用 Course Builder Workflow，也不重新生成课程内容。
 
-2026-10-03 重新执行 Course Maintenance → Frontend Sync Acceptance 时发现并修正一个 81 节共性的 Runtime identity 漂移：Admin Snapshot 原先使用 CourseBuilder draft 的 practice.id，而正式 Runtime / DB 使用另一套 Published Practice ID；发布课程时还会把新 Practice 的 submissionSchema 写死为 `TASK_BRIEF_V1`。这会导致课程维护发布后新建错误 Practice、归档真实 Runtime Practice，并存在实操结构漂移风险。现已增加共享 `formalRuntimePracticeId(courseSlug, lessonSlug)`，81 个 Admin Snapshot 全部改用正式 Runtime Practice ID；发布时必须锁定当前 Published Runtime Practice，并原样保留其 submissionSchema，不再创建第二套 Practice identity。T1-01 先前重上线遗留的旧 Practice ID 也已数据层校正。81/81 Lesson 当前均满足 Admin Snapshot Practice ID = DB Published Practice ID，且仅保留一个 Published Lesson Practice。
+Learning Insight V2 已完成真实闭环：正式课程列表固定来自 81 Lesson Registry；Effective Evidence Set 是 AI 证据唯一入口；流程为 Human Gate 1 → Task A 整课诊断 → Task B 文本替换 Patch → 学员观感 Before / After Preview → Human 发布。Issue Cycle 只按当前周期计算风险，`REVIEWED / DISMISSED / WATCHING` 退出当前未处理风险；红/黄/绿排序仍由确定性 Core 控制。AI 不拥有课程结构、Issue 状态或最终发布权。
 
-同一轮验收使用 T5-16 执行真实 `DRAFT → SAVE → REVIEW → PUBLISH`，修改后的课程目录副标题已在前台 `/learning-path?track=fde` 实际 HTML 中出现；恢复原始 snapshot 后前台同步恢复。所有验收 Candidate / 临时版本已清理，T5-16 回到第 1 版基线。课程维护发布 → Published Override → Learning Path / Lesson Runtime 的同步链因此已重新验证。
-
-2026-10-03 Learning Insight 重新完成真实闭环验收，使用已配置真实模型 `DEEPSEEK / deepseek-flash`，在 T5-16 上走完：确定性问题事实 → Human Gate 1 → Task A 整课诊断 → Task B 修改生成 → Human 发布 → Course Maintenance Candidate → PUBLISHED → 前台课程 Runtime 实际读取 → 原内容恢复 → 验收数据清理。验收中发现两处必须固化的边界并已修正：其一，真实模型曾把 Step 2 的“案例迁移”写成“迁移练习”，虽然没有新增结构，但语义上已经侵入 Step 4；现在 Task A 的 change_goal 禁止建议新增练习/题目/实操/卡片/步骤/说明区，Task B 对 Step 2 进一步使用确定性语义校验，禁止将讲解字段改造成“迁移练习、作答、填写、提交、动手练习”等学员执行活动。其二，Learning Insight 的直接发布 Route 原先缺少 `revalidatePath`，可能导致发布后前台课程或学习路径继续命中旧缓存；现已与 Course Maintenance 发布一致，发布后显式 revalidate 对应 lesson route 与 `/learning-path`。
-
-真实闭环验收已固化为可重跑脚本：`npm run learning:insight:real-closed-loop:accept -- --run --confirm=LEARNING-INSIGHT-REAL-CLOSED-LOOP-001 --base-url=http://127.0.0.1:3000`。脚本只允许在无真实学习进度、无答题/实操提交、无既有 Insight/Feedback/Candidate 的 T5-16 安全基线上运行；成功后自动恢复课程第 1 版、删除本轮 AI Run / Issue / Candidate / 测试账号，不保留测试事实。
-
-Learning Insight 的课程诊断列表不再由“当前是否存在 Issue”决定课程是否出现。正式课程身份直接从 Admin Course Registry 的 5 Track / 81 Lesson 初始化，因此即使当前没有任何学习问题，也固定显示 81 节正式课程，问题数为 0、健康状态为正常。Issue / Feedback 只作为这 81 节正式课程上的动态数据叠加；无法映射到 Formal Registry 的旧测试/遗留 lessonId 不得进入课程诊断列表，从源头避免测试课程再次污染 Learning Insight。
-
-2026-10-03 追加完成 Learning Insight 端到端回归：真实走前台学员 `/api/learning/feedback` 输入 → 后台聚合 Issue → Human Gate 1 → Task A / Task B → Proposal 发布 → Course Maintenance → 前台 Runtime。发布后对应 Issue 变为 `REVIEWED`、课程健康恢复 `NORMAL`；“无需处理”进入 `DISMISSED`；“继续观察”进入独立 `WATCHING`，不再作为未处理问题参与红/黄/绿风险累计。
-
-同一轮全量回归发现 Development DB 尚未执行 `drizzle/0010_famous_blockbuster.sql`：代码已经支持 `TRUE_FALSE` / `MULTI_SELECT`、`lesson_checks.correct_answers` 与 `lesson_check_responses.answers`，但数据库列缺失。已确认当前数据库目标为 `development / opc_ai_dev / LOCAL` 后运行安全迁移，迁移成功；随后数据库实查确认两列存在，`lesson_check_type` 已包含 `SINGLE_CHOICE / TRUE_FALSE / MULTI_SELECT`。原验收脚本中的 `CODE_READY_MIGRATION_PENDING` 描述已同步修正为 `CODE_READY`。
-
-2026-10-03 Learning Insight「处理周期（Issue Cycle）」正式收口。每一个问题保留历史首次发生事实，但风险队列只计算当前处理周期：Human 选择“无需处理”后，本轮进入 `DISMISSED`；选择“继续观察”后进入 `WATCHING`；课程修改正式发布后进入 `REVIEWED`。这三种状态均退出当前未处理风险计数，不会因为历史累计量永久把课程留在红色。之后新证据从本轮处理时间建立的新基线重新累计：学员反馈类同一问题新增 3 位独立学员才开启下一周期；学习行为类在处理基线之后新增 10 位样本才重新开启。重新开启时 `cycleNumber` +1，并以本周期 `openedAt` 重新参与“红 > 黄 > 绿，同色最久未处理优先”的排序；历史 `createdAt` 与累计反馈仍保留用于追溯，不作为新周期风险权重。
-
-同日自检发现真实模型偶发输出会被确定性 Validator 拒绝（例如 Task A 建议新增结构），此前表现为操作人员需要再次点击“AI分析”。现 Task A / Task B 均增加最多一次自动校验重试：第一次模型输出若未通过现有 Schema / path / Step 语义 / 扩张边界，Core 将具体 Validator 错误作为受限修正上下文再请求一次；第二次仍失败才正式记为 FAILED。真实 DeepSeek 闭环复跑已再次通过 Gate 1 → Task A → Task B → 发布 → 前台 → 恢复 → 测试数据清理。
-
-本轮同时完成课程更新跨页面事实源收口：正式发布后的课程主标题与目录标题强制同步；`/learning-path`、课程正文、课程左侧目录、同 Track 上一课/下一课、跨 Track 下一课与锁定课程页统一读取 Published Course Maintenance Override，不再由静态目录与发布版本分别提供标题。
-
-该轮 Learning Insight 清场已删除 T1-01 simulation、Learner E2E、Manual Gate 等临时脚本与数据库测试记录，并恢复人工验收改动过的 T5-14 至正式第 1 版。该轮 Learning Insight 专属临时测试用户、测试 Issue、测试 Feedback 均为 0；课程诊断仍为 Formal 81 / non-formal 0。Production Build 102/102 PASS，首页、学习路径、Admin、学习洞察、课程维护、内容、用户、AI 日报、进阶练习 HTTP smoke 均为 200。全局“用户与权益”测试账号的最终清理事实以本文件后续 2026-10-03 最终收口记录为准。
-
-2026-10-03：T1-01 已按当前前台正式课程基线重新上线。历史测试版本（最高到第 9 版）、旧 Candidate、测试学习事件、测试答题记录与测试进度已清除；当前只保留 1 条正式版本记录：第 1 版，更新原因为“重新上线”。T1-01 当前 Published Override 与前台正式 Admin Snapshot 完全一致。其它 80 节课程未做数据重置。
-
-Formal Learning Identity 已收敛为共享 owner `lib/server/learning/formal-identity.ts`：81 节 Formal LessonSpec 均可解析到现有正式课程源并生成确定性的 stage / module / lesson ID。Development DB 已验收 81/81 identity。Identity provision 本身仍只建立 stage / module / lesson materialization；2026-10-03 已另按当前正式 Runtime Definition 将 81 节课程需要的 Published Check / Practice materialize 到 Development DB，用于前台完整课程验收。当前 81/81 课程均满足 PUBLISHED Lesson + Published Check + Published Lesson Practice，不再出现 `CHECK_NOT_CONFIGURED` / `PRACTICE_NOT_CONFIGURED` 配置阻塞。
-
-课程维护可编辑 snapshot 已从 T1-01 特例收敛为共享 owner `lib/server/admin/course-snapshot.ts`。Track 01～05 共 81 节均直接复用已有正式 CourseBuilder Draft + Runtime Presentation 解析为同一 `AdminCourseSnapshot`，保留正式 Check ID、Practice ID、六步 metadata、讲解与复盘内容；不调用 Course Builder Workflow，也不重新生成课程内容。`Admin Course Registry` 已校验 81/81 均有六步可编辑 snapshot。
+当前可重跑验收、历史 simulation、人工临时验收和一次性修复过程不再写入本文件；过程证据通过 Git history、validators 和 acceptance scripts 追溯。
 
 知识更新 / Knowledge Proposal 仍可通过现有 Bridge 进入 Course Maintenance DRAFT，用于非 Learning Insight AI 自动更新场景；该 Bridge 保留 sourceContext、冲突保护与可重跑 acceptance。Learning Insight V2 的 AI 更新链已不再复用这条二次提交路径：Human 在学员观感 Before / After Preview 完成最终确认后，由 Core 复用现有 Course Maintenance 发布能力直接生成正式新版本并留下 PUBLISHED 历史；已有人工 DRAFT / REVIEW 时仍 fail-closed，不静默合并或覆盖。
 
@@ -171,11 +148,11 @@ Learning Insight Workbench 已按 V2.1「学习洞察」重构：左侧为“课
 
 V2 Patch 当前只允许替换现有 AdminCourseSnapshot 的字符串叶子字段；不允许 AI 增删 Step / 卡片 / Check / Practice，不允许修改 ID、questionType、correctValues / correctAnswer、passScore / 分值、权限、状态或版本。需要结构变化时必须返回 `REQUIRES_MANUAL_STRUCTURE_CHANGE`，另开明确人工任务。
 
-Development `opc_ai_dev` 当前已应用 Drizzle migration `0000`～`0025`（26 条）。本地应用使用最小权限账号 `opc_ai_dev_app`，Migration 使用独立 `DATABASE_MIGRATION_URL`。本地开发固定通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB；`npm run dev` 由 `scripts/start-local-dev.cjs` 统一执行“检查隧道 → 必要时自动建立 → 最小 DB 连通性验证 → 启动 Next.js”，`npm run dev:check` 只做该确定性预检。后续若 Auth Session 查询出现连接类错误，先按此开发基线恢复隧道/DB，不重复推断 Schema、不新增 Auth migration 或认证补丁，除非有独立 Schema 证据。2026-10-01 的 Auth Session 报错已确认是隧道中断。
+Development `opc_ai_dev` 与 Production `opc_ai_prod` 当前均为 Drizzle migration `0000`～`0025`（26 条）。本地开发继续通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB Development；Production 已迁到轻量服务器本机 PostgreSQL 14，仅监听 `127.0.0.1:5432`，应用账号为 `opc_ai_prod_app`。生产数据库每天 03:30 自动备份，保留 7 天。
 
 用户与权益当前真实能力：用户搜索、ACTIVE / DISABLED、学习概况、会员开始/到期/永久/延长/取消，以及管理员审计。历史 `users.admin_note` 仅作为数据库兼容字段，不属于当前产品 contract。
 
-2026-10-03 最终收口已清除“用户与权益”历史测试账号：`test-*@dev.opcai.local` 共 11 个及其 Membership / Entitlement 与对应 USER 审计记录均已删除；Development 当前只保留 1 个真实管理员账号。运营总览继续实时读取数据库事实，当前课程诊断为 Formal 81，ATTENTION 0 / WATCH 0 / NORMAL 81；总览中的课程提醒改为“需要检查的课程”，直接按 Learning Insight 当前 Course Health 结果计算，不再使用旧 `learningFeedback.qualityRisk` 汇总口径。
+“用户与权益”历史测试账号 `test-*@dev.opcai.local` 共 11 个已清除，真实管理员保留。内容采集历史 E2E / acceptance / 演示数据已从 Development 与 Production 的全部 `content_*` 表清场；当前内容采集从空数据基线开始，不再把历史两条 Content Draft、E2E Source、Raw Item、Event、Review 或 Audit 当作正式事实。
 
 历史模拟课程、模拟 Issue、模拟 learningFeedback、Visual Review 课程数据与旧 `demo-learning-*` 均已清理。Development 不再保留额外的模拟 Track 01 课程；需要测试 Learning Insight 时，只允许使用不会注册为正式课程、不会写入正式 Runtime PUBLISHED Check / Practice 的隔离测试数据。
 
@@ -195,7 +172,7 @@ AI 日报、热点能力练习、实操项目和课程维护可以共享 Event /
 
 ## 9. 数据与存储方向
 
-数据库技术边界继续使用标准 PostgreSQL；正式托管目标确定为 TencentDB for PostgreSQL。
+数据库技术边界固定为标准 PostgreSQL + Drizzle；当前 Production 使用轻量服务器本机 PostgreSQL，Development 暂时继续使用 TencentDB。
 
 Workbench 当前数据边界：
 - PostgreSQL：身份、Workspace、权限、Workflow/Prompt/Skill 配置、最小运行状态、第三方连接，以及 OPC AI 官方业务事实；
@@ -206,7 +183,7 @@ Workbench 当前数据边界：
 - Worker 早期仅承担低并发控制型任务，用户模型推理与媒体计算不在平台服务器执行。
 - Development 数据库固定命名 `opc_ai_dev`；Production 固定命名 `opc_ai_prod`；
 - Dev / Prod 使用不同账号；本地开发不得持有 Production 数据库账号；
-- Production Web/API 优先通过腾讯云 VPC 内网连接 TencentDB；
+- Production Web/API 通过本机 loopback 连接 `opc_ai_prod`，PostgreSQL 不对公网监听；
 - 当前 migration 入口已增加安全 Gate：Supabase target 会被直接拒绝。
 
 ## 10. AI 架构方向
