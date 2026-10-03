@@ -20,7 +20,7 @@ Frontend / Web        Next.js 15 App Router
 Runtime               Node.js 20
 Database              PostgreSQL + Drizzle
 Production DB         Local PostgreSQL 14 / opc_ai_prod / 127.0.0.1:5432
-Development DB        TencentDB PostgreSQL / opc_ai_dev / SSH tunnel 127.0.0.1:15432
+Development DB        Local PostgreSQL 14 / opc_ai_dev / SSH tunnel 127.0.0.1:15432
 Process manager       PM2
 Reverse proxy         Nginx
 Production OS         Ubuntu 22.04
@@ -148,7 +148,7 @@ Learning Insight Workbench 已按 V2.1「学习洞察」重构：左侧为“课
 
 V2 Patch 当前只允许替换现有 AdminCourseSnapshot 的字符串叶子字段；不允许 AI 增删 Step / 卡片 / Check / Practice，不允许修改 ID、questionType、correctValues / correctAnswer、passScore / 分值、权限、状态或版本。需要结构变化时必须返回 `REQUIRES_MANUAL_STRUCTURE_CHANGE`，另开明确人工任务。
 
-Development `opc_ai_dev` 与 Production `opc_ai_prod` 当前均为 Drizzle migration `0000`～`0025`（26 条）。本地开发继续通过 SSH 隧道 `127.0.0.1:15432` 连接 TencentDB Development；Production 已迁到轻量服务器本机 PostgreSQL 14，仅监听 `127.0.0.1:5432`，应用账号为 `opc_ai_prod_app`。生产数据库每天 03:30 自动备份，保留 7 天。
+Development `opc_ai_dev` 与 Production `opc_ai_prod` 当前均为 Drizzle migration `0000`～`0025`（26 条），并已迁到轻量服务器本机 PostgreSQL 14。服务器 PostgreSQL 仅监听 `127.0.0.1:5432`；本地开发通过 SSH 隧道 `127.0.0.1:15432 → 服务器 127.0.0.1:5432` 访问 `opc_ai_dev`。Development 应用账号为 `opc_ai_dev_app`，Migration 账号为 `opcai`；Production 应用账号为 `opc_ai_prod_app`。Development / Production 每天 03:30 自动备份，保留 7 天。
 
 用户与权益当前真实能力：用户搜索、ACTIVE / DISABLED、学习概况、会员开始/到期/永久/延长/取消，以及管理员审计。历史 `users.admin_note` 仅作为数据库兼容字段，不属于当前产品 contract。
 
@@ -172,7 +172,7 @@ AI 日报、热点能力练习、实操项目和课程维护可以共享 Event /
 
 ## 9. 数据与存储方向
 
-数据库技术边界固定为标准 PostgreSQL + Drizzle；当前 Production 使用轻量服务器本机 PostgreSQL，Development 暂时继续使用 TencentDB。
+数据库技术边界固定为标准 PostgreSQL + Drizzle；当前 Development / Production 均使用轻量服务器本机 PostgreSQL，以独立数据库与账号隔离。TencentDB 已退出 current runtime path。
 
 Workbench 当前数据边界：
 - PostgreSQL：身份、Workspace、权限、Workflow/Prompt/Skill 配置、最小运行状态、第三方连接，以及 OPC AI 官方业务事实；

@@ -7,7 +7,7 @@
 正式项目数据库边界是标准 PostgreSQL + Drizzle。当前部署：
 
 ```text
-Development  TencentDB / opc_ai_dev
+Development  Local PostgreSQL 14 / opc_ai_dev / SSH tunnel 127.0.0.1:15432
 Production   Local PostgreSQL 14 / opc_ai_prod / 127.0.0.1:5432
 ```
 
@@ -17,8 +17,8 @@ Production   Local PostgreSQL 14 / opc_ai_prod / 127.0.0.1:5432
 
 1. Production PostgreSQL 只监听 `127.0.0.1`，不开放公网；
 2. 2C2G 阶段控制连接数与内存，不在服务器执行重型 AI / 媒体计算；
-3. Production 每天 03:30 自动备份，保留 7 天；
-4. Development 继续通过 SSH tunnel 访问 TencentDB；
+3. Development / Production 每天 03:30 自动备份，保留 7 天；
+4. Development 通过 SSH tunnel 访问同机 PostgreSQL 的 `opc_ai_dev`；
 5. 数据库保持标准 PostgreSQL，可随负载增长迁回托管服务。
 
 ## 3. 数据库与账号
@@ -45,7 +45,8 @@ opc_ai_prod_app
 
 ```text
 DATABASE_ENVIRONMENT=development
-DATABASE_URL=postgresql://<dev-user>:<password>@<host>:<port>/opc_ai_dev?sslmode=require
+DATABASE_URL=postgresql://opc_ai_dev_app@127.0.0.1:15432/opc_ai_dev
+DATABASE_MIGRATION_URL=postgresql://opcai@127.0.0.1:15432/opc_ai_dev
 ```
 
 生产服务器：

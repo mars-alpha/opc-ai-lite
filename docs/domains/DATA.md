@@ -61,7 +61,7 @@ AuditRecord
 - `feishu_document_mappings`
 - `ai_runs`
 
-官方内容基础迁移起于 `drizzle/0014_chunky_ricochet.sql`；current Development 数据库为 TencentDB `opc_ai_dev`，Supabase 仅为 LEGACY TEST ONLY。最新 migration 状态由 `docs/CURRENT_SYSTEM_FACTS.md` 记录。
+官方内容基础迁移起于 `drizzle/0014_chunky_ricochet.sql`；current Development 数据库为轻量服务器本机 PostgreSQL `opc_ai_dev`。最新 migration 状态由 `docs/CURRENT_SYSTEM_FACTS.md` 记录。
 
 要求：
 - 每条正式内容可追溯 Evidence；
@@ -148,10 +148,10 @@ AI Context Assembly 必须区分：
 第一阶段继续标准 PostgreSQL + 现有服务器。
 
 当前数据库部署：
-- Development：TencentDB `opc_ai_dev`，本地经 SSH tunnel；
+- Development：轻量服务器本机 PostgreSQL `opc_ai_dev`，本地经 SSH tunnel；
 - Production：轻量服务器本机 PostgreSQL `opc_ai_prod`，仅 loopback；
 - Dev / Prod 数据库与账号隔离；
-- Production 每日自动备份，保留 7 天；
+- Development / Production 每日自动备份，保留 7 天；
 - Drizzle migration 保持 provider-neutral PostgreSQL，未来可按负载迁回托管 PostgreSQL。
 
 暂不增加：

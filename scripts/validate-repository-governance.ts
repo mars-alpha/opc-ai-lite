@@ -11,7 +11,7 @@ const required = [
   "TASKS.md",
   "docs/CONTEXT_GOVERNANCE.md",
   "docs/DEVELOPMENT_OPERATING_MANUAL.md",
-  "docs/runbooks/TENCENTDB_POSTGRESQL.md",
+  "docs/runbooks/POSTGRESQL.md",
   "docs/learning/COURSE_BUILD_START_HERE.md",
   "docs/learning/COURSE_BUILD_STANDARD_V1.md",
   "docs/learning/COURSE_PRODUCTION_WORKFLOW_V1.md",
@@ -32,7 +32,7 @@ assert(agents.includes("EXPLICIT USER APPROVAL"), "VISUAL_USER_APPROVAL_REQUIREM
 
 const architecture = fs.readFileSync("docs/ARCHITECTURE.md", "utf8");
 assert(!architecture.includes("Supabase/PostgreSQL 作为当前数据库服务"), "LEGACY_SUPABASE_CURRENT_TARGET_PRESENT");
-assert(architecture.includes("TencentDB for PostgreSQL"), "TENCENTDB_TARGET_BOUNDARY_MISSING");
+assert(architecture.includes("Development / Production 均使用轻量服务器本机 PostgreSQL"), "LOCAL_POSTGRESQL_TARGET_BOUNDARY_MISSING");
 
 const learningWhitelist = new Set([
   "COURSE_BUILD_START_HERE.md",

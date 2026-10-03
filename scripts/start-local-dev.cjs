@@ -6,7 +6,7 @@ const postgres = require("postgres");
 const project = path.resolve(__dirname, "..");
 const LOCAL_HOST = "127.0.0.1";
 const LOCAL_PORT = 15432;
-const REMOTE_DB_HOST = "10.20.0.2";
+const REMOTE_DB_HOST = "127.0.0.1";
 const REMOTE_DB_PORT = 5432;
 const SSH_TARGET = "ubuntu@1.14.180.16";
 const SSH_EXE = "C:\\Windows\\System32\\OpenSSH\\ssh.exe";
@@ -50,7 +50,7 @@ function isPortOpen(port) {
 }
 
 function startTunnel() {
-  console.log("[DEV PREFLIGHT] TencentDB tunnel missing; starting 127.0.0.1:15432...");
+  console.log("[DEV PREFLIGHT] Development PostgreSQL tunnel missing; starting 127.0.0.1:15432...");
   return spawn(
     SSH_EXE,
     [
@@ -112,7 +112,7 @@ async function main() {
 
   let tunnel = null;
   if (await isPortOpen(LOCAL_PORT)) {
-    console.log("[DEV PREFLIGHT] TencentDB tunnel already ready: 127.0.0.1:15432");
+    console.log("[DEV PREFLIGHT] Development PostgreSQL tunnel already ready: 127.0.0.1:15432");
   } else {
     tunnel = startTunnel();
     let sshError = "";
@@ -124,9 +124,9 @@ async function main() {
       await waitForPort(LOCAL_PORT);
     } catch (error) {
       try { tunnel.kill(); } catch {}
-      fail("Unable to establish TencentDB SSH tunnel." + (sshError ? " Check the configured SSH key/host." : ""), error);
+      fail("Unable to establish Development PostgreSQL SSH tunnel." + (sshError ? " Check the configured SSH key/host." : ""), error);
     }
-    console.log("[DEV PREFLIGHT] TencentDB tunnel ready: 127.0.0.1:15432");
+    console.log("[DEV PREFLIGHT] Development PostgreSQL tunnel ready: 127.0.0.1:15432");
   }
 
   try {
@@ -135,7 +135,7 @@ async function main() {
     if (tunnel) {
       try { tunnel.kill(); } catch {}
     }
-    fail("TencentDB connectivity check failed. Do not modify Auth or run migrations; restore the local tunnel/DB connectivity first.", error);
+    fail("Development PostgreSQL connectivity check failed. Do not modify Auth or run migrations; restore the local tunnel/DB connectivity first.", error);
   }
 
   if (CHECK_ONLY) {

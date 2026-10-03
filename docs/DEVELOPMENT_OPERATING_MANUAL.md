@@ -445,7 +445,7 @@ MVP 推荐：
 
 ### 9.3 数据库
 
-继续标准 PostgreSQL + Drizzle。当前 Development 使用 TencentDB `opc_ai_dev`；Production 使用轻量服务器本机 PostgreSQL `opc_ai_prod`。部署位置不是产品 contract，数据库边界必须保持可迁移。
+继续标准 PostgreSQL + Drizzle。当前 Development 使用轻量服务器本机 `opc_ai_dev`，Production 使用同机 `opc_ai_prod`；两者数据库与账号隔离，本地开发通过 SSH tunnel 访问 Development。部署位置不是产品 contract，数据库边界必须保持可迁移。
 
 不因为工作台新增：
 - MongoDB；

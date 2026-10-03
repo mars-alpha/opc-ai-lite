@@ -171,11 +171,11 @@ COS 只服务于 OPC AI 官方内容或未来用户显式选择的云存储能�
 
 - Supabase 已退出 current path；
 - Production：轻量服务器本机 PostgreSQL，数据库 `opc_ai_prod`，仅监听 loopback；
-- Development：TencentDB for PostgreSQL `opc_ai_dev`，本地通过 SSH tunnel 访问；
-- Development / Production 使用不同数据库与账号，最小权限隔离；
+- Development：轻量服务器本机 PostgreSQL `opc_ai_dev`，本地通过 SSH tunnel 访问；
+- Development / Production 均使用轻量服务器本机 PostgreSQL，但使用不同数据库与账号，最小权限隔离；
 - 本地开发不得持有 Production 数据库账号；
 - Drizzle Schema / Migration 保持标准 PostgreSQL 可迁移，不依赖腾讯云专有 SQL。
-- Production 每日自动备份并保留 7 天；真实负载超过单机资源边界后再迁回托管 PostgreSQL。
+- Development / Production 每日自动备份并保留 7 天；两者都不依赖外部托管 PostgreSQL。真实负载超过单机资源边界后再迁回托管 PostgreSQL。
 
 ## 8. Worker
 
