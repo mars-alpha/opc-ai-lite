@@ -21,7 +21,7 @@
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
 - 真实 Development 闭环已验证：Source-managed Expansion 可产出 EXPERIENCE / TUTORIAL / USE_CASE / WORK_IMPACT Evidence；Event AI Analysis 可复用/刷新；Radar Snapshot 持久化 currentHot / worthPracticing / items；当前实践数量按实时候选材料门槛计算，不保证非空。
-- `/admin/intelligence` 已确认的日历布局继续沿用；生产已部署v15材料补齐能力及既有规则和说明文字：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v15-public-materials，统计/列表同源。规则唯一见采集合同§16；旧release只作回退，不是current authority。
+- `/admin/intelligence` 沿用已确认的日历布局：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v15-public-materials，统计/列表同源。管理员可记录采集质量正负评价、原因、来源归因并撤销；评价不改变自动栏目或采集。来源详情显示30日评价样本与问题原因。两处界面已获产品负责人明确批准，规则唯一见采集合同§16和§22。
 - 当前架构正文唯一 owner：`docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；实现映射唯一 owner：`docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。历史 Phase/Acceptance 只通过 Git 追溯，不再复制到 Current Facts。
 
 - 来源管理筛选词已接入所有SYSTEM候选的Raw前过滤；新增词扩展标题召回，排除优先，后续Run读取并记录规则版本。保存/注册与审计同事务，不追删历史。网站/主页支持标准Feed自动发现与受限Sitemap备用检测；Simon/TIL/Comfy公开路径经腾讯云+Deno实测。注册仅证明可采，不授予Fact Authority或AUTO_READY；边界唯一见采集合同。
@@ -40,9 +40,9 @@ Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
 
-采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261015-materials`（前版`20261015-source-input`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
+采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261016-quality-feedback`（前版`20261015-materials`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
 
-生产数据库迁移history为38条。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接。生产Web当前为 `/opt/opc-services/opc-admin-web-materials-20261015`（前版`opc-admin-web-source-input-20261015`保留回退），由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。旧兼容维护包保留作Web回退。待办唯一见TASKS。
+生产数据库迁移history为40条，新增采集质量标签表及来源/Event索引。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接；本次以本机 PostgreSQL 管理身份经仓库 Safe Gate 执行，生产即时备份位于 `/var/backups/opc-ai-db/opc_ai_prod_20261016-011547.dump`。生产Web当前为 `/opt/opc-services/opc-admin-web-quality-feedback-20261016`（前版`opc-admin-web-materials-20261015`保留回退），由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。待办唯一见TASKS。
 
 正式应用入口是 `app/*`。根目录早期静态 HTML/CSS/JS 原型不属于正式 Runtime，并已退出 current tree。
 
@@ -161,11 +161,11 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 - 海外出口仅部分统一：RSS中DeepMind显式走Relay，其余海外Feed仍可能直连；Deno当前固定六类provider，不是任意URL代理。统一Egress是目标，尚未实现全源覆盖。
 - HTTP尚未保存ETag/Last-Modified或处理304跳过；已有cadence/治理与有限网络重试，不等同已具备按七日产出的自适应频率和完整失败退避。
 - 列表已有Feed正文优先、字段完整性和七日可获取窗口记录；没有完整的按需详情队列、全源分页积压/正文缺口诊断或可验证原创率。七日补采不保证上游完整历史。
-- P0已部署：Decision/Event/审计同事务及Event行锁；Radar生产v13读取覆盖运营状态、完整窗口计数与30分钟过期提示，客户端阻止旧响应回写。P0开发库跨进程及腾讯云生产同版验收PASS。
+- Radar读取保持完整窗口计数与30分钟过期提示，客户端阻止旧响应回写。旧 Decision/Event 状态写入已退役；新采集质量标签与审计同事务、锁定 Event 行，旧决策表和字段仅留历史审计。
 - 生产分类修正已实现：汇总退出热点及参与者计数；今日值得做按真实实操证据的明确工具/任务归并并复算门槛，忽略父事件后重算；常驻重新读取退出，仅失败重试。受管B站/YouTube搜索有显式opt-in和限额；开发受管搜索已实测，不能据此宣称生产全主题覆盖。
 - P0已部署来源启停、operator归档/恢复、规则与资格阶段的事务审计；恢复保留实际资格且保持停用，禁用状态不冒充AUTO_READY。onboarding阶段从真实资格派生，不再固定QUALIFIED。用户已明确批准新版页面上线，已发布。
 - 当前发现以URL预览/注册及已有来源目录为基础；尚无独立候选来源待审表。主题规则召回不证明实践作者覆盖充分。
-- 热点、精选、今日值得做为三个独立维度，判定规则由采集合同负责。今日值得做按现行逐篇实践材料条件判断；无人触发的采集不调用AI补资格。旧 ADOPT/IGNORE/WATCH 仍有现役兼容代码及运营副作用，已列入 `TASKS.md` 的退役任务；新开发不得把旧 ADOPT 当作内容工作台授权或采集质量标签。
+- 热点、精选、今日值得做为三个独立维度，判定规则由采集合同负责。今日值得做按现行逐篇实践材料条件判断；无人触发的采集不调用AI补资格。旧 ADOPT/IGNORE/WATCH 与人工补证据入口已退役；新的采用/忽略仅保存可回测评价，不改变 Event、Source、栏目或内容生产。内容工作台兼容页旧控件与评论分析旧决策读取已清除，独立能力后续另行规划。
 - 证据限度：部署、迁移与单轮真实采集已验证；连续72小时稳定性、来源发现召回率、长期页面使用反馈仍需观察。本轮P0已完成本地开发库真实验收及腾讯云隔离代码包直连开发库验收（约3.6秒），同版生产统一周期已重新验收通过，不代表连续72小时稳定。
 
 ## 8. 会员与公众号

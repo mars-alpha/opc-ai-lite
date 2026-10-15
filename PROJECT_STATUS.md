@@ -2,7 +2,7 @@
 
 最后更新：2026-10-16（Asia/Shanghai）。
 
-状态：PRODUCTION_RUNNING / RADAR_V15_DEPLOYED / SOURCE_INPUT_RUNTIME_DEPLOYED / UI_TEXT_IMPLEMENTED。
+状态：PRODUCTION_RUNNING / RADAR_V15_DEPLOYED / COLLECTION_QUALITY_FEEDBACK_DEPLOYED / UI_USER_APPROVED。
 
 用户已明确要求生产使用新版，页面/日历上线审核阻塞已解除。Web与SYSTEM已同版切换；七日完整列表、日期游标、运行漏斗、P0运营一致性及实践材料分类均使用当前代码。部署路径与运行事实唯一见 [CURRENT_SYSTEM_FACTS](docs/CURRENT_SYSTEM_FACTS.md)。
 
@@ -10,7 +10,7 @@
 
 正文/材料获取经腾讯云与Deno生产实测，1篇作者说明凭证已落库并过材料Gate；B站匿名字幕、部分附件、通用正文覆盖及长期稳定性仍有缺口。材料通过不等于实际执行工作流，也不保证今日值得做非空。
 
-当前焦点：继续补实操原文/字幕凭证、观察来源真实运行与请求成本。自动采集质量反馈已在本地实现并通过开发库验收，热点追踪与来源管理两处界面已获产品负责人明确批准；生产仍是旧运营决策行为，部署和 Git 同步待执行。任务状态见 `TASKS.md`。后续内容工作台入口与评论分析改造另行规划。不更改课程、评分权重或timer配置。
+当前焦点：继续补实操原文/字幕凭证，观察来源真实运行与请求成本。采集质量正负评价及30日来源样本统计已部署到 Web/SYSTEM 同版，热点追踪与来源管理界面获产品负责人明确批准；旧四操作副作用及其兼容读取已退役。上线后首轮因 Pixaroma 一次 `fetch failed` 局部失败，立即重跑完整 SYSTEM 周期 PASS，快照刷新至 2026-10-16 01:27（北京时间）；这只证明单轮恢复，不代表长期稳定。接下来观察真实采集周期与7–14日评价样本，不能把标注样本当成全量准确率。后续内容工作台入口与评论分析改造另行规划；课程、评分权重和timer配置未变。
 
 规则唯一owner为 [采集架构合同](docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md)，代码定位见 [实现映射](docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md)。历史任务结果从Git追溯。
 

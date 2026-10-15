@@ -27,7 +27,7 @@ SYSTEM Collection Runtime
 → RETIRED：仅保留兼容重定向 /admin/sources；旧 Manual Core 与 Runner 依赖已退出 current runtime
 
 /admin/content
-→ 现有内容工作台兼容入口仍在运行；其中旧 Event 决策控件列入 `SOURCE-QUALITY-FEEDBACK` 清理
+→ 现有内容工作台兼容入口仍在运行；旧 Event 决策控件已退出
 → 内容选题与五阶段生产入口待后续独立规划，不消费热点追踪质量标签
 ```
 
@@ -90,15 +90,11 @@ Source Identity
 - Event Seed / Expansion / Cluster / Signal。
 - Source-managed Expansion 只通过现有 SYSTEM 及采集合同约束运行，不取得 Verification/Hotspot authority。
 - 旧 Event 决策表仅保留历史审计；新质量标签不会驱动内容生产。
-- 既有 Adoption/Content Draft 能力仅按真实调用链保留，不作为新采集任务扩展入口。
+- 既有 Content Draft 能力仅按真实调用链保留，不作为新采集任务扩展入口。
 - DRAFT / REVIEW / PUBLISHED 基础发布能力。
 - Source / Event / Evidence 可追溯基础。
 
 ### REWRITE / EXTEND
-
-- Content Brief Enrichment：
-  - 当前只补核心观点 / 受众 / 目的 / 标签；
-  - 目标应被 Topic Diagnosis + Evidence Pack + Outline 等正式 Artifact 取代或吸收。
 
 - Workbench Contract：
   - 当前面向通用内容工作台；

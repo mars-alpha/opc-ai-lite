@@ -66,11 +66,11 @@ assert(
   "FACTS_TOPIC_MOMENTUM_CURRENT"
 );
 
-assert(tasks.includes("SOURCE MANAGEMENT → HOT TRACKING PRODUCTION CLOSE"), "TASKS_HOT_TRACKING_OWNER");
-assert(tasks.includes("Source Management 是唯一来源 Owner"), "TASKS_SYSTEM_RUNTIME_BASELINE");
+assert(tasks.includes("PRODUCTION OBSERVATION") && facts.includes("20261016-quality-feedback"), "TASKS_HOT_TRACKING_OWNER");
+assert(tasks.includes("来源管理仍是唯一 Source Owner") && tasks.includes("SYSTEM 仍是唯一采集执行链"), "TASKS_SYSTEM_RUNTIME_BASELINE");
 assert(tasks.includes("旧「今日情报」、旧 Rising、旧 Manual Collection"), "TASKS_OLD_PLANS_RETIRED");
 assert(owner.includes("0–24h") && owner.includes("RISING") && owner.includes("24–168h") && owner.includes("SUSTAINED"), "OWNER_EVENT_MOMENTUM_WINDOW");
-assert(tasks.includes("SOURCE-QUALITY-FEEDBACK") && tasks.includes("USER_APPROVED"), "HUMAN_REVIEW_GATE");
+assert(facts.includes("两处界面已获产品负责人明确批准") && tasks.includes("界面获产品负责人批准"), "HUMAN_REVIEW_GATE");
 
 assert(agents.includes("不再存在独立“人工采集”产品 Owner"), "AGENTS_NO_MANUAL_PRODUCT_OWNER");
 assert(agents.includes("旧 Rising / Formal Rising 算法已退出"), "AGENTS_RISING_RETIRED");

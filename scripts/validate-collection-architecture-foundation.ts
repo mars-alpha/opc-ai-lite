@@ -37,7 +37,7 @@ const manualApi = fs.readFileSync("app/api/admin/manual-collection/route.ts", "u
 const owner = fs.readFileSync("docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md", "utf8");
 assert(runner.includes("SYSTEM_COLLECTION_RUNTIME_ONLY"), "SINGLE_SYSTEM_RUNTIME");
 assert(manualApi.includes("MANUAL_COLLECTION_PRODUCT_RETIRED"), "MANUAL_PRODUCT_TOMBSTONE");
-assert(owner.includes("SOURCE-QUALITY-FEEDBACK"), "QUALITY_FEEDBACK_TRANSITION_OWNER");
+assert(owner.includes("旧 Event 决策写入与忽略后退出列表已退役") && owner.includes("新采集质量标签只写独立样本"), "QUALITY_FEEDBACK_CURRENT_OWNER");
 assert(!owner.includes(">=2逐篇合格实践证据"), "NO_SUPERSEDED_PRACTICE_COUNT_GATE");
 
 console.log("COLLECTION_ARCHITECTURE_FOUNDATION=PASS");

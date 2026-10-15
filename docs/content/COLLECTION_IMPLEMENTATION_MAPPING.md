@@ -125,7 +125,7 @@ Topic Momentum：过去 7 天 / 168h，独立账号与机构去重，72h half-li
 
 内部 Read Model：Latest / Worth Practicing / Unverified / Current Hot；正式产品界面仍为既有“当前热点 + 今日值得做 + 精选 / 全部动态”排版。
 
-本地待发布实现：旧 Event 决策 route/writer、人工 Expansion POST、旧 `IGNORED` 可见性过滤、内容工作台兼容控件及评论挖旧决策读取已退出；`content_candidate_decisions` 和 `discoveryStatus` 仍保留历史审计。采集质量反馈由 `lib/server/content/collection-quality-feedback.ts`、独立表和 admin-only API 拥有，热点追踪与来源管理只消费标签。生产是否已切换以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。`refreshSourceManagedEventExpansion` 在 `topic-momentum-runtime.ts` 和 SYSTEM 中的自动调用必须保留。
+旧 Event 决策 route/writer、人工 Expansion POST、旧 `IGNORED` 可见性过滤、内容工作台兼容控件及评论挖旧决策读取已退出；`content_candidate_decisions` 和 `discoveryStatus` 仍保留历史审计。采集质量反馈由 `lib/server/content/collection-quality-feedback.ts`、独立表和 admin-only API 拥有，热点追踪与来源管理只消费标签。生产路径见 `docs/CURRENT_SYSTEM_FACTS.md`。`refreshSourceManagedEventExpansion` 在 `topic-momentum-runtime.ts` 和 SYSTEM 中的自动调用必须保留。
 
 ### Comment Demand
 - lib/server/content/comment-insight.ts
@@ -253,7 +253,7 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 
 - `collection-quality-feedback.ts`：Event 行锁、Event/Source 归因、追加式标签、请求幂等、反馈当时的自动状态快照和同事务审计；不写 Event 状态。
 - `radar-snapshot.ts`：只读覆盖归档状态；旧忽略不再隐藏 Event。基础缓存不缓存人工标签。
-- `content:operations:check / content:quality-feedback:accept`：快照覆盖及开发库样本、幂等、归因和审计验收。UI仍需真实体验审核，不能用这些校验替代 USER_APPROVED。
+- `content:operations:check / content:quality-feedback:accept`：快照覆盖及开发库样本、幂等、归因和审计验收。界面已获产品负责人明确 USER_APPROVED；后续视觉改动仍需重新审核。
 
 ### 日历时间线与真实漏斗
 
