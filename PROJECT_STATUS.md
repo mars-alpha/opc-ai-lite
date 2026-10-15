@@ -14,19 +14,20 @@
 
 规则唯一owner为 [采集架构合同](docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md)，代码定位见 [实现映射](docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md)。历史任务结果从Git追溯。
 
-## 当前任务代码快照（2026-10-15，SHA256前16位）
+## 当前任务代码快照（2026-10-16，SHA256前16位）
 
 - `lib/server/content/public-workflow-materials.ts` — 固定材料路由、ZIP/JSON内存结构验证；`992BAA039927F48F`。
 - `lib/server/content/pixaroma-source.ts` — capability-first作者登记、onboarding及已发现参考关联；`2C6B33207368E4FD`。
 - `services/overseas-collector-relay/deno.ts` — 固定公开正文/材料及来源文档白名单Provider，v5；`C7C2F136A0FBFCD8`。
 - `lib/server/content/source-acquisition-runtime-adapters.ts` — 复用SYSTEM注册材料Adapter；`A8F0942A18D2D61B`。
-- `lib/server/content/discovery.ts` — 视频链接规范化、无日期历史材料不创建当前Event；`B320DBACC443E4EB`。
+- `lib/server/content/discovery.ts` — 视频链接规范化、无日期历史材料不创建当前Event，旧运营决策写入退出；`463BFE1CA67A3D59`。
 
 - `lib/server/content/practice-topics.ts` — 原文工具/任务归并、贡献证据与忽略重算；`8D105B6BB67A3CF6`。
 - `lib/server/content/practical-evidence-actionability.ts` — 汇总、实践主体、机械门槛及访问依赖排除；`38B583DE8AB4C747`。
 - `lib/server/content/collection-expansion.ts` — 受管搜索、平台语言规划、作者身份及访问依赖排除；`E147BE1B18A472D9`。
 - `lib/server/content/managed-practice-search.ts` — 真实探测登记、审计、Raw待审参考；`8CBFCEFA4011CC76`。
-- `lib/server/content/radar-snapshot.ts` — v15公开材料及逐篇条件快照及当前运营状态覆盖；`E9F5F35CB74AAFAF`。
+- `lib/server/content/radar-snapshot.ts` — v15公开材料及逐篇条件快照，历史忽略不再覆盖可见性；`60627CFD7C5401D7`。
+- `lib/server/content/collection-quality-feedback.ts` — 采集质量标签、来源归因、幂等与审计；`DAE22F88428893A0`。
 - `lib/server/content/public-practice-access.ts` — 访问依赖及注册条件；`9BC10B172AD52787`。
 - `lib/server/content/public-creator-probe.ts` — 公开详情/列表/字幕探测与缺口状态；`71490A2B063062DE`。
 - `lib/server/content/source-acquisition-plan.ts` — 主/备用路径与交互依赖拒绝；`F2BAB00140F6D2A2`。
