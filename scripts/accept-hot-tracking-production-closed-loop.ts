@@ -146,20 +146,16 @@ async function main() {
 
   assert(snapshot.items.length > 0, "RADAR_SNAPSHOT_HAS_REAL_EVENTS");
   assert(snapshot.windowDays === 7 && snapshot.totalEventCount7d === timeline.length, "RADAR_SNAPSHOT_SEVEN_DAY_EVENT_TOTAL");
-  assert(snapshot.items.length <= 120 && snapshot.totalEventCount7d >= snapshot.items.length, "RADAR_SNAPSHOT_INITIAL_PAGE_NOT_PRODUCT_TOTAL");
+  assert(snapshot.items.length === snapshot.totalEventCount7d, "RADAR_SNAPSHOT_COMPLETE_SEVEN_DAY_WINDOW");
   assert(snapshot.featured.length === curated.length, "RADAR_SNAPSHOT_FEATURED_USES_COMPLETE_SEVEN_DAY_WINDOW");
   assert(snapshot.totalEventCount7d <= snapshot.items.length || snapshot.hasMore, "RADAR_SNAPSHOT_MORE_EVENTS_EXPOSE_CURSOR");
   assert(expansionScanned.length > 0, "SOURCE_MANAGED_EXPANSION_HAS_REAL_RUNS");
   assert(practicalEvidenceEvents.length > 0, "PRACTICAL_EVIDENCE_REACHED_EVENT_READ_MODEL");
   assert(worthPracticing.every((item) =>
-    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 2 &&
-    (item.coverage.actionablePracticalOriginCount ?? 0) >= 2 &&
-    (item.coverage.actionablePracticalTypeCount ?? 0) >= 2
-  ), "WORTH_PRACTICING_REQUIRES_MULTI_SOURCE_ACTIONABLE_EVIDENCE");
+    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 1
+  ), "WORTH_PRACTICING_REQUIRES_COMPLETE_EVIDENCE");
   assert(snapshot.worthPracticing.every((item) =>
-    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 2 &&
-    (item.coverage.actionablePracticalOriginCount ?? 0) >= 2 &&
-    (item.coverage.actionablePracticalTypeCount ?? 0) >= 2
+    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 1
   ), "RADAR_SNAPSHOT_WORTH_PRACTICING_ACTIONABLE_ONLY");
   assert(snapshot.worthPracticing.length === worthPracticing.length || snapshot.worthPracticing.length <= 8, "WORTH_PRACTICING_SNAPSHOT_BOUND");
   assert(snapshot.currentHot.length <= 10, "CURRENT_HOT_SNAPSHOT_BOUND");

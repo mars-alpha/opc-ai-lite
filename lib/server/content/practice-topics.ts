@@ -44,7 +44,7 @@ export function buildPracticeTopics<T extends PracticeParent>(items: T[], option
     if (!lead?.title) return [];
     const parent = group.parents.find(item => item.eventId === lead.parentEventId)!;
     const origins = new Set(links.map(link => (link.originKey ?? link.sourceName).normalize("NFKC").toLocaleLowerCase()));
-    const projected = { ...parent, title:lead.title, excerpt:lead.excerpt ?? null, originalUrl:lead.originalUrl,
+    const projected = { ...parent, title:lead.title, excerpt:lead.excerpt ?? null, originalUrl:lead.originalUrl, materialQuality:lead.materialQuality,
       presentation:{...parent.presentation,displayTitleZh:lead.presentation?.displayTitleZh ?? lead.title,displaySummaryZh:lead.presentation?.displaySummaryZh ?? lead.excerpt ?? null},
       practicalEvidenceLinks:[lead,...links.filter(link => link !== lead)],
       practiceTopic:{...group.identity,parentEventIds:[...new Set(group.parents.map(item => item.eventId))]},
@@ -52,11 +52,8 @@ export function buildPracticeTopics<T extends PracticeParent>(items: T[], option
     };
     const reasons = [
       ...(!evaluatePracticeSubject(projected).eligible ? [evaluatePracticeSubject(projected).reason] : []),
-      ...(links.length<2?["INSUFFICIENT_ACTIONABLE_EVIDENCE"]:[]),
-      ...(origins.size<2?["INSUFFICIENT_INDEPENDENT_ORIGINS"]:[]),
-      ...(projected.coverage.actionablePracticalTypeCount<2?["INSUFFICIENT_PRACTICE_TYPES"]:[])
     ];
-    return (options.includeRejected || (options.eligibleOnly === false ? origins.size >= 2 : isWorthPracticingEligible(projected))) ? [{...projected,practiceEligibility:{eligible:reasons.length===0,reasons}}] : [];
+    return (options.includeRejected || options.eligibleOnly === false || isWorthPracticingEligible(projected)) ? [{...projected,practiceEligibility:{eligible:reasons.length===0,reasons}}] : [];
   });
 }
 

@@ -637,9 +637,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       practicalEvidenceLinks,
       practiceAssessment: { eligibleEvidenceCount: actionablePracticalEvidenceCount, diagnostics: practicalEvidenceDiagnostics,
         reasons: [...new Set([...practicalEvidenceDiagnostics.flatMap(item => item.reasons),
-          ...(actionablePracticalEvidenceCount<2?["INSUFFICIENT_ACTIONABLE_EVIDENCE"]:[]),
-          ...(actionablePracticalOriginCount<2?["INSUFFICIENT_INDEPENDENT_ORIGINS"]:[]),
-          ...(actionablePracticalTypeCount<2?["INSUFFICIENT_PRACTICE_TYPES"]:[])])]},
+          ...(actionablePracticalEvidenceCount<1?["COMPLETE_PRACTICE_MATERIAL_MISSING"]:[])])]},
       contentBoundary,
       curation: {
         curated,
@@ -904,7 +902,7 @@ export async function listWorthPracticingTodayIntelligence(limit = 100) {
   // not from three separately bounded candidate lists. Otherwise an actionable Event can
   // appear in Radar Snapshot but disappear from the direct read model purely due to sampling.
   const timeline = await listRadarTimelineWindow(7);
-  return timeline
+  return buildPracticeTopics(timeline)
     .filter(isWorthPracticingEligible)
     .sort((a, b) =>
       (b.coverage.actionablePracticalOriginCount ?? 0) - (a.coverage.actionablePracticalOriginCount ?? 0) ||

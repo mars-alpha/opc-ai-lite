@@ -548,7 +548,7 @@ export function AdminIntelligenceWorkspace() {
               {!worthPracticing.length ? (
                 <div className="intel-do-empty">
                   <strong>今天暂时没有达到“值得做”门槛的 Event</strong>
-                  <p>需要至少 2 条可执行实践证据、2 个独立来源、2 种实践类型；不为了填满版面降低门槛。</p>
+                  <p>逐篇核对：做什么、怎么做、需要什么、得到什么。单篇完整实操即可；不要求多来源或多实践类型。</p>
                 </div>
               ) : null}
             </div>

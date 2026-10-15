@@ -47,12 +47,9 @@ async function main() {
   assert(hotspots.every((item) => item.currentHot.eligible && item.topicMomentum.eligible), "HOTSPOT_TOPIC_MOMENTUM_BOUNDARY");
   assert(unverified.every((item) => item.verificationStatus === "UNVERIFIED"), "UNVERIFIED_POLICY_BOUNDARY");
   assert(practicing.every((item) =>
-    item.opcValue.status === "AVAILABLE" &&
     item.coverage.practicalEvidenceCount > 0 &&
-    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 2 &&
-    (item.coverage.actionablePracticalOriginCount ?? 0) >= 2 &&
-    (item.coverage.actionablePracticalTypeCount ?? 0) >= 1
-  ), "PRACTICING_EVIDENCE_AND_ANALYSIS_BOUNDARY");
+    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 1
+  ), "PRACTICING_COMPLETE_EVIDENCE_BOUNDARY");
   assert([...latest, ...practicing, ...unverified].every((item) =>
     ["TRUSTED", "UNVERIFIED"].includes(item.evidenceScore.status) &&
     item.topicMomentum.criteria &&

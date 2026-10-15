@@ -6,9 +6,9 @@
 - 作者站与其视频使用同一Creator Source；内容使用规范视频URL复用Raw/Observation，短链、列表及分享参数不能制造副本。已发现作者参考关联creatorSourceId，不再重复作者核验。无发布日期的历史材料只入Raw/Observation，不以采集时间生成当前Event；可供后续定向研究，不自动授予热点/精选/今日值得做资格。
 
 - 热点主体必须是单一事件。明确的早报、新闻汇总或至少两条不同主体独立发布拼接内容不进入热点（同主体补充、指代续句和搭建汇总工具教程不因此排除），其Raw也不作为独立热度参与者；保留全部动态与历史，不归档合法Source。汇总中的新闻必须取得独立原文再按既有条件评估。
-- 今日值得做主体必须是具体操作主题：教程/实操意图、明确操作信息和任务目标同时存在；模型发布即使挂有多个教程也不因此成为实践主体。从formal actionable原文证据按明确工具身份＋操作目标归并，标题/入口取自真实教程；保留parentEventIds，不改Event事实。来源、证据和类型数量按主题重新计算，不能继承父新闻计数。无法明确工具或目标时保持候选，不猜测归并。保留两条可执行证据、两个独立来源、两类实践门槛；不以AI分析AVAILABLE状态作为入栏前置。精选事实门槛与评分权重保持。
+- 今日值得做主体必须是具体操作主题：明确工具、操作信息和具体任务目标同时存在，不强制标题带“教程/如何”字样；模型发布即使挂有多个教程也不因此成为实践主体。从formal actionable原文证据按明确工具身份＋操作目标归并，标题/入口取自真实教程；保留parentEventIds，不改Event事实。来源、证据和类型数量按主题重新计算，不能继承父新闻计数。无法明确工具或目标时保持候选，不猜测归并。取消多证据、独立来源及实践类型的最低数量门槛，单篇完整原文即可：做什么（明确工具与任务）、怎么做（原文步骤、实际配置或可用工作流）、需要什么（输入素材、附件、依赖及公开访问条件）、得到什么（明确预期产物）。四项必须在同一篇材料中成立，不跨篇拼凑；逐篇公开获取凭证、完整正文/字幕与必要附件校验继续保留。数量只作展示与排序，不作为资格条件；不以AI分析AVAILABLE状态作为入栏前置。精选事实门槛与评分权重保持。
 - 实践主题的定向搜索复用Event Expansion，当前仅BILIBILI_SEARCH和YOUTUBE_SEARCH（YouTube复用Relay/配额）；仅由来源管理中ACTIVE/enabled/currentPortfolio、AUTO_READY或CONDITIONAL、有明确且服务器可执行SEARCH_DISCOVERY Route、collectionConfig.practiceExpansionEnabled=true且Provider健康的Source承载。可在原逻辑Source附加搜索Route并用practiceExpansionProvider指定搜索Provider，不覆盖原采集Provider或复制Source。未知、停用或无路由失败关闭，不调用ensureExpansionSource创建隐藏来源。
-- 触发需实践主体和至少两个独立参与者；同Event搜索至少间隔六小时（失败也计入），每SYSTEM周期至多一个主题、一个Provider、两次查询，每次最多五条，七日窗口。查询复用工具/版本锚点和教程/使用案例意图，不进行持续全网关键词扫描。
+- 触发需实践主体，不以独立讨论人数作为前置；同Event搜索至少间隔六小时（失败也计入），每SYSTEM周期至多一个主题、一个Provider、两次查询，每次最多五条，七日窗口。查询复用工具/版本锚点和教程/使用案例意图，不进行持续全网关键词扫描。
 - 搜索结果沿用污染、相关性、去重与Evidence校验。新作者内容是参考候选，不自动注册长期Source、不自动授予Fact或实践资格；正文不足不声称完整实操。搜索失败不得阻断已有Raw的证据刷新；缺少可用搜索Source返回NO_READY_MANAGED_SEARCH_SOURCE。
 - 不自动调用AI。常驻重新读取按钮退出，页面初始化和操作后自动读；仅快照请求失败提供重试。页面仍需人工体验确认。
 
@@ -304,7 +304,7 @@ Presentation authority = PRESENTATION_ONLY。
 热点追踪只消费 Source Management → SYSTEM Collection → Raw / Observation → Dedup → Event / Evidence 的正式主线。Discovery Expansion证据刷新owner为 `refreshSourceManagedEventExpansion`：不创建隐藏 Source，在168h窗口内从已采Raw补Practical Evidence；成功Event 6h cooldown、失败Event 1h retry。SYSTEM的实践定向搜索前置条件与预算见本合同“实践主题与汇总内容边界”，其结果仍写同一Raw/Evidence主链；不维护第二套来源池。有实践证据时仅标记HUMAN_TRIGGER_REQUIRED，AI分析由管理员显式启动。热点追踪不拥有第二套采集入口。
 
 Current views：
-- 今日值得做：复用 Worth Practicing，但必须存在真实可执行实践证据；Practical Evidence 的标题/摘要需包含明确教程、步骤、配置、操作、实测、工作流、使用案例或等价操作语义，并至少来自 2 个独立实践来源。`suggestedContentTypes` 仅作 AI 分析建议，不是产品入场门槛。纯新闻、泛分析、仅 whyItMatters 不进入；中文证据优先，英文只做中文化交付。
+- 今日值得做：复用 Worth Practicing，但必须存在真实可执行实践证据；Practical Evidence 的标题/摘要需包含明确教程、步骤、配置、操作、实测、工作流、使用案例或等价操作语义，并满足本合同开头逐篇四项条件，单篇完整材料即可。`suggestedContentTypes` 仅作 AI 分析建议，不是产品入场门槛。纯新闻、泛分析、仅 whyItMatters 不进入；中文证据优先，英文只做中文化交付。
 - 精选：通过事实硬门禁后按可解释编辑分排序。
 - 全部动态：通过基础 AI relevance / Event 聚类后的唯一主 Event。默认一次完整读取北京时间今天及前六个自然日，区间为首日00:00至快照asOf（半开区间）；以eventAt、缺失时firstSeenAt确定日期，排除未来、归档、忽略及不合格事件。删除120条首批规则。服务器窗口中的今天默认展开，其余日期默认折叠，默认七日空日保留。加载更多每次取得此前最近一个有合格内容的日期全天，跳过历史空日；无更早可见事件时显示“已经到底”。不得以已排除的数据库旧记录判断hasMore，不追加历史空日期行。日期游标固定asOf、按事件时间及ID稳定排序；历史不改变七日总量。
 - 统计窗口：北京时间今日、近七个自然日、最近100次SYSTEM正式运行分别标注起止时间。成功Run记录返回条次、过滤保留、后置排除、入库批量排除、Raw新增/重复、Event新建/归并及无日期历史材料；排除原因复用Run元数据。失败/进行中可能部分写入，不混入成功漏斗；旧Run未记录的阶段显示未知，不反推。七日可见Event是按事件时间计量的当前存量，与按运行时间计量的采集漏斗不是同一队列，不计算伪转化率。

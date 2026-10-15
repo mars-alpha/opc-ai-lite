@@ -15,7 +15,7 @@ assert(!evaluatePracticeSubject({ title:"新模型发布：如何用新功能生
 assert(evaluatePracticeSubject({ title:"如何用 ComfyUI 工作流制作图生动画", excerpt:"安装节点，配置输入图片，运行工作流并导出动画。" }).eligible, "CONCRETE_WORKFLOW_SUBJECT");
 assert(!evaluatePracticeSubject({ title:"MCP改变办公效率", excerpt:"帮助团队完成工作，表现优秀。" }).eligible, "GENERIC_CLAIM_NOT_PRACTICE");
 assert(shouldExpandPractice({ title:"如何用 ComfyUI 工作流制作图生动画", excerpt:"安装节点，配置输入图片并导出。", independentParticipants:2, lastAttemptAt:null }).eligible, "PRACTICE_EXPANSION_TRIGGER");
-assert(!shouldExpandPractice({ title:"如何用 ComfyUI 工作流制作图生动画", excerpt:"安装节点并导出。", independentParticipants:1, lastAttemptAt:null }).eligible, "REPOST_NOT_MULTIPLE_ORIGINS");
+assert(shouldExpandPractice({ title:"如何用 ComfyUI 工作流制作图生动画", excerpt:"安装节点并导出。", independentParticipants:1, lastAttemptAt:null }).eligible, "SINGLE_PRACTICE_CAN_REQUEST_EXPANSION");
 assert(!shouldExpandPractice({ title:"如何用 ComfyUI 工作流制作图生动画", excerpt:"安装节点并导出。", independentParticipants:2, lastAttemptAt:new Date().toISOString() }).eligible, "SEARCH_COOLDOWN");
 assert(evaluatePracticalEvidenceActionability({ expansionType:"TUTORIAL", title:"Deploy an agent", excerpt:"Step-by-step setup, configure the API and run the command." }).actionable, "TUTORIAL_ACTIONABLE");
 assert(evaluatePracticalEvidenceActionability({ expansionType:"EXPERIENCE", title:"Hands-on test", excerpt:"We tested the model on 100 tasks and measured 22% lower latency." }).actionable, "EXPERIENCE_ACTIONABLE");

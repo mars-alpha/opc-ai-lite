@@ -7,7 +7,7 @@
 - Pixaroma作者站固定材料Provider已发布至Deno生产Relay（relay-source-autodiscovery-v5，revision 1bvyxc7grrw6）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面与实践分类现已同版发布。验收结果见TASKS。
 - 其他公开作者候选的核验元数据保存在Raw.creatorReview并审计；生产代码阻断需登录/关注/人工会话的路由和材料。固定Comfy正文/B站匿名字幕及ZIP逐篇说明适配器，已部署腾讯云SYSTEM与Deno生产并验证重复Raw回执持久化；通用正文/字幕覆盖缺口仍存在，不把搜索描述或共享安装步骤当全文。验收明细见TASKS。
 
-- 本地受管实践搜索已在腾讯云隔离进程通过开发库实测与登记；新路由仅EVENT_EXPANSION，作者仍待审，不代表正式作者持续采集已接通。今日值得做机械门槛已随v13生产发布，不依赖AI分析状态；开发搜索Source配置不复制到生产。开发验收记录与剩余项见TASKS。
+- 本地受管实践搜索已在腾讯云隔离进程通过开发库实测与登记；新路由仅EVENT_EXPANSION，作者仍待审，不代表正式作者持续采集已接通。今日值得做逐篇条件已随v14生产发布，不依赖AI分析状态；开发搜索Source配置不复制到生产。开发验收记录与剩余项见TASKS。
 
 - 正式学习平台与 81 节课程保持冻结基线；本轮只治理来源管理 → 热点追踪生产链，不改变课程前端。
 - 后台内容域当前只保留三个产品 Owner：`/admin/sources` 来源管理、`/admin/intelligence` 热点追踪、Adopt 后内容工作台。旧人工采集产品、独立 Automatic Collection workbench、Rising/上升趋势产品路径均已退出 current owner。
@@ -21,7 +21,7 @@
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
 - 真实 Development 闭环已验证：Source-managed Expansion 可产出 EXPERIENCE / TUTORIAL / USE_CASE / WORK_IMPACT Evidence；Event AI Analysis 可复用/刷新；Radar Snapshot 持久化 currentHot / worthPracticing / items；当前实践数量按实时候选材料门槛计算，不保证非空。
-- `/admin/intelligence` 已由用户明确批准并部署v13：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v13-practice-materials，统计/列表同源。规则唯一见采集合同§16；旧release只作回退，不是current authority。
+- `/admin/intelligence` 已确认的日历布局继续沿用；生产已部署v14规则和说明文字：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v14-practice-checklist，统计/列表同源。规则唯一见采集合同§16；旧release只作回退，不是current authority。
 - 当前架构正文唯一 owner：`docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；实现映射唯一 owner：`docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。历史 Phase/Acceptance 只通过 Git 追溯，不再复制到 Current Facts。
 
 - 来源管理筛选词已接入所有SYSTEM候选的Raw前过滤；新增词扩展标题召回，排除优先，后续Run读取并记录规则版本。保存/注册与审计同事务，不追删历史。网站/主页支持标准Feed自动发现与受限Sitemap备用检测；Simon/TIL/Comfy公开路径经腾讯云+Deno实测。注册仅证明可采，不授予Fact Authority或AUTO_READY；边界唯一见采集合同。
@@ -40,9 +40,9 @@ Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
 
-采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261015-source-input`（前版`20261015-radar-v13`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
+采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261015-practice-v14`（前版`20261015-source-input`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
 
-生产数据库迁移history为38条。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接。生产Web当前为 `/opt/opc-services/opc-admin-web-source-input-20261015`（旧`opc-admin-web-20261015`保留回退），由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。旧兼容维护包保留作Web回退。待办唯一见TASKS。
+生产数据库迁移history为38条。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接。生产Web当前为 `/opt/opc-services/opc-admin-web-practice-v14-20261015`（前版`opc-admin-web-source-input-20261015`保留回退），由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。旧兼容维护包保留作Web回退。待办唯一见TASKS。
 
 正式应用入口是 `app/*`。根目录早期静态 HTML/CSS/JS 原型不属于正式 Runtime，并已退出 current tree。
 

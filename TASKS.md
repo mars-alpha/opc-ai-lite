@@ -6,23 +6,24 @@
 
 Source Management 是唯一来源 Owner；SYSTEM 是唯一正式采集执行链，规则唯一见采集架构合同，不复制旧版门槛。
 
-## SOURCE-INPUT-RUNTIME — Decision Brief
+## PRACTICE-FOUR-CONDITIONS — Decision Brief
 
-- 角色/Surface：管理员来源管理，保持现有界面与唯一SYSTEM主链。Code负责规则保存、确定性匹配、标准Feed自动发现、路由验证与审计；不调用AI，不修改课程或栏目门槛。
-- 问题：全局筛选词仅DailyHot消费，普通Feed不消费；网站只猜固定Feed路径，遗漏HTML标准声明的订阅地址。
-- 推荐：复用已有词匹配器，排除优先，新增词扩展相关性召回，不绕过时效/质量/栏目门槛；按WHATWG/RSS Autodiscovery读取rel=alternate，复用已有RSS解析及公共URL安全校验，保留有限备用路径。未知/登录来源fail-closed。
-- Validation/Acceptance：先复现失败，验证新增/排除、边界误伤、质量不绕过、非标准Feed/相对地址、重复注册及SYSTEM资格链；typecheck/build/内容回归，腾讯云真实探测及开发库注册采集，生产同版部署运行。
-- Rollback：Web/SYSTEM同时回退现有release；不做DDL或删除历史数据。Owner：采集架构合同及source-onboarding/discovery-filter；规则从下一次采集读取，不追删历史。
+- Goal/Role/Surface：管理员热点追踪「今日值得做」；用户已明确取消两来源、两类型及多证据数量推荐门槛。
+- Problem/Why Now：旧数量门槛拦截单篇完整实操；三个编号步骤也不能代表所有有效配置或工作流。
+- In Scope：同一篇公开原文逐项核验工具与任务、步骤/配置/可用工作流、输入材料与访问条件、预期产出；至少一篇完整材料即可。保留多报道计数用于解释，不授予新闻实践资格。
+- Out of Scope：热点/精选权重、课程、来源注册、AI及Deno路由；不删除原始数据，不改布局。
+- Code/Workflow：确定性材料凭证与资格计算、快照失效、原有SYSTEM链；AI/Skill：无；Human：产品负责人定义门槛，必要时复核语义误判，不把关键词校验宣称执行成功。
+- 推荐理由：采用逐篇完整性校验，避免数量替代质量、避免跨文章拼凑缺失条件；搜索扩展保留预算与冷却，取消独立讨论人数前置。
+- Validation/Acceptance：单篇完整材料可入、多篇不完整不可拼凑、缺少四项分别解释、配置与工作流分支、新闻拒绝、忽略后重算；typecheck/build与内容回归；生产同版读回。
+- Rollback/Owner：Web/SYSTEM同时回退本轮前release，重建旧版本快照；规则唯一owner为采集架构合同，无DDL。实现与部署状态待验证。
 
 ## 当前验收结果 / HUMAN ACCEPTANCE
 
-- 已复现旧Feed不消费全局排除词及新词再被相关性拦截，新增反例后修正；标准rel=alternate覆盖非标准路径、相对URL、HTML实体、非HTTP拒绝和已下载Feed复用。
-- 腾讯云+Deno真实检测Simon/TIL/Comfy通过。Comfy Feed超时、Sitemap可用，检测预算后约22秒完成备用检测，不宣称Feed稳定。Deno生产能力与运行路径唯一见CURRENT_SYSTEM_FACTS。
-- 开发库真实注册、重复拒绝及审计失败回滚通过；保存3个真实标题为排除词后，Run逐篇返回SOURCE_POLICY_EXCLUDED_TERM。加入真实实操标题后新增1条Raw；恢复词表再次采集0新增、8重复。测试词已恢复，不污染生产规则。
-- 内容完整quick回归/typecheck及最终Linux标准build通过。Windows本地build因既有.next目录EPERM未通过，部署依据隔离Linux标准构建；临时验证脚本导致的一次构建失败已清除并重建通过。
-- Web与SYSTEM已同版切换；页面200、未登录规则API401、唯一timer enabled/active，课程/组件目录与前版逐文件相同，仅来源API及内容Core修改。无新增UI，不重新声明视觉审核；现有v13页面此前USER_APPROVED。
-- 生产统一周期PASS、failures为空，但本轮无到期来源，不冒充实际来源采集证据；随后单独验证既有The Decoder RSS：10条返回、0新增、10重复，Run记录source-ai-relevance-policy-v2；CPU1.332秒，真实生产规则消费通过。
-- 本轮难点：可打开主页不等于可采Feed；Deno部分Feed失败需验证备用路径；规则保存不等于参与主链；新词不能被后续Gate意外吞掉。保持成熟标准解析、失败关闭、有限请求/并发与同版回退，不引入AI或平行采集器。
+- IMPLEMENTED / PRODUCTION_DEPLOYED：59项内容quick回归（含typecheck）通过；最终Linux标准build及SYSTEM typecheck通过。反例先失败再修正，覆盖单来源/单类型、短摘要不能覆盖完整正文凭证、配置、无编号步骤、缺输入/缺输出、忽略后单篇存活与多篇不完整不能拼凑。
+- 腾讯云生产只读核验：2026-10-15 23:46北京时间，近七日276个Event、39条实践候选、0个完整实践主题；39条均缺公开获取回执和完整正文/字幕，不能以解除数量门槛冒充已有合格产出。热点1、精选24，不改其规则。
+- Web/SYSTEM同版切换、v14快照刷新落库及直接读取一致性通过，七日列表数量等于总量；唯一timer恢复运行。Deno、Secret、数据库Schema及课程未改；前版release保留回退。
+- UI_TEXT_IMPLEMENTED：仅按用户新条件更正现有空态说明，布局保持；新版说明可在生产体验，本轮未声称新增视觉体验已经USER_APPROVED。
+- 难点/后续：数量不代表材料完整，解除数量限制后瓶颈仍是实际原文获取与工具/任务识别覆盖。优先为已发现候选补可验证公开正文/字幕与附件，避免重复搜索；不生成虚构步骤或日期填栏。
 
 # NEXT
 
@@ -36,7 +37,6 @@ Source Management 是唯一来源 Owner；SYSTEM 是唯一正式采集执行链�
 
 # BACKLOG
 
-- 单篇强教程入栏需完整真实样本后另行设计，未授权修改两来源/两实践类型门槛。
 - 人工AI增强沿现有Gateway/审计：查询改写、相关性、分类/标签/事实、中文标题/答案先行摘要/推荐理由及分段翻译；Code控制预算、引用与写库，AI不直接授予栏目资格或发布，未知公司别名需复核。自动采集不调用AI。
 - 候选来源待审及质量解释优先复用现有Source、Run与Evidence；若必须新增Schema则独立迁移Gate，不提前增加Redis/常驻浏览器。
 - AI HOT保持单一Source Identity，聚合转发不取得Fact或独立参与者权威；评论/互动只作Signal。
