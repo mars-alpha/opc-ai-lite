@@ -2,7 +2,6 @@ import "server-only";
 import {readSourceAiRelevancePolicy} from "./source-management-policy";
 import { isPublicFeedRelayUrl, collectPublicSourceDocumentThroughRelay, isPublicSourceRelayEnabled, collectDeepMindFeedThroughRelay } from "./overseas-collector-relay-client";
 import { assessCollectionItemQuality, selectBackfillWindow } from "./collection-item-quality";
-import {collectPublicPracticeContent,mergePublicContentMetadata} from "./public-practice-content";
 
 import { createHash } from "node:crypto";
 import { lookup } from "node:dns/promises";
@@ -1207,24 +1206,6 @@ export async function runSourceCollection(
     // Presentation/localization must not block source collection. Raw/Observation
     // is persisted first; Chinese presentation falls back to original text until
     // presentation enrichment is available.
-    let detailBudget=2;
-    for (const item of policyItems) {
-      if(provenance.origin!=="SYSTEM" || detailBudget<=0 || !/教程|实操|工作流|comfyui|tutorial|workflow|how to/i.test(item.title)) continue;
-      const url=item.originalUrl??"";
-      if(!/^https:\/\/(?:docs\.comfy\.org\/tutorials\/|www\.bilibili\.com\/video\/BV)/.test(url))continue;
-      detailBudget--;
-      const [existingRaw]=await db.select({metadata:contentRawItems.metadata}).from(contentRawItems).where(eq(contentRawItems.canonicalUrl,canonicalizeOriginalUrl(url)!)).limit(1);
-      const old=existingRaw?.metadata && typeof existingRaw.metadata==="object" ? existingRaw.metadata as Record<string,unknown> : {};
-      const prior=old.publicContentAttempt as {observedAt?:string}|undefined;
-      if(prior?.observedAt && (prior as {status?:string}).status==="UNAVAILABLE" && Date.now()-Date.parse(prior.observedAt)<3600000)continue;
-      try {
-        const material=await collectPublicPracticeContent({...item,metadata:old});
-        if(material)item.metadata={...item.metadata,...mergePublicContentMetadata({},material)};
-      } catch(error) {
-        const reason=error instanceof Error && /^PUBLIC_[A-Z0-9_]+$/.test(error.message)?error.message:"PUBLIC_CONTENT_UNAVAILABLE_NO_LOGIN_FALLBACK";
-        item.metadata={...item.metadata,publicContentAttempt:{status:"UNAVAILABLE",reason,observedAt:new Date().toISOString()}} as typeof item.metadata;
-      }
-    }
     const result = await runFreshScan({ sourceId: source.id, items: policyItems, provenance });
     // New facts always refresh their Event. Repeated observations only need an
     // Event refresh for TREND routes where rank/engagement can change without a

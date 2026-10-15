@@ -41,3 +41,8 @@ Source Management 是唯一来源 Owner；SYSTEM 是唯一正式采集执行链�
 - 候选来源待审及质量解释优先复用现有Source、Run与Evidence；若必须新增Schema则独立迁移Gate，不提前增加Redis/常驻浏览器。
 - AI HOT保持单一Source Identity，聚合转发不取得Fact或独立参与者权威；评论/互动只作Signal。
 - Content Workbench仅消费Adopted Event/Evidence，不承担上游来源或热点修复。
+
+
+## PRACTICE-MATERIAL-BACKFILL — IMPLEMENTED / PRODUCTION_VERIFIED
+
+Decision Brief：管理员来源管理/热点追踪；UI KEEP、课程冻结。Core在既有SYSTEM锁内串行补公开正文/字幕/固定工作流并记录逐篇凭证，AI/Skill不参与，Human仅维护来源；不新增来源/事件、不降低四条件、不采用登录/关注采集。复用Readability静态解析与受管Deno路由，防止重复请求和服务器成本扩散。验收为typecheck/build/采集回归、生产获取凭证、缓存退避及SYSTEM连续性；Web/SYSTEM/Deno同版回退，保留已有成功材料。Owner与真实结果见 `docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md` 的 PUBLIC-PRACTICE-MATERIALS。本批失败和同站延期保留明确状态，未声明全部候选补齐。

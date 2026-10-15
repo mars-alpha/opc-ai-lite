@@ -2,7 +2,7 @@
 
 最后更新：2026-10-15（Asia/Shanghai）。
 
-状态：PRODUCTION_RUNNING / RADAR_V14_DEPLOYED / SOURCE_INPUT_RUNTIME_DEPLOYED / UI_TEXT_IMPLEMENTED。
+状态：PRODUCTION_RUNNING / RADAR_V15_DEPLOYED / SOURCE_INPUT_RUNTIME_DEPLOYED / UI_TEXT_IMPLEMENTED。
 
 用户已明确要求生产使用新版，页面/日历上线审核阻塞已解除。Web与SYSTEM已同版切换；七日完整列表、日期游标、运行漏斗、P0运营一致性及实践材料分类均使用当前代码。部署路径与运行事实唯一见 [CURRENT_SYSTEM_FACTS](docs/CURRENT_SYSTEM_FACTS.md)。
 
@@ -26,7 +26,7 @@
 - `lib/server/content/practical-evidence-actionability.ts` — 汇总、实践主体、机械门槛及访问依赖排除；`38B583DE8AB4C747`。
 - `lib/server/content/collection-expansion.ts` — 受管搜索、平台语言规划、作者身份及访问依赖排除；`E147BE1B18A472D9`。
 - `lib/server/content/managed-practice-search.ts` — 真实探测登记、审计、Raw待审参考；`8CBFCEFA4011CC76`。
-- `lib/server/content/radar-snapshot.ts` — v14逐篇条件快照及当前运营状态覆盖；`DC11276B60D6F65D`。
+- `lib/server/content/radar-snapshot.ts` — v15公开材料及逐篇条件快照及当前运营状态覆盖；`E9F5F35CB74AAFAF`。
 - `lib/server/content/public-practice-access.ts` — 访问依赖及注册条件；`9BC10B172AD52787`。
 - `lib/server/content/public-creator-probe.ts` — 公开详情/列表/字幕探测与缺口状态；`71490A2B063062DE`。
 - `lib/server/content/source-acquisition-plan.ts` — 主/备用路径与交互依赖拒绝；`F2BAB00140F6D2A2`。

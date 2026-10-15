@@ -24,7 +24,7 @@ export function evaluatePracticeSubject(input: { title?: string | null; excerpt?
   const intentAt = title.search(/教程|如何|怎么用|手把手|实操|复现|搭建|用.+(?:制作|整理|生成|改写|剪辑|完成|自动)|tutorial|how to|walkthrough|build.+with/i);
   if (releaseAt >= 0 && (intentAt < 0 || releaseAt < intentAt)) return { eligible: false, reason: "RELEASE_NEWS_SUBJECT" };
   const operation = input.materialQuality?.eligible === true || /安装|配置|步骤|命令|节点|输入|导出|运行|部署|install|configure|command|step|input|export|deploy/i.test(text);
-  const task = /制作|整理|生成|改写|剪辑|客服|投流|动画|视频|文章|资料|工作流|任务|生图|工作管理|助手|workflow|automate|pipeline|task|build|assistant|work management/i.test(text);
+  const task = /制作|整理|生成|改写|剪辑|客服|投流|动画|视频|文章|资料|工作流|任务|生图|工作管理|助手|workflow|automate|pipeline|task|build|assistant|work management|how to remember|context engineering|agent memory/i.test(text);
   // A complete hands-on article need not advertise itself as a "tutorial".
   return { eligible: operation && task, reason: operation && task ? "CONCRETE_PRACTICE_SUBJECT" : "NO_CONCRETE_PRACTICE_SUBJECT" };
 }

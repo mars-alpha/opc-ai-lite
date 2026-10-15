@@ -2,8 +2,22 @@ import "server-only";
 import {createHash} from "node:crypto";
 import {collectThroughOverseasRelay} from "./overseas-collector-relay-client";
 import {evaluatePracticeMaterials} from "./practice-materials";
+import {publicPracticeRoute} from "../../../services/overseas-collector-relay/public-practice-routes";
+import {extractPublicPracticeArticle} from "./public-article-extraction";
 const obj=(value:unknown):Record<string,any>=>value && typeof value==="object" && !Array.isArray(value)?value as Record<string,any>:{};
 const sha=(text:string)=>createHash("sha256").update(text).digest("hex");
+export const PUBLIC_PRACTICE_CONTENT_VERSION="public-practice-content-v3";
+export function publicPracticeContentDue(input:{originalUrl?:string|null;metadata?:unknown},now=Date.now()) {
+ const url=input.originalUrl??"", metadata=obj(input.metadata),receipt=obj(metadata.publicContentReceipt),attempt=obj(metadata.publicContentAttempt);
+ const route=publicPracticeRoute(url);
+ if((!route || route.kind==="ARTIFACT") && !/^https:\/\/www\.bilibili\.com\/video\/BV[a-zA-Z0-9]+\/?$/.test(url))return {due:false,reason:"NO_PUBLIC_CONTENT_ROUTE"};
+ const text=receipt.kind==="BODY"?metadata.bodyText:receipt.kind==="TRANSCRIPT"?metadata.transcriptText:null;
+ const age=now-Date.parse(receipt.observedAt);
+ const valid=receipt.url===url && receipt.status===200 && receipt.anonymous===true && receipt.serverFetched===true && receipt.complete===true && typeof text==="string" && Boolean(text.trim()) && receipt.sha256===sha(text) && metadata.fullTextTruncated!==true && metadata.transcriptTruncated!==true;
+ if(valid && age>=0 && age<(evaluatePracticeMaterials(input).eligible?7*86400000:86400000))return {due:false,reason:"VERIFIED_CONTENT_REUSED"};
+ if(attempt.version===PUBLIC_PRACTICE_CONTENT_VERSION && Date.parse(attempt.nextRetryAt)>now)return {due:false,reason:"PUBLIC_CONTENT_RETRY_BACKOFF"};
+ return {due:true,reason:"PUBLIC_CONTENT_DUE"};
+}
 export function normalizePublicTranscript(payload:unknown){
  const cues=obj(payload).body;
  if(!Array.isArray(cues)||!cues.length)throw new Error("PUBLIC_TRANSCRIPT_EMPTY");
@@ -23,13 +37,32 @@ async function publicJson(url:string,fetchImpl:typeof fetch){
 }
 type Dependencies={relay?: (config:Parameters<typeof collectThroughOverseasRelay>[0])=>Promise<Record<string,unknown>>;fetchImpl?:typeof fetch};
 export async function collectPublicPracticeContent(input:{originalUrl?:string|null;metadata?:unknown},deps:Dependencies={}):Promise<Record<string,unknown>|null>{
- const url=input.originalUrl??"", metadata=obj(input.metadata), old=obj(metadata.publicContentReceipt);
- const age=Date.now()-Date.parse(old.observedAt);
- if(old.url===url && old.complete===true && old.serverFetched===true && age>=0 && age<(evaluatePracticeMaterials(input).eligible?7*86400000:3600000))return null;
- if(/^https:\/\/docs\.comfy\.org\/tutorials\/[a-z0-9/-]+(?:\.md)?$/.test(url)){
-  const canonical=url.replace(/\.md$/,"");
+ const url=input.originalUrl??"";
+ if(!publicPracticeContentDue(input).due)return null;
+ const route=publicPracticeRoute(url);
+ if(route && route.kind!=="ARTIFACT"){
+  const canonical=route.url;
   const result=await (deps.relay??collectThroughOverseasRelay)({provider:"PUBLIC_PRACTICE_DOCUMENT",searchQuery:canonical,windowHours:168,resultLimit:1,minStars:0});
-  if(result.url!==canonical || result.fetchedUrl!==canonical+".md" || result.status!==200 || typeof result.text!=="string" || !result.text.trim() || result.text.length>60000)throw new Error("PUBLIC_DOCUMENT_INVALID");
+  if(result.url!==canonical || result.fetchedUrl!==(route.kind==="HTML"?canonical:canonical+".md") || result.status!==200)throw new Error("PUBLIC_DOCUMENT_INVALID");
+  if(route.kind==="HTML") {
+   if(typeof result.html!=="string")throw new Error("PUBLIC_DOCUMENT_INVALID");
+   const article=extractPublicPracticeArticle(result.html,canonical);
+   const requiredMaterials:Record<string,unknown>[]=[];
+   const links=[...new Map(article.materialLinks.map(link=>[link.url,link])).values()];
+   for(const link of links.slice(0,2)) {
+    const artifactUrl=link.url.replace("https://github.com/Comfy-Org/ComfyUI_Nvidia_VFX_Nodes/blob/main/","https://raw.githubusercontent.com/Comfy-Org/ComfyUI_Nvidia_VFX_Nodes/main/");
+    if(publicPracticeRoute(artifactUrl)?.kind!=="ARTIFACT")continue;
+    try {
+     const artifact=await (deps.relay??collectThroughOverseasRelay)({provider:"PUBLIC_PRACTICE_DOCUMENT",searchQuery:artifactUrl,windowHours:168,resultLimit:1,minStars:0});
+     if(artifact.url!==artifactUrl || artifact.status!==200 || typeof artifact.artifactText!=="string" || Buffer.byteLength(artifact.artifactText)>1_500_000)continue;
+     const workflow=JSON.parse(artifact.artifactText);
+     if(!Array.isArray(workflow.nodes) || !workflow.nodes.length || !Array.isArray(workflow.links))continue;
+     requiredMaterials.push({url:link.url,fetchedUrl:artifactUrl,status:200,anonymous:true,serverFetched:true,observedAt:artifact.observedAt,sha256:sha(artifact.artifactText),bytes:Buffer.byteLength(artifact.artifactText),nodeCount:workflow.nodes.length,verification:"DOWNLOADED_COMPLETE_STRUCTURE_VERIFIED_NOT_EXECUTED"});
+    } catch {/* The body is retained; a missing dependency never becomes verified. */}
+   }
+   return {bodyText:article.text,fullTextTruncated:false,bodyStatus:"COMPLETE_PUBLIC_ARTICLE",publicContentReceipt:{version:2,url,fetchedUrl:canonical,status:200,anonymous:true,serverFetched:true,complete:true,kind:"BODY",observedAt:result.observedAt,sha256:sha(article.text),characters:article.text.length,extraction:"MOZILLA_READABILITY_STATIC_DOM",originalTitle:article.title,author:article.byline,requiresExternalMaterials:links.length>0,requiredMaterials,unverifiedMaterialCount:links.length-requiredMaterials.length,materialLinks:links}};
+  }
+  if(typeof result.text!=="string" || !result.text.trim() || result.text.length>60000)throw new Error("PUBLIC_DOCUMENT_INVALID");
   const text=result.text;
   return {bodyText:text,fullTextTruncated:false,bodyStatus:"COMPLETE_PUBLIC_MARKDOWN",publicContentReceipt:{version:1,url,fetchedUrl:result.fetchedUrl,status:200,anonymous:true,serverFetched:true,complete:true,kind:"BODY",observedAt:result.observedAt,sha256:sha(text),characters:text.length,requiresExternalMaterials:result.requiresExternalMaterials===true,requiredMaterials:result.requiredMaterials??[],unverifiedMaterialCount:result.unverifiedMaterialCount??0}};
  }

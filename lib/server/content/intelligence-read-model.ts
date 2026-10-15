@@ -23,7 +23,7 @@ import { calculateAihotHeatShadow } from "./aihot-heat-shadow";
 import { attachRelatedEventStories, buildEventStoryReadModel } from "./event-story-read-model";
 import { evaluatePracticalEvidenceActionability, isFormalPracticalEvidenceSource } from "./practical-evidence-actionability";
 import {evaluatePracticeMaterials} from "./practice-materials";
-import {practiceTopicIdentity} from "./practice-topics";
+import {practiceTopicIdentity,directPracticeEvidenceLink} from "./practice-topics";
 import { evaluateEventEvidenceRelevance } from "./pollution-syndication-gate";
 import { buildContentPresentationEnrichment } from "./presentation-enrichment";
 import { evaluateBoleDailyCuration, rerankBoleDailyFeatured } from "./bole-daily-curation";
@@ -441,15 +441,9 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       if (!strongEventRelation) return false;
       return evaluatePracticeMaterials(raw).eligible && evaluatePracticalEvidenceActionability({ expansionType: item.expansionType, title: raw.title, excerpt: raw.excerpt }).actionable;
     });
-    const actionablePracticalEvidenceCount = actionablePracticalEvidence.length;
-    const actionablePracticalOriginCount = new Set(actionablePracticalEvidence.map((item) => {
-      const raw = rawById.get(item.rawItemId);
-      return raw ? (originPublisher(raw) ?? sourceById.get(raw.sourceId)?.name ?? raw.sourceId).normalize("NFKC").toLocaleLowerCase() : item.rawItemId;
-    })).size;
-    const actionablePracticalTypeCount = new Set(actionablePracticalEvidence.map((item) => item.expansionType)).size;
     const chinesePracticalEvidenceCount = formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType) && item.language === "ZH").length;
     const actionableChinesePracticalEvidenceCount = actionablePracticalEvidence.filter((item) => item.language === "ZH").length;
-    const practicalEvidenceLinks = [...new Map(actionablePracticalEvidence.flatMap((item) => {
+    const expansionPracticeLinks = [...new Map(actionablePracticalEvidence.flatMap((item) => {
       const raw = rawById.get(item.rawItemId);
       if (!raw?.originalUrl) return [];
       const rawSource = sourceById.get(raw.sourceId);
@@ -457,6 +451,15 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       const key = `${sourceName.normalize("NFKC").toLocaleLowerCase()}|${raw.originalUrl}`;
       return [[key, { sourceName, originKey: sourceName.normalize("NFKC").toLocaleLowerCase(), materialQuality: evaluatePracticeMaterials(raw), title: raw.title, excerpt: raw.excerpt, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
     })).values()];
+    const directPracticeLinks = eventRaws.flatMap(raw=>{
+      const source=sourceById.get(raw.sourceId);
+      const link=source?directPracticeEvidenceLink(raw,source):null;
+      return link?[{...link,presentation:buildContentPresentationEnrichment({eventTitle:link.title,eventSummary:null,representativeRaw:{title:link.title,excerpt:raw.excerpt,originalUrl:raw.originalUrl,metadata:raw.metadata},whyItMatters:null,allowEventSummaryFallback:false})}]:[];
+    });
+    const practicalEvidenceLinks=[...new Map([...expansionPracticeLinks,...directPracticeLinks].map(link=>[link.originalUrl,link])).values()];
+    const actionablePracticalEvidenceCount=practicalEvidenceLinks.length;
+    const actionablePracticalOriginCount=new Set(practicalEvidenceLinks.map(link=>link.originKey)).size;
+    const actionablePracticalTypeCount=new Set(practicalEvidenceLinks.map(link=>link.expansionType)).size;
     const missingExpansionTypes = practicalCoverageTypes.filter((item) => !presentExpansionTypes.includes(item));
     const scores = record(policy.scores);
     const officialNewsScores = record(scores.officialNews);
@@ -687,7 +690,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       sourceManagedExpansionRuntime: sourceManagedExpansionRuntime(event.metadata),
       coverage: {
         evidenceCount: evidence.length,
-        practicalEvidenceCount: formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType)).length,
+        practicalEvidenceCount: formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType)).length + directPracticeLinks.length,
         actionablePracticalEvidenceCount,
         actionablePracticalOriginCount,
         actionablePracticalTypeCount,

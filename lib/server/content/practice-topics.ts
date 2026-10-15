@@ -1,4 +1,4 @@
-import { evaluatePracticeSubject, isMultiNewsRoundup, isWorthPracticingEligible } from "./practical-evidence-actionability";
+import { evaluatePracticeSubject, isMultiNewsRoundup, isWorthPracticingEligible, isFormalPracticalEvidenceSource } from "./practical-evidence-actionability";
 import {evaluatePracticeMaterials} from "./practice-materials";
 
 type PracticeLink = { sourceName: string; title: string | null; excerpt?: string | null; originKey?: string; parentEventId?: string; parentOpcStatus?: string; originalUrl: string; expansionType: string; metadata?: unknown; materialQuality?: ReturnType<typeof evaluatePracticeMaterials>; presentation?: { displayTitleZh?: string | null; displaySummaryZh?: string | null } };
@@ -8,13 +8,16 @@ export function practiceTopicIdentity(link: Pick<PracticeLink,"title">) {
   // Identity must occur in the actual title, never be inherited from release news.
   const title = (link.title ?? "").normalize("NFKC");
   if (isMultiNewsRoundup(title)) return null;
-  let tool = title.match(/\b(?:comfyui|rea)\b/i)?.[0]?.toLowerCase();
+  let tool = title.match(/\b(?:comfyui|rea|n8n|deep[- ]agents)\b/i)?.[0]?.toLowerCase().replace(/ /g,"-");
   if (!tool) {
     const named = title.match(/\b([a-z][a-z0-9_.-]{2,})\s+(?:skill|mcp)\b/i);
     if (named && !/^(?:the|new|best|this|open|use|using|with|any|your|free|top|how)$/i.test(named[1])) tool = named[1].toLowerCase() + ":" + named[0].split(/\s+/).at(-1)!.toLowerCase();
   }
   if (!tool) return null;
   const goals: Array<[string,RegExp]> = [
+    ["agent-memory",/how to remember|agent memory|context engineering|记忆管理/i],
+    ["workflow-automation",/build n8n workflows|工作流自动化/i],
+    ["agent-application",/build.+user experiences.+deep agents/i],
     ["image-animation",/图生动画|图生视频|image[- ]to[- ](?:video|animation)/i],
     ["text-animation",/文生动画|文生视频|text[- ]to[- ](?:video|animation)/i],
     ["video-script",/视频脚本|video script/i], ["rewrite",/文章改写|人味写作|改写文章|rewrite|humaniz/i],
@@ -27,6 +30,17 @@ export function practiceTopicIdentity(link: Pick<PracticeLink,"title">) {
   ];
   const goal = goals.find(([,pattern]) => pattern.test(title))?.[0];
   return goal ? { tool, goal, key: `${tool}|${goal}` } : null;
+}
+
+/** An original tutorial is usable evidence for its own Event; no second article required. */
+export function directPracticeEvidenceLink(raw:{title:string;excerpt:string|null;originalUrl:string|null;metadata:unknown;publishedAt:Date|null},source:{name:string;enabled:boolean;status:string;metadata:unknown;signalConfig:unknown}) {
+  const obj=(v:unknown):Record<string,any>=>v && typeof v==="object" && !Array.isArray(v)?v as Record<string,any>:{};
+  const sm=obj(source.metadata),rm=obj(raw.metadata);
+  if(source.status!=="ACTIVE" || !isFormalPracticalEvidenceSource({sourceEnabled:source.enabled,currentPortfolio:sm.currentPortfolio===true,sourceUniverseRole:sm.sourceUniverseRole??null,sourceReferenceOnly:sm.referenceOnly===true,rawReferenceOnly:rm.referenceOnly===true,signalOnly:obj(source.signalConfig).signalOnly===true}))return null;
+  const materialQuality=evaluatePracticeMaterials(raw);
+  const title=typeof obj(rm.publicContentReceipt).originalTitle==="string"?obj(rm.publicContentReceipt).originalTitle:raw.title;
+  if(!raw.originalUrl || !materialQuality.eligible || !practiceTopicIdentity({title}) || !evaluatePracticeSubject({title,excerpt:raw.excerpt,materialQuality}).eligible)return null;
+  return {sourceName:source.name,originKey:source.name.normalize("NFKC").toLocaleLowerCase(),title:String(title),excerpt:raw.excerpt,originalUrl:raw.originalUrl,publishedAt:raw.publishedAt,expansionType:"TUTORIAL",materialQuality};
 }
 
 /** Presentation projection only. Source facts and parent Event identities stay intact. */

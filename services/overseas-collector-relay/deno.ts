@@ -1,8 +1,23 @@
+import {publicPracticeRoute} from "./public-practice-routes.js";
 const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS", "PUBLIC_PRACTICE_DOCUMENT", "PUBLIC_SOURCE_DOCUMENT"]);
 
 async function collectPracticeDocument(request: ReturnType<typeof parseRequest>, deadline:number) {
-  const url=request.searchQuery.replace(/\.md$/,"");
-  if(!/^https:\/\/docs\.comfy\.org\/tutorials\/[a-z0-9/-]+$/.test(url) || url.includes("//",8)) throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+  const route=publicPracticeRoute(request.searchQuery);
+  if(!route)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+  const url=route.url;
+  if(route.kind==="ARTIFACT") {
+    const bytes=await boundedPixaromaFetch(url,deadline,1_500_000);
+    const artifactText=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
+    const workflow=JSON.parse(artifactText);
+    if(!Array.isArray(workflow.nodes) || !workflow.nodes.length || !Array.isArray(workflow.links))throw new SyntaxError("workflow structure invalid");
+    return {provider:"PUBLIC_PRACTICE_DOCUMENT",url,status:200,artifactText,observedAt:new Date().toISOString()};
+  }
+  if(route.kind==="HTML") {
+    const bytes=await boundedPixaromaFetch(url,deadline,1_500_000);
+    const html=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
+    if(!/<(?:!doctype|html|article)\b/i.test(html))throw new SyntaxError("article document invalid");
+    return {provider:"PUBLIC_PRACTICE_DOCUMENT",url,fetchedUrl:url,status:200,html,observedAt:new Date().toISOString()};
+  }
   const bytes=await boundedPixaromaFetch(url+".md",deadline,250000);
   const text=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
   if(!text.trim() || text.length>60000 || /^\s*<!doctype|^\s*<html/i.test(text))throw new SyntaxError("document not complete markdown");
@@ -213,7 +228,7 @@ async function collectGithub(request: ReturnType<typeof parseRequest>, deadline:
 export async function handleRelayRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   if (request.method === "GET" && url.pathname === "/health") {
-    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-source-autodiscovery-v5", capabilities: [...ALLOWED_PROVIDERS] });
+    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-public-materials-v6", capabilities: [...ALLOWED_PROVIDERS] });
   }
   if (request.method !== "POST" || url.pathname !== "/v1/collect") return json({ error: "NOT_FOUND" }, 404);
 

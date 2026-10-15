@@ -13,6 +13,7 @@ import { listDueSourceIdsForAutomaticCycle, withSourceCollectionCycleLock } from
 import { runTopicMomentumRuntime } from "../lib/server/content/topic-momentum-runtime";
 import { recoverStaleCollectionRuns } from "../lib/server/content/collection-runner";
 import { runDiscoveryExpansionCycle } from "../lib/server/content/collection-expansion";
+import {backfillPracticeMaterials} from "../lib/server/content/practice-material-backfill";
 
 loadEnvConfig(process.cwd());
 
@@ -98,6 +99,9 @@ async function runCycle() {
   if (sourcePortfolio && sourcePortfolio.failedSourceCount > 0) {
     failures.push({ section: "SOURCE_PORTFOLIO", error: "SOURCE_PORTFOLIO_PARTIAL_FAILURE" });
   }
+  const practiceMaterials = await runSection("PRACTICE_MATERIALS", () =>
+    backfillPracticeMaterials(user,{limit:2,apply:true})
+  );
   const discoveryExpansion = await runSection("DISCOVERY_EXPANSION", () =>
     runDiscoveryExpansionCycle(user, { maxEvents: 3 })
   );
@@ -150,6 +154,7 @@ async function runCycle() {
       ).length,
       results: qualification
     },
+    practiceMaterials,
     discoveryExpansion,
     topicMomentum,
     radarSnapshot: radarSnapshot ? {

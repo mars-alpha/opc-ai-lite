@@ -12,7 +12,7 @@ import { contentEvents, contentRadarSnapshots } from "../db/schema";
 
 const RADAR_SNAPSHOT_TTL_MS = 30_000;
 const RADAR_SNAPSHOT_KEY = "CURRENT";
-export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v14-practice-checklist";
+export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v15-public-materials";
 
 type RadarSnapshot = Awaited<ReturnType<typeof buildRadarSnapshot>>;
 const globalForRadarSnapshot = globalThis as typeof globalThis & {

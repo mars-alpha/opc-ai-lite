@@ -283,3 +283,12 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 ### 同版生产发布校验
 
 Web与SYSTEM必须同版并使用当前snapshot schema；生成完整快照后再由新版Web消费。发布必须核对PM2实际exec cwd、SYSTEM current链接、唯一timer和生产items=total=唯一数/日期合计；仅收到reload成功不是目录已切换的证据。PM2配置使用JSON，Linux临时脚本固定LF。旧release保留显式回退，不作为current入口；课程文件对比保持不变。
+
+
+## PUBLIC-PRACTICE-MATERIALS — 2026-10-16
+
+- Owner：本节仅记录现役实现；栏目门槛仍由既有合同负责。公开正文使用 Mozilla Readability＋静态 DOM，Deno 固定允许路由覆盖 LangChain、n8n、Comfy、AWS；Comfy 指定公开工作流下载后记录字节、SHA256、节点与获取时间，不宣称执行成功。
+- SYSTEM 唯一周期在 PRACTICE_MATERIALS 阶段全局串行补最多2篇，复用原 advisory lock；不再逐 Source 另开详情预算。成功正文复用，失败指数退避，同站首次网络失败后停止本批后续请求。七日候选仅取真实发布时间，不造日期，不新增 Raw/Event/Source。
+- `lib/server/content/practice-material-backfill.ts` 为 Core；`scripts/backfill-public-practice-materials.ts` 默认为只读计划，生产 apply 需显式确认。写入仅限 Raw 材料元数据和审计，原始身份、关注配置及事实不改。
+- 生产验收：20篇选中，3篇正文成功、2篇材料检查通过；2篇请求失败、15篇同站退避；再次计划 due=0（含缓存与退避，不代表全部成功）。Comfy 工作流12063字节/10节点。七日269事件、今日值得做0；材料完整不自动授予栏目资格。字幕仍仅支持既有公开可用路由，不支持登录/关注绕过。
+- 已发布：腾讯云 Web/SYSTEM `materials-20261015`；Deno `relay-public-materials-v6` revision `f9xmezf8hd9q`。typecheck、59项快速采集回归、Linux生产 build 通过；线上200、未认证API401，SYSTEM新阶段PASS。回退为前一 Web/SYSTEM v14 与 Deno v5 revision `1bvyxc7grrw6`。

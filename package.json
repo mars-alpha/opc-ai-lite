@@ -5,6 +5,7 @@
   "scripts": {
     "content:practice-expansion:check": "node --conditions=react-server --import tsx scripts/validate-managed-practice-expansion.ts",
     "content:practice-boundaries:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-practice-boundaries.ts",
+    "content:public-practice-content:backfill": "node --conditions=react-server --import tsx scripts/backfill-public-practice-materials.ts",
     "content:public-practice-content:check": "node --conditions=react-server --import tsx scripts/validate-public-practice-content.ts",
     "content:public-practice-content:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-public-practice-content.ts",
     "content:practice-materials:check": "node --conditions=react-server --import tsx scripts/validate-practice-materials.ts",
@@ -235,8 +236,10 @@
     "content:source-input-runtime:accept": "node --conditions=react-server --import tsx scripts/accept-source-input-runtime.ts"
   },
   "dependencies": {
+    "@mozilla/readability": "0.6.0",
     "drizzle-orm": "^0.45.2",
     "htmlparser2": "^10.0.0",
+    "linkedom": "0.18.13",
     "next": "15.5.25",
     "postgres": "^3.4.9",
     "react": "19.1.0",
