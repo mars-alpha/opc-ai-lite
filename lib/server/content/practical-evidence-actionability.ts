@@ -5,10 +5,15 @@ export const PRACTICAL_ACTIONABILITY_VERSION = "practical-actionability-v1-deter
 // single-topic tutorial, while an original publisher can also issue a digest.
 export function isMultiNewsRoundup(title: string | null | undefined) {
   const text = (title ?? "").normalize("NFKC");
-  const sections = text.split(/[;；]|\s[|｜]\s/).filter(part => part.trim().length > 5);
+  const sections = text.split(/[;；|｜]/).filter(part => part.trim().length > 5);
   const digest = /早知道|早报|晚报|新闻汇总|资讯汇总|每日资讯|新闻速递|daily\s+(?:news|digest)|news\s+roundup|weekly\s+digest/i.test(text);
   const buildingDigest = /^(?:如何|怎么|手把手|教程|how to|tutorial|build\b).*(?:搭建|制作|生成|工作流|build|create|workflow)/i.test(text);
-  return !buildingDigest && (digest || sections.filter(part => /发布|上线|推出|宣布|融资|收购|launch|release|announce/i.test(part)).length >= 3);
+  const newsSubjects = sections.flatMap(part => {
+    if (/^(?:该|其|并|同时|支持|新增|the model|it\b)/i.test(part.trim())) return [];
+    const match = part.trim().match(/^(.{2,50}?)(?:发布|上线|推出|宣布|融资|收购|\s+(?:launch\w*|releas\w*|announc\w*)\b)/i);
+    return match ? [match[1].trim().toLowerCase()] : [];
+  });
+  return !buildingDigest && (digest || new Set(newsSubjects).size >= 2);
 }
 
 export function evaluatePracticeSubject(input: { title?: string | null; excerpt?: string | null }) {
@@ -20,7 +25,7 @@ export function evaluatePracticeSubject(input: { title?: string | null; excerpt?
   if (releaseAt >= 0 && (intentAt < 0 || releaseAt < intentAt)) return { eligible: false, reason: "RELEASE_NEWS_SUBJECT" };
   const practiceTitle = /教程|如何|怎么用|手把手|操作指南|实操|复现|搭建|用.+(?:制作|整理|生成|改写|剪辑|完成|自动)|tutorial|how to|walkthrough|build.+with/i.test(title);
   const operation = /安装|配置|步骤|命令|节点|输入|导出|运行|部署|install|configure|command|step|input|export|deploy/i.test(text);
-  const task = /制作|整理|生成|改写|剪辑|客服|投流|动画|视频|文章|资料|工作流|任务|workflow|automate|pipeline|task|build/i.test(text);
+  const task = /制作|整理|生成|改写|剪辑|客服|投流|动画|视频|文章|资料|工作流|任务|生图|工作管理|助手|workflow|automate|pipeline|task|build|assistant|work management/i.test(text);
   return { eligible: practiceTitle && operation && task, reason: practiceTitle && operation && task ? "CONCRETE_PRACTICE_SUBJECT" : "NO_CONCRETE_PRACTICE_SUBJECT" };
 }
 

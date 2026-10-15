@@ -4,8 +4,8 @@
 
 ## 1. 当前产品阶段
 
-- Pixaroma作者站固定材料Provider已发布至Deno生产Relay（relay-public-materials-v3）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面和实践分类改动未随本次发布。验收结果见TASKS。
-- 其他公开作者候选的核验元数据保存在Raw.creatorReview并审计；本地代码阻断需登录/关注/人工会话的路由和材料，未部署生产。正文/字幕通用路径缺口仍存在，不把搜索描述或共享安装步骤当全文。验收明细见TASKS。
+- Pixaroma作者站固定材料Provider已发布至Deno生产Relay（relay-public-content-v4，revision q0h8sfrv6j17）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面和实践分类改动未随本次发布。验收结果见TASKS。
+- 其他公开作者候选的核验元数据保存在Raw.creatorReview并审计；本地代码阻断需登录/关注/人工会话的路由和材料，未部署生产。本地新增固定Comfy正文/B站匿名字幕及ZIP逐篇说明适配器，已部署腾讯云SYSTEM与Deno生产并验证重复Raw回执持久化；通用正文/字幕覆盖缺口仍存在，不把搜索描述或共享安装步骤当全文。验收明细见TASKS。
 
 - 本地受管实践搜索已在腾讯云隔离进程通过开发库实测与登记；新路由仅EVENT_EXPANSION，作者仍待审，不代表正式作者持续采集已接通。今日值得做机械门槛不再依赖AI分析状态；正式生产未切换。开发验收记录与剩余项见TASKS。
 
@@ -20,8 +20,8 @@
 - AI HOT 当前是 Source Directory 中一个 Aggregated Discovery Source（`source_radar_ai_hot`），通过 PUBLIC_JSON_API 进入 SYSTEM Collection；`factualSource=false / signalSource=true / referenceOnly=true`。AI HOT 与直连原站共享 originPublisher 去重，不取得 Fact Authority，也不拥有独立采集入口。
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
-- 真实 Development 闭环已验证：Source-managed Expansion 可产出 EXPERIENCE / TUTORIAL / USE_CASE / WORK_IMPACT Evidence；Event AI Analysis 可复用/刷新；Worth Practicing 已从 0 恢复为非空；Radar Snapshot 持久化 currentHot / worthPracticing / items。
-- `/admin/intelligence` 保持既有排版和 CSS：顶部当前热点、中部今日值得做、主时间线精选 / 全部动态。全部动态覆盖最近 7 天全部 Event；首批最多 120 条只是分页批量，按日期折叠、摘要最多 100 字，通过 cursor“加载更多”持续读取直到 7 天窗口全部 Event；产品总量不设 120 条上限。精选独立从完整 7 天 Event 窗口生成，因此不会因首页分页漏掉高分 Event。
+- 真实 Development 闭环已验证：Source-managed Expansion 可产出 EXPERIENCE / TUTORIAL / USE_CASE / WORK_IMPACT Evidence；Event AI Analysis 可复用/刷新；Radar Snapshot 持久化 currentHot / worthPracticing / items；当前实践数量按实时候选材料门槛计算，不保证非空。
+- `/admin/intelligence` 保持既有排版和 CSS：顶部当前热点、中部今日值得做、主时间线精选 / 全部动态。当前分支已删除120条首批规则，实现北京时间完整七日日历窗口、今天展开/其他折叠、历史每次一天；统计规则唯一见采集合同§16。v13逐篇材料门槛及分类代码已在腾讯云隔离目录只读验收生产真实数据，生产Web及日历/P0读模型仍为旧版，SYSTEM仅独立材料增量已发布，界面审核与同版切换待办见TASKS。
 - 当前架构正文唯一 owner：`docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；实现映射唯一 owner：`docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。历史 Phase/Acceptance 只通过 Git 追溯，不再复制到 Current Facts。
 
 ## 2. 技术基线
@@ -38,7 +38,7 @@ Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
 
-采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261015-pixaroma-materials`（旧`20261015-production`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
+采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261015-public-content-receipts`（前版`20261015-pixaroma-materials`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
 
 生产数据库迁移history为38条。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接。生产Web当前为 `/opt/opc-services/opc-admin-web-20261015`，由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。旧兼容维护包保留作Web回退。待办唯一见TASKS。
 
@@ -131,7 +131,7 @@ Mobile 与未来微信/抖音小程序共享同一业务后台、用户、课程
 - 用户：用户与权益。
 
 `/admin/intelligence` 是唯一「热点追踪」产品入口；`/admin/sources` 是唯一来源配置入口。旧 `/admin/manual-collection` 只保留兼容重定向，不再拥有工作区、Task 或 Result。
-- `/admin/intelligence` 保持既有页面排版：当前热点 + 今日值得做 + 精选 / 全部动态时间线；全部动态以最近 7 天 bounded window + cursor 分页为正式读模型；单页最多 120 条，持续“加载更多”直到该 7 天窗口全部 Event 读取完。旧 Latest / Worth Practicing / Unverified 仅是内部数据状态，不再是产品栏目；旧 Rising / Formal Rising 算法不恢复。
+- `/admin/intelligence` 时间线与统计实现状态见§2，规则唯一见采集合同§16。旧 Latest / Worth Practicing / Unverified 仅是内部数据状态，不再是产品栏目；旧 Rising / Formal Rising 算法不恢复。
 - `/admin/sources` 统一承担 Source / Creator / Qualification / Route / Onboarding；current acquisition 不提供认证 Connection / Login Runner。
 - 新增信息源采用 capability-first：先识别 URL / Creator，再用当前已部署的 server-native 能力做 bounded live Check / Probe，必须拿到真实 Preview 样本并通过重复检查后才可入库；理论支持、浏览器能打开、账号已登录或未来可开发能力都不能代替可采证据。
 - Website / Creator 当前以 RSS / Atom / Sitemap / 公开 API 或其他 server-native Route 的 live sample 为准；没有无需用户登录且服务器可运行的 Route 时保持 UNRESOLVED。
@@ -156,10 +156,10 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 ## 7B. 来源管理 / 热点追踪已实现与缺口（2026-10-15代码核对）
 
 - 已实现：Source Identity与Acquisition Route分离、显式路由/资格、SYSTEM唯一周期、规则召回、Raw/Observation去重、Event/Evidence、Momentum/Curation及共享实践门槛。来源目录为实时数据，不能以固定数量作为产品事实。
-- 海外出口仅部分统一：RSS中DeepMind显式走Relay，其余海外Feed仍可能直连；Deno当前固定四类provider，不是任意URL代理。统一Egress是目标，尚未实现全源覆盖。
+- 海外出口仅部分统一：RSS中DeepMind显式走Relay，其余海外Feed仍可能直连；Deno当前固定六类provider，不是任意URL代理。统一Egress是目标，尚未实现全源覆盖。
 - HTTP尚未保存ETag/Last-Modified或处理304跳过；已有cadence/治理与有限网络重试，不等同已具备按七日产出的自适应频率和完整失败退避。
 - 列表已有Feed正文优先、字段完整性和七日可获取窗口记录；没有完整的按需详情队列、全源分页积压/正文缺口诊断或可验证原创率。七日补采不保证上游完整历史。
-- P0本地分支已实现：Decision/Event/审计同事务及Event行锁；Radar当前代码v11读取覆盖运营状态、完整窗口计数与30分钟过期提示，客户端阻止旧响应回写。P0开发库跨进程验收PASS，生产仍为原release，不能将此条视为已上线。
+- P0本地分支已实现：Decision/Event/审计同事务及Event行锁；Radar当前本地代码v13读取覆盖运营状态、完整窗口计数与30分钟过期提示，客户端阻止旧响应回写。P0开发库跨进程验收PASS，生产Web/P0读模型仍为旧版，独立材料采集增量不等于P0已上线。
 - 本地分类修正已实现：汇总退出热点及参与者计数；今日值得做按真实实操证据的明确工具/任务归并并复算门槛，忽略父事件后重算；常驻重新读取退出，仅失败重试。受管B站/YouTube搜索有显式opt-in和限额；尚未验收真实联网搜索，不能宣称已全覆盖。
 - P0本地分支已实现来源启停、operator归档/恢复、规则与资格阶段的事务审计；恢复保留实际资格且保持停用，禁用状态不冒充AUTO_READY。onboarding阶段从真实资格派生，不再固定QUALIFIED。尚待登录后UI审核与生产发布。
 - 当前发现以URL预览/注册及已有来源目录为基础；尚无独立候选来源待审表。主题规则召回不证明实践作者覆盖充分。

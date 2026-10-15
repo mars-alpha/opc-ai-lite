@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { beijingDay, dayStart, previousDay } from "../lib/content/radar-calendar";
 
 type HotTrackingMode = "FEATURED" | "ALL";
 type RadarCategory = "全部" | "模型" | "产品" | "开发者" | "行业" | "论文" | "社区" | "自媒体";
@@ -8,6 +9,7 @@ type RadarCategory = "全部" | "模型" | "产品" | "开发者" | "行业" | "
 type EventItem = {
   eventId: string;
   eventLastSeenAt?: string;
+  timelineAt?: string;
   clusterId: string | null;
   title: string;
   excerpt: string | null;
@@ -110,7 +112,14 @@ type SourceHealthItem = {
   };
 };
 
+type FunnelWindow = {
+  label: string; from: string | null; to: string; runCount: number; received: number; filterKept: number | null;
+  rawCreated: number; rawDuplicate: number; eventCreated: number | null; eventMerged: number | null;
+  policyRejected: number | null; ingestCapacityExcluded: number | null; historicalWithoutEvent: number | null; failedRuns: number;
+  unrecordedEventRuns: number; unrecordedFilterRuns: number; filterReasons: Record<string, number>; policyReasons: Record<string, number>;
+};
 type CollectionHealth = {
+  windows?: Record<"today" | "sevenDays" | "recent", FunnelWindow>;
   summary: {
     runCount: number;
     successCount: number;
@@ -150,12 +159,12 @@ const categories: RadarCategory[] = ["全部", "模型", "产品", "开发者", 
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "—";
-  return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+  return new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
 
 function formatDay(value: string | null | undefined) {
   if (!value) return "未知日期";
-  return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" }).format(new Date(value));
+  return new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" }).format(new Date(value));
 }
 
 function shortSummary(item: EventItem) {
@@ -301,6 +310,8 @@ export function AdminIntelligenceWorkspace() {
   const [query, setQuery] = useState("");
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [timelineWindow, setTimelineWindow] = useState<{ from: string; to: string; today: string; firstDay: string } | null>(null);
+  const [loadedDays, setLoadedDays] = useState<string[]>([]);
   const [categoryCounts7d, setCategoryCounts7d] = useState<Partial<Record<RadarCategory, number>>>({});
   const [collectionHealth, setCollectionHealth] = useState<CollectionHealth | null>(null);
   const [sourceHealthLoaded, setSourceHealthLoaded] = useState(false);
@@ -336,6 +347,10 @@ export function AdminIntelligenceWorkspace() {
       setSnapshotReadFailed(false);
       setSnapshotStatus({ generatedAt: data.generatedAt, freshness: data.freshness ?? { stale: true, reason: "UNKNOWN" } });
       setItems((data.items ?? []) as EventItem[]);
+      setTimelineWindow(data.timelineWindow ?? null);
+      const days: string[] = [];
+      if (data.timelineWindow) { let day = data.timelineWindow.today; for (let i = 0; i < 7; i++) { days.push(day); day = previousDay(day); } }
+      setLoadedDays(days);
       setFeaturedItems((data.featured ?? []) as EventItem[]);
       setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
       setCategoryCounts7d((data.categoryCounts7d ?? {}) as Partial<Record<RadarCategory, number>>);
@@ -355,16 +370,17 @@ export function AdminIntelligenceWorkspace() {
   }, []);
 
   async function loadMoreEvents() {
-    if (!nextCursor || loadingMore) return;
+    if (!nextCursor || loadingMore || !timelineWindow) return;
     setLoadingMore(true);
     const epoch = readEpoch.current;
     try {
-      const data = await readJson(`/api/admin/content/intelligence?view=timeline&limit=120&before=${encodeURIComponent(nextCursor)}`);
+      const data = await readJson(`/api/admin/content/intelligence?view=timeline&day=${encodeURIComponent(nextCursor)}&asOf=${encodeURIComponent(timelineWindow.to)}`);
       if (epoch !== readEpoch.current) return;
       const more = (data.items ?? []) as EventItem[];
+      if (more.length) setLoadedDays(current => [...new Set([...current, data.day as string])]);
       setItems((current) => {
         const byEvent = new Map([...current, ...more].map((item) => [item.eventId, item]));
-        return [...byEvent.values()].sort((a, b) => new Date(b.publishedAt || b.collectedAt).getTime() - new Date(a.publishedAt || a.collectedAt).getTime());
+        return [...byEvent.values()].sort((a, b) => new Date(b.timelineAt || b.publishedAt || b.collectedAt).getTime() - new Date(a.timelineAt || a.publishedAt || a.collectedAt).getTime());
       });
       setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
     } catch (error) {
@@ -379,7 +395,7 @@ export function AdminIntelligenceWorkspace() {
     setSourceHealthLoading(true);
     try {
       const data = await readJson("/api/admin/content/intelligence?view=source-health&limit=120");
-      setCollectionHealth(data as CollectionHealth);
+      setCollectionHealth(current => current ? { ...current, sourceHealth: data.sourceHealth } : data as CollectionHealth);
       setSourceHealthLoaded(true);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "采集状态读取失败");
@@ -448,7 +464,7 @@ export function AdminIntelligenceWorkspace() {
   }).sort((left, right) =>
     trackingMode === "FEATURED"
       ? (left.curation.featuredRank ?? Number.MAX_SAFE_INTEGER) - (right.curation.featuredRank ?? Number.MAX_SAFE_INTEGER) || right.curation.score - left.curation.score
-      : new Date(right.publishedAt || right.collectedAt).getTime() - new Date(left.publishedAt || left.collectedAt).getTime()
+      : new Date(right.timelineAt || right.publishedAt || right.collectedAt).getTime() - new Date(left.timelineAt || left.publishedAt || left.collectedAt).getTime()
   );
   const sourceOptions = [...new Set(modeItems.flatMap((item) => [item.sourceName, ...item.evidenceLinks.map((link) => link.sourceName)]))].sort((a, b) => a.localeCompare(b, "zh-CN"));
   const categoryCounts = Object.fromEntries(categories.map((category) => [
@@ -457,13 +473,13 @@ export function AdminIntelligenceWorkspace() {
       ? categoryCounts7d[category]
       : category === "全部" ? modeItems.length : modeItems.filter((item) => item.category === category).length
   ])) as Record<RadarCategory, number>;
-  const dayGroups = [...visibleItems.reduce((map, item) => {
-    const day = formatDay(item.publishedAt || item.collectedAt);
-    const current = map.get(day) ?? [];
-    current.push(item);
-    map.set(day, current);
+  const itemsByDay = visibleItems.reduce((map, item) => {
+    const day = beijingDay(item.timelineAt || item.publishedAt || item.collectedAt);
+    map.set(day, [...(map.get(day) ?? []), item]);
     return map;
-  }, new Map<string, EventItem[]>()).entries()];
+  }, new Map<string, EventItem[]>());
+  const dayGroups = [...new Set([...loadedDays, ...itemsByDay.keys()])].sort().reverse().map(day => [day, itemsByDay.get(day) ?? []] as const);
+
 
   return (
     <section className="intel-workspace">
@@ -545,7 +561,7 @@ export function AdminIntelligenceWorkspace() {
           <button type="button" className={trackingMode === "ALL" ? "is-active" : ""} onClick={() => setTrackingMode("ALL")}>全部动态</button>
           <button type="button" className={trackingMode === "FEATURED" ? "is-active" : ""} onClick={() => setTrackingMode("FEATURED")}>只看精选</button>
         </div>
-        <div><strong>{trackingMode === "FEATURED" ? "精选事件" : "全部动态"}</strong><span>{trackingMode === "FEATURED" ? "事实门槛通过后按精选分排序" : "近 7 天全部 AI 相关 Event · 按时间"}</span></div>
+        <div><strong>{trackingMode === "FEATURED" ? "精选事件" : "全部动态"}</strong><span>{trackingMode === "FEATURED" ? "事实门槛通过后按精选分排序" : "北京时间今天及前六日全部 AI 相关 Event · 按事件时间"}</span></div>
       </div>
 
 
@@ -568,14 +584,31 @@ export function AdminIntelligenceWorkspace() {
               <strong>采集状态</strong>
               <span>
                 来源 {collectionHealth.summary.healthySourceCount}/{collectionHealth.summary.monitoredSourceCount} 正常 ·
-                今日采集 {collectionHealth.summary.receivedTotal} ·
-                入池 {collectionHealth.summary.keptTotal} ·
-                AI强相关 {collectionHealth.summary.aiRelevantKeepRate === null ? "—" : collectionHealth.summary.aiRelevantKeepRate + "%"} ·
+                北京时间今日返回 {collectionHealth.windows?.today.received ?? "未记录"} 条次 ·
+                新增Raw {collectionHealth.windows?.today.rawCreated ?? "未记录"} ·
+                过滤保留 {collectionHealth.windows?.today.filterKept ?? "未完整记录"} ·
                 失败 {collectionHealth.summary.failedSourceCount}
               </span>
             </div>
             <small>只读维护信息 · 不影响 Event 排序与事实权力</small>
           </summary>
+          <div className="intel-source-group-grid">
+            {collectionHealth.windows ? (["today", "sevenDays", "recent"] as const).map(key => { const window = collectionHealth.windows![key]; return (
+              <article key={key}>
+                <strong>{window.label} · {window.runCount} 次运行</strong>
+                <small>{formatDate(window.from)} — {formatDate(window.to)}（北京时间）</small>
+                <span>返回 {window.received} 条次 → 过滤保留 {window.filterKept ?? "未完整记录"}</span>
+                <span>新增Raw {window.rawCreated} ／ 重复Raw {window.rawDuplicate} → 新建Event {window.eventCreated ?? "未完整记录"} ／ 归并Event {window.eventMerged ?? "未完整记录"}</span>
+                <small>后置规则排除 {window.policyRejected ?? "未记录"} · 入库批量排除 {window.ingestCapacityExcluded ?? "未记录"} · 无发布日期历史材料 {window.historicalWithoutEvent ?? "未记录"} · 失败/可能部分写入 {window.failedRuns} 次</small>
+                <small>过滤原因：{Object.entries(window.filterReasons).map(([reason, count]) => `${reason}: ${count}`).join("；") || "无已记录原因"}</small>
+                <small>后置排除原因：{Object.entries(window.policyReasons).map(([reason, count]) => `${reason}: ${count}`).join("；") || "无已记录原因"}</small>
+                {window.unrecordedEventRuns || window.unrecordedFilterRuns ? <small>历史缺口：{window.unrecordedEventRuns} 次未记录事件漏斗、{window.unrecordedFilterRuns} 次未记录过滤计数；不反推历史。</small> : null}
+              </article>
+            ); }) : null}
+          </div>
+          <p>七日可见事件 {categoryCounts7d["全部"] ?? 0} 个（存量，按事件时间）；上方采集漏斗按运行开始时间统计，重复轮询不等于新增内容。重复Raw复用规范URL、外部ID、内容/标题哈希；不再新建Event。失败运行可能部分写入，未计入成功漏斗。</p>
+          <p>口径说明：“过滤保留”是多次采集留下的条次，含重复；“新增Raw”是首次保存的原始文章/材料；“全部动态”统计近七日独立事件，同一事件的多篇报道会归并。因此三者不应相等，今天新增原文也不等于近七日全部事件。</p>
+          <p>可见事件排除：七日窗口外或未来日期、已归档、已忽略、非当前SYSTEM策略、非AI相关、运营用途不合格、非聚类主事件、缺少SYSTEM原始证据。此处是当前资格规则，不把这些存量原因冒充历史运行转化损失。</p>
           <div className="intel-source-group-grid">
             {collectionHealth.sourceGroups.map((group) => (
               <article key={group.groupName}>
@@ -640,15 +673,15 @@ export function AdminIntelligenceWorkspace() {
       {!busy ? (
         <>
         <section className="intel-stream">
-          <div className="intel-stream-meta"><span>{categoryFilter}</span><span>{visibleItems.length} 条已加载</span></div>
+          <div className="intel-stream-meta"><span>{categoryFilter}</span><span>近七日 {categoryCounts7d["全部"] ?? 0} 个事件 · 当前筛选 {visibleItems.length} 条（含已加载历史）</span></div>
           <div className="intel-timeline-feed">
-            {dayGroups.length ? dayGroups.map(([day, dayItems], dayIndex) => (
-              <details className="intel-timeline-day" key={day} open={dayIndex === 0}>
-                <summary className="intel-timeline-date"><strong>{day}</strong><span>{dayItems.length} 条</span><em>展开 / 收起</em></summary>
+            {dayGroups.length ? dayGroups.map(([day, dayItems]) => (
+              <details className="intel-timeline-day" key={day} open={day === timelineWindow?.today}>
+                <summary className="intel-timeline-date"><strong>{formatDay(dayStart(day).toISOString())}</strong><span>{dayItems.length} 条</span><em>展开 / 收起</em></summary>
                 <div className="intel-timeline-items">
                   {dayItems.map((item) => (
                     <div className="intel-timeline-item" key={item.eventId}>
-                      <time className="intel-timeline-time">{new Date(item.publishedAt || item.collectedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", hour12: false })}</time>
+                      <time className="intel-timeline-time">{new Date(item.timelineAt || item.publishedAt || item.collectedAt).toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hour12: false })}</time>
                       <div className="intel-timeline-rail" aria-hidden="true"><span /></div>
                       <article className="intel-timeline-card">
                         <div className="intel-timeline-card-head">
@@ -695,7 +728,7 @@ export function AdminIntelligenceWorkspace() {
                 </div>
               </details>
             )) : <div className="intel-empty">{trackingMode === "FEATURED" ? "当前没有符合精选门槛的 Event，可查看“全部动态”。" : "当前没有符合筛选条件的 Event。"}</div>}
-            {trackingMode === "ALL" && nextCursor ? <div className="intel-load-more"><button type="button" disabled={loadingMore} onClick={() => void loadMoreEvents()}>{loadingMore ? "正在加载…" : "加载更多"}</button><span>继续读取近 7 天 Event</span></div> : null}
+            {trackingMode === "ALL" ? <div className="intel-load-more">{nextCursor ? <><button type="button" disabled={loadingMore} onClick={() => void loadMoreEvents()}>{loadingMore ? "正在加载…" : "加载更多"}</button><span>读取 {nextCursor} 全天（北京时间），每次一天</span></> : <span role="status">已经到底</span>}</div> : null}
           </div>
         </section>
         </>

@@ -1,9 +1,10 @@
+import { calendarWindow, beijingDay } from "../../content/radar-calendar";
 import { isWorthPracticingEligible } from "./practical-evidence-actionability";
 import { buildPracticeTopics, rebuildVisiblePracticeTopic } from "./practice-topics";
 import "server-only";
 
 import { eq, inArray } from "drizzle-orm";
-import { listRadarTimelinePage, listRadarTimelineWindow } from "./intelligence-read-model";
+import { listRadarTimelinePage } from "./intelligence-read-model";
 import { getTodayIntelligenceSignalReadiness } from "./today-intelligence-readiness";
 import { listSourceRuntimeSummary } from "./source-runtime-operations";
 import { getDatabase } from "../db";
@@ -11,7 +12,7 @@ import { contentEvents, contentRadarSnapshots } from "../db/schema";
 
 const RADAR_SNAPSHOT_TTL_MS = 30_000;
 const RADAR_SNAPSHOT_KEY = "CURRENT";
-export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v11-practice-boundary";
+export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v13-practice-materials";
 
 type RadarSnapshot = Awaited<ReturnType<typeof buildRadarSnapshot>>;
 const globalForRadarSnapshot = globalThis as typeof globalThis & {
@@ -23,18 +24,19 @@ const globalForRadarSnapshot = globalThis as typeof globalThis & {
 
 async function buildRadarSnapshot() {
   const startedAt = Date.now();
-  const [initialPage, fullWindow, readiness, collectionHealth] = await Promise.all([
-    listRadarTimelinePage({ limit: 120, windowDays: 7 }),
-    listRadarTimelineWindow(7),
+  const asOf = new Date();
+  const window = calendarWindow(asOf, 7);
+  const [initialPage, readiness, collectionHealth] = await Promise.all([
+    listRadarTimelinePage({ windowDays: 7, asOf }),
     getTodayIntelligenceSignalReadiness(),
-    listSourceRuntimeSummary(100)
+    listSourceRuntimeSummary(100, asOf)
   ]);
-  const items = initialPage.items;
+  const fullWindow = initialPage.items;
+  const items = fullWindow;
   // Worth Practicing is derived from the same canonical Event timeline, using the
   // exact product eligibility rule rather than radarState (a confirmed Event may be
   // tagged LATEST in the timeline even when it is also eligible for practice).
-  // Featured is derived from the full seven-day Event window so a curated Event can never
-  // disappear merely because it fell outside the first 120-item timeline page.
+  // Counts, featured and initial items share one complete calendar window.
   const featured = fullWindow
     .filter((item) => item.curation.curated)
     .sort((a, b) =>
@@ -73,7 +75,8 @@ async function buildRadarSnapshot() {
 
   return {
     schemaVersion: RADAR_SNAPSHOT_SCHEMA_VERSION,
-    generatedAt: new Date().toISOString(),
+    generatedAt: asOf.toISOString(),
+    timelineWindow: { from: window.from.toISOString(), to: asOf.toISOString(), today: window.today, firstDay: window.firstDay, timeZone: window.timeZone },
     elapsedMs: Date.now() - startedAt,
     items,
     windowEventIndex: fullWindow.map((item) => ({ eventId: item.eventId, category: item.category })),
@@ -101,6 +104,7 @@ async function readPersistedRadarSnapshot() {
     ? row.payload as Record<string, unknown>
     : {};
   if (payload.schemaVersion !== RADAR_SNAPSHOT_SCHEMA_VERSION) return null;
+  if ((payload.timelineWindow as { today?: string } | undefined)?.today !== beijingDay(new Date())) return null;
   const hasStoryContract = Array.isArray(payload.items) && payload.items.every((item) => Boolean(item && typeof item === "object" && !Array.isArray(item) && (item as Record<string, unknown>).story));
   if (!hasStoryContract) return null;
   if (

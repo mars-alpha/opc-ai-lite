@@ -6,8 +6,12 @@ import type {NormalizedCollectedItem} from "./collection-runner";
 
 // Inspect in memory. Never extract paths or execute custom nodes/workflows.
 export function inspectWorkflowZip(base64:string) {
+  return inspectWorkflowArchive(base64).workflows;
+}
+export function inspectWorkflowArchive(base64:string) {
   if(base64.length>180000)throw new Error("WORKFLOW_ZIP_TOO_LARGE");
   const zip=Buffer.from(base64,"base64");let offset=0,total=0,decoded=0;const workflows:{name:string;nodeCount:number;sha256:string}[]=[];
+  const documents:{name:string;text:string;sha256:string}[]=[];
   let footer=-1;
   for(let i=zip.length-22;i>=Math.max(0,zip.length-65557);i--)if(zip.readUInt32LE(i)===0x06054b50&&i+22+zip.readUInt16LE(i+20)===zip.length){footer=i;break;}
   if(footer<0||zip.readUInt16LE(footer+4)!==0||zip.readUInt16LE(footer+6)!==0)throw new Error("WORKFLOW_ZIP_DIRECTORY_INVALID");
@@ -20,17 +24,19 @@ export function inspectWorkflowZip(base64:string) {
     if(flags&9||![0,8].includes(method)||end>zip.length||size>1000000||++total>150)throw new Error("WORKFLOW_ZIP_UNSUPPORTED");
     const name=zip.subarray(offset+30,offset+30+nameLength).toString("utf8");
     if(name.includes("..")||name.startsWith("/")||name.includes("\\"))throw new Error("WORKFLOW_ZIP_PATH_INVALID");
-    if(/\.json$/i.test(name)){
+    if(/\.json$/i.test(name) || /(?:how.to.use|read.?me)[^/]*\.(?:md|txt)$/i.test(name)){
       const data=method===0?zip.subarray(start,end):inflateRawSync(zip.subarray(start,end),{maxOutputLength:1000000});
       if(data.length!==size)throw new Error("WORKFLOW_ZIP_SIZE_INVALID");
       decoded+=data.length;if(decoded>4000000)throw new Error("WORKFLOW_ZIP_TOO_LARGE");
-      const value=JSON.parse(data.toString("utf8"));
-      if(value&&Array.isArray(value.nodes)&&value.nodes.length>0&&Array.isArray(value.links))workflows.push({name,nodeCount:value.nodes.length,sha256:createHash("sha256").update(data).digest("hex")});
+      if(/\.json$/i.test(name)){
+        const value=JSON.parse(data.toString("utf8"));
+        if(value&&Array.isArray(value.nodes)&&value.nodes.length>0&&Array.isArray(value.links))workflows.push({name,nodeCount:value.nodes.length,sha256:createHash("sha256").update(data).digest("hex")});
+      }else if(data.length<=60000)documents.push({name,text:data.toString("utf8"),sha256:createHash("sha256").update(data).digest("hex")});
     }
     offset=end;
   }
   if(!workflows.length)throw new Error("WORKFLOW_JSON_MISSING");
-  return workflows;
+  return {workflows,documents};
 }
 
 export async function collectPixaromaPublicWorkflows():Promise<NormalizedCollectedItem[]> {
@@ -41,15 +47,19 @@ export async function collectPixaromaPublicWorkflows():Promise<NormalizedCollect
   return payload.items.map(raw=>{
     const row=raw as Record<string,unknown>;
     if(typeof row.originalUrl!=="string"||!/^https:\/\/www.youtube.com\/watch\?v=[\w-]{11}$/.test(row.originalUrl)||typeof row.title!=="string"||!Number.isInteger(row.episode))throw new Error("PIXAROMA_ITEM_INVALID");
-    const verified=typeof row.zipBase64==="string"?inspectWorkflowZip(row.zipBase64):[];
+    const archive=typeof row.zipBase64==="string"?inspectWorkflowArchive(row.zipBase64):{workflows:[],documents:[]};
+    const verified=archive.workflows;
+    const bodyText=archive.documents.map(doc=>doc.text).join("\n\n");
+    const operationSteps=bodyText.split("\n").filter(line=>/^\s*\d+\.\s/.test(line));
     return {externalId:"pixaroma-ep-"+row.episode,originalUrl:row.originalUrl,title:row.title,author:"Pixaroma",
       excerpt:(Array.isArray(row.workflowNames)?row.workflowNames.join("; "):row.title).slice(0,11000),publishedAt:typeof row.publishedAt==="string"?row.publishedAt:null,
       metadata:{collector:"pixaroma-public-workflows",originPublisher:"Pixaroma",creatorIdentity:{key:"pixaroma",site:"https://pixaroma.com/",youtube:"https://www.youtube.com/@pixaroma"},
         // Unknown dates and one author's materials cannot create fresh fact authority.
         referenceOnly:true,publicationStatus:row.publishedAt?"AUTHOR_DECLARED":"UNKNOWN_HISTORICAL",
+        ...(bodyText && bodyText.length<=60000 ? {bodyText,publicContentReceipt:{version:1,url:row.originalUrl,fetchedUrl:row.downloadUrl,status:200,anonymous:true,serverFetched:true,complete:true,kind:"BODY",observedAt:new Date().toISOString(),sha256:createHash("sha256").update(bodyText).digest("hex"),characters:bodyText.length,extraction:"EPISODE_ARCHIVE_HUMAN_README"}} : {}),
         publicMaterials:{version:1,episode:row.episode,pageUrl:row.materialUrl,downloadUrl:row.downloadUrl,
-          helpUrl:payload.helpUrl,steps,workflows:verified,status:verified.length?"STRUCTURE_VERIFIED_NOT_EXECUTED":row.materialStatus,
+          helpUrl:payload.helpUrl,steps,operationSteps,documents:archive.documents.map(({name,sha256})=>({name,sha256})),workflows:verified,status:verified.length?"STRUCTURE_VERIFIED_NOT_EXECUTED":row.materialStatus,
           catalogueBacklog:payload.backlog,observedAt:new Date().toISOString()},
-        bodyStatus:"WORKFLOW_AND_SHARED_SETUP_STEPS",contentType:"TUTORIAL",fullTextAvailable:false}};
+        bodyStatus:bodyText && bodyText.length<=60000?"EPISODE_README_AND_WORKFLOW":"WORKFLOW_AND_SHARED_SETUP_STEPS",contentType:"TUTORIAL",fullTextAvailable:false}};
   });
 }

@@ -1,3 +1,4 @@
+import { dayStart, calendarWindow } from "../../../../../lib/content/radar-calendar";
 import { NextResponse } from "next/server";
 import { contentWorkbenchError, requireAdminRequest } from "../../../../../lib/server/admin/api";
 import {
@@ -14,6 +15,7 @@ import {
 import { getTodayIntelligenceSignalReadiness } from "../../../../../lib/server/content/today-intelligence-readiness";
 import { listSourceRuntimeOperations } from "../../../../../lib/server/content/source-runtime-operations";
 import { getRadarSnapshot } from "../../../../../lib/server/content/radar-snapshot";
+import {buildPracticeTopics} from "../../../../../lib/server/content/practice-topics";
 
 export const dynamic = "force-dynamic";
 
@@ -34,13 +36,23 @@ export async function GET(request: Request) {
     if (view === "snapshot") {
       return NextResponse.json({ view, ...(await getRadarSnapshot()) });
     }
+    if (view === "practice-diagnostics") {
+      const page = await listRadarTimelinePage({asOf:new Date()});
+      return NextResponse.json({view,asOf:page.asOf,
+        events:page.items.map(item=>({eventId:item.eventId,...item.practiceAssessment})),
+        topics:buildPracticeTopics(page.items,{includeRejected:true}).map(item=>({key:item.practiceTopic.key,parentEventIds:item.practiceTopic.parentEventIds,...item.practiceEligibility}))});
+    }
     if (view === "latest") {
       return NextResponse.json({ view, items: await listLatestTodayIntelligence(limit) });
     }
     if (view === "timeline") {
-      const beforeRaw = url.searchParams.get("before");
-      const before = beforeRaw ? new Date(beforeRaw) : null;
-      const page = await listRadarTimelinePage({ limit, before: before && Number.isFinite(before.getTime()) ? before : null, windowDays: 7 });
+      const day = url.searchParams.get("day");
+      const asOfRaw = url.searchParams.get("asOf");
+      const asOf = asOfRaw ? new Date(asOfRaw) : new Date();
+      if (!day || !Number.isFinite(asOf.getTime()) || asOf.getTime() > Date.now() + 60_000) return NextResponse.json({ error: "INVALID_RADAR_DAY" }, { status: 400 });
+      try { dayStart(day); } catch { return NextResponse.json({ error: "INVALID_RADAR_DAY" }, { status: 400 }); }
+      if (day >= calendarWindow(asOf).firstDay) return NextResponse.json({ error: "HISTORY_DAY_REQUIRED" }, { status: 400 });
+      const page = await listRadarTimelinePage({ day, asOf });
       return NextResponse.json({ view, ...page });
     }
     if (view === "current-hot") {

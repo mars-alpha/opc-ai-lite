@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import * as topics from "../lib/server/content/practice-topics";
 const build = Reflect.get(topics, "buildPracticeTopics");
 assert.equal(typeof build,"function","PRACTICE_TOPICS_REQUIRED");
-const link = (sourceName:string, expansionType:string, title:string) => ({sourceName,expansionType,title,excerpt:"安装节点，配置输入图片，运行工作流并导出动画。",originalUrl:`https://example.com/${sourceName}`,presentation:{displayTitleZh:title}});
+assert.equal(topics.practiceTopicIdentity({title:"如何用ComfyUI搭建文生图工作流：安装配置步骤"})?.goal,"image-generation");
+assert.equal(topics.practiceTopicIdentity({title:"如何用REA搭建工作管理助手：安装配置步骤"})?.goal,"work-management");
+assert.equal(topics.practiceTopicIdentity({title:"Acme MCP 客服助手教程：安装配置步骤"})?.goal,"customer-service");
+assert.equal(topics.practiceTopicIdentity({title:"Acme Skill 个人助手教程：安装配置步骤"})?.goal,"assistant");
+const link = (sourceName:string, expansionType:string, title:string) => ({sourceName,expansionType,title,materialQuality:{version:"practice-materials-v1",eligible:true,reasons:[],kind:"BODY"},excerpt:"安装节点，配置输入图片，运行工作流并导出动画。",originalUrl:`https://example.com/${sourceName}`,presentation:{displayTitleZh:title}});
 const base = {eventId:"model-release",title:"新模型发布",excerpt:"发布新闻",opcValue:{status:"AVAILABLE"},coverage:{practicalEvidenceCount:99,actionablePracticalEvidenceCount:99,actionablePracticalOriginCount:99,actionablePracticalTypeCount:4},presentation:{displayTitleZh:"新模型发布"},practicalEvidenceLinks:[link("作者A","TUTORIAL","如何用ComfyUI制作图生动画"),link("作者B","EXPERIENCE","ComfyUI图生动画实测")]};
 const result = build([base]);
 assert.equal(result.length,1);
@@ -13,9 +17,14 @@ assert.equal(build([{...base,practicalEvidenceLinks:[base.practicalEvidenceLinks
 assert.equal(build([{...base,practicalEvidenceLinks:[base.practicalEvidenceLinks[0],link("作者B","EXPERIENCE","ComfyUI文章改写实测")]}]).length,0,"DIFFERENT_GOALS_NOT_MERGED");
 assert.equal(build([{...base,practicalEvidenceLinks:[base.practicalEvidenceLinks[0],link("作者B","EXPERIENCE","未知Skill图生动画实测")]}]).length,0,"UNKNOWN_TOOL_NOT_MERGED");
 assert.equal(base.title,"新模型发布","FACT_EVENT_NOT_REWRITTEN");
+const singleTopic = build([{...base,practicalEvidenceLinks:[base.practicalEvidenceLinks[0]]}],{includeRejected:true});
+assert.equal(singleTopic[0].practiceEligibility.eligible,false);
+assert(singleTopic[0].practiceEligibility.reasons.includes("INSUFFICIENT_INDEPENDENT_ORIGINS"));
 const cross = build([{...base,practicalEvidenceLinks:[base.practicalEvidenceLinks[0]]},{...base,eventId:"second",practicalEvidenceLinks:[base.practicalEvidenceLinks[1]]}]);
 assert.equal(cross.length,1);
 const rebuild = Reflect.get(topics,"rebuildVisiblePracticeTopic");
 assert.equal(rebuild(cross[0],(id:string)=>id!=="second").length,0,"IGNORED_CONTRIBUTOR_CANNOT_SATISFY_THRESHOLD");
 assert.equal(rebuild(cross[0],(id:string)=>id!=="model-release").length,0,"IGNORED_TUTORIAL_CANNOT_BE_LEAD");
 console.log("PRACTICE_TOPICS_FROM_ORIGINAL_EVIDENCE=PASS");
+
+assert.equal(build([{...base,practicalEvidenceLinks:base.practicalEvidenceLinks.map(x=>({...x,materialQuality:undefined}))}]).length,0,"NO_MATERIAL_PROOF_CANNOT_PROJECT");

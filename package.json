@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "content:practice-expansion:check": "node --conditions=react-server --import tsx scripts/validate-managed-practice-expansion.ts",
+    "content:practice-boundaries:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-practice-boundaries.ts",
+    "content:public-practice-content:check": "node --conditions=react-server --import tsx scripts/validate-public-practice-content.ts",
+    "content:public-practice-content:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-public-practice-content.ts",
+    "content:practice-materials:check": "node --conditions=react-server --import tsx scripts/validate-practice-materials.ts",
     "content:practice-topics:check": "node --conditions=react-server --import tsx scripts/validate-practice-topics.ts",
     "content:practice-topics:accept": "node --conditions=react-server --import tsx scripts/accept-practice-topics.ts",
     "content:practice-search:live": "node --conditions=react-server --import tsx scripts/accept-managed-practice-search-live.ts",
@@ -224,7 +228,9 @@
     "content:collection:reliability:check": "node --conditions=react-server --import tsx scripts/validate-collection-reliability.ts",
     "content:collection:incremental:accept": "node --conditions=react-server --import tsx scripts/accept-collection-incremental.ts",
     "content:collection:quality-window:check": "node --conditions=react-server --import tsx scripts/validate-collection-quality-window.ts",
-    "content:collection:quality:manage": "node --network-family-autoselection-attempt-timeout=2000 --conditions=react-server --import tsx scripts/manage-collection-quality.ts"
+    "content:collection:quality:manage": "node --network-family-autoselection-attempt-timeout=2000 --conditions=react-server --import tsx scripts/manage-collection-quality.ts",
+    "content:radar-calendar:check": "node --conditions=react-server --import tsx scripts/validate-radar-calendar.ts",
+    "content:radar-calendar:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-radar-calendar.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

@@ -1,8 +1,9 @@
+import { calendarWindow, dayStart, nextHistoryDay, selectCalendarItems } from "../../content/radar-calendar";
 import { isWorthPracticingEligible, isMultiNewsRoundup, evaluatePracticeSubject } from "./practical-evidence-actionability";
 import { buildPracticeTopics } from "./practice-topics";
 import "server-only";
 
-import { and, desc, eq, inArray, lt } from "drizzle-orm";
+import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
 import { getDatabase } from "../db";
 import {
   contentEventClusterMembers,
@@ -21,6 +22,8 @@ import { calculateTopicMomentum, canonicalHotParticipantName } from "./topic-mom
 import { calculateAihotHeatShadow } from "./aihot-heat-shadow";
 import { attachRelatedEventStories, buildEventStoryReadModel } from "./event-story-read-model";
 import { evaluatePracticalEvidenceActionability, isFormalPracticalEvidenceSource } from "./practical-evidence-actionability";
+import {evaluatePracticeMaterials} from "./practice-materials";
+import {practiceTopicIdentity} from "./practice-topics";
 import { evaluateEventEvidenceRelevance } from "./pollution-syndication-gate";
 import { buildContentPresentationEnrichment } from "./presentation-enrichment";
 import { evaluateBoleDailyCuration, rerankBoleDailyFeatured } from "./bole-daily-curation";
@@ -247,17 +250,24 @@ function eventPolicyMetadata(metadata: unknown) {
   return record(record(metadata).eventPolicy);
 }
 
-async function listPolicyEventCandidatePool(limit = 100, options: { before?: Date | null } = {}) {
-  const db = getDatabase();
+async function listPolicyEventCandidatePool(limit = 100, options: { before?: Date | null; range?: { from: Date; to: Date; asOf: Date }; executor?: ReturnType<typeof getDatabase> } = {}) {
+  const db = options.executor ?? getDatabase();
   const boundedLimit = Math.max(1, Math.min(1000, limit));
   const baseQuery = db.select().from(contentEvents);
-  const policyEvents = (await (options.before
-    ? baseQuery.where(lt(contentEvents.lastSeenAt, options.before))
-    : baseQuery)
-    .orderBy(desc(contentEvents.lastSeenAt))
-    .limit(Math.min(5000, Math.max(boundedLimit * 10, boundedLimit))))
+  const eventTime = sql`coalesce(${contentEvents.eventAt}, ${contentEvents.firstSeenAt})`;
+  const query = baseQuery.where(options.range
+    ? and(sql`${eventTime} >= ${options.range.from.toISOString()}`, sql`${eventTime} < ${options.range.to.toISOString()}`, sql`${contentEvents.createdAt} < ${options.range.asOf.toISOString()}`,
+      sql`${contentEvents.archivedAt} is null`, sql`${contentEvents.discoveryStatus} <> 'IGNORED'`,
+      eq(contentEvents.policyVersion, INTELLIGENCE_POLICY_VERSION),
+      sql`${contentEvents.metadata}->'eventPolicy'->>'version' = ${INTELLIGENCE_POLICY_VERSION}`,
+      sql`${contentEvents.metadata}->'eventPolicy'->>'systemObserved' = 'true'`,
+      sql`${contentEvents.metadata}->'eventPolicy'->>'aiRelevant' = 'true'`,
+      sql`${contentEvents.metadata}->'eventPolicy'->'operationalUsefulness'->>'eligible' is distinct from 'false'`)
+    : options.before ? lt(contentEvents.lastSeenAt, options.before) : undefined)
+    .orderBy(desc(contentEvents.lastSeenAt), desc(contentEvents.id));
+  const policyEvents = (await (options.range ? query : query.limit(Math.min(5000, Math.max(boundedLimit * 10, boundedLimit)))))
     .filter((event) => {
-      if (event.discoveryStatus === "IGNORED") return false;
+      if (event.archivedAt || event.discoveryStatus === "IGNORED") return false;
       const policy = eventPolicyMetadata(event.metadata);
       if (event.policyVersion !== INTELLIGENCE_POLICY_VERSION) return false;
       if (policy.version !== INTELLIGENCE_POLICY_VERSION) return false;
@@ -283,7 +293,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       if (!membership) return true;
       return primaryEventByCluster.get(membership.clusterId) === event.id;
     })
-    .slice(0, boundedLimit);
+    .slice(0, options.range ? undefined : boundedLimit);
   if (!events.length) return [];
 
   const selectedClusterIds = [...new Set(events.flatMap((event) => {
@@ -402,6 +412,18 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
     });
     const presentExpansionTypes = [...new Set(formalPracticalExpansionEvidence.map((item) => item.expansionType))];
     const practicalCoverageTypes = ["EXPERIENCE", "TUTORIAL", "USE_CASE", "WORK_IMPACT"];
+    const practicalEvidenceDiagnostics = relevantExpansionEvidence.filter(item => practicalCoverageTypes.includes(item.expansionType)).map(item => {
+      const raw = rawById.get(item.rawItemId)!;
+      const materialQuality = evaluatePracticeMaterials(raw);
+      const action = evaluatePracticalEvidenceActionability({expansionType:item.expansionType,title:raw.title,excerpt:raw.excerpt});
+      const m=record(item.metadata);
+      const relation = (Array.isArray(m.matchedTitleVersionAnchors) && m.matchedTitleVersionAnchors.length>0) ||
+        (Array.isArray(m.matchedTitleSpecificAnchors) && m.matchedTitleSpecificAnchors.length>0) ||
+        (Number(m.subjectTitleMatchCount)>0 && item.relevanceScore>=70) || (Number(m.subjectMatchCount)>=2 && item.relevanceScore>=85);
+      return {rawItemId:raw.id,originalUrl:raw.originalUrl,title:raw.title,materialQuality,reasons:[...materialQuality.reasons,
+        ...(!formalPracticalExpansionEvidence.includes(item)?["SOURCE_NOT_FORMAL_PRACTICE_ELIGIBLE"]:[]),
+        ...(!relation?["EVENT_RELATION_INSUFFICIENT"]:[]),...(!action.actionable?[action.basis]:[]),...(!practiceTopicIdentity(raw)?["TOOL_OR_TASK_IDENTITY_MISSING"]:[])]};
+    });
     const actionablePracticalEvidence = formalPracticalExpansionEvidence.filter((item) => {
       if (!practicalCoverageTypes.includes(item.expansionType)) return false;
       const raw = rawById.get(item.rawItemId);
@@ -417,7 +439,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         (subjectTitleMatchCount > 0 && item.relevanceScore >= 70) ||
         (subjectMatchCount >= 2 && item.relevanceScore >= 85);
       if (!strongEventRelation) return false;
-      return evaluatePracticalEvidenceActionability({ expansionType: item.expansionType, title: raw.title, excerpt: raw.excerpt }).actionable;
+      return evaluatePracticeMaterials(raw).eligible && evaluatePracticalEvidenceActionability({ expansionType: item.expansionType, title: raw.title, excerpt: raw.excerpt }).actionable;
     });
     const actionablePracticalEvidenceCount = actionablePracticalEvidence.length;
     const actionablePracticalOriginCount = new Set(actionablePracticalEvidence.map((item) => {
@@ -433,7 +455,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       const rawSource = sourceById.get(raw.sourceId);
       const sourceName = originPublisher(raw) ?? rawSource?.name ?? raw.sourceId;
       const key = `${sourceName.normalize("NFKC").toLocaleLowerCase()}|${raw.originalUrl}`;
-      return [[key, { sourceName, originKey: sourceName.normalize("NFKC").toLocaleLowerCase(), title: raw.title, excerpt: raw.excerpt, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
+      return [[key, { sourceName, originKey: sourceName.normalize("NFKC").toLocaleLowerCase(), materialQuality: evaluatePracticeMaterials(raw), title: raw.title, excerpt: raw.excerpt, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
     })).values()];
     const missingExpansionTypes = practicalCoverageTypes.filter((item) => !presentExpansionTypes.includes(item));
     const scores = record(policy.scores);
@@ -571,6 +593,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       rawItemId: representative.id,
       eventId: event.id,
       eventLastSeenAt: event.lastSeenAt,
+      timelineAt: event.eventAt ?? event.firstSeenAt,
       clusterId,
       title: event.title,
       excerpt: event.summary ?? representative.excerpt,
@@ -612,6 +635,11 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       publicReadableSourceCount: publicReportRaws.length,
       hotParticipants,
       practicalEvidenceLinks,
+      practiceAssessment: { eligibleEvidenceCount: actionablePracticalEvidenceCount, diagnostics: practicalEvidenceDiagnostics,
+        reasons: [...new Set([...practicalEvidenceDiagnostics.flatMap(item => item.reasons),
+          ...(actionablePracticalEvidenceCount<2?["INSUFFICIENT_ACTIONABLE_EVIDENCE"]:[]),
+          ...(actionablePracticalOriginCount<2?["INSUFFICIENT_INDEPENDENT_ORIGINS"]:[]),
+          ...(actionablePracticalTypeCount<2?["INSUFFICIENT_PRACTICE_TYPES"]:[])])]},
       contentBoundary,
       curation: {
         curated,
@@ -888,36 +916,33 @@ export async function listRadarTimeline(limit = 300) {
   }));
 }
 
-export async function listRadarTimelinePage(input: { limit?: number; before?: Date | null; windowDays?: number | null } = {}) {
-  const limit = Math.max(20, Math.min(300, input.limit ?? 120));
-  const pool = await listPolicyEventCandidatePool(Math.max(limit * 3, 240), { before: input.before ?? null });
-  const cutoff = input.windowDays ? Date.now() - input.windowDays * 24 * 3_600_000 : null;
-  const filtered = cutoff === null ? pool : pool.filter((item) => toTime(item.publishedAt ?? item.collectedAt) >= cutoff);
-  // Pagination follows Event lastSeenAt, the same stable ordering used by the DB cursor.
-  // The client re-sorts the accumulated page set by publication time for presentation.
-  const items = filtered.slice(0, limit);
-  const last = items.at(-1);
-  return {
-    items,
-    nextCursor: last ? new Date(last.eventLastSeenAt).toISOString() : null,
-    hasMore: items.length === limit && (filtered.length > items.length || pool.length >= Math.max(limit * 3, 240))
-  };
+// Calendar timeline never paginates by a mutable/non-unique lastSeenAt.
+export async function listRadarCalendarRange(from: Date, to: Date, asOf = new Date()) {
+  return getDatabase().transaction(async tx => {
+    const pool = await listPolicyEventCandidatePool(1000, { range: { from, to, asOf }, executor: tx as unknown as ReturnType<typeof getDatabase> });
+    return selectCalendarItems(pool, { from, to });
+  }, { isolationLevel: "repeatable read", accessMode: "read only" });
 }
 
-export async function listRadarTimelineWindow(windowDays = 7) {
-  const all: Awaited<ReturnType<typeof listRadarTimelinePage>>["items"] = [];
-  let before: Date | null = null;
-  for (let page = 0; page < 20; page += 1) {
-    const result = await listRadarTimelinePage({ limit: 300, before, windowDays: before ? null : windowDays });
-    all.push(...result.items);
-    if (!result.nextCursor || result.items.length < 300) break;
-    before = new Date(result.nextCursor);
-    if (Date.now() - before.getTime() > windowDays * 24 * 3_600_000) break;
-  }
-  const byEvent = new Map(all.map((item) => [item.eventId, item]));
-  return [...byEvent.values()]
-    .filter((item) => Date.now() - toTime(item.publishedAt ?? item.collectedAt) <= windowDays * 24 * 3_600_000)
-    .sort((a, b) => toTime(b.publishedAt ?? b.collectedAt) - toTime(a.publishedAt ?? a.collectedAt));
+export async function listRadarTimelinePage(input: { windowDays?: number; day?: string; asOf?: Date } = {}) {
+  const asOf = input.asOf ?? new Date();
+  const window = calendarWindow(asOf, input.windowDays ?? 7);
+  const from = input.day ? dayStart(input.day) : window.from;
+  const to = input.day ? new Date(Math.min(from.getTime() + 86_400_000, asOf.getTime())) : asOf;
+  const items = await listRadarCalendarRange(from, to, asOf);
+  const [oldest] = await getDatabase().select({ at: sql<Date | null>`min(coalesce(${contentEvents.eventAt}, ${contentEvents.firstSeenAt}))` }).from(contentEvents);
+  // Reuse the complete visibility rule: excluded rows must never keep pagination alive.
+  // SQL policy predicates above avoid hydrating unrelated historical events.
+  const history = oldest?.at && new Date(oldest.at).getTime() < from.getTime()
+    ? await listRadarCalendarRange(new Date(oldest.at), from, asOf) : [];
+  const nextDay = nextHistoryDay(history, from);
+  return { items, total: items.length, day: input.day ?? null, asOf: asOf.toISOString(),
+    nextCursor: nextDay, hasMore: nextDay !== null };
+}
+
+export async function listRadarTimelineWindow(windowDays = 7, asOf = new Date()) {
+  const window = calendarWindow(asOf, windowDays);
+  return listRadarCalendarRange(window.from, window.to, asOf);
 }
 
 export async function listDiscoveryExpansionCandidates(limit = 100) {

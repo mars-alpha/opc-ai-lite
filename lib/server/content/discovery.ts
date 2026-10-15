@@ -1,7 +1,8 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
-import { and, desc, eq, gte, inArray, or } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, or, sql } from "drizzle-orm";
+import {mergePublicContentMetadata} from "./public-practice-content";
 import type { AuthUser } from "../auth/service";
 import { getDatabase } from "../db";
 import {
@@ -398,6 +399,14 @@ export async function ingestRawItem(input: unknown) {
     : null;
   const effectiveDuplicate = duplicate ?? titleDuplicate;
   if (effectiveDuplicate) {
+    // Only the same original can upgrade its material; title-only dedup must not
+    // attach a different article's body to the retained Raw identity.
+    if (effectiveDuplicate.originalUrl === originalUrl && (isRecord(metadata.publicContentReceipt) || isRecord(metadata.publicContentAttempt))) {
+      const patch = mergePublicContentMetadata({}, metadata);
+      if (patch.publicContentReceipt || patch.publicContentAttempt) await db.update(contentRawItems).set({
+        metadata: sql`${contentRawItems.metadata} || ${JSON.stringify(patch)}::jsonb`, updatedAt:new Date()
+      }).where(eq(contentRawItems.id,effectiveDuplicate.id));
+    }
     await upsertRawItemObservation({
       rawItemId: effectiveDuplicate.id,
       sourceId: source,
@@ -467,6 +476,9 @@ export async function runFreshScan(input: unknown) {
   const items = input.items.slice(0, 200);
   const results: Array<{ id: string; created: boolean }> = [];
   const createdRawItemIds: string[] = [];
+  let eventCreated = 0;
+  let eventMerged = 0;
+  let historicalWithoutEvent = 0;
 
   for (const item of items) {
     if (!isRecord(item)) continue;
@@ -482,7 +494,7 @@ export async function runFreshScan(input: unknown) {
       createdRawItemIds.push(result.item.id);
       // Historical author materials remain searchable Raw/Observation. Collection
       // time is not a publication time and must not manufacture a current Event.
-      if (metadata.publicationStatus === "UNKNOWN_HISTORICAL") continue;
+      if (metadata.publicationStatus === "UNKNOWN_HISTORICAL") { historicalWithoutEvent += 1; continue; }
       const resolvedEntities = Array.isArray(metadata.resolvedEntities)
         ? metadata.resolvedEntities.filter(isRecord)
         : [];
@@ -497,7 +509,7 @@ export async function runFreshScan(input: unknown) {
         result.item.publishedAt.getTime() <= result.item.collectedAt.getTime() + 15 * 60 * 1000
           ? result.item.publishedAt
           : result.item.collectedAt;
-      await createEventSeed({
+      const seed = await createEventSeed({
         rawItemId: result.item.id,
         title: result.item.title,
         summary: result.item.excerpt ? result.item.excerpt.slice(0, 4000) : null,
@@ -508,6 +520,7 @@ export async function runFreshScan(input: unknown) {
         subjectEntityId: entityIds[1] ?? null,
         eventAt: safeEventAt.toISOString()
       });
+      if (seed.created) eventCreated += 1; else eventMerged += 1;
     }
   }
 
@@ -518,7 +531,8 @@ export async function runFreshScan(input: unknown) {
     created: results.filter((item) => item.created).length,
     duplicates: results.filter((item) => !item.created).length,
     rawItemIds: results.map((item) => item.id),
-    createdRawItemIds
+    createdRawItemIds,
+    eventCreated, eventMerged, historicalWithoutEvent
   };
 }
 

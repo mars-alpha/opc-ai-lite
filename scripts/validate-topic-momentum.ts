@@ -16,6 +16,12 @@ function assert(condition: unknown, code: string) {
 }
 
 const now = new Date("2026-10-12T00:00:00.000Z");
+const report = { title: "某工具发布新版本", sourceId: "original-a", sourceType: "MEDIA", sourceName: "Independent A", platform: "WEB", publishedAt: now, collectedAt: now, metadata: { originPublisher: "Independent A" } };
+const singleReport = calculateTopicMomentum({ firstSeenAt: now, now, raws: [report], evidence: [] });
+const multipleReports = calculateTopicMomentum({ firstSeenAt: now, now, raws: [report, { ...report, sourceId: "original-b", sourceName: "Independent B", metadata: { originPublisher: "Independent B" } }], evidence: [] });
+const repeatedReport = calculateTopicMomentum({ firstSeenAt: now, now, raws: Array.from({ length: 10 }, () => ({ ...report })), evidence: [] });
+assert(multipleReports.score > singleReport.score && multipleReports.independentParticipantCount === 2, "SAME_EVENT_INDEPENDENT_REPORTS_INCREASE_HEAT");
+assert(repeatedReport.score === singleReport.score && repeatedReport.independentParticipantCount === 1, "REPEATED_SAME_REPORT_DOES_NOT_INFLATE_HEAT");
 const digestMomentum = calculateTopicMomentum({ firstSeenAt: now, now, raws: [{ sourceId:"digest", sourceType:"MEDIA", sourceName:"Digest", platform:"WEB", title:"AI早报：模型发布；公司融资；产品上线", collectedAt:now, publishedAt:now }], evidence:[] });
 assert(digestMomentum.independentParticipantCount === 0, "MULTI_NEWS_ROUNDUP_NOT_MOMENTUM_PARTICIPANT");
 assert(isTopicMomentumFollowUpEligible({ metadata: {} }), "UNKNOWN_POLICY_RETAINED_FOR_FOLLOW_UP");

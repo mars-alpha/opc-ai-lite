@@ -9,6 +9,8 @@ const scripts = [
   "content:practice-access:check",
   "content:pixaroma:check",
   "content:practice-topics:check",
+  "content:practice-materials:check",
+  "content:public-practice-content:check",
   "content:discovery-collection:boundary:check",
   "content:collection:deployment:check",
   "content:collection:reliability:check",
@@ -57,6 +59,7 @@ const scripts = [
   "content:bole-daily-curation:check",
   "content:radar-collection:check",
   "content:radar-read-path:check",
+  "content:radar-calendar:check",
   "typecheck",
   ...(!quick ? ["build"] : [])
 ];

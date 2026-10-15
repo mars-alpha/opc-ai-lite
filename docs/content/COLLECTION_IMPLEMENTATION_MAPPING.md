@@ -9,6 +9,8 @@ Task: COLLECTION-ARCHITECTURE-REALIGNMENT-001
 ## 1. Current Owners
 
 ### Source Management
+- lib/server/content/practice-materials.ts — 逐篇公开服务器获取回执、完整正文/字幕或工作流操作步骤的确定性校验；缺失失败关闭。
+- scripts/validate-practice-materials.ts / scripts/accept-practice-boundaries.ts — 材料反例与真实数据库只读分类验收（生产必须显式--production-read-only）。
 - lib/server/content/pixaroma-source.ts — 固定作者公开材料实采后事务注册/审计、SYSTEM onboarding与既有候选关联；保留资格观察，不授予事实权。
 - lib/server/content/public-workflow-materials.ts — Deno材料消费、ZIP/JSON内存结构校验及明确材料缺口；复用runtime adapter进入SYSTEM。
 - scripts/accept-pixaroma-public-source.ts / scripts/validate-pixaroma-route.ts — 服务器验收与确定性路由/ZIP/去重测试；生产必须显式`--confirm=PIXAROMA-PRODUCTION`，预览地址仅开发可用，实采复用SYSTEM advisory lock。
@@ -245,10 +247,18 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 
 - `discovery.ts::recordCandidateDecision`：Event行锁、Decision/Event状态及审计事务；返回discoveryStatus。
 - `workbench.ts::recordContentAudit`：可接受调用方事务executor，既有调用保持兼容。
-- `radar-snapshot.ts`：v11实践主题边界、完整窗口Event索引、当前运营状态只读覆盖、30分钟时效；基础缓存不缓存运营覆盖。
+- `radar-snapshot.ts`：v12日历窗口与漏斗、完整窗口Event索引、当前运营状态只读覆盖、30分钟时效；基础缓存不缓存运营覆盖。
 - `source-management.ts / source-management-policy.ts`：启停、归档、恢复和Policy事务审计；归档来源可在原列表恢复为禁用。
 - `source-onboarding.ts`：阶段从真实资格/正式Run/探测派生，局部元数据更新与审计同事务。
 - `content:operations:check / content:operations:accept`：时效、榜单覆盖、开发库回滚/并发/跨进程与夹具清理。UI仍需真实体验审核，不能用这些校验替代USER_APPROVED。
+
+### 日历时间线与真实漏斗
+
+- `lib/content/radar-calendar.ts`：北京时间日期、自然日半开区间、唯一Event稳定排序；无条数上限。
+- `intelligence-read-model.ts::listRadarCalendarRange / listRadarTimelinePage`：完整七日只读事务、逐日历史、固定asOf与归档排除；下一日期仅来自同规则可见历史，无合格内容返回null，界面显示到底且不追加空历史日。
+- `collection-funnel.ts / collection-runner.ts / discovery.ts`：Run版本化计数、历史未知、Raw去重及Event新建/归并；不改Schema或增加AI。
+- `source-runtime-operations.ts`：今日/七日/最近100次独立窗口，只投影统计所需元数据，排除资格探测与Manual。
+- `content:radar-calendar:check / content:radar-calendar:accept`：午夜/边界/400同时间事件与真实数据库只读验收；生产必须显式`--production-read-only`，不刷新生产快照。
 
 ### 实践主题与汇总排除
 
@@ -258,3 +268,10 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 - `collection-expansion.ts`：SYSTEM每周期最多一实践主题、一个已管理健康B站/YouTube搜索来源、两查询×五结果；原文主题校验、无隐藏Source、失败隔离。无合格来源返回缺口，不能视为联网验证通过。
 - `topic-momentum.ts / topic-momentum-runtime.ts`：汇总Raw不贡献独立参与者；不改变原有热度权重。
 - `content:practice-topics:check / content:practice-expansion:check / content:practical-actionability:check`：新闻附着教程、同作者、不同任务、未知身份、资格失败关闭、发布伪教程与汇总反例。
+
+### 逐篇正文/字幕实现
+
+- `lib/server/content/public-practice-content.ts`：固定公开正文/字幕适配器、材料缓存与仅材料字段合并；SYSTEM接入点为collection-runner，重复Raw接入点为discovery。
+- `services/overseas-collector-relay/deno.ts`：PUBLIC_PRACTICE_DOCUMENT仅接受Comfy教程白名单，有限下载工作流和查询官方模型清单；不是任意URL代理。
+- `lib/server/content/public-workflow-materials.ts`：受限ZIP内的人类说明与逐篇操作步骤，不执行附件。
+- `scripts/validate-public-practice-content.ts`：边界/回执/字幕反例；`scripts/accept-public-practice-content.ts`：腾讯云公开材料实测及明确开发库现有作者SYSTEM去重持久化验收。

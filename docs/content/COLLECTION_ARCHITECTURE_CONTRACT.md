@@ -5,7 +5,7 @@
 - 已确认作者的公开材料可走固定Deno Provider：Pixaroma目录仅JSON解析、排除comingSoon；每次最多30集元数据、3个≤128KB工作流包，共享公开步骤单独标注。腾讯云只在内存校验ZIP与ComfyUI节点JSON，不解压落盘、不执行工作流。未下载/未运行/未取得字幕必须分开记录，不能声称全文或实践成功。
 - 作者站与其视频使用同一Creator Source；内容使用规范视频URL复用Raw/Observation，短链、列表及分享参数不能制造副本。已发现作者参考关联creatorSourceId，不再重复作者核验。无发布日期的历史材料只入Raw/Observation，不以采集时间生成当前Event；可供后续定向研究，不自动授予热点/精选/今日值得做资格。
 
-- 热点主体必须是单一事件。明确的早报、新闻汇总或多条独立发布拼接内容不进入热点，其Raw也不作为独立热度参与者；保留全部动态与历史，不归档合法Source。汇总中的新闻必须取得独立原文再按既有条件评估。
+- 热点主体必须是单一事件。明确的早报、新闻汇总或至少两条不同主体独立发布拼接内容不进入热点（同主体补充、指代续句和搭建汇总工具教程不因此排除），其Raw也不作为独立热度参与者；保留全部动态与历史，不归档合法Source。汇总中的新闻必须取得独立原文再按既有条件评估。
 - 今日值得做主体必须是具体操作主题：教程/实操意图、明确操作信息和任务目标同时存在；模型发布即使挂有多个教程也不因此成为实践主体。从formal actionable原文证据按明确工具身份＋操作目标归并，标题/入口取自真实教程；保留parentEventIds，不改Event事实。来源、证据和类型数量按主题重新计算，不能继承父新闻计数。无法明确工具或目标时保持候选，不猜测归并。保留两条可执行证据、两个独立来源、两类实践门槛；不以AI分析AVAILABLE状态作为入栏前置。精选事实门槛与评分权重保持。
 - 实践主题的定向搜索复用Event Expansion，当前仅BILIBILI_SEARCH和YOUTUBE_SEARCH（YouTube复用Relay/配额）；仅由来源管理中ACTIVE/enabled/currentPortfolio、AUTO_READY或CONDITIONAL、有明确且服务器可执行SEARCH_DISCOVERY Route、collectionConfig.practiceExpansionEnabled=true且Provider健康的Source承载。可在原逻辑Source附加搜索Route并用practiceExpansionProvider指定搜索Provider，不覆盖原采集Provider或复制Source。未知、停用或无路由失败关闭，不调用ensureExpansionSource创建隐藏来源。
 - 触发需实践主体和至少两个独立参与者；同Event搜索至少间隔六小时（失败也计入），每SYSTEM周期至多一个主题、一个Provider、两次查询，每次最多五条，七日窗口。查询复用工具/版本锚点和教程/使用案例意图，不进行持续全网关键词扫描。
@@ -306,8 +306,11 @@ Presentation authority = PRESENTATION_ONLY。
 Current views：
 - 今日值得做：复用 Worth Practicing，但必须存在真实可执行实践证据；Practical Evidence 的标题/摘要需包含明确教程、步骤、配置、操作、实测、工作流、使用案例或等价操作语义，并至少来自 2 个独立实践来源。`suggestedContentTypes` 仅作 AI 分析建议，不是产品入场门槛。纯新闻、泛分析、仅 whyItMatters 不进入；中文证据优先，英文只做中文化交付。
 - 精选：通过事实硬门禁后按可解释编辑分排序。
-- 全部动态：通过基础 AI relevance / Event 聚类后的 Event。只展示最近 7 天 Event，按日期折叠、摘要≤100字；每页最多 120 条，使用 cursor/before“加载更多”直到 7 天窗口全部 Event 加载完成，120 不是产品总量上限。
+- 全部动态：通过基础 AI relevance / Event 聚类后的唯一主 Event。默认一次完整读取北京时间今天及前六个自然日，区间为首日00:00至快照asOf（半开区间）；以eventAt、缺失时firstSeenAt确定日期，排除未来、归档、忽略及不合格事件。删除120条首批规则。服务器窗口中的今天默认展开，其余日期默认折叠，默认七日空日保留。加载更多每次取得此前最近一个有合格内容的日期全天，跳过历史空日；无更早可见事件时显示“已经到底”。不得以已排除的数据库旧记录判断hasMore，不追加历史空日期行。日期游标固定asOf、按事件时间及ID稳定排序；历史不改变七日总量。
+- 统计窗口：北京时间今日、近七个自然日、最近100次SYSTEM正式运行分别标注起止时间。成功Run记录返回条次、过滤保留、后置排除、入库批量排除、Raw新增/重复、Event新建/归并及无日期历史材料；排除原因复用Run元数据。失败/进行中可能部分写入，不混入成功漏斗；旧Run未记录的阶段显示未知，不反推。七日可见Event是按事件时间计量的当前存量，与按运行时间计量的采集漏斗不是同一队列，不计算伪转化率。
+- 一致性：完整七日窗口在REPEATABLE READ只读事务中生成；items、分类总量及Event索引同源，唯一ID数=总量=分类合计=逐日合计。逐日历史请求独立读事务，asOf只固定日期上界和入库截止，不提供历史状态版本；运营忽略/归档即时生效，跨请求发生状态变化以重新读取的当前快照为准，不宣称时间旅行快照。
 - 当前热点：按 Event 而不是文章排名；同一独立账号/机构只贡献一次参与，AI HOT / DailyHot 等 Aggregator 只贡献 Discovery/Hot Signal，不能因聚合转载与直连原站重复计数。公开报道信源与热度参与者分开：公开信源只列可阅读报道；参与者可包含仅计入热度的账号/机构。同机构多渠道可合并，所以参与者数不保证大于公开信源数。
+- Event合并只收拢展示，不丢掉报道：同Event/Cluster的全部SYSTEM原文共同作为热度输入，多独立来源报道增加参与广度；同原发布者的重复轮询/聚合转载不反复增加参与者。内容测试清理只针对可证明的夹具，不以“通过验收采集”判定真实原文是假数据，不删除真实历史来制造干净统计。
 
 “精选”采用三层规则：
 1. Hard Gate：AI relevance、≤72h freshness、CONFIRMED_OFFICIAL / CONFIRMED_MEDIA、change magnitude 明确为 MAJOR / NORMAL。未知变化等级、MINOR、未验证内容不得通过。
@@ -392,7 +395,7 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 - Three output dimensions may overlap for one Event; none implies another:
   - Hotspot: existing Event Momentum RISING0–24h/SUSTAINED24–168h, independent participation/active days/cross-platform/practice/engagement and current thresholds; ranking never grants Fact Authority.
   - Curated dynamics: existing Bole Gate requires AI relevance, <=72h, confirmed official/media and MAJOR/NORMAL; FEATURED score>=66, TOP_PICK>=78 plus its independent evidence/value gate. A single-source official update may be curated without being hot or practical.
-  - Worth Practicing: OPC value AVAILABLE, practical evidence>0, >=2 actionable evidence, >=2 independent practical origins and >=2 practical types. Shared deterministic gate in practical-evidence-actionability.ts owns eligibility for all read paths. Unanalyzed items wait; automatic collection does not invoke AI to fill the list. Tutorial-type metadata alone cannot satisfy actionability.
+  - Worth Practicing: 具体工具与任务主题，>=2逐篇合格实践证据、>=2独立来源、>=2实践类型；不以AI AVAILABLE状态为前置。practice-materials.ts要求与原文URL绑定的匿名服务器获取回执及完整正文/字幕、编号步骤、输入与输出，或逐篇验证工作流与operationSteps；共享安装说明不能代替逐篇操作材料。正文声明依赖工作流/模板/素材下载时，所需附件必须具有服务器公开下载回执与SHA256，否则REQUIRED_ARTIFACTS_UNVERIFIED。短摘要、未知/截断正文、登录关注材料失败关闭。intelligence-read-model返回practiceAssessment逐证据缺口和聚合数量阻断，管理员practice-diagnostics按工具+任务主题返回独立数量原因；不为历史Raw补造认证。
 - User-facing topics (REA/ComfyUI/Skills/MCP/ad creation/writing/images/animation/editing/assistants/work management) describe discovery coverage, not the three publication dimensions. Add sources only after bounded live capability check and preview. Generic news/trends cannot stand in for persistent original practical sources.
 - Production acceptance requires its own schema, runtime grants, source inventory, route probes, backfill and three-output checks. Development success is not production acceptance, and healthy results from an earlier cycle do not erase a current failure.
 
@@ -403,3 +406,10 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 - Snapshot generatedAt超过30分钟为STALE，非法/未来时间为异常；读取旧数据不自动全量重建。SYSTEM仍是周期刷新唯一owner；首次缺失或Schema不兼容允许一次初始化。客户端慢请求不能覆盖之后已提交的运营动作。
 - Source启停、operator归档/恢复、规则保存和资格阶段更新与其审计同事务，包含actor、reason、before/after。归档恢复保持禁用，退役路径禁止恢复；不删除历史。
 - QUALIFIED只代表真实AUTO_READY；成功探测仅PROBED，有正式Run但未合格为OBSERVING；qualificationOnly不计成熟度。来源禁用/归档时有效资格必须显示DISABLED，不复用过时AUTO_READY标签。
+
+### 逐篇公开材料获取边界
+
+- SYSTEM列表过滤后每源每轮最多补2篇固定白名单详情；合格材料复用7日，不足材料/失败至少间隔1小时。详情失败保留列表结果；重复Raw只升级与原始URL精确绑定的材料字段，不覆盖事实和人工决策。
+- Comfy官方教程经Deno的PUBLIC_PRACTICE_DOCUMENT获取公开Markdown；B站只尝试匿名公开字幕API，无字幕明确不可用，无登录/Cookie回退。Pixaroma只从该集已下载ZIP读取人类README/HOW-TO-USE，不把模型提示词文件或共享安装说明冒充逐篇步骤。
+- 凭证包含原文URL、实际获取URL、匿名/服务器获取状态、HTTP状态、时间、完整性、正文/字幕SHA256。字幕保存全部返回cue并验证顺序/时间；这证明取得完整公开字幕文件，不证明字幕覆盖视频每一秒。
+- 工作流小文件保存实际下载哈希；大型模型允许固定官方公开仓库的发布者文件清单证明（PUBLIC_PUBLISHER_MANIFEST_ONLY），单独记录清单URL、公开/非gated状态、发布者哈希及文件大小，不声称下载模型或运行工作流。任一已声明必需材料仍未验证则阻断。材料可获得不等同实际执行成功。

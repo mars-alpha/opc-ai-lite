@@ -1,6 +1,11 @@
 import { evaluatePracticalEvidenceActionability, isFormalPracticalEvidenceSource, evaluatePracticeSubject, isMultiNewsRoundup, shouldExpandPractice } from "../lib/server/content/practical-evidence-actionability";
 
 function assert(condition: unknown, code: string): asserts condition { if (!condition) throw new Error(code); }
+assert(isMultiNewsRoundup("OpenAI发布新模型；Google上线新搜索"), "TWO_UNRELATED_NEWS_EXCLUDED");
+assert(isMultiNewsRoundup("OpenAI releases model|Google launches search"), "UNSPACED_PIPE_DIGEST_EXCLUDED");
+assert(!isMultiNewsRoundup("OpenAI发布新模型；OpenAI宣布该模型价格"), "SAME_SUBJECT_UPDATE_NOT_DIGEST");
+assert(!isMultiNewsRoundup("OpenAI发布新模型；该模型上线API"), "REFERENTIAL_FOLLOWUP_NOT_DIGEST");
+assert(!isMultiNewsRoundup("如何用ComfyUI搭建工作流；上线并发布自己的应用"), "PRACTICE_STEPS_NOT_DIGEST");
 assert(isMultiNewsRoundup("腾讯上线「绿泡泡」短剧，主打免费看；特斯拉 Roadster 跑车明日发布；豆包工作支持一键导入 GPT、Claude 对话 | 极客早知道"), "ROUNDUP_EXCLUDED");
 assert(!isMultiNewsRoundup("ComfyUI教程：安装、配置与运行图生动画工作流"), "SINGLE_TUTORIAL_NOT_ROUNDUP");
 assert(!isMultiNewsRoundup("如何搭建AI早报工作流：配置来源并生成日报"), "DIGEST_BUILDING_TUTORIAL_NOT_NEWS_DIGEST");

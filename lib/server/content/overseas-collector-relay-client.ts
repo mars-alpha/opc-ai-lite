@@ -8,7 +8,7 @@ export function isOverseasRelayConfigured() {
   );
 }
 
-export async function collectThroughOverseasRelay(config: Omit<TrendDiscoveryConfig, "provider"> & { provider: TrendDiscoveryConfig["provider"] | "DEEPMIND_FEED" | "PIXAROMA_WORKFLOWS" }, fetchImpl: typeof fetch = fetch) {
+export async function collectThroughOverseasRelay(config: Omit<TrendDiscoveryConfig, "provider"> & { provider: TrendDiscoveryConfig["provider"] | "DEEPMIND_FEED" | "PIXAROMA_WORKFLOWS" | "PUBLIC_PRACTICE_DOCUMENT" }, fetchImpl: typeof fetch = fetch) {
   const base = process.env.OVERSEAS_COLLECTOR_RELAY_URL?.trim();
   const secret = process.env.OVERSEAS_COLLECTOR_RELAY_SECRET?.trim();
   if (!base || !secret) throw new Error("OVERSEAS_COLLECTOR_RELAY_UNCONFIGURED");

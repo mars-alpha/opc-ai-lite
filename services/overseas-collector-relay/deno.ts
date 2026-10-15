@@ -1,4 +1,21 @@
-const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS"]);
+const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS", "PUBLIC_PRACTICE_DOCUMENT"]);
+
+async function collectPracticeDocument(request: ReturnType<typeof parseRequest>, deadline:number) {
+  const url=request.searchQuery.replace(/\.md$/,"");
+  if(!/^https:\/\/docs\.comfy\.org\/tutorials\/[a-z0-9/-]+$/.test(url) || url.includes("//",8)) throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+  const bytes=await boundedPixaromaFetch(url+".md",deadline,250000);
+  const text=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
+  if(!text.trim() || text.length>60000 || /^\s*<!doctype|^\s*<html/i.test(text))throw new SyntaxError("document not complete markdown");
+  const observedAt=new Date().toISOString();
+  const workflowUrl=text.match(/https:\/\/raw\.githubusercontent\.com\/Comfy-Org\/example_workflows\/(?:refs\/heads\/)?main\/[a-zA-Z0-9_/-]*workflow[a-zA-Z0-9_-]*\.png/)?.[0];
+  const modelPath=text.match(/https:\/\/huggingface\.co\/Comfy-Org\/stable-diffusion-v1-5-archive\/blob\/main\/([a-zA-Z0-9_.-]+\.safetensors)/)?.[1];
+  const requiredMaterials:Record<string,unknown>[]=[];
+  const artifactResults=await Promise.allSettled([
+    (async()=>{if(!workflowUrl)return;const image=await boundedPixaromaFetch(workflowUrl,deadline,1500000);const digest=await crypto.subtle.digest("SHA-256",image);requiredMaterials.push({url:workflowUrl,status:200,anonymous:true,serverFetched:true,observedAt,sha256:[...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,"0")).join(""),verification:"DOWNLOADED_COMPLETE",bytes:image.length});})(),
+    (async()=>{if(!modelPath)return;const fetchedUrl="https://huggingface.co/api/models/Comfy-Org/stable-diffusion-v1-5-archive?blobs=true";const data=JSON.parse(new TextDecoder().decode(await boundedPixaromaFetch(fetchedUrl,deadline,250000)));const file=Array.isArray(data.siblings)?data.siblings.find((f:Record<string,unknown>)=>f.rfilename===modelPath):null;if(data.private!==false || data.gated!==false || !file?.lfs?.sha256 || !Number.isFinite(file.lfs.size))throw new SyntaxError("model dependency unavailable");requiredMaterials.push({url:"https://huggingface.co/Comfy-Org/stable-diffusion-v1-5-archive/blob/main/"+modelPath,fetchedUrl,status:200,anonymous:true,serverFetched:true,observedAt,sha256:file.lfs.sha256,bytes:file.lfs.size,verification:"PUBLIC_PUBLISHER_MANIFEST_ONLY"});})()
+  ]);
+  return {provider:"PUBLIC_PRACTICE_DOCUMENT",url,fetchedUrl:url+".md",status:200,text,observedAt,requiredMaterials,unverifiedMaterialCount:artifactResults.filter(x=>x.status==="rejected").length,requiresExternalMaterials:Boolean(workflowUrl||modelPath)};
+}
 
 // Parse data, never execute the author's JavaScript. URLs are derived from fixed paths.
 export function parsePixaromaEpisodes(body: string) {
@@ -196,7 +213,7 @@ async function collectGithub(request: ReturnType<typeof parseRequest>, deadline:
 export async function handleRelayRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   if (request.method === "GET" && url.pathname === "/health") {
-    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-public-materials-v3", capabilities: [...ALLOWED_PROVIDERS] });
+    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-public-content-v4", capabilities: [...ALLOWED_PROVIDERS] });
   }
   if (request.method !== "POST" || url.pathname !== "/v1/collect") return json({ error: "NOT_FOUND" }, 404);
 
@@ -217,7 +234,8 @@ export async function handleRelayRequest(request: Request, env: Env) {
     const parsed = parseRequest(JSON.parse(body || "{}"));
     const started = Date.now();
     const deadline = started + RELAY_TOTAL_BUDGET_MS;
-    const result = parsed.provider === "PIXAROMA_WORKFLOWS" ? await collectPixaroma(parsed,deadline)
+    const result = parsed.provider === "PUBLIC_PRACTICE_DOCUMENT" ? await collectPracticeDocument(parsed,deadline)
+      : parsed.provider === "PIXAROMA_WORKFLOWS" ? await collectPixaroma(parsed,deadline)
       : parsed.provider === "DEEPMIND_FEED"
       ? { provider: parsed.provider, rssText: await checkedText(await fetch("https://deepmind.google/blog/rss.xml", { redirect: "error", signal: upstreamSignal(deadline, 12000) })) }
       : parsed.provider === "GITHUB_TREND_PROXY" ? await collectGithub(parsed, deadline)

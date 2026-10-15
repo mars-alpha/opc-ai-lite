@@ -1,6 +1,8 @@
+import { calendarWindow } from "../../content/radar-calendar";
+import { summarizeCollectionRuns } from "./collection-funnel";
 import "server-only";
 
-import { desc, inArray } from "drizzle-orm";
+import { and, desc, gte, lt, inArray, sql } from "drizzle-orm";
 import { getDatabase } from "../db";
 import { contentCollectionRuns, contentRawItems, contentSources } from "../db/schema";
 import { listSourceQualificationSnapshots } from "./source-qualification";
@@ -19,7 +21,7 @@ function numeric(value: unknown) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function isSystemRun(run: typeof contentCollectionRuns.$inferSelect) {
+function isSystemRun(run: { metadata: unknown }) {
   return String(record(run.metadata).collectionOrigin ?? "SYSTEM").toUpperCase() !== "MANUAL";
 }
 
@@ -33,21 +35,30 @@ function category(source: typeof contentSources.$inferSelect | undefined) {
   return "OTHER";
 }
 
-export async function listSourceRuntimeSummary(limit = 120) {
+export async function listSourceRuntimeSummary(limit = 100, asOf = new Date()) {
   const db = getDatabase();
   const sources = await listCurrentSystemCollectionSources();
   const currentIds = sources.map((source) => source.id);
-  const allRuns = currentIds.length
-    ? await db.select().from(contentCollectionRuns)
-        .where(inArray(contentCollectionRuns.sourceId, currentIds))
-        .orderBy(desc(contentCollectionRuns.startedAt))
-        .limit(Math.max(1, Math.min(240, limit * 2)))
-    : [];
-  const currentSourceIds = new Set(sources.map((source) => source.id));
-  const runs = allRuns
-    .filter((run) => isSystemRun(run) && Boolean(run.sourceId && currentSourceIds.has(run.sourceId)))
-    .slice(0, Math.max(1, Math.min(160, limit)));
-  const latestRunBySource = new Map<string, typeof contentCollectionRuns.$inferSelect>();
+  const window = calendarWindow(asOf, 7);
+  const today = calendarWindow(asOf, 1);
+  const recentLimit = Math.max(1, Math.min(160, limit));
+  const runColumns = { id: contentCollectionRuns.id, sourceId: contentCollectionRuns.sourceId, status: contentCollectionRuns.status,
+    receivedCount: contentCollectionRuns.receivedCount, createdCount: contentCollectionRuns.createdCount, duplicateCount: contentCollectionRuns.duplicateCount,
+    startedAt: contentCollectionRuns.startedAt, finishedAt: contentCollectionRuns.finishedAt,
+    metadata: sql<unknown>`jsonb_build_object('collectionOrigin', ${contentCollectionRuns.metadata}->'collectionOrigin', 'discoveryFilter', ${contentCollectionRuns.metadata}->'discoveryFilter', 'collectionFunnel', ${contentCollectionRuns.metadata}->'collectionFunnel')` };
+  const productionRuns = sql`coalesce(${contentCollectionRuns.metadata}->>'collectionOrigin', 'SYSTEM') <> 'MANUAL' and coalesce(${contentCollectionRuns.metadata}->>'qualificationOnly', 'false') <> 'true'`;
+  const [allRuns, recentRows] = currentIds.length ? await Promise.all([
+    db.select(runColumns).from(contentCollectionRuns).where(and(productionRuns, inArray(contentCollectionRuns.sourceId, currentIds), gte(contentCollectionRuns.startedAt, window.from), lt(contentCollectionRuns.startedAt, asOf))).orderBy(desc(contentCollectionRuns.startedAt), desc(contentCollectionRuns.id)),
+    db.select(runColumns).from(contentCollectionRuns).where(and(productionRuns, inArray(contentCollectionRuns.sourceId, currentIds), lt(contentCollectionRuns.startedAt, asOf))).orderBy(desc(contentCollectionRuns.startedAt), desc(contentCollectionRuns.id)).limit(recentLimit)
+  ]) : [[], []];
+  const runs = recentRows.filter(isSystemRun).slice(0, recentLimit);
+  const weekRuns = allRuns.filter(isSystemRun);
+  const windows = {
+    today: { ...summarizeCollectionRuns(weekRuns.filter(run => run.startedAt >= today.from)), from: today.from.toISOString(), to: asOf.toISOString(), label: "北京时间今日" },
+    sevenDays: { ...summarizeCollectionRuns(weekRuns), from: window.from.toISOString(), to: asOf.toISOString(), label: "北京时间近七日（含今天）" },
+    recent: { ...summarizeCollectionRuns(runs), from: runs.at(-1)?.startedAt.toISOString() ?? null, to: asOf.toISOString(), label: `最近${runs.length}次运行` }
+  };
+  const latestRunBySource = new Map<string, (typeof runs)[number]>();
   for (const run of runs) {
     if (run.sourceId && !latestRunBySource.has(run.sourceId)) {
       latestRunBySource.set(run.sourceId, run);
@@ -113,6 +124,7 @@ export async function listSourceRuntimeSummary(limit = 120) {
       keptTotal,
       aiRelevantKeepRate: receivedTotal ? Math.round(Math.min(1, keptTotal / receivedTotal) * 100) : null
     },
+    windows,
     sourceGroups,
     optionalCapabilities: RADAR_OPTIONAL_CAPABILITIES
   };

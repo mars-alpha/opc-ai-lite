@@ -6,7 +6,7 @@ import { eq, inArray } from "drizzle-orm";
 import { assertCurrentDatabaseTarget } from "../lib/server/database-target";
 import { getDatabase, closeDatabase } from "../lib/server/db";
 import { contentEvents, contentSources, contentCandidateDecisions, contentAuditRecords, users } from "../lib/server/db/schema";
-import { getRadarSnapshot, readRadarOperations } from "../lib/server/content/radar-snapshot";
+import { RADAR_SNAPSHOT_SCHEMA_VERSION, getRadarSnapshot, readRadarOperations } from "../lib/server/content/radar-snapshot";
 import { readSourceAiRelevancePolicy, saveSourceAiRelevancePolicy } from "../lib/server/content/source-management-policy";
 import { qualifyOnboardedSource } from "../lib/server/content/source-onboarding";
 import { recordCandidateDecision } from "../lib/server/content/discovery";
@@ -70,7 +70,7 @@ async function main() {
     assert.ok(eventAudits.some((row) => (row.before as Record<string, unknown>).discoveryStatus !== "DISCOVERED"), "CONCURRENT_DECISIONS_SERIALIZE_BEFORE_STATE");
     console.log("COLLECTION_OPERATIONS_REAL_DB_ATOMICITY_AUDIT_CONCURRENCY_RESTORE=PASS");
     const snapshot = await getRadarSnapshot();
-    assert.equal(snapshot.schemaVersion, "radar-snapshot-v11-practice-boundary");
+    assert.equal(snapshot.schemaVersion, RADAR_SNAPSHOT_SCHEMA_VERSION);
     assert.ok(snapshot.freshness);
     assert.equal(snapshot.totalEventCount7d, snapshot.categoryCounts7d["全部"]);
     console.log("COLLECTION_OPERATIONS_REAL_SNAPSHOT=PASS");

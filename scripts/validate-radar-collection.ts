@@ -38,7 +38,7 @@ assert(ui.includes("当前热点") && ui.includes("今日值得做") && ui.inclu
 assert(ui.includes("data.worthPracticing") && ui.includes("实践证据") && !ui.includes("todayWorthWatching"), "TODAY_WORTH_DOING_PRACTICAL_DIRECTION");
 assert(ui.includes("actionablePracticalEvidenceCount"), "TODAY_WORTH_DOING_ACTIONABLE_EVIDENCE_GATE");
 assert(ui.includes("reportTimeline") && ui.includes("加载更多") && ui.includes("shortSummary") && ui.includes("intel-timeline-day"), "RADAR_SEVEN_DAY_GROUPED_PAGINATION_UI");
-assert(ui.includes("open={dayIndex === 0}") && ui.includes("近 7 天全部 AI 相关"), "RADAR_DAILY_COLLAPSE_FIRST_DAY_ONLY");
+assert(ui.includes("open={day === timelineWindow?.today}") && ui.includes("北京时间今天及前六日全部 AI 相关"), "RADAR_DAILY_COLLAPSE_SERVER_TODAY_ONLY");
 assert(ui.includes("reportTimeline") && ui.includes("evidenceLinks"), "RADAR_MULTI_SOURCE_STORY_UI");
 assert(ui.includes("采集") && ui.includes("AI强相关") && ui.includes("失败"), "RADAR_SOURCE_HEALTH_INTEGRATED_UI");
 assert(ui.includes("effectiveQualification") && ui.includes("serverRuntimeSupported"), "RADAR_RUNTIME_TRUTH_VISIBLE");

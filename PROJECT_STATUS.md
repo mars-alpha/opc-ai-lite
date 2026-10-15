@@ -2,7 +2,15 @@
 
 最后更新：2026-10-15（Asia/Shanghai）。
 
-状态：PRODUCTION_RUNNING / P0_IMPLEMENTED / USER_REVIEW_PENDING。
+状态：PRODUCTION_RUNNING / P0_IMPLEMENTED / PRACTICE_BOUNDARIES_IMPLEMENTED / USER_REVIEW_PENDING。
+
+逐篇获取：固定正文/匿名字幕适配器及回执已实现，腾讯云Deno预览和开发SYSTEM持久化验证通过；本轮最小采集增量已部署腾讯云/Deno生产并验证凭证落库，真实字幕样本不可用。详见TASKS的PUBLIC-PRACTICE-CONTENT。
+
+分类修正：三项规则已实现，腾讯云隔离候选代码读取生产真实数据验收通过；逐篇材料缺口与发布边界见TASKS，规则唯一见采集合同。生产尚未切换v13。
+
+当前追加：RADAR-CALENDAR-FUNNEL 已实现，腾讯云隔离代码读取生产数据通过512M/50%CPU验收；生产Web及日历/P0读模型尚未切换（SYSTEM仅发布独立材料采集增量）。删除120首批限制、七日日历窗口、逐日历史及运行漏斗的规则由采集合同§16唯一维护；审计差异、问题与后续发布门槛见TASKS。
+
+测试数据治理：已完成双库明确测试标记核查，清除开发空内容故障样例并保留真实实采；同事件多报道热度输入与重复不增分回归通过。结果与证据边界见TASKS，不改变生产发布状态。
 
 公开作者核验：Pixaroma材料增量已独立发布腾讯云生产SYSTEM，Deno与生产单一作者来源已接通；生产实采/即时幂等通过，沿现有timer观察。开发真实跨周期复测通过，生产长期稳定尚待观察。Web/P0界面未切换，其余作者与通用正文/字幕缺口保持。详见TASKS。
 
@@ -24,17 +32,17 @@ P0验证：完整发现/采集回归（含typecheck/build）PASS；开发库审�
 
 ## 当前任务代码快照（2026-10-15，SHA256前16位）
 
-- `lib/server/content/public-workflow-materials.ts` — 固定材料路由、ZIP/JSON内存结构验证；`839FF64104AAAF88`。
+- `lib/server/content/public-workflow-materials.ts` — 固定材料路由、ZIP/JSON内存结构验证；`992BAA039927F48F`。
 - `lib/server/content/pixaroma-source.ts` — capability-first作者登记、onboarding及已发现参考关联；`2C6B33207368E4FD`。
-- `services/overseas-collector-relay/deno.ts` — 固定Pixaroma目录、步骤与有界包获取，v3；`E412C9123009A193`。
+- `services/overseas-collector-relay/deno.ts` — 固定公开正文/材料Provider与有界获取，v4；`CADEF3E59909BF9D`。
 - `lib/server/content/source-acquisition-runtime-adapters.ts` — 复用SYSTEM注册材料Adapter；`A8F0942A18D2D61B`。
-- `lib/server/content/discovery.ts` — 视频链接规范化、无日期历史材料不创建当前Event；`BCDA3A3E3883646E`。
+- `lib/server/content/discovery.ts` — 视频链接规范化、无日期历史材料不创建当前Event；`B320DBACC443E4EB`。
 
-- `lib/server/content/practice-topics.ts` — 原文工具/任务归并、贡献证据与忽略重算；`21D86E6AA7953245`。
-- `lib/server/content/practical-evidence-actionability.ts` — 汇总、实践主体、机械门槛及访问依赖排除；`8BBCB289E4386ED5`。
+- `lib/server/content/practice-topics.ts` — 原文工具/任务归并、贡献证据与忽略重算；`6B36A0C9E7DDBEA2`。
+- `lib/server/content/practical-evidence-actionability.ts` — 汇总、实践主体、机械门槛及访问依赖排除；`4BBC52F92CF52D96`。
 - `lib/server/content/collection-expansion.ts` — 受管搜索、平台语言规划、作者身份及访问依赖排除；`E147BE1B18A472D9`。
-- `lib/server/content/managed-practice-search.ts` — 真实探测登记、审计、Raw待审参考；`CADC166ACF0A2697`。
-- `lib/server/content/radar-snapshot.ts` — v11主题快照及当前运营状态覆盖；`3B4125B03EC2DBF6`。
+- `lib/server/content/managed-practice-search.ts` — 真实探测登记、审计、Raw待审参考；`8CBFCEFA4011CC76`。
+- `lib/server/content/radar-snapshot.ts` — v13主题快照（本地）及当前运营状态覆盖；`A4E1B76EC4CE10AE`。
 - `lib/server/content/public-practice-access.ts` — 访问依赖及注册条件；`9BC10B172AD52787`。
 - `lib/server/content/public-creator-probe.ts` — 公开详情/列表/字幕探测与缺口状态；`71490A2B063062DE`。
 - `lib/server/content/source-acquisition-plan.ts` — 主/备用路径与交互依赖拒绝；`F2BAB00140F6D2A2`。
