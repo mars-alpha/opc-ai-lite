@@ -2,7 +2,7 @@
 
 最后更新：2026-10-15（Asia/Shanghai）。
 
-状态：PRODUCTION_RUNNING / RADAR_V13_DEPLOYED / USER_APPROVED。
+状态：PRODUCTION_RUNNING / RADAR_V13_DEPLOYED / SOURCE_INPUT_RUNTIME_DEPLOYED / USER_APPROVED。
 
 用户已明确要求生产使用新版，页面/日历上线审核阻塞已解除。Web与SYSTEM已同版切换；七日完整列表、日期游标、运行漏斗、P0运营一致性及实践材料分类均使用当前代码。部署路径与运行事实唯一见 [CURRENT_SYSTEM_FACTS](docs/CURRENT_SYSTEM_FACTS.md)。
 
@@ -10,7 +10,7 @@
 
 正文/材料获取经腾讯云与Deno生产实测，1篇作者说明凭证已落库并过材料Gate；B站匿名字幕、部分附件、通用正文覆盖及长期稳定性仍有缺口。材料通过不等于实际执行工作流，也不保证今日值得做非空。
 
-当前焦点：观察72小时真实运行、补实操来源与公开材料、测量请求降本，详见 [TASKS](TASKS.md)。不更改课程、Schema、评分权重或timer配置。
+当前焦点：来源规则与网站/主页注册已修正并部署，继续观察72小时真实运行、补实操来源与公开材料、测量请求降本，详见 [TASKS](TASKS.md)。不更改课程、Schema、评分权重或timer配置。
 
 规则唯一owner为 [采集架构合同](docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md)，代码定位见 [实现映射](docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md)。历史任务结果从Git追溯。
 
@@ -18,7 +18,7 @@
 
 - `lib/server/content/public-workflow-materials.ts` — 固定材料路由、ZIP/JSON内存结构验证；`992BAA039927F48F`。
 - `lib/server/content/pixaroma-source.ts` — capability-first作者登记、onboarding及已发现参考关联；`2C6B33207368E4FD`。
-- `services/overseas-collector-relay/deno.ts` — 固定公开正文/材料Provider与有界获取，v4；`CADEF3E59909BF9D`。
+- `services/overseas-collector-relay/deno.ts` — 固定公开正文/材料及来源文档白名单Provider，v5；`C7C2F136A0FBFCD8`。
 - `lib/server/content/source-acquisition-runtime-adapters.ts` — 复用SYSTEM注册材料Adapter；`A8F0942A18D2D61B`。
 - `lib/server/content/discovery.ts` — 视频链接规范化、无日期历史材料不创建当前Event；`B320DBACC443E4EB`。
 

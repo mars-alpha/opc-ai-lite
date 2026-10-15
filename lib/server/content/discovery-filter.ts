@@ -1,4 +1,5 @@
 import "server-only";
+import {testSourceAiRelevance,type AiRelevanceTerm} from "./source-management-policy";
 import {
   evaluateDiscoveryKeywordPolicy,
   type DiscoveryKeywordPolicy
@@ -67,6 +68,7 @@ type FilterOptions = {
   sourceMethod?: string;
   sourceType?: string;
   strategyTopics?: string[];
+  relevanceTerms?: AiRelevanceTerm[];
   keywordPolicy?: DiscoveryKeywordPolicy | null;
   requireExplicitAiRelation?: boolean;
   knownEntitiesByIndex?: ReadonlyMap<number, readonly DiscoveryKnownEntityContext[]>;
@@ -296,7 +298,7 @@ function allowsKnownAiAssetSignal(options: Pick<FilterOptions, "sourcePlatform" 
 function deterministicRelation(
   candidate: DiscoveryCandidate,
   knownEntities: readonly DiscoveryKnownEntityContext[] = [],
-  options: Pick<FilterOptions, "sourcePlatform" | "sourceMethod"> = {}
+  options: Pick<FilterOptions, "sourcePlatform" | "sourceMethod" | "relevanceTerms"> = {}
 ): { relationType: AiRelationType | null; reason: string | null; entityIds: string[] } {
   const text = textOf(candidate);
   const hasCoreAi = includesAny(text, AI_TERMS);
@@ -329,6 +331,10 @@ function deterministicRelation(
   }
   if (strongKnownEntityIds.length && hasDiscoveryEventSignal(candidate)) {
     return { relationType: "CORE_AI", reason: "STRONG_KNOWN_AI_ENTITY_EVENT", entityIds: strongKnownEntityIds };
+  }
+  // Operator terms extend recall only; quality, freshness and column gates remain mandatory.
+  if (testSourceAiRelevance(candidate.title, options.relevanceTerms ?? []).relevant) {
+    return {relationType:"CORE_AI",reason:"OPERATOR_INCLUDE_TERM",entityIds:[]};
   }
   return { relationType: null, reason: null, entityIds: strongKnownEntityIds };
 }
@@ -439,6 +445,11 @@ export function filterCheapDiscoveryCandidates<T extends DiscoveryCandidate>(
   const decisions: DiscoveryFilterDecision[] = [];
 
   candidates.forEach((candidate, index) => {
+    const relevance = testSourceAiRelevance([candidate.title,candidate.excerpt ?? ""].join(" "),options.relevanceTerms ?? []);
+    if (relevance.excluded.length) {
+      decisions.push({index,keep:false,relationType:"NONE",discoveryValue:"DROP",reason:"SOURCE_POLICY_EXCLUDED_TERM",mode:"DETERMINISTIC"});
+      return;
+    }
     const keywordDecision = evaluateDiscoveryKeywordPolicy(
       [candidate.title, candidate.excerpt, candidate.author],
       options.keywordPolicy
@@ -516,6 +527,11 @@ export async function filterDiscoveryCandidates<T extends DiscoveryCandidate>(
   const windowHours = Math.max(1, Math.min(24 * 30, Math.round(options.windowHours ?? 72)));
   const decisions: DiscoveryFilterDecision[] = [];
   candidates.forEach((candidate, index) => {
+    const relevance = testSourceAiRelevance([candidate.title,candidate.excerpt ?? ""].join(" "),options.relevanceTerms ?? []);
+    if (relevance.excluded.length) {
+      decisions.push({index,keep:false,relationType:"NONE",discoveryValue:"DROP",reason:"SOURCE_POLICY_EXCLUDED_TERM",mode:"DETERMINISTIC"});
+      return;
+    }
     const keywordDecision = evaluateDiscoveryKeywordPolicy(
       [candidate.title, candidate.excerpt, candidate.author],
       options.keywordPolicy
@@ -573,7 +589,8 @@ export async function filterDiscoveryCandidates<T extends DiscoveryCandidate>(
     if (
       options.requireExplicitAiRelation === true &&
       relation.reason === "TEXT_AI_RELATION" &&
-      !hasProminentAiRelation(candidate)
+      !hasProminentAiRelation(candidate) &&
+      !testSourceAiRelevance(candidate.title,options.relevanceTerms ?? []).relevant
     ) {
       decisions.push({
         index,

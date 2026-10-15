@@ -8,7 +8,7 @@ export function isOverseasRelayConfigured() {
   );
 }
 
-export async function collectThroughOverseasRelay(config: Omit<TrendDiscoveryConfig, "provider"> & { provider: TrendDiscoveryConfig["provider"] | "DEEPMIND_FEED" | "PIXAROMA_WORKFLOWS" | "PUBLIC_PRACTICE_DOCUMENT" }, fetchImpl: typeof fetch = fetch) {
+export async function collectThroughOverseasRelay(config: Omit<TrendDiscoveryConfig, "provider"> & { provider: TrendDiscoveryConfig["provider"] | "DEEPMIND_FEED" | "PIXAROMA_WORKFLOWS" | "PUBLIC_PRACTICE_DOCUMENT" | "PUBLIC_SOURCE_DOCUMENT" }, fetchImpl: typeof fetch = fetch, signal?: AbortSignal) {
   const base = process.env.OVERSEAS_COLLECTOR_RELAY_URL?.trim();
   const secret = process.env.OVERSEAS_COLLECTOR_RELAY_SECRET?.trim();
   if (!base || !secret) throw new Error("OVERSEAS_COLLECTOR_RELAY_UNCONFIGURED");
@@ -29,7 +29,7 @@ export async function collectThroughOverseasRelay(config: Omit<TrendDiscoveryCon
       resultLimit: config.resultLimit,
       minStars: config.minStars
     }),
-    signal: AbortSignal.timeout(20000)
+    signal: signal ? AbortSignal.any([signal,AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000)
   });
   const text = await response.text();
   if (text.length > 2_500_000) throw new Error("OVERSEAS_COLLECTOR_RELAY_RESPONSE_TOO_LARGE");
@@ -52,4 +52,14 @@ export async function collectDeepMindFeedThroughRelay() {
   const result = await collectThroughOverseasRelay({ provider: "DEEPMIND_FEED", searchQuery: "", windowHours: 168, resultLimit: 30, minStars: 0 });
   if (typeof result.rssText !== "string") throw new Error("OVERSEAS_COLLECTOR_RELAY_FEED_INVALID");
   return { body: result.rssText, finalUrl: "https://deepmind.google/blog/rss.xml", contentType: "application/rss+xml", status: 200 };
+}
+
+export function isPublicFeedRelayUrl(input:string) {
+  try {const url=new URL(input);return url.protocol==="https:" && !url.port && !url.username && !url.password && ["simonwillison.net","til.simonwillison.net","blog.comfy.org"].includes(url.hostname);}catch{return false;}
+}
+export async function collectPublicSourceDocumentThroughRelay(url:string, signal?:AbortSignal) {
+  if(!isPublicFeedRelayUrl(url)) throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+  const result=await collectThroughOverseasRelay({provider:"PUBLIC_SOURCE_DOCUMENT",searchQuery:url,windowHours:168,resultLimit:1,minStars:0},fetch,signal);
+  if(typeof result.text!=="string" || typeof result.url!=="string" || !isPublicFeedRelayUrl(result.url) || result.status!==200 || typeof result.contentType!=="string") throw new Error("OVERSEAS_COLLECTOR_RELAY_FEED_INVALID");
+  return {body:result.text,finalUrl:result.url,contentType:result.contentType,status:200};
 }

@@ -413,3 +413,11 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 - Comfy官方教程经Deno的PUBLIC_PRACTICE_DOCUMENT获取公开Markdown；B站只尝试匿名公开字幕API，无字幕明确不可用，无登录/Cookie回退。Pixaroma只从该集已下载ZIP读取人类README/HOW-TO-USE，不把模型提示词文件或共享安装说明冒充逐篇步骤。
 - 凭证包含原文URL、实际获取URL、匿名/服务器获取状态、HTTP状态、时间、完整性、正文/字幕SHA256。字幕保存全部返回cue并验证顺序/时间；这证明取得完整公开字幕文件，不证明字幕覆盖视频每一秒。
 - 工作流小文件保存实际下载哈希；大型模型允许固定官方公开仓库的发布者文件清单证明（PUBLIC_PUBLISHER_MANIFEST_ONLY），单独记录清单URL、公开/非gated状态、发布者哈希及文件大小，不声称下载模型或运行工作流。任一已声明必需材料仍未验证则阻断。材料可获得不等同实际执行成功。
+
+### 来源输入与规则执行
+
+- 筛选规则只有一份持久化Owner：source-ai-relevance-policy-v1。所有SYSTEM候选在Raw写入前消费同一份规则；每次Run记录实际消费的版本和更新时间。新增词扩展标题相关性召回，不替代已有确定性识别，不绕过时效、质量、Source内容类型或栏目Gate；排除词匹配标题/摘要并优先拒绝。修改从后续采集读取，不追删历史Raw/Event；单源keywordPolicy继续叠加。
+- 网站/作者主页先解析标准HTML `link rel=alternate` 的RSS/Atom声明（含相对地址、实体转义），复用已下载Feed；再尝试有限固定备用路径及同站Sitemap。不递归全网爬取，不使用登录/关注/本机Browser。每次检测30秒网络取消预算，Feed阶段20秒，为Sitemap预留预算；请求仍受原公共URL、重定向及响应大小检查约束。
+- 公开网络路径可运行及有样本才可注册。注册/旧登记接管与审计同事务，按canonicalUrl/providerRef再次检查重复；并发注册串行。可采性不授予Fact Authority或AUTO_READY；网站与Creator都从参考来源开始，资格按现有真实Run观察。
+- PUBLIC_SOURCE_DOCUMENT是Deno固定白名单获取能力，只允许simonwillison.net、til.simonwillison.net、blog.comfy.org及其经过逐跳验证的白名单重定向；不是通用代理。其他海外源仍需独立验证并配置受管路由，不宣称任意主页可采。无明确路径/超时/登录墙必须失败关闭。
+- 成熟依据：[WHATWG alternate订阅链接](https://html.spec.whatwg.org/dev/links.html#link-type-alternate)、[RSS Autodiscovery](https://www.rssboard.org/rss-autodiscovery)。HTML由[htmlparser2](https://github.com/fb55/htmlparser2)解析，既有RSS/Sitemap/SYSTEM主链继续复用，不引入AI判断。

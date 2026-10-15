@@ -6,28 +6,23 @@
 
 Source Management 是唯一来源 Owner；SYSTEM 是唯一正式采集执行链，规则唯一见采集架构合同，不复制旧版门槛。
 
-## RADAR-PRODUCTION-V13 — Decision Brief
+## SOURCE-INPUT-RUNTIME — Decision Brief
 
-- Human：用户已明确要求生产使用新版，批准此前已提供体验的页面/日历及120限制删除上线；不再保留USER_REVIEW_PENDING作为发布阻塞。
-- Role/Surface：管理员来源管理→热点追踪；发布既有已测试新版，保持课程及非内容域生产文件。Code负责日历/过滤/游标/统计/快照与同版Web/SYSTEM；AI/Skill不参与运行，现有timer不变。
-- 方案：以现有生产Web为基底覆盖内容域已确认代码，Linux单CPU受限构建；SYSTEM先同版刷新v13快照，Web再切换。无DDL、新Source/Secret或新调度器。旧快照仅为回退材料，不作为新版current authority。
-- Acceptance：生产七日唯一数=总量=日期合计，无120截断；当天展开、其余折叠，历史一天/空日跳过/到底明确；分类反例及真实生产只读遍历通过，页面/API正常，唯一timer同版刷新PASS。Rollback：同版旧Web+SYSTEM及旧快照备份回退，保留Raw与审计。Owner：采集合同§16与现有读模型/快照。
+- 角色/Surface：管理员来源管理，保持现有界面与唯一SYSTEM主链。Code负责规则保存、确定性匹配、标准Feed自动发现、路由验证与审计；不调用AI，不修改课程或栏目门槛。
+- 问题：全局筛选词仅DailyHot消费，普通Feed不消费；网站只猜固定Feed路径，遗漏HTML标准声明的订阅地址。
+- 推荐：复用已有词匹配器，排除优先，新增词扩展相关性召回，不绕过时效/质量/栏目门槛；按WHATWG/RSS Autodiscovery读取rel=alternate，复用已有RSS解析及公共URL安全校验，保留有限备用路径。未知/登录来源fail-closed。
+- Validation/Acceptance：先复现失败，验证新增/排除、边界误伤、质量不绕过、非标准Feed/相对地址、重复注册及SYSTEM资格链；typecheck/build/内容回归，腾讯云真实探测及开发库注册采集，生产同版部署运行。
+- Rollback：Web/SYSTEM同时回退现有release；不做DDL或删除历史数据。Owner：采集架构合同及source-onboarding/discovery-filter；规则从下一次采集读取，不追删历史。
 
+## 当前验收结果 / HUMAN ACCEPTANCE
 
-## 生产验收结果（2026-10-15北京时间）
-
-- 当前Web：opc-admin-web-v13-20261015；SYSTEM：releases/20261015-radar-v13；快照radar-snapshot-v13-practice-materials。生产事实路径唯一见CURRENT_SYSTEM_FACTS。
-- 最终同一asOf核对：总量245=首批245=唯一245=日期合计；七日外历史2条，遍历后reachedBottom=true。数字属于验收时刻，不是常量。旧308/120快照不再参与当前显示。
-- 同版统一生产周期PASS、failures为空，CPU6.852秒；唯一timer enabled/active。公网页面200、未登录API401，PM2实际cwd已确认新版；课程目录逐文件对比无变化。
-- 删除无调用方的旧截断时间线及import；完整quick回归/typecheck、专项与Linux标准build通过；规则清理后再次构建与生产只读遍历通过。浏览器自动化会话连接失败，因此未声称新增一轮浏览器交互验证；此前已提供开发真实体验，用户本轮明确批准上线。
-- 发布修正：PM2旧版本不接受本次cjs配置格式，改JSON；reload会保留旧cwd，改重建同名进程定义并核验实际目录。Linux脚本固定LF。后续发布必须检查实际运行路径，不能仅看reload成功。
-
-## HUMAN ACCEPTANCE / 发布验收
-
-- 用户已明确确认生产使用新版页面/日历，授权同版Web/SYSTEM上线；USER_APPROVED。页面布局及课程冻结，后续新界面仍遵循AGENTS审核Gate。
-- Linux标准Next构建及SYSTEM类型检查通过；生产真实日期验收通过；同版统一周期通过，失败为空。生产事实及路径见CURRENT_SYSTEM_FACTS，不再保留旧“未审核/待切换/120首批”阻塞。
-- 清理已无调用方的旧截断listRadarTimeline及残留import，新增防回归断言；生产旧release仅用于显式回退，不作为现役规则。
-- 发布后仍需观察连续72小时的失败/恢复、周期耗时、资源峰值与快照时效；单轮通过不代表长期稳定。
+- 已复现旧Feed不消费全局排除词及新词再被相关性拦截，新增反例后修正；标准rel=alternate覆盖非标准路径、相对URL、HTML实体、非HTTP拒绝和已下载Feed复用。
+- 腾讯云+Deno真实检测Simon/TIL/Comfy通过。Comfy Feed超时、Sitemap可用，检测预算后约22秒完成备用检测，不宣称Feed稳定。Deno生产能力与运行路径唯一见CURRENT_SYSTEM_FACTS。
+- 开发库真实注册、重复拒绝及审计失败回滚通过；保存3个真实标题为排除词后，Run逐篇返回SOURCE_POLICY_EXCLUDED_TERM。加入真实实操标题后新增1条Raw；恢复词表再次采集0新增、8重复。测试词已恢复，不污染生产规则。
+- 内容完整quick回归/typecheck及最终Linux标准build通过。Windows本地build因既有.next目录EPERM未通过，部署依据隔离Linux标准构建；临时验证脚本导致的一次构建失败已清除并重建通过。
+- Web与SYSTEM已同版切换；页面200、未登录规则API401、唯一timer enabled/active，课程/组件目录与前版逐文件相同，仅来源API及内容Core修改。无新增UI，不重新声明视觉审核；现有v13页面此前USER_APPROVED。
+- 生产统一周期PASS、failures为空，但本轮无到期来源，不冒充实际来源采集证据；随后单独验证既有The Decoder RSS：10条返回、0新增、10重复，Run记录source-ai-relevance-policy-v2；CPU1.332秒，真实生产规则消费通过。
+- 本轮难点：可打开主页不等于可采Feed；Deno部分Feed失败需验证备用路径；规则保存不等于参与主链；新词不能被后续Gate意外吞掉。保持成熟标准解析、失败关闭、有限请求/并发与同版回退，不引入AI或平行采集器。
 
 # NEXT
 

@@ -9,6 +9,10 @@ Task: COLLECTION-ARCHITECTURE-REALIGNMENT-001
 ## 1. Current Owners
 
 ### Source Management
+- lib/server/content/public-feed-discovery.ts — htmlparser2实现标准RSS/Atom自动发现，复用下载结果与有限备用路径；网络安全由现有Collector负责。
+- lib/server/content/source-onboarding.ts — 网络取消预算、实时采样、事务注册/审计与并发重复检查；注册不授予事实权或成熟资格。
+- lib/server/content/source-management-policy.ts / discovery-filter.ts / collection-runner.ts — 同一份后台规则进入SYSTEM cheap/full过滤，排除优先、标题新增词召回，Run记录规则版本；不追删历史。
+- scripts/validate-source-input-runtime.ts / accept-source-input-runtime.ts — 确定性反例及开发库真实Feed注册、保存、过滤、Raw验收；后者要求--confirm=SOURCE-INPUT-DEVELOPMENT，结束恢复规则，生产库拒绝执行。
 - lib/server/content/practice-materials.ts — 逐篇公开服务器获取回执、完整正文/字幕或工作流操作步骤的确定性校验；缺失失败关闭。
 - scripts/validate-practice-materials.ts / scripts/accept-practice-boundaries.ts — 材料反例与真实数据库只读分类验收（生产必须显式--production-read-only）。
 - lib/server/content/pixaroma-source.ts — 固定作者公开材料实采后事务注册/审计、SYSTEM onboarding与既有候选关联；保留资格观察，不授予事实权。

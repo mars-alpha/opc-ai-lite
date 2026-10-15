@@ -64,7 +64,9 @@ export async function POST(request: Request) {
     }
     if (action === "COLLECT") {
       if (typeof body.sourceId !== "string" || !body.sourceId) throw new Error("SOURCE_ID_REQUIRED");
-      return NextResponse.json({ run: await runOnboardedSourceCollection(user, body.sourceId) });
+      const run = await runOnboardedSourceCollection(user, body.sourceId);
+      if (run.status !== "SUCCEEDED") return NextResponse.json({error:run.errorCode ?? "SOURCE_COLLECTION_NOT_COMPLETED",run},{status:422});
+      return NextResponse.json({run});
     }
     if (action === "SAVE_AI_POLICY") {
       return NextResponse.json(await saveSourceAiRelevancePolicy(body.terms, user, body.reason));

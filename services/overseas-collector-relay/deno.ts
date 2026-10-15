@@ -1,4 +1,4 @@
-const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS", "PUBLIC_PRACTICE_DOCUMENT"]);
+const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS", "PUBLIC_PRACTICE_DOCUMENT", "PUBLIC_SOURCE_DOCUMENT"]);
 
 async function collectPracticeDocument(request: ReturnType<typeof parseRequest>, deadline:number) {
   const url=request.searchQuery.replace(/\.md$/,"");
@@ -213,7 +213,7 @@ async function collectGithub(request: ReturnType<typeof parseRequest>, deadline:
 export async function handleRelayRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   if (request.method === "GET" && url.pathname === "/health") {
-    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-public-content-v4", capabilities: [...ALLOWED_PROVIDERS] });
+    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-source-autodiscovery-v5", capabilities: [...ALLOWED_PROVIDERS] });
   }
   if (request.method !== "POST" || url.pathname !== "/v1/collect") return json({ error: "NOT_FOUND" }, 404);
 
@@ -234,7 +234,8 @@ export async function handleRelayRequest(request: Request, env: Env) {
     const parsed = parseRequest(JSON.parse(body || "{}"));
     const started = Date.now();
     const deadline = started + RELAY_TOTAL_BUDGET_MS;
-    const result = parsed.provider === "PUBLIC_PRACTICE_DOCUMENT" ? await collectPracticeDocument(parsed,deadline)
+    const result = parsed.provider === "PUBLIC_SOURCE_DOCUMENT" ? await collectSourceDocument(parsed,deadline)
+      : parsed.provider === "PUBLIC_PRACTICE_DOCUMENT" ? await collectPracticeDocument(parsed,deadline)
       : parsed.provider === "PIXAROMA_WORKFLOWS" ? await collectPixaroma(parsed,deadline)
       : parsed.provider === "DEEPMIND_FEED"
       ? { provider: parsed.provider, rssText: await checkedText(await fetch("https://deepmind.google/blog/rss.xml", { redirect: "error", signal: upstreamSignal(deadline, 12000) })) }
@@ -260,4 +261,24 @@ const deno = (globalThis as typeof globalThis & { Deno?: DenoRuntime }).Deno;
 if (deno) {
   const env = deno.env.toObject();
   deno.serve((request) => handleRelayRequest(request, env));
+}
+
+function allowedSourceDocument(value:string) {
+ const url=new URL(value);
+ if(url.protocol!=="https:" || url.port || url.username || url.password || !["simonwillison.net","til.simonwillison.net","blog.comfy.org"].includes(url.hostname)) throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+ return url.href;
+}
+async function collectSourceDocument(request:ReturnType<typeof parseRequest>,deadline:number) {
+ let url=allowedSourceDocument(request.searchQuery);
+ for(let redirects=0;redirects<=3;redirects++){
+  const response=await fetch(url,{redirect:"manual",headers:{accept:"text/html, application/rss+xml, application/atom+xml, application/xml;q=0.9"},signal:upstreamSignal(deadline,10000)});
+  if(response.status>=300 && response.status<400){
+   const location=response.headers.get("location");
+   if(!location || redirects===3)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+   url=allowedSourceDocument(new URL(location,url).href);continue;
+  }
+  const text=await checkedText(response);
+  return {provider:"PUBLIC_SOURCE_DOCUMENT",url,text,status:200,contentType:response.headers.get("content-type")??"text/plain",observedAt:new Date().toISOString()};
+ }
+ throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
 }

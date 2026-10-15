@@ -1,5 +1,6 @@
 import "server-only";
-import { isPublicSourceRelayEnabled, collectDeepMindFeedThroughRelay } from "./overseas-collector-relay-client";
+import {readSourceAiRelevancePolicy} from "./source-management-policy";
+import { isPublicFeedRelayUrl, collectPublicSourceDocumentThroughRelay, isPublicSourceRelayEnabled, collectDeepMindFeedThroughRelay } from "./overseas-collector-relay-client";
 import { assessCollectionItemQuality, selectBackfillWindow } from "./collection-item-quality";
 import {collectPublicPracticeContent,mergePublicContentMetadata} from "./public-practice-content";
 
@@ -360,8 +361,9 @@ function transientFetchErrorCode(error: unknown) {
   return null;
 }
 
-async function fetchWithTransientRetry(current: URL, accept: string) {
+async function fetchWithTransientRetry(current: URL, accept: string, signal?: AbortSignal) {
   for (let attempt = 0; attempt <= TRANSIENT_FETCH_RETRY_DELAYS_MS.length; attempt += 1) {
+    signal?.throwIfAborted();
     try {
       return await fetch(current, {
         redirect: "manual",
@@ -369,9 +371,10 @@ async function fetchWithTransientRetry(current: URL, accept: string) {
           "user-agent": USER_AGENT,
           accept
         },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+        signal: signal ? AbortSignal.any([signal,AbortSignal.timeout(FETCH_TIMEOUT_MS)]) : AbortSignal.timeout(FETCH_TIMEOUT_MS)
       });
     } catch (error) {
+      signal?.throwIfAborted();
       const transientCode = transientFetchErrorCode(error);
       if (!transientCode) throw new Error("COLLECTION_NETWORK_FAILED");
       if (attempt >= TRANSIENT_FETCH_RETRY_DELAYS_MS.length) {
@@ -383,10 +386,13 @@ async function fetchWithTransientRetry(current: URL, accept: string) {
   throw new Error("COLLECTION_NETWORK_UNREACHABLE");
 }
 
-export async function fetchPublicText(input: string, accept = "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9, */*;q=0.5") {
+export async function fetchPublicText(input: string, accept = "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9, */*;q=0.5", signal?: AbortSignal) {
+  signal?.throwIfAborted();
+  if (isPublicFeedRelayUrl(input)) return collectPublicSourceDocumentThroughRelay(input,signal);
+  if (input === "https://deepmind.google/blog/rss.xml" && isPublicSourceRelayEnabled()) return collectDeepMindFeedThroughRelay();
   let current = await assertPublicHttpUrl(input);
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount += 1) {
-    const response = await fetchWithTransientRetry(current, accept);
+    const response = await fetchWithTransientRetry(current, accept, signal);
 
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
@@ -569,8 +575,8 @@ function parseSitemapIndexUrls(body: string, sitemapUrl: string) {
     .slice(0, 5);
 }
 
-export async function collectSitemap(url: string, scopeUrl?: string | null) {
-  const fetched = await fetchPublicText(url, "application/xml, text/xml, */*;q=0.5");
+export async function collectSitemap(url: string, scopeUrl?: string | null, signal?: AbortSignal) {
+  const fetched = await fetchPublicText(url, "application/xml, text/xml, */*;q=0.5",signal);
   const direct = parseSitemapDocument(fetched.body, fetched.finalUrl, scopeUrl);
   if (direct.length) return direct;
 
@@ -578,7 +584,7 @@ export async function collectSitemap(url: string, scopeUrl?: string | null) {
   if (!childUrls.length) throw new Error("SITEMAP_NO_URLS");
   const batches = await Promise.all(childUrls.map(async (child) => {
     try {
-      const nested = await fetchPublicText(child, "application/xml, text/xml, */*;q=0.5");
+      const nested = await fetchPublicText(child, "application/xml, text/xml, */*;q=0.5",signal);
       return parseSitemapDocument(nested.body, nested.finalUrl, scopeUrl);
     } catch {
       return [];
@@ -638,14 +644,14 @@ export function parseHtmlDocument(html: string, finalUrl: string, metadata: Reco
   }];
 }
 
-export async function collectRss(url: string) {
+export async function collectRss(url: string, signal?: AbortSignal) {
   const viaRelay = url === "https://deepmind.google/blog/rss.xml" && isPublicSourceRelayEnabled();
-  const fetched = viaRelay ? await collectDeepMindFeedThroughRelay() : await fetchPublicText(url);
+  const fetched = viaRelay ? await collectDeepMindFeedThroughRelay() : await fetchPublicText(url,undefined,signal);
   const items = parseFeedDocument(fetched.body, fetched.finalUrl);
   if (items.length === 0) throw new Error("RSS_NO_ITEMS");
   return items.map((item) => ({
     ...item,
-    metadata: { ...(item.metadata ?? {}), contentType: fetched.contentType, statusCode: fetched.status, acquisitionTransport: viaRelay ? "DENO_RELAY" : "DIRECT" }
+    metadata: { ...(item.metadata ?? {}), contentType: fetched.contentType, statusCode: fetched.status, acquisitionTransport: viaRelay || isPublicFeedRelayUrl(url) ? "DENO_RELAY" : "DIRECT" }
   }));
 }
 
@@ -1036,6 +1042,8 @@ export async function runSourceCollection(
         ? source.collectionConfig as Record<string, unknown>
         : {};
     const keywordPolicy = normalizeDiscoveryKeywordPolicy(collectionConfig.keywordPolicy);
+    const relevancePolicy = provenance.origin === "SYSTEM" ? await readSourceAiRelevancePolicy() : null;
+    const relevanceTerms = relevancePolicy?.terms ?? [];
     const cheapFilterResult = filterCheapDiscoveryCandidates(items, {
       windowHours: configuredWindow,
       sourceName: source.name,
@@ -1045,7 +1053,8 @@ export async function runSourceCollection(
       strategyTopics: Array.isArray(source.topics)
         ? source.topics.filter((item): item is string => typeof item === "string")
         : [],
-      keywordPolicy
+      keywordPolicy,
+      relevanceTerms
     });
     const knownEntitiesByIndex = new Map<number, Awaited<ReturnType<typeof resolveKnownEntities>>>();
     if (provenance.origin === "SYSTEM" && cheapFilterResult.items.length) {
@@ -1063,12 +1072,13 @@ export async function runSourceCollection(
       sourceType: policy?.sourceType ?? source.sourceType,
       requireExplicitAiRelation:
         provenance.origin === "SYSTEM" &&
-        (policy?.sourceType === "MEDIA" || policy?.sourceType === "SOCIAL" || policy?.sourceType === "DEVELOPER"),
+        (policy?.sourceType === "MEDIA" || policy?.sourceType === "SOCIAL" || policy?.sourceType === "DEVELOPER" || source.sourceType === "MANAGED_SOURCE" || source.sourceType === "CREATOR"),
       knownEntitiesByIndex,
       strategyTopics: Array.isArray(source.topics)
         ? source.topics.filter((item): item is string => typeof item === "string")
         : [],
-      keywordPolicy
+      keywordPolicy,
+      relevanceTerms
     });
     const policyItems = [];
     const rejectedSamples: RejectedSampleAudit[] = [];
@@ -1263,6 +1273,7 @@ export async function runSourceCollection(
         mediaPolicy: COLLECTOR_MEDIA_POLICY,
         discoveryFilter: {
           version: "ai-discovery-filter-v2",
+          sourcePolicy: relevancePolicy ? {version:relevancePolicy.version,updatedAt:relevancePolicy.updatedAt} : null,
           cheapGate: cheapFilterResult.stats,
           ...filterResult.stats,
           droppedReasons: filterResult.decisions
