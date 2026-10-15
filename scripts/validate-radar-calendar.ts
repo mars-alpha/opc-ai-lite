@@ -5,6 +5,7 @@ async function main() {
 const snapshot = fs.readFileSync("lib/server/content/radar-snapshot.ts", "utf8");
 const readModel = fs.readFileSync("lib/server/content/intelligence-read-model.ts", "utf8");
 assert(readModel.includes("nextHistoryDay"), "history cursor must be based on visible events, not the oldest excluded database row");
+assert(!readModel.includes("export async function listRadarTimeline("), "retired capped timeline must not remain a parallel authority");
 assert(!snapshot.includes("limit: 120"), "initial timeline must contain all seven calendar days, not 120 items");
 const { beijingDay, calendarWindow, previousDay, nextHistoryDay, selectCalendarItems } = await import("../lib/content/radar-calendar");
 const anchor = new Date("2026-10-15T16:01:00Z");

@@ -275,3 +275,7 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 - `services/overseas-collector-relay/deno.ts`：PUBLIC_PRACTICE_DOCUMENT仅接受Comfy教程白名单，有限下载工作流和查询官方模型清单；不是任意URL代理。
 - `lib/server/content/public-workflow-materials.ts`：受限ZIP内的人类说明与逐篇操作步骤，不执行附件。
 - `scripts/validate-public-practice-content.ts`：边界/回执/字幕反例；`scripts/accept-public-practice-content.ts`：腾讯云公开材料实测及明确开发库现有作者SYSTEM去重持久化验收。
+
+### 同版生产发布校验
+
+Web与SYSTEM必须同版并使用当前snapshot schema；生成完整快照后再由新版Web消费。发布必须核对PM2实际exec cwd、SYSTEM current链接、唯一timer和生产items=total=唯一数/日期合计；仅收到reload成功不是目录已切换的证据。PM2配置使用JSON，Linux临时脚本固定LF。旧release保留显式回退，不作为current入口；课程文件对比保持不变。

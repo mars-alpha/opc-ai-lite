@@ -6,7 +6,6 @@ import {
   listCurrentHotTodayIntelligence,
   listDiscoveryExpansionCandidates,
   listLatestTodayIntelligence,
-  listRadarTimeline,
   listRadarTimelinePage,
   listOfficialNewsCandidates,
   listUnverifiedEventCandidates,

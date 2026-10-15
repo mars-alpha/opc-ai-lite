@@ -860,62 +860,6 @@ export function buildWorthPracticingFromPools(
     .slice(0, bounded);
 }
 
-export async function listRadarTimeline(limit = 300) {
-  const bounded = Math.max(1, Math.min(500, limit));
-  const poolLimit = Math.max(bounded * 2, 120);
-  const pool = await listPolicyEventCandidatePool(poolLimit);
-  const latest = pool.filter((item) =>
-    item.verificationStatus === "CONFIRMED_OFFICIAL" ||
-    item.verificationStatus === "CONFIRMED_MEDIA"
-  );
-  const hotspots = pool.filter((item) => item.currentHot.eligible);
-  const unverified = pool.filter((item) => item.verificationStatus === "UNVERIFIED");
-  const discoveryPool = buildDiscoveryExpansionCandidatesFromPools(
-    latest,
-    unverified,
-    Math.max(bounded * 3, 100)
-  );
-  const practicing = buildWorthPracticingFromPools(latest, hotspots, unverified, bounded);
-  const tagged = [
-    ...latest.map((item) => ({ ...item, radarState: "LATEST" as const })),
-    ...practicing.map((item) => ({ ...item, radarState: "PRACTICING" as const })),
-    ...unverified.map((item) => ({ ...item, radarState: "UNVERIFIED" as const }))
-  ];
-  const priority = { LATEST: 3, PRACTICING: 2, UNVERIFIED: 1 };
-  const unique = new Map<string, (typeof tagged)[number]>();
-  for (const item of tagged) {
-    const existing = unique.get(item.eventId);
-    if (!existing || priority[item.radarState] > priority[existing.radarState]) {
-      unique.set(item.eventId, item);
-    }
-  }
-  const timeline = [...unique.values()]
-    .sort((a, b) =>
-      toTime(b.publishedAt ?? b.collectedAt) - toTime(a.publishedAt ?? a.collectedAt)
-    )
-    .slice(0, bounded);
-  const featuredRanks = new Map(
-    rerankBoleDailyFeatured(timeline.map((item) => ({
-      eventId: item.eventId,
-      selected: item.curation.curated,
-      score: item.curation.score,
-      sourceId: item.sourceId,
-      category: item.category,
-      publishedAt: item.publishedAt,
-      collectedAt: item.collectedAt
-    }))).map((item) => [item.eventId, item.featuredRank])
-  );
-
-  return timeline.map((item) => ({
-    ...item,
-    curation: {
-      ...item.curation,
-      featuredRank: featuredRanks.get(item.eventId) ?? null,
-      rerankAuthority: "PRESENTATION_ONLY" as const
-    }
-  }));
-}
-
 // Calendar timeline never paginates by a mutable/non-unique lastSeenAt.
 export async function listRadarCalendarRange(from: Date, to: Date, asOf = new Date()) {
   return getDatabase().transaction(async tx => {
