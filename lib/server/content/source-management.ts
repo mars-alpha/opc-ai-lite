@@ -26,6 +26,10 @@ import { evaluateSourceRuntimeGovernance } from "./source-runtime-governance";
 import { readSourceRuntimeUtility } from "./source-runtime-utility";
 import { readSourceApiQuota } from "./source-api-quota-ledger";
 
+import type { AuthUser } from "../auth/service";
+import { recordContentAudit } from "./workbench";
+import { classifySourceAssetForCleanup } from "./source-asset-cleanup";
+
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -43,7 +47,7 @@ function isOperatorAddedSource(source: typeof contentSources.$inferSelect) {
   const metadata = record(source.metadata);
   const registry = record(metadata.sourceRegistry);
   return (
-    source.status === "ACTIVE" &&
+    (source.status === "ACTIVE" || (source.status === "ARCHIVED" && metadata.archivedFromSourceManagement === true)) &&
     (metadata.manualEntry === true || registry.managed === true) &&
     !RADAR_SOURCE_IDS.has(source.id)
   );
@@ -59,40 +63,56 @@ function sourceCategory(sourceRole: string, sourceType: string) {
   return "其他";
 }
 
-export async function setSourceManagementEnabled(sourceId: string, enabled: boolean) {
-  const db = getDatabase();
-  const [source] = await db.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1);
-  if (!source) throw new Error("SOURCE_NOT_FOUND");
-  const metadata = record(source.metadata);
-  const [updated] = await db.update(contentSources).set({
-    enabled,
-    metadata: {
-      ...metadata,
-      managementDisabled: !enabled,
-      managementDisabledAt: !enabled ? new Date().toISOString() : null
-    },
-    updatedAt: new Date()
-  }).where(eq(contentSources.id, sourceId)).returning();
-  return updated;
+function operationReason(input: unknown, fallback: string) {
+  if (input === undefined || input === null || input === "") return fallback;
+  if (typeof input !== "string" || input.trim().length > 500) throw new Error("INVALID_OPERATION_REASON");
+  return input.trim() || fallback;
 }
 
-export async function archiveOperatorSource(sourceId: string) {
+export async function setSourceManagementEnabled(sourceId: string, enabled: boolean, user: AuthUser, reason?: unknown) {
+  return getDatabase().transaction(async (tx) => {
+    const [source] = await tx.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1).for("update");
+    if (!source) throw new Error("SOURCE_NOT_FOUND");
+    if (source.status !== "ACTIVE") throw new Error("SOURCE_NOT_ACTIVE");
+    const metadata = record(source.metadata);
+    const [updated] = await tx.update(contentSources).set({ enabled,
+      metadata: { ...metadata, managementDisabled: !enabled, managementDisabledAt: !enabled ? new Date().toISOString() : null }, updatedAt: new Date()
+    }).where(eq(contentSources.id, sourceId)).returning();
+    await recordContentAudit(user, { action: enabled ? "SOURCE_ENABLED" : "SOURCE_DISABLED", entityType: "CONTENT_SOURCE", entityId: sourceId,
+      before: { enabled: source.enabled, status: source.status }, after: { enabled: updated.enabled, status: updated.status }, metadata: { reason: operationReason(reason, enabled ? "ADMIN_ENABLE_SOURCE" : "ADMIN_DISABLE_SOURCE") } }, tx);
+    return updated;
+  });
+}
+
+export async function archiveOperatorSource(sourceId: string, user: AuthUser, reason?: unknown) {
   if (RADAR_SOURCE_IDS.has(sourceId)) throw new Error("SYSTEM_BASELINE_SOURCE_CANNOT_ARCHIVE");
-  const db = getDatabase();
-  const [source] = await db.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1);
-  if (!source || !isOperatorAddedSource(source)) throw new Error("OPERATOR_SOURCE_NOT_FOUND");
-  const metadata = record(source.metadata);
-  const [updated] = await db.update(contentSources).set({
-    status: "ARCHIVED",
-    enabled: false,
-    metadata: {
-      ...metadata,
-      archivedFromSourceManagement: true,
-      archivedAt: new Date().toISOString()
-    },
-    updatedAt: new Date()
-  }).where(eq(contentSources.id, sourceId)).returning();
-  return updated;
+  return getDatabase().transaction(async (tx) => {
+    const [source] = await tx.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1).for("update");
+    if (!source || !isOperatorAddedSource(source)) throw new Error("OPERATOR_SOURCE_NOT_FOUND");
+    const metadata = record(source.metadata);
+    const [updated] = await tx.update(contentSources).set({ status: "ARCHIVED", enabled: false,
+      metadata: { ...metadata, managementDisabled: true, archivedFromSourceManagement: true, archivedAt: new Date().toISOString() }, updatedAt: new Date()
+    }).where(eq(contentSources.id, sourceId)).returning();
+    await recordContentAudit(user, { action: "SOURCE_ARCHIVED", entityType: "CONTENT_SOURCE", entityId: sourceId,
+      before: { enabled: source.enabled, status: source.status }, after: { enabled: false, status: "ARCHIVED" }, metadata: { reason: operationReason(reason, "ADMIN_ARCHIVE_SOURCE") } }, tx);
+    return updated;
+  });
+}
+
+export async function restoreOperatorSource(sourceId: string, user: AuthUser, reason?: unknown) {
+  if (RADAR_SOURCE_IDS.has(sourceId)) throw new Error("SYSTEM_BASELINE_SOURCE_CANNOT_RESTORE");
+  return getDatabase().transaction(async (tx) => {
+    const [source] = await tx.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1).for("update");
+    const metadata = record(source?.metadata);
+    if (!source || source.status !== "ARCHIVED" || metadata.archivedFromSourceManagement !== true) throw new Error("ARCHIVED_OPERATOR_SOURCE_NOT_FOUND");
+    if (classifySourceAssetForCleanup(source).action !== "KEEP") throw new Error("RETIRED_SOURCE_CANNOT_RESTORE");
+    const [updated] = await tx.update(contentSources).set({ status: "ACTIVE", enabled: false,
+      metadata: { ...metadata, managementDisabled: true, archivedFromSourceManagement: false, restoredAt: new Date().toISOString() }, updatedAt: new Date()
+    }).where(eq(contentSources.id, sourceId)).returning();
+    await recordContentAudit(user, { action: "SOURCE_RESTORED", entityType: "CONTENT_SOURCE", entityId: sourceId,
+      before: { enabled: source.enabled, status: source.status }, after: { enabled: false, status: "ACTIVE" }, metadata: { reason: operationReason(reason, "ADMIN_RESTORE_SOURCE_REQUALIFY_REQUIRED") } }, tx);
+    return updated;
+  });
 }
 
 export async function getSourceManagementOverview() {
@@ -136,6 +156,7 @@ export async function getSourceManagementOverview() {
     const metadata = record(source?.metadata);
     const runtimeQualification = record(metadata.runtimeQualification);
     const effectiveQualification =
+      !source || source.status !== "ACTIVE" || !source.enabled ? "DISABLED" :
       typeof runtimeQualification.effectiveQualification === "string"
         ? runtimeQualification.effectiveQualification
         : qualification?.qualification ?? "CONDITIONAL";
@@ -342,7 +363,7 @@ export async function getSourceManagementIndex() {
       collectionConfig: source?.collectionConfig ?? (entry ? { acquisition: entry.acquisition } : {})
     });
     const platform = source?.platform ?? entry?.platform ?? "WEB";
-    const effectiveQualification = typeof runtimeQualification.effectiveQualification === "string"
+    const effectiveQualification = !source || source.status !== "ACTIVE" || !source.enabled ? "DISABLED" : typeof runtimeQualification.effectiveQualification === "string"
       ? runtimeQualification.effectiveQualification : "CONDITIONAL";
     const recentProductionStatuses = Array.isArray(runtimeQualification.recentProductionStatuses)
       ? runtimeQualification.recentProductionStatuses.filter((value): value is string => typeof value === "string")
@@ -537,8 +558,8 @@ export async function getSourceManagementDetail(sourceId: string) {
   const metadata = record(source.metadata);
   const runtimeQualification = record(metadata.runtimeQualification);
   const rawQualification = String(
-    runtimeQualification.effectiveQualification ??
     baseItem.effectiveQualification ??
+    runtimeQualification.effectiveQualification ??
     "CONDITIONAL"
   );
   const qualification: SourceRuntimeQualification =

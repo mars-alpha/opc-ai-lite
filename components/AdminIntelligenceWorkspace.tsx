@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type HotTrackingMode = "FEATURED" | "ALL";
 type RadarCategory = "全部" | "模型" | "产品" | "开发者" | "行业" | "论文" | "社区" | "自媒体";
@@ -19,6 +19,7 @@ type EventItem = {
   publicReadableSourceCount?: number;
   hotParticipants?: Array<{ name: string; platform: string; role: string }>;
   practicalEvidenceLinks?: Array<{ sourceName: string; title: string | null; presentation?: { displayTitleZh?: string | null }; originalUrl: string; publishedAt: string | null; expansionType: string }>;
+  practiceTopic?: { key: string; tool: string; goal: string; parentEventIds: string[] };
   eventType: string | null;
   category: Exclude<RadarCategory, "全部">;
   radarState?: "LATEST" | "PRACTICING" | "UNVERIFIED";
@@ -319,11 +320,21 @@ export function AdminIntelligenceWorkspace() {
     topicMomentum: { minAgeHours: number; windowHours: number; mode: string };
   } | null>(null);
 
-  async function loadSnapshot() {
+  const readEpoch = useRef(0);
+  const [clockNow, setClockNow] = useState(Date.now());
+  useEffect(() => { const timer = window.setInterval(() => setClockNow(Date.now()), 60000); return () => window.clearInterval(timer); }, []);
+  const [snapshotStatus, setSnapshotStatus] = useState<{ generatedAt: string; freshness: { stale: boolean; reason: string } } | null>(null);
+  const [snapshotReadFailed, setSnapshotReadFailed] = useState(false);
+
+  async function loadSnapshot(clearMessage = true) {
+    const epoch = ++readEpoch.current;
     setBusy(true);
-    setMessage(null);
+    if (clearMessage) setMessage(null);
     try {
       const data = await readJson("/api/admin/content/intelligence?view=snapshot");
+      if (epoch !== readEpoch.current) return;
+      setSnapshotReadFailed(false);
+      setSnapshotStatus({ generatedAt: data.generatedAt, freshness: data.freshness ?? { stale: true, reason: "UNKNOWN" } });
       setItems((data.items ?? []) as EventItem[]);
       setFeaturedItems((data.featured ?? []) as EventItem[]);
       setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
@@ -333,9 +344,9 @@ export function AdminIntelligenceWorkspace() {
       setReadiness(data.readiness ?? null);
       setCollectionHealth(data.collectionHealth ?? null);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "热点追踪读取失败");
+      if (epoch === readEpoch.current) { setSnapshotReadFailed(true); setMessage(error instanceof Error ? error.message : "热点追踪读取失败"); }
     } finally {
-      setBusy(false);
+      if (epoch === readEpoch.current) setBusy(false);
     }
   }
 
@@ -346,8 +357,10 @@ export function AdminIntelligenceWorkspace() {
   async function loadMoreEvents() {
     if (!nextCursor || loadingMore) return;
     setLoadingMore(true);
+    const epoch = readEpoch.current;
     try {
       const data = await readJson(`/api/admin/content/intelligence?view=timeline&limit=120&before=${encodeURIComponent(nextCursor)}`);
+      if (epoch !== readEpoch.current) return;
       const more = (data.items ?? []) as EventItem[];
       setItems((current) => {
         const byEvent = new Map([...current, ...more].map((item) => [item.eventId, item]));
@@ -378,16 +391,23 @@ export function AdminIntelligenceWorkspace() {
   async function decide(eventId: string, decision: "WATCH" | "IGNORE" | "ADOPT") {
     setActingId(eventId);
     setMessage(null);
+    ++readEpoch.current;
     try {
-      await readJson(`/api/admin/content/discovery/events/${eventId}/decision`, {
+      const result = await readJson(`/api/admin/content/discovery/events/${eventId}/decision`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ decision, selectedTypes: [] })
       });
+      ++readEpoch.current;
+      const status = result.item?.discoveryStatus;
+      if (!status) throw new Error("操作已提交，请刷新确认状态");
+      const project = (current: EventItem[]) => current.filter((item) => item.eventId !== eventId || status !== "IGNORED").map((item) => item.eventId === eventId ? { ...item, discoveryStatus: status } : item);
+      setItems(project); setFeaturedItems(project); setCurrentHot(project); setWorthPracticing(project);
       setMessage(decision === "ADOPT" ? "已采用并记录意图；内容工作台尚未进入规划。" : decision === "WATCH" ? "已继续观察。" : "已忽略并退出当前热点追踪列表。");
-      await loadSnapshot();
+      await loadSnapshot(false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "热点追踪操作失败");
+      await loadSnapshot(false);
     } finally {
       setActingId(null);
     }
@@ -500,7 +520,7 @@ export function AdminIntelligenceWorkspace() {
             <header><div><span>DO TODAY</span><h3>今日值得做</h3></div><small>{worthPracticing.length ? worthPracticing.length + " 项" : "严格门槛"}</small></header>
             <div>
               {worthPracticing.slice(0, 4).map((item) => (
-                <article key={item.eventId}>
+                <article key={item.practiceTopic?.key ?? item.eventId}>
                   <strong>{item.presentation?.displayTitleZh || item.title}</strong>
                   <p>{practiceActionText(item)}</p>
                   <span>{item.coverage.actionablePracticalEvidenceCount ?? 0} 条可执行证据 · {item.coverage.actionablePracticalOriginCount ?? 0} 独立来源 · {item.coverage.actionablePracticalTypeCount ?? 0} 类实践</span>
@@ -612,6 +632,8 @@ export function AdminIntelligenceWorkspace() {
           </div>
         </details>
       ) : null}
+      {snapshotStatus ? <div className="intel-message" role="status">快照生成：{new Date(snapshotStatus.generatedAt).toLocaleString("zh-CN")} · {(snapshotStatus.freshness.stale || clockNow - new Date(snapshotStatus.generatedAt).getTime() > 1800000) ? "数据已过期或时间异常，当前保留最近成功结果" : "快照有效"}</div> : null}
+      {snapshotReadFailed ? <button type="button" disabled={busy} onClick={() => void loadSnapshot()}>读取失败，重试</button> : null}
       {message ? <div className="intel-message">{message}</div> : null}
       {busy ? <div className="intel-loading">正在读取 Event / Evidence / Coverage…</div> : null}
 

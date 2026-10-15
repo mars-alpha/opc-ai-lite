@@ -209,6 +209,7 @@ function explicitRoutes(acquisition: Record<string, unknown>, canonicalUrl?: str
   if (!Array.isArray(acquisition.routes)) return [];
   return acquisition.routes.flatMap((raw, index): SourceAcquisitionRoute[] => {
     const route = record(raw);
+    const interactive = [route,acquisition].some(value => value.requiresLogin === true || value.requiresHuman === true || value.requiresFollow === true || value.requiresBrowserSession === true);
     const kind = normalizeKind(route.kind);
     if (!kind || kind === "UNRESOLVED") return [];
     const role = String(route.role ?? "").toUpperCase() === "PRIMARY" || index === 0 ? "PRIMARY" as const : "FALLBACK" as const;
@@ -217,11 +218,11 @@ function explicitRoutes(acquisition: Record<string, unknown>, canonicalUrl?: str
       role,
       kind,
       explicit: true,
-      reason: "EXPLICIT_ACQUISITION_ROUTE",
+      reason: interactive ? "INTERACTIVE_ACQUISITION_DEPENDENCY_REJECTED" : "EXPLICIT_ACQUISITION_ROUTE",
       targetUrl: text(route.url) ?? text(route.targetUrl) ?? text(acquisition.url) ?? canonicalUrl ?? null,
       runtimeOwner: text(route.runtimeOwner) ?? text(acquisition.runtimeOwner),
       costLevel: normalizeCostLevel(route.costLevel, kind),
-      enabled: route.enabled !== false
+      enabled: route.enabled !== false && !interactive
     })];
   });
 }
@@ -234,6 +235,9 @@ export function resolveSourceAcquisitionPlan(
   const config = record(input.collectionConfig);
   const metadata = record(input.metadata);
   const acquisition = record(config.acquisition);
+  if ([config,metadata,acquisition].some(value => value.requiresLogin === true || value.requiresHuman === true || value.requiresFollow === true || value.requiresBrowserSession === true)) {
+    return planResult({kind:"UNRESOLVED",explicit:true,reason:"INTERACTIVE_ACQUISITION_DEPENDENCY_REJECTED"});
+  }
   const routes = explicitRoutes(acquisition, input.canonicalUrl);
   if (routes.length) {
     return planFromRoutes(routes, "EXPLICIT_ACQUISITION_ROUTES", true);

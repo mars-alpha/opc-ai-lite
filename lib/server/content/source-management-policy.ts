@@ -1,7 +1,9 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getDatabase } from "../db";
+import type { AuthUser } from "../auth/service";
+import { recordContentAudit } from "./workbench";
 import { contentRadarSnapshots } from "../db/schema";
 
 export const SOURCE_AI_RELEVANCE_POLICY_KEY = "source-ai-relevance-policy-v1";
@@ -77,23 +79,23 @@ export async function readSourceAiRelevancePolicy() {
   };
 }
 
-export async function saveSourceAiRelevancePolicy(termsInput: unknown) {
+export async function saveSourceAiRelevancePolicy(termsInput: unknown, user: AuthUser, reason?: unknown) {
   const normalized = normalizePolicy({ terms: termsInput, updatedAt: new Date().toISOString() });
   if (!normalized || normalized.terms.length < 1 || normalized.terms.length > 200) {
     throw new Error("SOURCE_AI_RELEVANCE_POLICY_INVALID");
   }
   const payload = { ...normalized, updatedAt: new Date().toISOString() };
-  const db = getDatabase();
-  const [existing] = await db.select({ key: contentRadarSnapshots.key }).from(contentRadarSnapshots)
-    .where(eq(contentRadarSnapshots.key, SOURCE_AI_RELEVANCE_POLICY_KEY)).limit(1);
-  if (existing) {
-    await db.update(contentRadarSnapshots).set({ payload, generatedAt: new Date(), updatedAt: new Date() })
-      .where(eq(contentRadarSnapshots.key, SOURCE_AI_RELEVANCE_POLICY_KEY));
-  } else {
-    await db.insert(contentRadarSnapshots).values({
-      key: SOURCE_AI_RELEVANCE_POLICY_KEY, payload, generatedAt: new Date(), updatedAt: new Date()
-    });
-  }
+  const auditReason = typeof reason === "string" && reason.trim() ? reason.trim() : "ADMIN_UPDATE_AI_RELEVANCE_POLICY";
+  if (auditReason.length > 500) throw new Error("INVALID_OPERATION_REASON");
+  await getDatabase().transaction(async (tx) => {
+    // A transaction advisory lock also serializes first creation (no row exists yet).
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${SOURCE_AI_RELEVANCE_POLICY_KEY}))`);
+    const [existing] = await tx.select().from(contentRadarSnapshots).where(eq(contentRadarSnapshots.key, SOURCE_AI_RELEVANCE_POLICY_KEY)).limit(1);
+    await tx.insert(contentRadarSnapshots).values({ key: SOURCE_AI_RELEVANCE_POLICY_KEY, payload, generatedAt: new Date(), updatedAt: new Date() })
+      .onConflictDoUpdate({ target: contentRadarSnapshots.key, set: { payload, generatedAt: new Date(), updatedAt: new Date() } });
+    await recordContentAudit(user, { action: "SOURCE_AI_POLICY_UPDATED", entityType: "SOURCE_POLICY", entityId: SOURCE_AI_RELEVANCE_POLICY_KEY,
+      before: normalizePolicy(existing?.payload), after: payload, metadata: { reason: auditReason } }, tx);
+  });
   return payload;
 }
 

@@ -16,6 +16,8 @@ function assert(condition: unknown, code: string) {
 }
 
 const now = new Date("2026-10-12T00:00:00.000Z");
+const digestMomentum = calculateTopicMomentum({ firstSeenAt: now, now, raws: [{ sourceId:"digest", sourceType:"MEDIA", sourceName:"Digest", platform:"WEB", title:"AI早报：模型发布；公司融资；产品上线", collectedAt:now, publishedAt:now }], evidence:[] });
+assert(digestMomentum.independentParticipantCount === 0, "MULTI_NEWS_ROUNDUP_NOT_MOMENTUM_PARTICIPANT");
 assert(isTopicMomentumFollowUpEligible({ metadata: {} }), "UNKNOWN_POLICY_RETAINED_FOR_FOLLOW_UP");
 assert(!isTopicMomentumFollowUpEligible({ metadata: { eventPolicy: { aiRelevant: false } } }), "REJECTED_EVENT_NOT_REENROLLED_FROM_DUE_QUERY");
 assert(!isTopicMomentumFollowUpEligible({ metadata: { eventPolicy: { operationalUsefulness: { eligible: false } } } }), "OPERATIONALLY_REJECTED_EVENT_NO_EXPANSION");

@@ -1,3 +1,4 @@
+import { isMultiNewsRoundup } from "./practical-evidence-actionability";
 export const TOPIC_MOMENTUM_VERSION = "topic-momentum-v7-independent-institutions-decay";
 export const TOPIC_MOMENTUM_MIN_AGE_HOURS = 24;
 export const TOPIC_MOMENTUM_MAX_AGE_HOURS = 168;
@@ -11,6 +12,7 @@ export function resolveTopicMomentumFollowUpHours(input: { day: number; eligible
 }
 
 export type TopicMomentumRaw = {
+  title?: string | null;
   sourceId: string;
   sourceType: string;
   sourceName: string;
@@ -121,6 +123,7 @@ export function calculateTopicMomentum(input: {
   const windowStart = nowMs - TOPIC_MOMENTUM_MAX_AGE_HOURS * 3_600_000;
 
   const recentRaws = input.raws.filter((raw) => {
+    if (isMultiNewsRoundup(raw.title)) return false;
     const time = timeOf(raw.publishedAt) || timeOf(raw.collectedAt);
     return time >= windowStart && time <= nowMs;
   });

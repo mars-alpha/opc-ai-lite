@@ -48,7 +48,10 @@ import {
   resolveIndependentOrigins
 } from "./pollution-syndication-gate";
 import { listDiscoveryExpansionCandidates } from "./intelligence-read-model";
-import { isFormalPracticalEvidenceSource } from "./practical-evidence-actionability";
+import { isFormalPracticalEvidenceSource, shouldExpandPractice } from "./practical-evidence-actionability";
+import { resolveSourceAcquisitionPlan } from "./source-acquisition-plan";
+import { buildPracticeTopics, practiceTopicIdentity } from "./practice-topics";
+import {evaluatePublicPracticeAccess} from "./public-practice-access";
 
 const DEFAULT_WINDOW_HOURS = 168;
 const DEFAULT_RESULT_LIMIT = 20;
@@ -59,6 +62,8 @@ export const SOURCE_MANAGED_EXPANSION_SUCCESS_COOLDOWN_HOURS = 6;
 export const SOURCE_MANAGED_EXPANSION_FAILURE_COOLDOWN_HOURS = 1;
 
 type ExpansionInput = {
+  managedSourceId?: string;
+  practiceTitle?: string;
   providers?: unknown;
   windowHours?: unknown;
   resultLimit?: unknown;
@@ -125,6 +130,16 @@ function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {};
+}
+
+export function isManagedPracticeSearchReady(source: Pick<typeof contentSources.$inferSelect, "enabled" | "status" | "collectionMethod" | "platform" | "providerRef" | "canonicalUrl" | "collectionConfig" | "metadata">) {
+  const config = record(source.collectionConfig);
+  const plan = resolveSourceAcquisitionPlan(source);
+  return source.enabled && source.status === "ACTIVE" && record(source.metadata).currentPortfolio === true &&
+    config.practiceExpansionEnabled === true &&
+    ["BILIBILI_SEARCH", "YOUTUBE_SEARCH"].includes(String(config.practiceExpansionProvider ?? config.provider ?? source.providerRef)) &&
+    ["AUTO_READY", "CONDITIONAL"].includes(String(record(record(source.metadata).runtimeQualification).effectiveQualification)) &&
+    plan.routes.some(route => route.kind === "SEARCH_DISCOVERY" && route.enabled && route.explicit && route.serverRuntimeSupported);
 }
 
 function stringList(value: unknown, limit = 30) {
@@ -230,6 +245,7 @@ function parseBilibiliSearch(payload: unknown) {
       metadata: {
         collector: "search",
         searchProvider: "BILIBILI_SEARCH",
+        creatorIdentity: item.mid ? {platform:"BILIBILI",id:String(item.mid),url:"https://space.bilibili.com/" + String(item.mid)} : null,
         sourceMode: "PUBLIC_SEARCH_BEST_EFFORT",
         factualSource: false,
         referenceOnly: true
@@ -287,7 +303,10 @@ export function providerQueryPlan(
   plan: EventExpansionQueryPlanLike,
   maxQueries: number
 ) {
-  if (provider === "BILIBILI_SEARCH" || provider === "YOUTUBE_SEARCH") {
+  if (provider === "YOUTUBE_SEARCH") {
+    return (plan.overseasCreatorQueries ?? plan.overseasQueries ?? []).slice(0, maxQueries);
+  }
+  if (provider === "BILIBILI_SEARCH") {
     return (plan.chineseCreatorQueries ?? plan.chineseQueries ?? []).slice(0, maxQueries);
   }
   return (plan.overseasQueries ?? []).slice(0, maxQueries);
@@ -578,10 +597,17 @@ export async function runEventExpansion(
   const resultLimit = boundedInteger(input.resultLimit, DEFAULT_RESULT_LIMIT, 1, 50);
   const maxQueries = boundedInteger(input.maxQueries, MAX_QUERIES, 1, MAX_QUERIES);
   const requestedExpansionTypes = resolveRequestedExpansionTypes(input.expansionTypes);
-  const providers = await resolveProviders(input.providers);
+  const managedSource = input.managedSourceId ? (await db.select().from(contentSources).where(eq(contentSources.id, input.managedSourceId)).limit(1))[0] : null;
+  if (input.managedSourceId && (!managedSource || !isManagedPracticeSearchReady(managedSource))) throw new Error("MANAGED_SEARCH_SOURCE_NOT_READY");
+  const providers = await resolveProviders(managedSource ? [record(managedSource.collectionConfig).practiceExpansionProvider ?? record(managedSource.collectionConfig).provider ?? managedSource.providerRef] : input.providers);
   if (providers.length === 0) throw new Error("EXPANSION_PROVIDER_REQUIRED");
 
-  const context = await resolveExpansionContext(event);
+  let context = await resolveExpansionContext(event);
+  if (managedSource && input.practiceTitle) {
+    const lead = (await listEventExpansionEvidence(eventId)).find(item => item.title === input.practiceTitle && practiceTopicIdentity(item));
+    if (!lead) throw new Error("PRACTICE_SEARCH_SUBJECT_NOT_IN_EVIDENCE");
+    context = { title: lead.title!, summary: lead.excerpt, keywords: [practiceTopicIdentity(lead)!.tool], entityTerms: [] };
+  }
   const plan = {
     ...buildEventExpansionQueryPlan(context, 10, requestedExpansionTypes),
     ...buildCreatorFirstEventExpansionQueryPlan(context, 10, requestedExpansionTypes)
@@ -610,7 +636,7 @@ export async function runEventExpansion(
 
   providerLoop:
   for (const provider of providers) {
-    const source = await ensureExpansionSource(provider);
+    const source = managedSource ?? await ensureExpansionSource(provider);
     const providerQueries = providerQueryPlan(provider, plan, maxQueries);
     if (providerQueries.length === 0) continue;
 
@@ -649,6 +675,10 @@ export async function runEventExpansion(
         );
         const preEvidenceRejectedReasons = new Map<string, number>();
         const gatedItems = search.items.filter((item) => {
+          if (!evaluatePublicPracticeAccess(item).eligible) {
+            preEvidenceRejectedReasons.set("HUMAN_OR_FOLLOW_ACCESS_REQUIRED",(preEvidenceRejectedReasons.get("HUMAN_OR_FOLLOW_ACCESS_REQUIRED") ?? 0)+1);
+            return false;
+          }
           const deterministicQuality = evaluateDeterministicQualityGate(item);
           if (!deterministicQuality.pass) {
             for (const reason of deterministicQuality.reasons) {
@@ -763,6 +793,7 @@ export async function runEventExpansion(
               ...record(item.metadata),
               collectionOrigin: "SYSTEM",
               collectionPurpose: "EVENT_EXPANSION",
+              ...(managedSource ? { referenceOnly: true, practiceDiscovery: { status: "PENDING_SOURCE_REVIEW", subjectTitle: context.title, ...practiceTopicIdentity({title:context.title}), targetEventId: event.id } } : {}),
               targetEventId: event.id,
               expansionType: queryPlan.expansionType,
               expansionQueryLanguage: queryPlan.language,
@@ -867,7 +898,9 @@ export async function runEventExpansion(
     }
   }
 
-  const pack = await buildExpansionPack(event, context, observedIntent, windowHours);
+  // Managed search discovers references. Qualification of a newly found author
+  // is separate; never replace the parent Event's evidence using a tutorial angle.
+  const pack = await buildExpansionPack(event, managedSource ? await resolveExpansionContext(event) : context, observedIntent, windowHours);
 
   return {
     eventId,
@@ -920,8 +953,10 @@ export async function runDiscoveryExpansionCycle(
     (item) => item.discoveryExpansion.trigger === "UNVERIFIED_VERIFICATION_FOLLOW_UP"
   );
   const selected: typeof candidates = [];
-  if (confirmed.length) selected.push(confirmed[0]);
-  if (unverified.length && selected.length < maxEvents) selected.push(unverified[0]);
+  const practiceCandidate = buildPracticeTopics(candidates, {eligibleOnly:false})[0] ?? candidates.find(item => shouldExpandPractice({ title: item.title, excerpt: item.excerpt, independentParticipants: item.topicMomentum.independentParticipantCount, lastAttemptAt: null }).eligible);
+  if (practiceCandidate) selected.push(practiceCandidate);
+  if (confirmed.length && selected.length < maxEvents && !selected.some(item => item.eventId === confirmed[0].eventId)) selected.push(confirmed[0]);
+  if (unverified.length && selected.length < maxEvents && !selected.some(item => item.eventId === unverified[0].eventId)) selected.push(unverified[0]);
   for (const candidate of candidates) {
     if (selected.length >= maxEvents) break;
     if (selected.some((item) => item.eventId === candidate.eventId)) continue;
@@ -939,10 +974,30 @@ export async function runDiscoveryExpansionCycle(
     shadowExpansionSignal?: ReturnType<typeof calculateExpansionShadowSignal>;
     analysisStatus?: "NOT_REQUIRED";
     analysisReason?: string;
+    practiceSearch?: string;
   }> = [];
+
+  // One managed search route, one Event, two queries at most per SYSTEM cycle.
+  // Source opt-in is required: never resurrect the legacy hidden provider pool.
+  const managedSearchSources = await getDatabase().select().from(contentSources).where(and(eq(contentSources.enabled, true), eq(contentSources.status, "ACTIVE")));
+  const healthyProviders = managedSearchSources.some(source => record(source.collectionConfig).practiceExpansionEnabled === true) ? await resolveProviders(undefined).catch(() => []) : [];
+  const searchSource = managedSearchSources.find(source =>
+    isManagedPracticeSearchReady(source) &&
+    healthyProviders.includes((record(source.collectionConfig).practiceExpansionProvider ?? record(source.collectionConfig).provider ?? source.providerRef) as EventExpansionSearchProvider));
+  let searched = false;
 
   for (const candidate of selected) {
     try {
+      let searchStatus = searchSource ? "NOT_TRIGGERED" : "NO_READY_MANAGED_SEARCH_SOURCE";
+      const [lastSearch] = await getDatabase().select({ startedAt: contentExpansionRuns.startedAt }).from(contentExpansionRuns).where(eq(contentExpansionRuns.eventId, candidate.eventId)).orderBy(desc(contentExpansionRuns.startedAt)).limit(1);
+      const practiceSearch = shouldExpandPractice({ title: candidate.title, excerpt: candidate.excerpt, independentParticipants: "practiceTopic" in candidate ? (candidate.coverage.actionablePracticalOriginCount ?? 0) : candidate.topicMomentum.independentParticipantCount, lastAttemptAt: lastSearch?.startedAt?.toISOString() ?? null });
+      if (!searched && practiceSearch.eligible && searchSource) {
+        searched = true;
+        try {
+          const search = await runEventExpansion(user, candidate.eventId, { managedSourceId: searchSource.id, practiceTitle: "practiceTopic" in candidate ? candidate.title : undefined, maxQueries: 2, resultLimit: 5, windowHours: 168, expansionTypes: ["TUTORIAL", "USE_CASE"] });
+          searchStatus = search.summary.failed ? "SEARCH_PARTIAL_OR_FAILED" : "SEARCH_SUCCEEDED";
+        } catch (error) { searchStatus = errorCode(error); }
+      }
       // Production expansion consumes only Raw items already collected by Source Management
       // through SYSTEM Collection. It never creates a hidden expansion-only Source.
       const expansion = await refreshSourceManagedEventExpansion(candidate.eventId, 168);
@@ -956,7 +1011,8 @@ export async function runDiscoveryExpansionCycle(
         practicalEvidenceCount: expansion.practicalEvidenceCount,
         shadowExpansionSignal: expansion.shadowExpansionSignal,
         analysisStatus: expansion.analysisStatus,
-        analysisReason: expansion.analysisReason
+        analysisReason: expansion.analysisReason,
+        practiceSearch: searchStatus
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

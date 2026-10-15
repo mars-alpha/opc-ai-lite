@@ -5,6 +5,7 @@ import {
 } from "../../../../../lib/server/admin/api";
 import {
   archiveOperatorSource,
+  restoreOperatorSource,
   getSourceManagementDetail,
   getSourceManagementIndex,
   setSourceManagementEnabled
@@ -66,17 +67,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ run: await runOnboardedSourceCollection(user, body.sourceId) });
     }
     if (action === "SAVE_AI_POLICY") {
-      return NextResponse.json(await saveSourceAiRelevancePolicy(body.terms));
+      return NextResponse.json(await saveSourceAiRelevancePolicy(body.terms, user, body.reason));
     }
     if (action === "DISABLE_SOURCE" || action === "ENABLE_SOURCE") {
       if (typeof body.sourceId !== "string" || !body.sourceId) throw new Error("SOURCE_ID_REQUIRED");
       return NextResponse.json({
-        item: await setSourceManagementEnabled(body.sourceId, action === "ENABLE_SOURCE")
+        item: await setSourceManagementEnabled(body.sourceId, action === "ENABLE_SOURCE", user, body.reason)
       });
+    }
+    if (action === "RESTORE_SOURCE") {
+      if (typeof body.sourceId !== "string" || !body.sourceId) throw new Error("SOURCE_ID_REQUIRED");
+      return NextResponse.json({ item: await restoreOperatorSource(body.sourceId, user, body.reason) });
     }
     if (action === "ARCHIVE_SOURCE") {
       if (typeof body.sourceId !== "string" || !body.sourceId) throw new Error("SOURCE_ID_REQUIRED");
-      return NextResponse.json({ item: await archiveOperatorSource(body.sourceId) });
+      return NextResponse.json({ item: await archiveOperatorSource(body.sourceId, user, body.reason) });
     }
     return NextResponse.json({ error: "SOURCE_MANAGEMENT_ACTION_INVALID" }, { status: 400 });
   } catch (error) {

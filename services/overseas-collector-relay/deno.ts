@@ -1,4 +1,69 @@
-const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY"]);
+const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS"]);
+
+// Parse data, never execute the author's JavaScript. URLs are derived from fixed paths.
+export function parsePixaromaEpisodes(body: string) {
+  const match = /^\s*window\.EPISODES\s*=\s*(\[[\s\S]*\])\s*;?\s*$/.exec(body);
+  if (!match) throw new SyntaxError("episodes assignment");
+  const rows: unknown = JSON.parse(match[1]);
+  if (!Array.isArray(rows) || rows.length > 500) throw new SyntaxError("episodes array");
+  const seen = new Set<number>();
+  return rows.flatMap(raw => {
+    if (!raw || typeof raw !== "object") return [];
+    const r = raw as Record<string, unknown>;
+    const n = Number(r.number);
+    if (!Number.isInteger(n) || n < 1 || n > 9999 || seen.has(n) || r.comingSoon !== false) return [];
+    if (typeof r.title !== "string" || !r.title.trim() || r.title.length > 450) return [];
+    if (typeof r.downloadPath !== "string" || !/^workflows\/[A-Za-z0-9 _.-]+\.zip$/.test(r.downloadPath) || r.downloadPath.includes("..")) return [];
+    let video: URL;
+    try { video = new URL(String(r.youtube)); } catch { return []; }
+    const id = video.searchParams.get("v");
+    if (video.protocol !== "https:" || video.hostname !== "www.youtube.com" || video.pathname !== "/watch" || !id || !/^[\w-]{11}$/.test(id)) return [];
+    seen.add(n);
+    const names = Array.isArray(r.workflows) ? r.workflows.flatMap(w => w && typeof w === "object" && typeof w.name === "string" ? [w.name.slice(0, 300)] : []).slice(0, 100) : [];
+    return [{episode:n,title:r.title.trim(),originalUrl:"https://www.youtube.com/watch?v="+id,
+      materialUrl:`https://workflows.pixaroma.com/ep/${n}/`,
+      downloadUrl:new URL(r.downloadPath,"https://workflows.pixaroma.com/").href,
+      declaredBytes:Number(r.zipSizeBytes)||0,workflowNames:names,
+      // This author's catalogue currently has no publication dates. Do not invent them.
+      publishedAt:typeof r.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.date) && Number.isFinite(Date.parse(r.date)) ? new Date(r.date).toISOString() : null}];
+  }).sort((a,b)=>b.episode-a.episode);
+}
+
+async function boundedPixaromaFetch(url: string, deadline: number, limit: number) {
+  const response = await fetch(url,{redirect:"error",signal:upstreamSignal(deadline,8000)});
+  if (!response.ok) throw new Error("RELAY_UPSTREAM_HTTP_"+response.status);
+  if (Number(response.headers.get("content-length")||0)>limit) throw new Error("RELAY_UPSTREAM_TOO_LARGE");
+  const reader=response.body?.getReader(); if (!reader) throw new SyntaxError("missing body");
+  const chunks:Uint8Array[]=[];let size=0;
+  try { while(true){ const next=await reader.read();if(next.done)break;size+=next.value.length;if(size>limit)throw new Error("RELAY_UPSTREAM_TOO_LARGE");chunks.push(next.value); } }
+  finally { await reader.cancel().catch(()=>undefined); }
+  const bytes=new Uint8Array(size);let pos=0;for(const c of chunks){bytes.set(c,pos);pos+=c.length;}return bytes;
+}
+
+async function collectPixaroma(request: ReturnType<typeof parseRequest>, deadline: number) {
+  const decoder=new TextDecoder();
+  const [catalogue,help]=await Promise.all([
+    boundedPixaromaFetch("https://workflows.pixaroma.com/episodes.js",deadline,750000),
+    boundedPixaromaFetch("https://workflows.pixaroma.com/help/open-workflow/",deadline,200000)
+  ]);
+  const all=parsePixaromaEpisodes(decoder.decode(catalogue));
+  const selected=all.slice(0,request.resultLimit);
+  const html=decoder.decode(help);
+  const steps=[...html.matchAll(/<li class="step"[^>]*>([\s\S]*?)<\/li>/g)].map(m=>m[1]
+    .replace(/<button\b[^>]*>[\s\S]*?<\/button>/g,"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&#39;|&apos;/g,"'").replace(/&quot;/g,'"').replace(/\s+/g," ").trim());
+  if (steps.length<3 || steps.length>20) throw new SyntaxError("public steps changed");
+  const samples=selected.filter(r=>r.declaredBytes>0&&r.declaredBytes<=128000).slice(0,3);
+  const artifacts=new Map(await Promise.all(samples.map(async row=>{
+    const bytes=await boundedPixaromaFetch(row.downloadUrl,deadline,128000);
+    if(bytes[0]!==80||bytes[1]!==75)throw new SyntaxError("zip signature");
+    let binary="";for(const byte of bytes)binary+=String.fromCharCode(byte);
+    return [row.episode,btoa(binary)] as const;
+  })));
+  return {provider:"PIXAROMA_WORKFLOWS",catalogueCount:all.length,backlog:Math.max(0,all.length-selected.length),
+    helpUrl:"https://workflows.pixaroma.com/help/open-workflow/",steps,
+    items:selected.map(row=>({...row,zipBase64:artifacts.get(row.episode)??null,
+      materialStatus:artifacts.has(row.episode)?"ZIP_FETCHED_PENDING_JSON_VALIDATION":"NOT_FETCHED_BUDGET_LIMIT"}))};
+}
 
 type Env = Record<string, string | undefined>;
 
@@ -131,7 +196,7 @@ async function collectGithub(request: ReturnType<typeof parseRequest>, deadline:
 export async function handleRelayRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   if (request.method === "GET" && url.pathname === "/health") {
-    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-public-sources-v2", capabilities: [...ALLOWED_PROVIDERS] });
+    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-public-materials-v3", capabilities: [...ALLOWED_PROVIDERS] });
   }
   if (request.method !== "POST" || url.pathname !== "/v1/collect") return json({ error: "NOT_FOUND" }, 404);
 
@@ -152,7 +217,8 @@ export async function handleRelayRequest(request: Request, env: Env) {
     const parsed = parseRequest(JSON.parse(body || "{}"));
     const started = Date.now();
     const deadline = started + RELAY_TOTAL_BUDGET_MS;
-    const result = parsed.provider === "DEEPMIND_FEED"
+    const result = parsed.provider === "PIXAROMA_WORKFLOWS" ? await collectPixaroma(parsed,deadline)
+      : parsed.provider === "DEEPMIND_FEED"
       ? { provider: parsed.provider, rssText: await checkedText(await fetch("https://deepmind.google/blog/rss.xml", { redirect: "error", signal: upstreamSignal(deadline, 12000) })) }
       : parsed.provider === "GITHUB_TREND_PROXY" ? await collectGithub(parsed, deadline)
       : parsed.provider === "YOUTUBE_AI_TREND"

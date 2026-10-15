@@ -7,7 +7,7 @@ import { getDatabase } from "../db";
 import { contentSources } from "../db/schema";
 import { collectRss, collectSitemap, fetchPublicText, runSourceCollection } from "./collection-runner";
 import { resolveSourceAcquisitionPlan } from "./source-acquisition-plan";
-import { listSourceQualificationSnapshots } from "./source-qualification";
+import { listSourceQualificationSnapshots, type SourceQualificationSnapshot } from "./source-qualification";
 import { resolveSourceTarget } from "./source-target";
 import { recordContentAudit } from "./workbench";
 
@@ -348,17 +348,24 @@ export async function qualifyOnboardedSource(user: AuthUser, sourceId: string) {
     probe = await runOnboardedSourceCollection(user, sourceId, true);
   }
   const [qualification] = await listSourceQualificationSnapshots([sourceId]);
-  await getDatabase().update(contentSources).set({
-    metadata: {
-      ...(source.metadata && typeof source.metadata === "object" && !Array.isArray(source.metadata) ? source.metadata as Record<string, unknown> : {}),
-      sourceOnboarding: {
-        ...((source.metadata as Record<string, unknown> | null)?.sourceOnboarding as Record<string, unknown> ?? {}),
-        stage: "QUALIFIED",
-        qualifiedAt: new Date().toISOString()
-      }
-    },
-    updatedAt: new Date()
-  }).where(eq(contentSources.id, sourceId));
-  return { sourceId, probe, qualification: qualification ?? null };
+  const stage = resolveOnboardingStage(qualification ?? null, record(probe).status === "SUCCEEDED");
+  await getDatabase().transaction(async (tx) => {
+    const [current] = await tx.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1).for("update");
+    if (!current) throw new Error("SOURCE_NOT_FOUND");
+    const before = record(current.metadata);
+    const updatedOnboarding = { ...record(before.sourceOnboarding), stage,
+      qualificationCheckedAt: new Date().toISOString(),
+      qualifiedAt: stage === "QUALIFIED" ? new Date().toISOString() : null };
+    await tx.update(contentSources).set({ metadata: { ...before, sourceOnboarding: updatedOnboarding }, updatedAt: new Date() }).where(eq(contentSources.id, sourceId));
+    await recordContentAudit(user, { action: "SOURCE_QUALIFICATION_CHECKED", entityType: "CONTENT_SOURCE", entityId: sourceId,
+      before: { sourceOnboarding: before.sourceOnboarding ?? null }, after: { sourceOnboarding: updatedOnboarding },
+      metadata: { reason: "ADMIN_QUALIFICATION_CHECK", qualification: qualification?.qualification ?? null } }, tx);
+  });
+  return { sourceId, probe, qualification: qualification ?? null, stage };
 }
 
+export function resolveOnboardingStage(qualification: { qualification: SourceQualificationSnapshot["qualification"]; evidence: { liveRunCount: number } } | null, probeSucceeded: boolean) {
+  if (qualification?.qualification === "AUTO_READY") return "QUALIFIED";
+  if ((qualification?.evidence.liveRunCount ?? 0) > 0) return "OBSERVING";
+  return probeSucceeded ? "PROBED" : "REGISTERED";
+}

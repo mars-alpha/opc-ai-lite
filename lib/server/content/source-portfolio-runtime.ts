@@ -48,6 +48,7 @@ export function isCurrentSystemCollectionSource(source: {
   return (
     source.enabled !== false &&
     (source.status ?? "ACTIVE") === "ACTIVE" &&
+    record(metadata.sourceRegistry).executionScope !== "EVENT_EXPANSION" &&
     (isRadar || isOnboarded)
   );
 }

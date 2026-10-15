@@ -28,7 +28,6 @@ const architecture = read("docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md");
 const mapping = read("docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md");
 const acquisition = read("lib/server/content/source-acquisition-plan.ts");
 const facts = read("docs/CURRENT_SYSTEM_FACTS.md");
-const tasks = read("TASKS.md");
 
 assert(route.includes('view === "current-hot"'), "RADAR_CURRENT_HOT_API");
 assert(route.includes('"PRESENTATION_ONLY"'), "RADAR_CURRENT_HOT_NO_AUTHORITY_PROMOTION");
@@ -171,7 +170,7 @@ try {
 assert(noHttpFallback, "DEEP_READ_NO_HTTP_DEFAULT_FALLBACK");
 
 assert(facts.includes("Source Management") && facts.includes("Acquisition Route"), "RADAR_CURRENT_FACT_OWNER");
-assert(tasks.includes("Source Management 是唯一来源 Owner"), "RADAR_CURRENT_TASK_OWNER");
+assert(architecture.includes("Source Management") && architecture.includes("唯一") && architecture.includes("Source identity / operator-added Source"), "RADAR_CURRENT_CONTRACT_OWNER");
 assert(
   architecture.includes("Primary Route") &&
   architecture.includes("Fallback Route") &&

@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { NormalizedCollectedItem } from "./collection-runner";
+import {collectPixaromaPublicWorkflows} from "./public-workflow-materials";
 
 type RuntimeAdapterDependencies = {
   fetchJson: (url: string) => Promise<unknown>;
@@ -47,7 +48,7 @@ async function collectAiHot(
   });
 }
 
-export const SOURCE_RUNTIME_ADAPTER_OWNERS = ["RADAR_AI_HOT"] as const;
+export const SOURCE_RUNTIME_ADAPTER_OWNERS = ["RADAR_AI_HOT", "PIXAROMA_PUBLIC_WORKFLOWS"] as const;
 
 export function hasSourceRuntimeAdapter(runtimeOwner: string | null | undefined) {
   return SOURCE_RUNTIME_ADAPTER_OWNERS.includes(
@@ -60,6 +61,7 @@ export async function collectSourceRuntimeAdapter(input: {
   fetchJson: RuntimeAdapterDependencies["fetchJson"];
 }) {
   const owner = input.runtimeOwner.trim().toUpperCase();
+  if (owner === "PIXAROMA_PUBLIC_WORKFLOWS") return collectPixaromaPublicWorkflows();
   if (owner === "RADAR_AI_HOT") {
     return collectAiHot(input.fetchJson);
   }

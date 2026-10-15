@@ -106,6 +106,13 @@ export function canonicalizeOriginalUrl(input: string | null) {
   if (!input) return null;
   try {
     const url = new URL(input);
+    const videoId = url.hostname.toLowerCase() === "youtu.be"
+      ? url.pathname.slice(1)
+      : ["youtube.com", "www.youtube.com", "m.youtube.com"].includes(url.hostname.toLowerCase()) && url.pathname === "/watch"
+        ? url.searchParams.get("v") : null;
+    if (["https:", "http:"].includes(url.protocol) && videoId && /^[\w-]{11}$/.test(videoId)) {
+      return "https://www.youtube.com/watch?v=" + videoId;
+    }
     url.hash = "";
     url.hostname = url.hostname.toLowerCase();
     if ((url.protocol === "https:" && url.port === "443") || (url.protocol === "http:" && url.port === "80")) {
@@ -473,6 +480,9 @@ export async function runFreshScan(input: unknown) {
     if (result.created) {
       const metadata = isRecord(result.item.metadata) ? result.item.metadata : {};
       createdRawItemIds.push(result.item.id);
+      // Historical author materials remain searchable Raw/Observation. Collection
+      // time is not a publication time and must not manufacture a current Event.
+      if (metadata.publicationStatus === "UNKNOWN_HISTORICAL") continue;
       const resolvedEntities = Array.isArray(metadata.resolvedEntities)
         ? metadata.resolvedEntities.filter(isRecord)
         : [];
@@ -869,33 +879,35 @@ export async function recordCandidateDecision(user: AuthUser, input: unknown) {
   const selectedTypes = stringArray(input.selectedTypes, 8);
   const note = optionalText(input.note, "INVALID_DECISION_NOTE", 4000);
   const db = getDatabase();
-  const [event] = await db.select().from(contentEvents).where(eq(contentEvents.id, eventId)).limit(1);
-  if (!event) throw new Error("EVENT_NOT_FOUND");
+  return db.transaction(async (tx) => {
+    const [event] = await tx.select().from(contentEvents).where(eq(contentEvents.id, eventId)).limit(1).for("update");
+    if (!event) throw new Error("EVENT_NOT_FOUND");
 
-  const [item] = await db
-    .insert(contentCandidateDecisions)
-    .values({
-      eventId,
-      decision,
-      ignoreReason,
-      selectedTypes,
-      note,
-      decidedBy: user.id,
-      decidedByEmail: user.email
-    })
-    .returning();
+    const [item] = await tx
+      .insert(contentCandidateDecisions)
+      .values({
+        eventId,
+        decision,
+        ignoreReason,
+        selectedTypes,
+        note,
+        decidedBy: user.id,
+        decidedByEmail: user.email
+      })
+      .returning();
 
-  const discoveryStatus = decision === "ADOPT" ? "ADOPTED" : decision === "WATCH" ? "SHORTLISTED" : "IGNORED";
-  await db.update(contentEvents).set({ discoveryStatus, updatedAt: new Date() }).where(eq(contentEvents.id, eventId));
+    const discoveryStatus = decision === "ADOPT" ? "ADOPTED" : decision === "WATCH" ? "SHORTLISTED" : "IGNORED";
+    await tx.update(contentEvents).set({ discoveryStatus, updatedAt: new Date() }).where(eq(contentEvents.id, eventId));
 
-  await recordContentAudit(user, {
-    action: "DISCOVERY_CANDIDATE_DECIDED",
-    entityType: "DISCOVERY_EVENT",
-    entityId: eventId,
-    before: { discoveryStatus: event.discoveryStatus },
-    after: { discoveryStatus, decision, ignoreReason, selectedTypes },
-    metadata: { decisionId: item.id }
+    await recordContentAudit(user, {
+      action: "DISCOVERY_CANDIDATE_DECIDED",
+      entityType: "DISCOVERY_EVENT",
+      entityId: eventId,
+      before: { discoveryStatus: event.discoveryStatus },
+      after: { discoveryStatus, decision, ignoreReason, selectedTypes },
+      metadata: { decisionId: item.id, reason: note ?? ignoreReason ?? decision }
+    }, tx);
+
+    return { ...item, discoveryStatus };
   });
-
-  return item;
 }

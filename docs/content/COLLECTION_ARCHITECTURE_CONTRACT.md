@@ -1,10 +1,24 @@
 # COLLECTION_ARCHITECTURE_CONTRACT.md
 
+## 实践主题与汇总内容边界
+
+- 已确认作者的公开材料可走固定Deno Provider：Pixaroma目录仅JSON解析、排除comingSoon；每次最多30集元数据、3个≤128KB工作流包，共享公开步骤单独标注。腾讯云只在内存校验ZIP与ComfyUI节点JSON，不解压落盘、不执行工作流。未下载/未运行/未取得字幕必须分开记录，不能声称全文或实践成功。
+- 作者站与其视频使用同一Creator Source；内容使用规范视频URL复用Raw/Observation，短链、列表及分享参数不能制造副本。已发现作者参考关联creatorSourceId，不再重复作者核验。无发布日期的历史材料只入Raw/Observation，不以采集时间生成当前Event；可供后续定向研究，不自动授予热点/精选/今日值得做资格。
+
+- 热点主体必须是单一事件。明确的早报、新闻汇总或多条独立发布拼接内容不进入热点，其Raw也不作为独立热度参与者；保留全部动态与历史，不归档合法Source。汇总中的新闻必须取得独立原文再按既有条件评估。
+- 今日值得做主体必须是具体操作主题：教程/实操意图、明确操作信息和任务目标同时存在；模型发布即使挂有多个教程也不因此成为实践主体。从formal actionable原文证据按明确工具身份＋操作目标归并，标题/入口取自真实教程；保留parentEventIds，不改Event事实。来源、证据和类型数量按主题重新计算，不能继承父新闻计数。无法明确工具或目标时保持候选，不猜测归并。保留两条可执行证据、两个独立来源、两类实践门槛；不以AI分析AVAILABLE状态作为入栏前置。精选事实门槛与评分权重保持。
+- 实践主题的定向搜索复用Event Expansion，当前仅BILIBILI_SEARCH和YOUTUBE_SEARCH（YouTube复用Relay/配额）；仅由来源管理中ACTIVE/enabled/currentPortfolio、AUTO_READY或CONDITIONAL、有明确且服务器可执行SEARCH_DISCOVERY Route、collectionConfig.practiceExpansionEnabled=true且Provider健康的Source承载。可在原逻辑Source附加搜索Route并用practiceExpansionProvider指定搜索Provider，不覆盖原采集Provider或复制Source。未知、停用或无路由失败关闭，不调用ensureExpansionSource创建隐藏来源。
+- 触发需实践主体和至少两个独立参与者；同Event搜索至少间隔六小时（失败也计入），每SYSTEM周期至多一个主题、一个Provider、两次查询，每次最多五条，七日窗口。查询复用工具/版本锚点和教程/使用案例意图，不进行持续全网关键词扫描。
+- 搜索结果沿用污染、相关性、去重与Evidence校验。新作者内容是参考候选，不自动注册长期Source、不自动授予Fact或实践资格；正文不足不声称完整实操。搜索失败不得阻断已有Raw的证据刷新；缺少可用搜索Source返回NO_READY_MANAGED_SEARCH_SOURCE。
+- 不自动调用AI。常驻重新读取按钮退出，页面初始化和操作后自动读；仅快照请求失败提供重试。页面仍需人工体验确认。
+
 Status: CURRENT / APPROVED PRODUCT BASELINE
 Task: COLLECTION-ARCHITECTURE-REALIGNMENT-001 + SOURCE-QUALIFICATION-GOVERNANCE-011
 Rule: 本文件只描述当前架构。历史 Phase、已删除 Owner 与旧实验方案由 Git 追溯，不在 current contract 中保留。
 
 ## 1. Product Boundary
+
+受管搜索登记由来源管理的`managed-practice-search.ts`提供：必须先获得服务器真实样本，事务写入Source与Audit，仅CONDITIONAL；`sourceRegistry.executionScope=EVENT_EXPANSION`明确限定为定向补证，不进入持续Source采集列表。既有归档来源不恢复。作者身份随Raw保存，状态PENDING_SOURCE_REVIEW，不自动注册长期作者；视频简介只能视为DESCRIPTION_ONLY。语言按B站中文、YouTube英文查询规划。
 
 当前后台内容链只保留三个产品 Owner：
 
@@ -92,6 +106,8 @@ Current Acquisition 优先级：
 4. bounded Reader / parser / 已验收 server-native adapter
 
 交互登录、Browser Session、人工续期 Cookie/OAuth Session 不属于 current Acquisition Route。
+
+声明requiresLogin / requiresHuman / requiresFollow / requiresBrowserSession的Route失败关闭；显式Route和旧kind声明均不能绕过。关注、私信或人工领取操作材料的条目不进入可执行实践证据。作者正式注册须分别具备服务器持续Route、足够历史样本、可追溯作者归属与完整操作材料；视频copyright自报原创仅SELF_DECLARED，不能证明原创。搜索描述不等于正文，公开字幕未验证完整性时只能保存PARTIAL，不自动全文翻译。当前第三方YouTube owner授权字幕不属于可选自动路径。
 Primary 失败才允许进入已声明且同样 server-runnable 的 Fallback；Primary 返回合法空结果不自动升级高成本 Route。
 
 ## 5. Qualification
@@ -285,7 +301,7 @@ Presentation authority = PRESENTATION_ONLY。
 
 ## 16. Hot Tracking / 热点追踪
 
-热点追踪只消费 Source Management → SYSTEM Collection → Raw / Observation → Dedup → Event / Evidence 的正式主线。Discovery Expansion current owner 为 `refreshSourceManagedEventExpansion`：不创建隐藏 Source、不直接联网维护第二套来源池，只在 168h bounded window 内从已采 Raw 补 Practical Evidence；成功 Event 6h cooldown、失败 Event 1h retry，防止同一批 Event 饥饿后续候选；有实践证据时仅标记 HUMAN_TRIGGER_REQUIRED，AI 分析由管理员显式启动。热点追踪不拥有第二套采集入口。
+热点追踪只消费 Source Management → SYSTEM Collection → Raw / Observation → Dedup → Event / Evidence 的正式主线。Discovery Expansion证据刷新owner为 `refreshSourceManagedEventExpansion`：不创建隐藏 Source，在168h窗口内从已采Raw补Practical Evidence；成功Event 6h cooldown、失败Event 1h retry。SYSTEM的实践定向搜索前置条件与预算见本合同“实践主题与汇总内容边界”，其结果仍写同一Raw/Evidence主链；不维护第二套来源池。有实践证据时仅标记HUMAN_TRIGGER_REQUIRED，AI分析由管理员显式启动。热点追踪不拥有第二套采集入口。
 
 Current views：
 - 今日值得做：复用 Worth Practicing，但必须存在真实可执行实践证据；Practical Evidence 的标题/摘要需包含明确教程、步骤、配置、操作、实测、工作流、使用案例或等价操作语义，并至少来自 2 个独立实践来源。`suggestedContentTypes` 仅作 AI 分析建议，不是产品入场门槛。纯新闻、泛分析、仅 whyItMatters 不进入；中文证据优先，英文只做中文化交付。
@@ -379,3 +395,11 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
   - Worth Practicing: OPC value AVAILABLE, practical evidence>0, >=2 actionable evidence, >=2 independent practical origins and >=2 practical types. Shared deterministic gate in practical-evidence-actionability.ts owns eligibility for all read paths. Unanalyzed items wait; automatic collection does not invoke AI to fill the list. Tutorial-type metadata alone cannot satisfy actionability.
 - User-facing topics (REA/ComfyUI/Skills/MCP/ad creation/writing/images/animation/editing/assistants/work management) describe discovery coverage, not the three publication dimensions. Add sources only after bounded live capability check and preview. Generic news/trends cannot stand in for persistent original practical sources.
 - Production acceptance requires its own schema, runtime grants, source inventory, route probes, backfill and three-output checks. Development success is not production acceptance, and healthy results from an earlier cycle do not erase a current failure.
+
+## 22. Operations consistency
+
+- Event决策、Event运营状态与审计在同一事务提交；同一Event决策串行锁定，返回已提交discoveryStatus。忽略保留历史Raw/Evidence，仅退出热点追踪消费。
+- Radar缓存基础榜单，每次读取用当前Event状态覆盖所有榜单；不缓存运营覆盖结果。完整窗口轻量索引负责计数，不能用首屏计数冒充全窗口。分页继续读取当前Event状态。
+- Snapshot generatedAt超过30分钟为STALE，非法/未来时间为异常；读取旧数据不自动全量重建。SYSTEM仍是周期刷新唯一owner；首次缺失或Schema不兼容允许一次初始化。客户端慢请求不能覆盖之后已提交的运营动作。
+- Source启停、operator归档/恢复、规则保存和资格阶段更新与其审计同事务，包含actor、reason、before/after。归档恢复保持禁用，退役路径禁止恢复；不删除历史。
+- QUALIFIED只代表真实AUTO_READY；成功探测仅PROBED，有正式Run但未合格为OBSERVING；qualificationOnly不计成熟度。来源禁用/归档时有效资格必须显示DISABLED，不复用过时AUTO_READY标签。

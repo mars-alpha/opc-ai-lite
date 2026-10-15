@@ -20,12 +20,12 @@ import { classifySourceAssetForCleanup } from "../lib/server/content/source-asse
 assert.equal(classifySourceAssetForCleanup({ id: "legacy-browser", collectionMethod: "BROWSER", metadata: {} } as never).action, "ARCHIVE", "LOGIN_BROWSER_NOT_SERVER_SOURCE");
 
 import { buildWorthPracticingFromPools } from "../lib/server/content/intelligence-read-model";
-const oneTypePractice = { eventId: "one-type", opcValue: { status: "AVAILABLE" }, coverage: { practicalEvidenceCount: 2, actionablePracticalEvidenceCount: 2, actionablePracticalOriginCount: 2, actionablePracticalTypeCount: 1 } };
+const oneTypePractice = { eventId: "one-type", title: "如何用ComfyUI工作流制作动画", excerpt: "安装节点，配置输入并导出动画。", opcValue: { status: "AVAILABLE" }, coverage: { practicalEvidenceCount: 2, actionablePracticalEvidenceCount: 2, actionablePracticalOriginCount: 2, actionablePracticalTypeCount: 1 } };
 assert.equal(buildWorthPracticingFromPools([oneTypePractice] as never, [], [], 5).length, 0, "ONE_PRACTICAL_TYPE_CANNOT_ENTER_ANY_READ_PATH");
 
 import { isWorthPracticingEligible } from "../lib/server/content/practical-evidence-actionability";
 assert(isWorthPracticingEligible({ ...oneTypePractice, coverage: { ...oneTypePractice.coverage, actionablePracticalTypeCount: 2 } }));
-assert(!isWorthPracticingEligible({ ...oneTypePractice, opcValue: { status: "NOT_ANALYZED" }, coverage: { ...oneTypePractice.coverage, actionablePracticalTypeCount: 2 } }));
+assert(isWorthPracticingEligible({ ...oneTypePractice, opcValue: { status: "NOT_ANALYZED" }, coverage: { ...oneTypePractice.coverage, actionablePracticalTypeCount: 2 } }),"DETERMINISTIC_PRACTICE_MUST_NOT_REQUIRE_AI");
 console.log("WORTH_PRACTICING_SINGLE_OWNER_TWO_TYPES=PASS");
 
 import fs from "node:fs";

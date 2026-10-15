@@ -71,9 +71,10 @@ export async function recordContentAudit(
     before?: unknown;
     after?: unknown;
     metadata?: Record<string, unknown>;
-  }
+  },
+  executor: Pick<ReturnType<typeof getDatabase>, "insert"> = getDatabase()
 ) {
-  await getDatabase().insert(contentAuditRecords).values({
+  await executor.insert(contentAuditRecords).values({
     ...actorSnapshot(user),
     action: input.action,
     entityType: input.entityType,

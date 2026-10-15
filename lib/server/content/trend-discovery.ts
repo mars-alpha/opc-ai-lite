@@ -552,6 +552,7 @@ function parseYouTubeSearch(payload: unknown): TrendDiscoveryItem[] {
       metadata: {
         collector: "trend",
         trendProvider: "YOUTUBE_AI_TREND",
+        creatorIdentity: text(snippet.channelId) ? {platform:"YOUTUBE",id:text(snippet.channelId),url:"https://www.youtube.com/channel/" + text(snippet.channelId)} : null,
         trendSignalType: "SEARCH_PROXY",
         trendRank: index + 1,
         sourceMode: "PUBLIC_API",

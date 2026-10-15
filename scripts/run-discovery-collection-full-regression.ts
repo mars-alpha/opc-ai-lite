@@ -4,6 +4,11 @@ const npm = "npm";
 const quick = process.argv.includes("--quick");
 const scripts = [
   "scripts:current:check",
+  "content:operations:check",
+  "content:practice-expansion:check",
+  "content:practice-access:check",
+  "content:pixaroma:check",
+  "content:practice-topics:check",
   "content:discovery-collection:boundary:check",
   "content:collection:deployment:check",
   "content:collection:reliability:check",

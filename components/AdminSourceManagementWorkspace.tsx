@@ -410,7 +410,7 @@ export function AdminSourceManagementWorkspace() {
     }
   }
 
-  async function manageSource(source: SourceItem, action: "DISABLE_SOURCE" | "ENABLE_SOURCE" | "ARCHIVE_SOURCE") {
+  async function manageSource(source: SourceItem, action: "DISABLE_SOURCE" | "ENABLE_SOURCE" | "ARCHIVE_SOURCE" | "RESTORE_SOURCE") {
     setMessage(null);
     try {
       await postAction({ action, sourceId: source.sourceId });
@@ -418,7 +418,8 @@ export function AdminSourceManagementWorkspace() {
       setDetail(null);
       setMessage(
         action === "DISABLE_SOURCE" ? "来源已停用，历史 Run / Evidence 保留。" :
-        action === "ENABLE_SOURCE" ? "来源已恢复，将重新进入统一调度。" :
+        action === "RESTORE_SOURCE" ? "来源已恢复为停用，请重新检查资格后启用。" :
+        action === "ENABLE_SOURCE" ? "来源已启用，按现有资格和调度条件运行。" :
         "管理员新增来源已归档，历史 Run / Evidence 保留。"
       );
       await refresh();
@@ -598,10 +599,10 @@ export function AdminSourceManagementWorkspace() {
           <div className="source-detail-wide"><span>启用 Route</span><strong>{data.aggregators.dailyHot.keepRoutes.map((route) => route.platform).join(" · ") || "—"}</strong></div>
         ) : null}
         <div className="source-detail-wide source-action-row">
-          <button type="button" onClick={() => void manageSource(item, item.enabled ? "DISABLE_SOURCE" : "ENABLE_SOURCE")}>
-            {item.enabled ? "停用来源" : "恢复来源"}
+          <button type="button" onClick={() => void manageSource(item, item.status === "ARCHIVED" ? "RESTORE_SOURCE" : item.enabled ? "DISABLE_SOURCE" : "ENABLE_SOURCE")}>
+            {item.status === "ARCHIVED" ? "恢复归档来源" : item.enabled ? "停用来源" : "启用来源"}
           </button>
-          {item.registrationOrigin === "OPERATOR_ADDED" ? (
+          {item.registrationOrigin === "OPERATOR_ADDED" && item.status !== "ARCHIVED" ? (
             <button type="button" onClick={() => void manageSource(item, "ARCHIVE_SOURCE")}>归档来源</button>
           ) : null}
         </div>

@@ -1,16 +1,17 @@
 import { isWorthPracticingEligible } from "./practical-evidence-actionability";
+import { buildPracticeTopics, rebuildVisiblePracticeTopic } from "./practice-topics";
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { listRadarTimelinePage, listRadarTimelineWindow } from "./intelligence-read-model";
 import { getTodayIntelligenceSignalReadiness } from "./today-intelligence-readiness";
 import { listSourceRuntimeSummary } from "./source-runtime-operations";
 import { getDatabase } from "../db";
-import { contentRadarSnapshots } from "../db/schema";
+import { contentEvents, contentRadarSnapshots } from "../db/schema";
 
 const RADAR_SNAPSHOT_TTL_MS = 30_000;
 const RADAR_SNAPSHOT_KEY = "CURRENT";
-export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v9-content-understanding";
+export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v11-practice-boundary";
 
 type RadarSnapshot = Awaited<ReturnType<typeof buildRadarSnapshot>>;
 const globalForRadarSnapshot = globalThis as typeof globalThis & {
@@ -44,7 +45,7 @@ async function buildRadarSnapshot() {
       ...item,
       curation: { ...item.curation, featuredRank: index + 1, rerankAuthority: "PRESENTATION_ONLY" as const }
     }));
-  const worthPracticing = fullWindow
+  const worthPracticing = buildPracticeTopics(fullWindow)
     .filter(isWorthPracticingEligible)
     .sort((a, b) =>
       (b.coverage.actionablePracticalOriginCount ?? 0) - (a.coverage.actionablePracticalOriginCount ?? 0) ||
@@ -75,6 +76,7 @@ async function buildRadarSnapshot() {
     generatedAt: new Date().toISOString(),
     elapsedMs: Date.now() - startedAt,
     items,
+    windowEventIndex: fullWindow.map((item) => ({ eventId: item.eventId, category: item.category })),
     totalEventCount7d: fullWindow.length,
     categoryCounts7d,
     windowDays: 7 as const,
@@ -102,6 +104,7 @@ async function readPersistedRadarSnapshot() {
   const hasStoryContract = Array.isArray(payload.items) && payload.items.every((item) => Boolean(item && typeof item === "object" && !Array.isArray(item) && (item as Record<string, unknown>).story));
   if (!hasStoryContract) return null;
   if (
+    !Array.isArray(payload.windowEventIndex) ||
     !Array.isArray(payload.items) ||
     !Array.isArray(payload.featured) ||
     !Array.isArray(payload.currentHot) ||
@@ -144,7 +147,7 @@ export async function refreshRadarSnapshot() {
   return snapshot;
 }
 
-export function getRadarSnapshot() {
+function getBaseRadarSnapshot() {
   const now = Date.now();
   const cached = globalForRadarSnapshot.__opcRadarSnapshotCache;
   if (cached && cached.expiresAt > now) return cached.promise;
@@ -173,4 +176,40 @@ export function getRadarSnapshot() {
 
 export function invalidateRadarSnapshot() {
   delete globalForRadarSnapshot.__opcRadarSnapshotCache;
+}
+
+
+export function radarSnapshotFreshness(generatedAt: string, now = new Date()) {
+  const generated = new Date(generatedAt).getTime();
+  const maxAgeSeconds = 30 * 60;
+  const valid = Number.isFinite(generated) && generated <= now.getTime();
+  const ageSeconds = valid ? Math.floor((now.getTime() - generated) / 1000) : null;
+  return { ageSeconds, maxAgeSeconds, stale: !valid || ageSeconds! > maxAgeSeconds,
+    reason: !Number.isFinite(generated) ? "INVALID_GENERATED_AT" : generated > now.getTime() ? "FUTURE_GENERATED_AT" : ageSeconds! > maxAgeSeconds ? "STALE" : "FRESH" };
+}
+
+type OperationalItem = { eventId: string; category: string; discoveryStatus?: string | null };
+type EventOperation = { id: string; discoveryStatus: string; archivedAt: Date | null };
+export function applyRadarOperations<T extends { items: OperationalItem[]; featured: OperationalItem[]; currentHot: OperationalItem[]; worthPracticing: OperationalItem[]; windowEventIndex?: { eventId: string; category: string }[]; categoryCounts7d: Record<string, number>; totalEventCount7d: number }>(snapshot: T, states: EventOperation[]): T {
+  const current = new Map(states.map((state) => [state.id, state]));
+  const visible = (id: string) => { const state = current.get(id); return state && !state.archivedAt && state.discoveryStatus !== "IGNORED"; };
+  const project = <I extends OperationalItem>(items: I[]) => items.filter((item) => visible(item.eventId)).map((item) => ({ ...item, discoveryStatus: current.get(item.eventId)!.discoveryStatus }));
+  const index = (snapshot.windowEventIndex ?? [...new Map([...snapshot.items, ...snapshot.featured, ...snapshot.currentHot, ...snapshot.worthPracticing].map((item) => [item.eventId, item])).values()]).filter((item) => visible(item.eventId));
+  const categoryCounts7d = Object.fromEntries(Object.keys(snapshot.categoryCounts7d).map((category) => [category, category === "全部" ? index.length : index.filter((item) => item.category === category).length]));
+  const worthPracticing = snapshot.worthPracticing.flatMap(item => rebuildVisiblePracticeTopic(item, id => Boolean(visible(id))));
+  return { ...snapshot, items: project(snapshot.items), featured: project(snapshot.featured), currentHot: project(snapshot.currentHot), worthPracticing: project(worthPracticing), categoryCounts7d, totalEventCount7d: index.length };
+}
+
+export async function readRadarOperations<T extends Parameters<typeof applyRadarOperations>[0]>(snapshot: T): Promise<T> {
+  const index = snapshot.windowEventIndex ?? [...snapshot.items, ...snapshot.featured, ...snapshot.currentHot, ...snapshot.worthPracticing];
+  const ids = [...new Set(index.map((item) => item.eventId))];
+  const states = ids.length ? await getDatabase().select({ id: contentEvents.id, discoveryStatus: contentEvents.discoveryStatus, archivedAt: contentEvents.archivedAt }).from(contentEvents).where(inArray(contentEvents.id, ids)) : [];
+  return applyRadarOperations(snapshot, states);
+}
+
+export async function getRadarSnapshot() {
+  // Only the expensive base payload is cached. Operations are read on EVERY request,
+  // including from other processes and after a concurrent snapshot refresh.
+  const snapshot = await getBaseRadarSnapshot();
+  return { ...await readRadarOperations(snapshot), freshness: radarSnapshotFreshness(snapshot.generatedAt) };
 }

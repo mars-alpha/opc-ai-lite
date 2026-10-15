@@ -113,6 +113,7 @@ async function calculateEventRuntimeEvidence(event: typeof contentEvents.$inferS
   const db = getDatabase();
   const raws = await db
     .select({
+      title: contentRawItems.title,
       sourceId: contentRawItems.sourceId,
       sourceType: contentSources.sourceType,
       sourceName: contentSources.name,

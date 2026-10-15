@@ -1,4 +1,5 @@
-import { isWorthPracticingEligible } from "./practical-evidence-actionability";
+import { isWorthPracticingEligible, isMultiNewsRoundup, evaluatePracticeSubject } from "./practical-evidence-actionability";
+import { buildPracticeTopics } from "./practice-topics";
 import "server-only";
 
 import { and, desc, eq, inArray, lt } from "drizzle-orm";
@@ -432,7 +433,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       const rawSource = sourceById.get(raw.sourceId);
       const sourceName = originPublisher(raw) ?? rawSource?.name ?? raw.sourceId;
       const key = `${sourceName.normalize("NFKC").toLocaleLowerCase()}|${raw.originalUrl}`;
-      return [[key, { sourceName, title: raw.title, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
+      return [[key, { sourceName, originKey: sourceName.normalize("NFKC").toLocaleLowerCase(), title: raw.title, excerpt: raw.excerpt, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
     })).values()];
     const missingExpansionTypes = practicalCoverageTypes.filter((item) => !presentExpansionTypes.includes(item));
     const scores = record(policy.scores);
@@ -461,6 +462,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       return Boolean(raw.originalUrl) && (directPublicReport || hasResolvedOriginalPublisher);
     });
     const hotParticipants = [...new Map(eventRaws.flatMap((raw) => {
+      if (isMultiNewsRoundup(raw.title)) return [];
       const rawSource = sourceById.get(raw.sourceId);
       const origin = originPublisher(raw);
       const author = raw.author?.trim() ?? "";
@@ -477,6 +479,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       raws: eventRaws.map((raw) => {
         const rawSource = sourceById.get(raw.sourceId);
         return {
+          title: raw.title,
           sourceId: raw.sourceId,
           sourceType: rawSource?.sourceType ?? "UNKNOWN",
           sourceName: originPublisher(raw) ?? rawSource?.name ?? raw.sourceId,
@@ -519,7 +522,8 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       return { at: at.toISOString(), score: point.score, participantCount: point.participantCount, editorialParticipantCount: point.editorialParticipantCount, signalParticipantCount: point.signalParticipantCount };
     });
     // Hotness measures discussion activity only. Verification remains visible as a separate fact-quality dimension.
-    const currentHotPresentationEligible = topicMomentum.eligible;
+    const contentBoundary = { roundup: isMultiNewsRoundup(event.title), practice: evaluatePracticeSubject({ title: event.title, excerpt: event.summary ?? representative.excerpt }) };
+    const currentHotPresentationEligible = topicMomentum.eligible && !contentBoundary.roundup;
     const presentation = buildContentPresentationEnrichment({
       eventTitle: event.title,
       eventSummary: event.summary,
@@ -608,6 +612,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       publicReadableSourceCount: publicReportRaws.length,
       hotParticipants,
       practicalEvidenceLinks,
+      contentBoundary,
       curation: {
         curated,
         score: boleCuration.score,
@@ -816,7 +821,7 @@ export function buildWorthPracticingFromPools(
 ) {
   const bounded = Math.max(1, Math.min(500, limit));
   const byEvent = new Map([...latest, ...hotspots, ...unverified].map((item) => [item.eventId, item]));
-  return [...byEvent.values()]
+  return buildPracticeTopics([...byEvent.values()])
     .filter(isWorthPracticingEligible)
     .sort((a, b) =>
       (b.coverage.actionablePracticalOriginCount ?? 0) - (a.coverage.actionablePracticalOriginCount ?? 0) ||

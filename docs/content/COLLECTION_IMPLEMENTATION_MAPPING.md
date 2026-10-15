@@ -9,6 +9,14 @@ Task: COLLECTION-ARCHITECTURE-REALIGNMENT-001
 ## 1. Current Owners
 
 ### Source Management
+- lib/server/content/pixaroma-source.ts — 固定作者公开材料实采后事务注册/审计、SYSTEM onboarding与既有候选关联；保留资格观察，不授予事实权。
+- lib/server/content/public-workflow-materials.ts — Deno材料消费、ZIP/JSON内存结构校验及明确材料缺口；复用runtime adapter进入SYSTEM。
+- scripts/accept-pixaroma-public-source.ts / scripts/validate-pixaroma-route.ts — 服务器验收与确定性路由/ZIP/去重测试；生产必须显式`--confirm=PIXAROMA-PRODUCTION`，预览地址仅开发可用，实采复用SYSTEM advisory lock。
+- lib/server/content/public-practice-access.ts — 材料访问依赖与作者注册必要条件；不按播放量授予原创资格。
+- lib/server/content/public-creator-probe.ts — 有限公开B站详情/列表/字幕探测；海外缺路由失败关闭，禁止Cookie/Browser回退。
+- scripts/accept-public-creator-candidates.ts — development-only逐候选评估，--apply写Raw核验状态与事务审计，不自动注册。
+- lib/server/content/managed-practice-search.ts — 真实探测后显式登记定向搜索Source与事务审计；作者候选沿Raw保存。
+- scripts/accept-managed-practice-search-live.ts — development-only探测/登记/持久化验收；默认只读，--probe联网、--configure写开发、--verify检查。
 - app/admin/sources/page.tsx
 - components/AdminSourceManagementWorkspace.tsx
 - app/api/admin/content/source-management/route.ts
@@ -232,3 +240,21 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 - `scripts/manage-collection-quality.ts`：默认只读审计；Development-only `--apply-cleanup` / `--backfill` / `--refresh-baseline` 使用原SYSTEM锁/collector串行执行，不作为定时器。
 - `content:collection:quality-window:check`：完整性、Feed内容优先、时间边界、未来窗口、禁止隐式实体AI和跨读取路径实践门槛。
 - `services/overseas-collector-relay/DEPLOYMENT.md`：受保护迁移连接与Deno发布操作。Deno新增DeepMind/GitHub固定路径，必须health确认后才启用public-sources=v2；未覆盖其他公共Feed不标为Relay已完成。
+
+### P0 operations consistency
+
+- `discovery.ts::recordCandidateDecision`：Event行锁、Decision/Event状态及审计事务；返回discoveryStatus。
+- `workbench.ts::recordContentAudit`：可接受调用方事务executor，既有调用保持兼容。
+- `radar-snapshot.ts`：v11实践主题边界、完整窗口Event索引、当前运营状态只读覆盖、30分钟时效；基础缓存不缓存运营覆盖。
+- `source-management.ts / source-management-policy.ts`：启停、归档、恢复和Policy事务审计；归档来源可在原列表恢复为禁用。
+- `source-onboarding.ts`：阶段从真实资格/正式Run/探测派生，局部元数据更新与审计同事务。
+- `content:operations:check / content:operations:accept`：时效、榜单覆盖、开发库回滚/并发/跨进程与夹具清理。UI仍需真实体验审核，不能用这些校验替代USER_APPROVED。
+
+### 实践主题与汇总排除
+
+- `practical-evidence-actionability.ts`：汇总识别、发布主体排除、具体任务/操作判定、六小时搜索冷却；实践资格唯一门槛保持。
+- `practice-topics.ts`：formal actionable链接按明确tool/goal归并，复算证据/来源/类型，保留父Event并使用教程标题；未知身份或目标保持候选。
+- `intelligence-read-model.ts / radar-snapshot.ts`：直接实践列表和快照共享主题投影；汇总退出热点及参与者；模型发布不改写成实操。
+- `collection-expansion.ts`：SYSTEM每周期最多一实践主题、一个已管理健康B站/YouTube搜索来源、两查询×五结果；原文主题校验、无隐藏Source、失败隔离。无合格来源返回缺口，不能视为联网验证通过。
+- `topic-momentum.ts / topic-momentum-runtime.ts`：汇总Raw不贡献独立参与者；不改变原有热度权重。
+- `content:practice-topics:check / content:practice-expansion:check / content:practical-actionability:check`：新闻附着教程、同作者、不同任务、未知身份、资格失败关闭、发布伪教程与汇总反例。
