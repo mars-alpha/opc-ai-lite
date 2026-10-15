@@ -1,0 +1,11 @@
+[Unit]
+Description=OPC unified source collection cadence
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=15min
+AccuracySec=30s
+Unit=opc-collection.service
+
+[Install]
+WantedBy=timers.target

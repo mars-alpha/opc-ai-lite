@@ -160,13 +160,39 @@ docs/learning-insight/LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md
 
 固定边界：
 - 机械代码先完成采集、聚合、阈值、去重、课程定位、状态与校验；
-- Human 拥有三次 Gate；
-- AI 只做 Task A“诊断 + 列课程”和 Task B“单课程文本 Patch”；
+- Human 只保留 Gate 1“是否交给 AI 分析”和 Final Preview Gate“是否发布最终版本”；
+- AI 只做 Task A“整课诊断 + 判断当前课程是否需要修改”和 Task B“单课程文本 Patch”；
 - AI 不直接拥有 Learning Issue 状态、不直接写正式课程、不直接提交审核或发布；
-- 最终只进入现有 Course Maintenance DRAFT；
+- Final Preview 通过后由 Core 复用 Course Maintenance 发布能力直接生成正式新版本；不再经过二次人工 DRAFT / REVIEW 提交；
 - 不接入、不修改 Course Builder Workflow。
 
-## 9. 三产品边界
+## 9. AI 日报内容 current owners
+
+采集发现 / 来源管理 / AI 日报生产任务先读取：
+
+```text
+docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md
+docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md
+docs/content/CONTENT_AI_DAILY_PRODUCT_CONTRACT.md
+docs/content/CONTENT_AI_DAILY_STRUCTURED_OUTPUT_CONTRACT.md
+docs/content/CONTENT_AI_DAILY_VALIDATOR_CONTRACT.md
+docs/content/CONTENT_AI_DAILY_IMPLEMENTATION_MAPPING.md
+```
+
+固定边界：
+- 内容采集产品面固定为：“来源管理、热点追踪、内容工作台”；不再存在独立“人工采集”产品 Owner；SYSTEM Collection Runtime 是唯一采集执行基准，也不得重新创建平行“自动采集工作台”；
+- 来源管理唯一拥有 Source / Creator Identity、Connection、Qualification、Capability、关注条件、采集配置与 operator-added Source；Radar 只消费 Event / Evidence 与只读 Runtime Health；
+- `/admin/manual-collection` 仅为历史兼容重定向 / 410 tombstone；Manual Core、旧工作台与现役 Runner 的 Manual Task/Result 依赖已经退出 current runtime，禁止恢复；历史数据库表只保留审计用途；
+- Hotspot current owner 为 Event Momentum v2：0–24h RISING + 24–168h SUSTAINED，按独立 Source、Creator、活跃天数、跨平台/实践 Evidence 与互动信号判断；旧 Rising / Formal Rising 算法已退出 current Hotspot authority；
+- Platform rank / Google Trends / GitHub/HN trend 等只属于 Discovery Signal；Creator 粉丝/播放/互动不能单独授予 Fact 或 Hotspot Authority；评论挖需输出 Demand Signal，不属于 Fact Evidence；
+- SYSTEM Source 必须先解析明确 Acquisition Plan 再运行；未知 Source 必须 fail-closed。普通 HTTP 不得作为默认采集路径；Feed/API/Generated Feed/Static/Jina/Platform API/Browser/Search/Trend/Transcript 按 Source 特征和 Qualification 选择；
+- Source Identity 与 Acquisition Route 必须分离：一个逻辑 Source 可以有 Primary / Fallback Route、成本与 Health；不得为了不同采集路径复制成多个逻辑 Source；
+- Search Collector 主要用于 Event Expansion / Research，不再作为持续关键词全网扫取主入口；
+- 海外公共自动源统一经过 Deno Relay；登录型 Browser Runtime 按真实登录环境运行；
+- AI 日报五阶段、Human Gate、Evidence、Formatted Draft 与 Asset 规则继续由 AI 日报合同负责；
+- Skill 不直接写库、不拥有发布权；当前 COS / Remotion / 视觉 Skill 只属于未实施扩展位。
+
+## 10. 三产品边界
 
 固定分为：
 - OPC AI 前台：学习与官方内容消费；
@@ -177,7 +203,7 @@ docs/learning-insight/LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md
 
 完整需求、边界、技术选择、推荐理由、阶段顺序和验收规则只见 `docs/DEVELOPMENT_OPERATING_MANUAL.md`。
 
-## 10. UI 边界
+## 11. UI 边界
 
 Runtime、API、Schema、Skill、AI、后台任务默认冻结已确认前端。
 
@@ -212,20 +238,20 @@ IMPLEMENT
 - 用户审核提出修改后，修正并重新提供体验，直到明确确认；
 - 非可视化 Core / Schema / Validator 工作可以继续完成当前同一任务的必要闭环，但不得借此绕过 UI Review Gate。
 
-## 11. Secret / Provider
+## 12. Secret / Provider
 
 - API Key 不进入 Git、Prompt、日志、Analytics 或错误正文。
 - 平台 Secret 优先环境变量 / 云 Secret Manager。
 - 学员 BYOK 第一阶段默认不持久保存。
 - 外部 Provider 通过 Adapter / Model Gateway，不在业务代码写死厂商。
 
-## 12. Task Contract
+## 13. Task Contract
 
 每个实现任务必须先完成 `docs/DEVELOPMENT_OPERATING_MANUAL.md` 定义的 Decision Brief，至少明确角色、Product Surface、边界、Code / AI / Skill / Workflow / Human 分工、推荐方案与理由、Validation、Acceptance、Rollback 和 Owner。
 
 当前闭环必需才实现；其余进入 Backlog。
 
-## 13. 验收
+## 14. 验收
 
 业务代码至少：
 
@@ -256,7 +282,7 @@ npm run scripts:current:check
 - 最终验收记录必须区分 `IMPLEMENTED` 与 `USER_APPROVED`；
 - 没有用户明确确认时不得宣称视觉/交互“已验收完成”。
 
-## 13. Done
+## 15. Done
 
 任务结束确认：
 - 改动只属于当前任务；

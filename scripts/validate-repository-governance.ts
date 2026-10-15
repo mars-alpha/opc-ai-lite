@@ -22,7 +22,11 @@ const required = [
   "docs/learning-insight/LEARNING_INSIGHT_WORKBENCH_V2_PRODUCT_CONTRACT.md",
   "docs/learning-insight/LEARNING_INSIGHT_AI_PROMPT_CONTRACT.md",
   "docs/learning-insight/LEARNING_INSIGHT_STRUCTURED_OUTPUT_CONTRACT.md",
-  "docs/learning-insight/LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md"
+  "docs/learning-insight/LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md",
+  "docs/content/CONTENT_AI_DAILY_PRODUCT_CONTRACT.md",
+  "docs/content/CONTENT_AI_DAILY_STRUCTURED_OUTPUT_CONTRACT.md",
+  "docs/content/CONTENT_AI_DAILY_VALIDATOR_CONTRACT.md",
+  "docs/content/CONTENT_AI_DAILY_IMPLEMENTATION_MAPPING.md"
 ];
 for (const file of required) assert(fs.existsSync(file), "REQUIRED_OWNER_MISSING:" + file);
 
@@ -58,6 +62,20 @@ for (const file of fs.readdirSync("docs/learning-insight")) {
   assert(learningInsightWhitelist.has(file), "NON_CURRENT_LEARNING_INSIGHT_DOC:" + file);
 }
 assert(fs.readdirSync("docs/learning-insight").length === 4, "LEARNING_INSIGHT_OWNER_COUNT_DRIFT");
+
+const contentWhitelist = new Set([
+  "COLLECTION_ARCHITECTURE_CONTRACT.md",
+  "COLLECTION_IMPLEMENTATION_MAPPING.md",
+  "CONTENT_AI_DAILY_PRODUCT_CONTRACT.md",
+  "CONTENT_AI_DAILY_STRUCTURED_OUTPUT_CONTRACT.md",
+  "CONTENT_AI_DAILY_VALIDATOR_CONTRACT.md",
+  "CONTENT_AI_DAILY_IMPLEMENTATION_MAPPING.md"
+]);
+assert(fs.existsSync("docs/content"), "CONTENT_OWNER_DIR_MISSING");
+for (const file of fs.readdirSync("docs/content")) {
+  assert(contentWhitelist.has(file), "NON_CURRENT_CONTENT_DOC:" + file);
+}
+assert(fs.readdirSync("docs/content").length === 6, "CONTENT_OWNER_COUNT_DRIFT");
 
 assert(!fs.existsSync("docs/task-results"), "TASK_RESULTS_SHOULD_USE_GIT_HISTORY");
 
@@ -116,6 +134,7 @@ for (const file of scriptFiles) {
 console.log("REPOSITORY_GOVERNANCE_CURRENT_OWNERS=PASS");
 console.log("REPOSITORY_GOVERNANCE_LEARNING_DOC_WHITELIST=PASS");
 console.log("REPOSITORY_GOVERNANCE_LEARNING_INSIGHT_OWNER_SET=PASS");
+console.log("REPOSITORY_GOVERNANCE_CONTENT_OWNER_SET=PASS");
 console.log("REPOSITORY_GOVERNANCE_GIT_HISTORY_BOUNDARY=PASS");
 console.log("REPOSITORY_GOVERNANCE_NO_LEGACY_ROOT_PROTOTYPE=PASS");
 console.log("REPOSITORY_GOVERNANCE_NO_SUPERSEDED_COURSE_RULES=PASS");

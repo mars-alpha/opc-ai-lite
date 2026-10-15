@@ -1,0 +1,1767 @@
+{
+  "schemaVersion": "ai-collection-ground-truth-v1",
+  "benchmarkVersion": "ai-collection-benchmark-v2",
+  "labelingGuideVersion": "ai-intelligence-labeling-v1",
+  "frozenAt": "2026-10-09T00:30:00Z",
+  "sourceDatabase": "opc_ai_dev",
+  "policyVersionAtFreeze": "ai-intelligence-policy-v1",
+  "reviewStatus": "PROVISIONAL",
+  "notes": [
+    "Benchmark v2 preserves all v1 Event and TechCrunch Discovery cases and adds real multi-source SYSTEM candidates.",
+    "New Discovery coverage includes Official, Media, Research and Signal sources from opc_ai_dev.",
+    "New kept samples use same-run createdRawItemIds when available; duplicate Raw rows are not treated as exact same-run candidate snapshots.",
+    "Research currently has no same-run created or rejected candidates; four stable arXiv kept records are retained only as positive coverage, and negative Research coverage remains insufficient.",
+    "Labels remain PROVISIONAL and are for engineering calibration, not product-owner-approved ground truth.",
+    "Signal cases intentionally include AI false negatives from Hacker News and GitHub so recall gaps stay visible."
+  ],
+  "eventCases": [
+    {
+      "eventId": "393cdbcb-2b37-4021-a87f-b9f3877a8e44",
+      "titleSnapshot": "EmbeddingGemma 2：一个开放、轻量级的多模态嵌入模型",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "OFFICIAL_NEWS",
+      "expectedVerification": "CONFIRMED_OFFICIAL",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "官方发布新的 AI 模型/能力，属于明确产品与模型变化。"
+    },
+    {
+      "eventId": "ac8d882f-67da-4b53-8ef7-1e525bb3bba4",
+      "titleSnapshot": "我们对欧盟文本溯源规则的做法",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "OFFICIAL_NEWS",
+      "expectedVerification": "CONFIRMED_OFFICIAL",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "官方政策/安全相关变化，对 AI 内容治理有直接影响。"
+    },
+    {
+      "eventId": "4443a87d-5a6d-4f77-8469-205149b31755",
+      "titleSnapshot": "Atlassian 与 OpenAI 扩大合作，将企业知识转化为行动",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "OFFICIAL_NEWS",
+      "expectedVerification": "CONFIRMED_OFFICIAL",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "官方合作与企业 AI 产品能力变化，具备业务采用价值。"
+    },
+    {
+      "eventId": "518cb8d8-a95b-4e33-8f65-223ab388b5b4",
+      "titleSnapshot": "分享 AI 在数学领域的进展",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "OFFICIAL_NEWS",
+      "expectedVerification": "CONFIRMED_OFFICIAL",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "官方披露 AI 能力进展，属于能力变化而非普通营销。"
+    },
+    {
+      "eventId": "879666a2-8a74-43b6-93c0-4c7b0af71296",
+      "titleSnapshot": "Jump Trading 如何借助 ChatGPT 扩展量化研究",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "CONFIRMED_OFFICIAL",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "AI 相关但更接近客户案例/营销素材，不应自动进入主运营官方动态。"
+    },
+    {
+      "eventId": "cee723ae-9955-4f94-b33b-ce83ba8681ad",
+      "titleSnapshot": "Radisson Hotel Group 将酒店探索带入 ChatGPT",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "CONFIRMED_OFFICIAL",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "属于单一合作/客户场景，AI 相关但对 OPC 主运营价值偏低。"
+    },
+    {
+      "eventId": "fcacdc58-da71-47a1-b044-1c39dabfbba4",
+      "titleSnapshot": "帮助青少年学习、规划并塑造 AI 的未来",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "CONFIRMED_OFFICIAL",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "AI 主题明确，但更偏教育倡议/活动，不代表模型、产品或行业能力变化。"
+    },
+    {
+      "eventId": "a04f5cd5-262a-429b-bec6-121cded9b56e",
+      "titleSnapshot": "前 Ramp 工程师在放弃首款产品后，为平台 Melius 融资 2000 万美元",
+      "contentLabel": "NOT_AI_RELEVANT",
+      "expectedDisposition": "IGNORE",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "标题和事实核心是创业融资，缺少明确 AI 能力或产品变化。"
+    },
+    {
+      "eventId": "cfb70069-a239-48c3-bf6a-df0279a68909",
+      "titleSnapshot": "距 TechCrunch Disrupt 2026 还有 6 天：在开幕前购买通行证享优惠",
+      "contentLabel": "NOT_AI_RELEVANT",
+      "expectedDisposition": "IGNORE",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "票务促销，与 AI 情报无关。"
+    },
+    {
+      "eventId": "960a725a-8e79-400f-80c5-1eaca310dadf",
+      "titleSnapshot": "文章：在 Go 中构建会话有序的 Kafka 管道",
+      "contentLabel": "NOT_AI_RELEVANT",
+      "expectedDisposition": "IGNORE",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "纯工程文章，不属于 AI 事件。"
+    },
+    {
+      "eventId": "f23d3822-efd7-4709-9897-6437882f0ab7",
+      "titleSnapshot": "QCon London 2027 公布 15 个专题，涵盖生产 AI、架构和大规模工程",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "ARCHIVED_UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "包含 AI 但核心是会议议程，不应成为主情报 Event。"
+    },
+    {
+      "eventId": "0c6262a0-b442-4aeb-a56e-6e1bcfe7e6d9",
+      "titleSnapshot": "生产环境中的 AI：什么会出问题、什么有效，以及谁来批准？ | InfoQ 网络研讨会",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "ARCHIVED_UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "属于活动/网络研讨会，不代表新的 AI 事实变化。"
+    },
+    {
+      "eventId": "af965ed2-a785-4fa4-90f6-23bfa839007f",
+      "titleSnapshot": "Google 试验 AI 驱动的游戏平台",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "UNVERIFIED",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "明确 AI 产品实验，值得保留等待更多事实确认。"
+    },
+    {
+      "eventId": "6cd81c15-522f-42fd-ae31-26f8099a6493",
+      "titleSnapshot": "Meta 推出新 AI 工具，用于检测暗中导向儿童性虐待材料的广告",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "UNVERIFIED",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "明确 AI 安全工具发布，具有产品与安全变化价值。"
+    },
+    {
+      "eventId": "87617b8f-a936-4ee5-963b-a6b6141628d4",
+      "titleSnapshot": "ChatGPT 正变得视觉化得多，并推出全新界面",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "UNVERIFIED",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "可能是重要产品 UI/交互变化，应保留等待官方确认。"
+    },
+    {
+      "eventId": "919adcde-9375-40b9-86cd-0d61c7aea709",
+      "titleSnapshot": "微软发布搭载 Nvidia 芯片的新款 AI PC，配备改版 Windows 11",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "UNVERIFIED",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "明确 AI 硬件/平台更新，有产品变化价值。"
+    },
+    {
+      "eventId": "ceddc881-da39-4e19-8010-73fae97d8845",
+      "titleSnapshot": "Nous Research 确认估值达到 15 亿美元，为企业用户推出 AI agents",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "UNVERIFIED",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "包含企业 AI agent 产品发布与融资，值得保留但需更多来源确认。"
+    },
+    {
+      "eventId": "1f3aaf06-cd29-433f-9793-81749dabbfa4",
+      "titleSnapshot": "中国 Manus 在与 Meta 拆分后首轮融资中筹集超 5 亿美元",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "UNVERIFIED",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "AI agent 公司重大融资，具有行业变化价值但需交叉确认。"
+    },
+    {
+      "eventId": "338f5a35-a162-4d3b-b38b-d5d407cebe27",
+      "titleSnapshot": "Nvidia 押注物理 AI，旨在实现更安全的 robotaxi 和人形机器人",
+      "contentLabel": "AI_RELEVANT",
+      "expectedDisposition": "UNVERIFIED",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "物理 AI/机器人方向的重要战略与技术动向，值得继续验证。"
+    },
+    {
+      "eventId": "bea17007-c05d-4730-b2c3-32d3d85957de",
+      "titleSnapshot": "AI 决策模型如何改变内容审核",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "更像解释性文章而非新的模型发布，当前 Event Type/重要性可能被高估。"
+    },
+    {
+      "eventId": "735b66c7-d88b-4e7f-9801-21fe8c062616",
+      "titleSnapshot": "“软件已结束”：大胆的 AI 开发者用开源克隆瞄准 Adobe",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "AI 相关但标题偏观点/营销叙事，单一来源不足以形成主情报。"
+    },
+    {
+      "eventId": "678895c2-048a-454d-b937-d8cb6fd69944",
+      "titleSnapshot": "机器人领域的 AI 突破不会在短期内改变你的生活",
+      "contentLabel": "LOW_VALUE",
+      "expectedDisposition": "IGNORE",
+      "expectedVerification": "UNVERIFIED",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-001",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "更接近评论/观点，不是可验证的新事件事实。"
+    }
+  ],
+  "clusterCases": [
+    {
+      "caseId": "cluster-v2-gpt6-intelligent-ui",
+      "eventIds": [
+        "491df30b-b0bb-480e-aef0-811653f23587",
+        "31b00d16-b228-4242-b0f1-6e38d7684765",
+        "87617b8f-a936-4ee5-963b-a6b6141628d4"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "491df30b-b0bb-480e-aef0-811653f23587",
+          "titleSnapshot": "GPT-6 与面向所有人的 Intelligent UI",
+          "sourceNames": [
+            "OpenAI · News"
+          ],
+          "firstSeenAt": "2026-10-07T00:00:00Z"
+        },
+        {
+          "eventId": "31b00d16-b228-4242-b0f1-6e38d7684765",
+          "titleSnapshot": "GPT-6今起免费用！拒答变少，话变多了",
+          "sourceNames": [
+            "量子位 · AI"
+          ],
+          "firstSeenAt": "2026-10-08T01:07:19Z"
+        },
+        {
+          "eventId": "87617b8f-a936-4ee5-963b-a6b6141628d4",
+          "titleSnapshot": "ChatGPT 正变得视觉化得多，并推出全新界面",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-07T18:00:19Z"
+        }
+      ],
+      "expectedRelation": "SAME_EVENT",
+      "reviewStatus": "HUMAN_APPROVED",
+      "reviewerId": "human:chamzhihua@gmail.com",
+      "reviewedAt": "2026-10-08T23:00:02.459Z",
+      "reason": "三条均描述 GPT-6 在 ChatGPT 推出并伴随 Intelligent UI / 新界面的同一产品发布事实，来源与标题表达不同但核心实体、动作与时间一致。",
+      "coverageAreas": [
+        "MODEL_RELEASE"
+      ],
+      "humanReviewNote": ""
+    },
+    {
+      "caseId": "cluster-v2-openai-eu-watermark",
+      "eventIds": [
+        "ac8d882f-67da-4b53-8ef7-1e525bb3bba4",
+        "339a7c15-c164-4df4-9dfe-c3475bca14a4"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "ac8d882f-67da-4b53-8ef7-1e525bb3bba4",
+          "titleSnapshot": "我们对欧盟文本溯源规则的做法",
+          "sourceNames": [
+            "OpenAI · News"
+          ],
+          "firstSeenAt": "2026-10-05T15:00:00Z"
+        },
+        {
+          "eventId": "339a7c15-c164-4df4-9dfe-c3475bca14a4",
+          "titleSnapshot": "OpenAI 将默认对 ChatGPT 输出添加水印——但仅限于欧盟",
+          "sourceNames": [
+            "Ars Technica"
+          ],
+          "firstSeenAt": "2026-10-06T20:50:32Z"
+        }
+      ],
+      "expectedRelation": "SAME_EVENT",
+      "reviewStatus": "HUMAN_APPROVED",
+      "reviewerId": "human:chamzhihua@gmail.com",
+      "reviewedAt": "2026-10-08T23:02:17.048Z",
+      "reason": "OpenAI 官方说明与 Ars 报道都围绕欧盟文本溯源/水印规则的同一落地变化，属于同一事件的官方与媒体表达。",
+      "coverageAreas": [
+        "POLICY_SAFETY"
+      ],
+      "humanReviewNote": ""
+    },
+    {
+      "caseId": "cluster-v2-manus-funding-office",
+      "eventIds": [
+        "1f3aaf06-cd29-433f-9793-81749dabbfa4",
+        "e360884c-be46-4911-8c21-853a3ab9edea"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "1f3aaf06-cd29-433f-9793-81749dabbfa4",
+          "titleSnapshot": "中国 Manus 在与 Meta 拆分后首轮融资中筹集超 5 亿美元",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-08T13:20:32Z"
+        },
+        {
+          "eventId": "e360884c-be46-4911-8c21-853a3ab9edea",
+          "titleSnapshot": "浪子回头！Manus重启北京办公室大举招聘",
+          "sourceNames": [
+            "量子位 · AI"
+          ],
+          "firstSeenAt": "2026-10-08T09:30:17Z"
+        }
+      ],
+      "expectedRelation": "RELATED_EVENT",
+      "reviewStatus": "HUMAN_APPROVED",
+      "reviewerId": "human:chamzhihua@gmail.com",
+      "reviewedAt": "2026-10-08T23:05:55.798Z",
+      "reason": "两条共享 Manus 与同一轮融资背景，但一条核心动作是融资，另一条核心动作是北京办公室重启与招聘；应相关但不应合并为同一 Event。",
+      "coverageAreas": [
+        "FINANCE"
+      ],
+      "humanReviewNote": ""
+    },
+    {
+      "caseId": "cluster-v2-nous-funding-hermes-repo",
+      "eventIds": [
+        "ceddc881-da39-4e19-8010-73fae97d8845",
+        "7369b32e-3c7b-4159-8202-1c2d344ae5ba"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "ceddc881-da39-4e19-8010-73fae97d8845",
+          "titleSnapshot": "Nous Research 确认估值达到 15 亿美元，为企业用户推出 AI agents",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-07T20:48:45Z"
+        },
+        {
+          "eventId": "7369b32e-3c7b-4159-8202-1c2d344ae5ba",
+          "titleSnapshot": "NousResearch/hermes-agent",
+          "sourceNames": [
+            "GitHub Trend Proxy · AI"
+          ],
+          "firstSeenAt": "2026-10-03T11:53:16Z"
+        }
+      ],
+      "expectedRelation": "RELATED_EVENT",
+      "reviewStatus": "HUMAN_APPROVED",
+      "reviewerId": "human:chamzhihua@gmail.com",
+      "reviewedAt": "2026-10-08T23:07:03.514Z",
+      "reason": "Hermes Agent 项目与 Nous Research 融资/企业 Agent 新闻属于同一公司与产品生态，但动作、时间和事件事实不同，应保持相关而非合并。",
+      "coverageAreas": [
+        "FINANCE",
+        "OPEN_SOURCE"
+      ],
+      "humanReviewNote": ""
+    },
+    {
+      "caseId": "cluster-v2-nvidia-physical-ai-vs-ai-pc",
+      "eventIds": [
+        "338f5a35-a162-4d3b-b38b-d5d407cebe27",
+        "5818caea-d413-4ae2-8dd7-186a35123878"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "338f5a35-a162-4d3b-b38b-d5d407cebe27",
+          "titleSnapshot": "Nvidia 押注物理 AI，旨在实现更安全的 robotaxi 和人形机器人",
+          "sourceNames": [
+            "Ars Technica"
+          ],
+          "firstSeenAt": "2026-10-08T11:15:33Z"
+        },
+        {
+          "eventId": "5818caea-d413-4ae2-8dd7-186a35123878",
+          "titleSnapshot": "搭载NVIDIA RTX Spark™ N1X超级芯片：联想YOGA Pro 15开启盲约，重塑个人生产力边界",
+          "sourceNames": [
+            "量子位 · AI"
+          ],
+          "firstSeenAt": "2026-10-08T10:23:53Z"
+        }
+      ],
+      "expectedRelation": "NEW_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-GROUND-TRUTH-007",
+      "reviewedAt": "2026-10-09T04:52:00+08:00",
+      "reason": "两条都涉及 Nvidia，但一条是物理 AI 安全/机器人战略，另一条是联想 AI PC 硬件发布，核心实体关系与动作不同，应明确分开。",
+      "coverageAreas": [
+        "POLICY_SAFETY"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-gpt6-release-vs-arena",
+      "eventIds": [
+        "491df30b-b0bb-480e-aef0-811653f23587",
+        "104ad070-5c0a-4d45-8200-3125dcadeaeb"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "491df30b-b0bb-480e-aef0-811653f23587",
+          "titleSnapshot": "GPT-6 与面向所有人的 Intelligent UI",
+          "sourceNames": [
+            "OpenAI · News"
+          ],
+          "firstSeenAt": "2026-10-07T00:00:00Z"
+        },
+        {
+          "eventId": "104ad070-5c0a-4d45-8200-3125dcadeaeb",
+          "titleSnapshot": "GPT-6.1 Sol (Max) 进入 Agent Arena 第 5 名，以更低成本逼近前列模型",
+          "sourceNames": [
+            "AIHOT · Selected AI Discovery"
+          ],
+          "firstSeenAt": "2026-10-02T19:48:16Z"
+        }
+      ],
+      "expectedRelation": "NEW_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-GROUND-TRUTH-007",
+      "reviewedAt": "2026-10-09T04:52:00+08:00",
+      "reason": "同属 GPT-6 家族，但一个是 GPT-6/Intelligent UI 产品发布，另一个是 GPT-6.1 Sol 的 Agent Arena 排名事件，版本、动作与时间均不同。",
+      "coverageAreas": [
+        "MODEL_RELEASE"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-synthid-global-detector",
+      "eventIds": [
+        "9683592a-91b2-445c-be50-d037d7d9009e",
+        "2e27cbe5-a2b9-489b-a966-35f888b14806"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "9683592a-91b2-445c-be50-d037d7d9009e",
+          "titleSnapshot": "Google 的新 SynthID 网站可识别 AI 生成媒体",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-07T14:00:00.000Z"
+        },
+        {
+          "eventId": "2e27cbe5-a2b9-489b-a966-35f888b14806",
+          "titleSnapshot": "Google 推出改进版 SynthID AI 内容检测器，现已在全球上线",
+          "sourceNames": [
+            "Ars Technica"
+          ],
+          "firstSeenAt": "2026-10-07T14:00:08.000Z"
+        }
+      ],
+      "expectedRelation": "SAME_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "两家媒体在同一分钟报道 Google 推出新的 SynthID 网站/检测器并全球开放，核心产品、动作与发布时间一致，属于同一产品/安全工具上线事件。",
+      "coverageAreas": [
+        "POLICY_SAFETY"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-claude-haiku-55-release",
+      "eventIds": [
+        "8ce107de-2859-473a-aaf7-a95df99b55bd",
+        "48a8e9ed-4158-452a-8b47-e48fbc6c188d"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "8ce107de-2859-473a-aaf7-a95df99b55bd",
+          "titleSnapshot": "Claude Haiku 5.5",
+          "sourceNames": [
+            "Hacker News Top · AI Trend Discovery"
+          ],
+          "firstSeenAt": "2026-10-07T18:01:32.000Z"
+        },
+        {
+          "eventId": "48a8e9ed-4158-452a-8b47-e48fbc6c188d",
+          "titleSnapshot": "Claude新模型发布！跑分暴击GPT-6 Luna，价格比梁文谷还便宜，OpenAI只能送重置卡挽尊",
+          "sourceNames": [
+            "量子位 · AI"
+          ],
+          "firstSeenAt": "2026-10-08T01:04:00.000Z"
+        }
+      ],
+      "expectedRelation": "SAME_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "HN 直接指向 Anthropic Claude Haiku 5.5 官方页面；量子位在同一发布窗口报道 Claude 新小模型。实体、发布动作与“小模型”定位一致，但量子位快照未直接写 Haiku 5.5 型号，因此该 SAME_EVENT 标签必须保持 PROVISIONAL 并要求人工型号复核。",
+      "coverageAreas": [
+        "MODEL_RELEASE"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-openai-math-release-vs-critique",
+      "eventIds": [
+        "518cb8d8-a95b-4e33-8f65-223ab388b5b4",
+        "e142839b-050d-4493-a310-ec154f189031"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "518cb8d8-a95b-4e33-8f65-223ab388b5b4",
+          "titleSnapshot": "分享 AI 在数学领域的进展",
+          "sourceNames": [
+            "OpenAI · News"
+          ],
+          "firstSeenAt": "2026-10-06T12:00:00.000Z"
+        },
+        {
+          "eventId": "e142839b-050d-4493-a310-ec154f189031",
+          "titleSnapshot": "OpenAI 的数学解答尚未达到该领域的标准",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-08T18:10:55.000Z"
+        }
+      ],
+      "expectedRelation": "RELATED_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "官方发布数学开放问题成果，媒体随后讨论这些证明是否达到研究领域标准；共享同一研究背景但核心动作分别是成果发布与质量评议，应相关而不强并。",
+      "coverageAreas": [
+        "RESEARCH"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-anthropic-policy-vs-haiku-release",
+      "eventIds": [
+        "3f42a2f0-4a8b-4eb9-bd82-736f6b2d0235",
+        "8ce107de-2859-473a-aaf7-a95df99b55bd"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "3f42a2f0-4a8b-4eb9-bd82-736f6b2d0235",
+          "titleSnapshot": "Anthropic 更改使用政策，禁止模型滥用和选举干预",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-08T18:16:24.000Z"
+        },
+        {
+          "eventId": "8ce107de-2859-473a-aaf7-a95df99b55bd",
+          "titleSnapshot": "Claude Haiku 5.5",
+          "sourceNames": [
+            "Hacker News Top · AI Trend Discovery"
+          ],
+          "firstSeenAt": "2026-10-07T18:01:32.000Z"
+        }
+      ],
+      "expectedRelation": "RELATED_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "两条均属于 Anthropic/Claude 同一产品生态，但一个是使用政策与安全治理变化，一个是模型发布，核心动作不同，应保持相关但分开。",
+      "coverageAreas": [
+        "POLICY_SAFETY",
+        "MODEL_RELEASE"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-manus-vs-nous-financing",
+      "eventIds": [
+        "1f3aaf06-cd29-433f-9793-81749dabbfa4",
+        "ceddc881-da39-4e19-8010-73fae97d8845"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "1f3aaf06-cd29-433f-9793-81749dabbfa4",
+          "titleSnapshot": "中国 Manus 在与 Meta 拆分后首轮融资中筹集超 5 亿美元",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-08T13:20:32.000Z"
+        },
+        {
+          "eventId": "ceddc881-da39-4e19-8010-73fae97d8845",
+          "titleSnapshot": "Nous Research 确认估值达到 15 亿美元，为企业用户推出 AI agents",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-07T20:48:45.000Z"
+        }
+      ],
+      "expectedRelation": "NEW_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "两条都涉及 AI 公司融资，但公司、融资轮次与业务事件不同；“融资”动作类型相同不能成为合并依据。",
+      "coverageAreas": [
+        "FINANCE"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-google-synthid-vs-gemini-agent",
+      "eventIds": [
+        "9683592a-91b2-445c-be50-d037d7d9009e",
+        "551150cc-a1f8-40ce-90b0-fbc543f220d6"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "9683592a-91b2-445c-be50-d037d7d9009e",
+          "titleSnapshot": "Google 的新 SynthID 网站可识别 AI 生成媒体",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-07T14:00:00.000Z"
+        },
+        {
+          "eventId": "551150cc-a1f8-40ce-90b0-fbc543f220d6",
+          "titleSnapshot": "Google 将代理式 AI 引入 Gemini，先从企业开始",
+          "sourceNames": [
+            "TechCrunch · Artificial Intelligence"
+          ],
+          "firstSeenAt": "2026-10-08T18:18:00.000Z"
+        }
+      ],
+      "expectedRelation": "NEW_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "同属 Google AI，但一个是 AI 内容识别/安全工具，一个是 Gemini 企业 Agent 能力，产品对象与核心动作不同。",
+      "coverageAreas": [
+        "POLICY_SAFETY"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-open-source-comfyui-vs-langchain",
+      "eventIds": [
+        "6bd344a6-b8e5-40b2-a884-8b878749f637",
+        "d962d516-d1d6-453c-80d1-b24afadb8869"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "6bd344a6-b8e5-40b2-a884-8b878749f637",
+          "titleSnapshot": "Comfy-Org/ComfyUI",
+          "sourceNames": [
+            "GitHub Trend Proxy · AI"
+          ],
+          "firstSeenAt": "2026-10-03T09:23:06.000Z"
+        },
+        {
+          "eventId": "d962d516-d1d6-453c-80d1-b24afadb8869",
+          "titleSnapshot": "langchain-ai/langchain",
+          "sourceNames": [
+            "GitHub Trend Proxy · AI"
+          ],
+          "firstSeenAt": "2026-10-03T08:31:42.000Z"
+        }
+      ],
+      "expectedRelation": "NEW_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "两者都是热门开源 AI 工具，但 ComfyUI 属于扩散模型工作流/推理界面，LangChain 属于 Agent 工程平台；热门开源这一共同属性不能导致聚类。",
+      "coverageAreas": [
+        "OPEN_SOURCE"
+      ]
+    },
+    {
+      "caseId": "cluster-v2-research-recast-vs-rlvr",
+      "eventIds": [
+        "18b1fbb9-e519-4a16-9205-f3b14a5adb92",
+        "5cf838af-4b2b-4c59-8c3a-9eae3c4b57c2"
+      ],
+      "eventSnapshots": [
+        {
+          "eventId": "18b1fbb9-e519-4a16-9205-f3b14a5adb92",
+          "titleSnapshot": "RECAST: Learning to Compute the Right Context through Adaptive Evidence Routing",
+          "sourceNames": [
+            "arXiv · cs.AI Recent"
+          ],
+          "firstSeenAt": "2026-10-07T17:51:08.000Z"
+        },
+        {
+          "eventId": "5cf838af-4b2b-4c59-8c3a-9eae3c4b57c2",
+          "titleSnapshot": "Decoupling Exploration from Optimization in RLVR",
+          "sourceNames": [
+            "arXiv · cs.AI Recent"
+          ],
+          "firstSeenAt": "2026-10-07T17:59:26.000Z"
+        }
+      ],
+      "expectedRelation": "NEW_EVENT",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-CLUSTER-COVERAGE-009",
+      "reviewedAt": "2026-10-09T13:00:00.000+08:00",
+      "reason": "同一时间窗口内的两篇 AI 研究，但一个研究证据路由/RAG 计算，一个研究 RLVR 探索与优化解耦，研究主题与核心方法不同，应严格分开。",
+      "coverageAreas": [
+        "RESEARCH"
+      ]
+    }
+  ],
+  "discoveryCases": [
+    {
+      "caseId": "discovery-techcrunch-20261008-01",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "5db699a7-1139-48a4-bf4e-76c1b7163d79",
+      "externalId": "https://techcrunch.com/?p=3175682",
+      "originalUrl": "https://techcrunch.com/2026/10/08/ben-affleck-is-an-ai-nerd-and-the-internet-is-impressed/",
+      "titleSnapshot": "Ben Affleck is an AI nerd, and the internet is impressed",
+      "excerptSnapshot": "Ben Affleck is going viral for his deep knowledge of AI, from neural networks and transformers to open weights. The actor, who sold his AI filmmaking startup to Netflix earlier this year, is proving he's more than just a Hollywood star.",
+      "publishedAt": "2026-10-08T18:20:32Z",
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "泛娱乐人物话题，虽然谈 AI，但不是值得进入当前 AI 情报事实链的变化。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-02",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "2253402a-b947-4163-b74a-4aa07a757a2e",
+      "externalId": "https://techcrunch.com/?p=3175734",
+      "originalUrl": "https://techcrunch.com/2026/10/08/popular-ai-leaderboard-arena-nearly-doubles-valuation-to-3-1b-valuation-in-10-months/",
+      "titleSnapshot": "Popular AI leaderboard Arena nearly doubles valuation to $3.1B valuation in 10 months",
+      "excerptSnapshot": "The company behind the popular LMArena leaderboard has raised $200 million led by Lightspeed and Khosla, and is now measuring AI models on alignment issues such as lying.",
+      "publishedAt": "2026-10-08T18:19:45Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-03",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "dc14b9ad-c91b-4082-b46a-51d1beabb28a",
+      "externalId": "https://techcrunch.com/?p=3175754",
+      "originalUrl": "https://techcrunch.com/2026/10/08/openais-revenue-is-reportedly-20-billion-less-than-previously-projected/",
+      "titleSnapshot": "OpenAI’s revenue is reportedly $20 billion less than previously projected",
+      "excerptSnapshot": "It had previously been reported that the AI lab's annualized revenue was some $70 billion, but a new report claims it's a whole lot less than that.",
+      "publishedAt": "2026-10-08T18:19:42Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-04",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "7efb780b-efad-4fa7-a1f9-bbc87af773d6",
+      "externalId": "https://techcrunch.com/?p=3175776",
+      "originalUrl": "https://techcrunch.com/2026/10/08/google-brings-agentic-ai-to-gemini-starting-with-businesses/",
+      "titleSnapshot": "Google brings agentic AI to Gemini, starting with businesses",
+      "excerptSnapshot": "Google is turning Gemini into an AI agent that can plan, execute tasks, and work across business apps and systems. The agent can delegate work to subagents, use multiple AI models, and even gets its own workplace identity, complete with an email address.",
+      "publishedAt": "2026-10-08T18:18:00Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-05",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "40f732d7-fa6b-466e-adf5-10c284c8c857",
+      "externalId": "https://techcrunch.com/?p=3175777",
+      "originalUrl": "https://techcrunch.com/2026/10/08/anthropic-changes-usage-policy-to-ban-model-abuse-and-election-interference/",
+      "titleSnapshot": "Anthropic changes usage policy to ban model abuse and election interference",
+      "excerptSnapshot": "Anthropic's updated usage policy explicitly prohibits users from repeatedly abusing Claude in extreme cases, though ordinary frustration and criticism are still allowed. The new rules also address election interference, deceptive campaigns, weapons software, and surveillance.",
+      "publishedAt": "2026-10-08T18:16:24Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-06",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "d6ae77f6-fa57-43a1-b6d3-0607dca0b978",
+      "externalId": "https://techcrunch.com/?p=3175311",
+      "originalUrl": "https://techcrunch.com/2026/10/08/openais-math-solutions-arent-meeting-the-fields-standards-yet/",
+      "titleSnapshot": "OpenAI’s math solutions aren’t meeting the field’s standards yet",
+      "excerptSnapshot": "OpenAI's flood of proofs deviated from the guidelines set by a group of mathematical researchers consulted by the frontier lab.",
+      "publishedAt": "2026-10-08T18:10:55Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-07",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "3d5bfd59-3e40-430a-8207-f8a3c12cb09a",
+      "externalId": "https://techcrunch.com/?p=3175658",
+      "originalUrl": "https://techcrunch.com/2026/10/08/goodfire-says-its-new-inside-out-monitors-catch-rogue-ai-agents-at-a-fraction-of-the-cost/",
+      "titleSnapshot": "Goodfire says its new ‘inside-out’ monitors catch rogue AI agents at a fraction of the cost",
+      "excerptSnapshot": "Goodfire just launched what it says is a cheaper way to keep AI agents in check: Instead of paying a second AI to read everything an agent does, its monitors peek inside the model while it works and only call in backup when something looks fishy.",
+      "publishedAt": "2026-10-08T16:00:00Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-08",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "6d1b0963-6ed3-4959-967a-b6f383e849d7",
+      "externalId": "https://techcrunch.com/?p=3175308",
+      "originalUrl": "https://techcrunch.com/2026/10/08/naturas-smart-ring-puts-ai-agents-on-your-finger/",
+      "titleSnapshot": "Natura’s $99 smart ring puts AI agents on your finger",
+      "excerptSnapshot": "Natura’s $99 Interface smart ring lets you summon AI agents with the press of a finger to complete tasks, capture thoughts, and control devices — while doubling as a health tracker.",
+      "publishedAt": "2026-10-08T16:00:00Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-09",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "39cc294c-940b-421d-bae7-b8e8115028b1",
+      "externalId": "https://techcrunch.com/?p=3175465",
+      "originalUrl": "https://techcrunch.com/2026/10/08/hear-from-ambrosia-energy-and-bloom-energy-execs-on-where-the-ai-infrastructure-boom-is-creating-opportunity-at-disrupt-2026/",
+      "titleSnapshot": "Hear from Ambrosia Energy and Bloom Energy execs on where the AI infrastructure boom is creating opportunity at TechCrunch Disrupt 2026",
+      "excerptSnapshot": "Ambrosia Energy CEO Ben Longmier and Bloom Energy SVP Bill Thayer join the Smart Systems Stage at TechCrunch Disrupt. Register now to save up to $100. Grab a second of the same pass to save 50%.",
+      "publishedAt": "2026-10-08T15:00:00Z",
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "核心是会议推广与售票，不应因为标题包含 AI infrastructure 就进入事实链。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-10",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "34c617a6-9a14-4318-911a-224d6057856e",
+      "externalId": "https://techcrunch.com/?p=3174041",
+      "originalUrl": "https://techcrunch.com/2026/10/08/cal-ais-19-year-old-founder-just-raised-10m-for-his-new-ai-startup/",
+      "titleSnapshot": "Cal AI’s 19-year-old founder just raised $10M for his new AI startup",
+      "excerptSnapshot": "Zach Yadegari, the teen co-founder of popular Cal AI calorie tracking app, has launched a new personal AI agent startup that competes with Instinct, Muse and Bee.",
+      "publishedAt": "2026-10-08T14:00:00Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-11",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "5dbc8c3b-079f-4892-b628-bea9630b6092",
+      "externalId": "https://techcrunch.com/?p=3175506",
+      "originalUrl": "https://techcrunch.com/2026/10/08/google-releases-a-new-local-first-granola-competitor/",
+      "titleSnapshot": "Google releases a new local-first Granola competitor",
+      "excerptSnapshot": "Google’s new AI Edge Foresight app takes on Granola with an offline meeting note-taker that can transcribe conversations, generate notes, and answer questions using on-device AI.",
+      "publishedAt": "2026-10-08T13:28:39Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-12",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "7b6f517f-a187-4f02-be4d-68a3c6fc535f",
+      "externalId": "https://techcrunch.com/?p=3175337",
+      "originalUrl": "https://techcrunch.com/2026/10/07/nous-research-confirms-it-hit-1-5b-valuation-launches-ai-agents-for-business-users/",
+      "titleSnapshot": "Nous Research confirms it hit $1.5B valuation, launches AI agents for business users",
+      "excerptSnapshot": "The developer of Hermes Agent raised a $90 million Series B.",
+      "publishedAt": "2026-10-07T20:48:45Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-13",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "d6343c6c-de3f-437c-8e1e-11144d717441",
+      "externalId": "https://techcrunch.com/?p=3175292",
+      "originalUrl": "https://techcrunch.com/2026/10/07/microsoft-releases-new-nvidia-chip-ai-pcs-with-revamped-windows-11/",
+      "titleSnapshot": "Microsoft releases new Nvidia-chip AI PCs with revamped Windows 11",
+      "excerptSnapshot": "Microsoft revealed the specs and price for its Surface Laptop Ultra, AI PCs that run on Nvidia chips that are designed to run AI models and agents.",
+      "publishedAt": "2026-10-07T20:22:37Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-14",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "04fa6141-d088-4736-b458-7f8cac7fc01e",
+      "externalId": "https://techcrunch.com/?p=3175232",
+      "originalUrl": "https://techcrunch.com/2026/10/07/metas-muse-launches-on-ipad-just-a-month-after-its-mobile-debut/",
+      "titleSnapshot": "Meta’s Muse launches on iPad just a month after its mobile debut",
+      "excerptSnapshot": "Meta’s AI agent Muse is now available on iPad, just a month after its mobile debut, as the company rapidly expands the assistant’s reach and integrations.",
+      "publishedAt": "2026-10-07T18:30:57Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-15",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "d79e8457-6b4f-42c3-afd1-42728e98b640",
+      "externalId": "https://techcrunch.com/?p=3175219",
+      "originalUrl": "https://techcrunch.com/2026/10/07/chatgpt-for-teens-keeps-teens-talking-even-during-mental-health-crises/",
+      "titleSnapshot": "ChatGPT for Teens keeps teens talking, even during mental health crises",
+      "excerptSnapshot": "ChatGPT’s teen safeguards are meant to protect vulnerable users, but new testing found the chatbot continues encouraging engagement during crises and potentially encourages unhealthy relationships with the AI itself.",
+      "publishedAt": "2026-10-07T18:15:28Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-16",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "96a3c347-dd95-42fd-a777-a947d9f2d080",
+      "externalId": "https://techcrunch.com/?p=3174749",
+      "originalUrl": "https://techcrunch.com/2026/10/07/chatgpt-is-getting-a-lot-more-visual-with-the-launch-of-a-new-interface/",
+      "titleSnapshot": "ChatGPT is getting a lot more visual, with the launch of a new interface",
+      "excerptSnapshot": "OpenAI is launching a new user interface that will bring interactive visuals to ChatGPT.",
+      "publishedAt": "2026-10-07T18:00:19Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-17",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "87378ee4-45c0-41c7-a3b0-e4f1746f690e",
+      "externalId": "https://techcrunch.com/?p=3175177",
+      "originalUrl": "https://techcrunch.com/2026/10/07/meta-rolls-out-new-ai-tools-to-detect-ads-that-secretly-lead-to-child-sexual-abuse-material/",
+      "titleSnapshot": "Meta rolls out new AI tools to detect ads that secretly lead to child sexual abuse material",
+      "excerptSnapshot": "Meta launches new AI tools after discovering ads on its platforms that may look normal but direct users to harmful content elsewhere online.",
+      "publishedAt": "2026-10-07T16:53:46Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-18",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "79967fbd-a51e-41d4-aa46-5a0e514094fc",
+      "externalId": "https://techcrunch.com/?p=3174992",
+      "originalUrl": "https://techcrunch.com/2026/10/07/healthleap-raises-38m-for-its-ai-that-flags-hospital-patients-who-may-need-a-closer-look/",
+      "titleSnapshot": "Healthleap raises $38M for its AI that flags hospital patients who may need a closer look",
+      "excerptSnapshot": "The financing includes an $8M seed round co-led by Sequoia Capital and First Round Capital, and a $30 million Series A led by Hummingbird Ventures.",
+      "publishedAt": "2026-10-07T15:07:08Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "新鲜且明确属于 AI 产品、模型、政策、安全、采用或行业变化，应继续进入 Raw/Event 事实链供后续 Event Policy 判断。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-19",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "https://techcrunch.com/?p=3175441",
+      "originalUrl": "https://techcrunch.com/2026/10/08/5-days-to-techcrunch-disrupt-2026-dont-pay-more-at-the-door/",
+      "titleSnapshot": "5 days to TechCrunch Disrupt 2026: Don’t pay more at the door for your pass",
+      "excerptSnapshot": "The global tech ecosystem gathers at TechCrunch Disrupt 2026 at San Francisco’s Moscone West on October 13-15. Get your pass now to save up to $100. Get a second of the same ticket type to save 50%.",
+      "publishedAt": "2026-10-08T14:00:00Z",
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "纯活动售票促销，正确拒绝。"
+    },
+    {
+      "caseId": "discovery-techcrunch-20261008-20",
+      "collectionRunId": "48ffca60-76d4-4507-a58e-4111490479d9",
+      "sourceId": "source_media_techcrunch_ai",
+      "sourceName": "TechCrunch · Artificial Intelligence",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "https://techcrunch.com/?p=3175521",
+      "originalUrl": "https://techcrunch.com/2026/10/08/chinas-manus-raises-over-500m-in-first-funding-round-since-split-with-meta/",
+      "titleSnapshot": "China’s Manus raises over $500M in first funding round since split with Meta",
+      "excerptSnapshot": "Boyu Capital and IDG Capital led the funding round, and existing shareholders Tencent, HSG (formerly known as Sequoia China), ZhenFund, and others also participated.",
+      "publishedAt": "2026-10-08T13:20:32Z",
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-002",
+      "reviewedAt": "2026-10-09T00:00:00Z",
+      "reason": "Manus 是明确的 AI Agent 公司；重大融资属于 AI 行业变化，标题未包含通用 AI 词不应导致错杀。"
+    },
+    {
+      "caseId": "discovery-v2-source_media_qbitai-reject-0",
+      "collectionRunId": "d7ec692f-59e5-4026-8ed4-d39fe31ee595",
+      "sourceId": "source_media_qbitai",
+      "sourceName": "量子位 · AI",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "https://www.qbitai.com/?p=502009",
+      "originalUrl": "https://www.qbitai.com/2026/10/502009.html",
+      "titleSnapshot": "浪子回头！Manus重启北京办公室大举招聘",
+      "excerptSnapshot": "开始和国产Agent抢人，还拿到5亿美元新融资",
+      "publishedAt": "2026-10-08T09:30:17Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "Manus 是已知 AI Entity，且标题/摘要包含招聘与 5 亿美元融资事件；应进入 Discovery。"
+    },
+    {
+      "caseId": "discovery-v2-source_media_qbitai-reject-1",
+      "collectionRunId": "d7ec692f-59e5-4026-8ed4-d39fe31ee595",
+      "sourceId": "source_media_qbitai",
+      "sourceName": "量子位 · AI",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "https://www.qbitai.com/?p=501930",
+      "originalUrl": "https://www.qbitai.com/2026/10/501930.html",
+      "titleSnapshot": "打不过就投降，保时捷裁员9000人，回归燃油车主线",
+      "excerptSnapshot": "管理岗砍掉四成，顶级车型涨价20%卖",
+      "publishedAt": "2026-10-08T07:10:24Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "汽车裁员与燃油车业务调整，当前证据无明确 AI 事件。"
+    },
+    {
+      "caseId": "discovery-v2-source_media_qbitai-reject-2",
+      "collectionRunId": "d7ec692f-59e5-4026-8ed4-d39fe31ee595",
+      "sourceId": "source_media_qbitai",
+      "sourceName": "量子位 · AI",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "https://www.qbitai.com/?p=501956",
+      "originalUrl": "https://www.qbitai.com/2026/10/501956.html",
+      "titleSnapshot": "吉利智充技术正式发布，重塑全球补能新标杆",
+      "excerptSnapshot": "2027年底实现“县县通”",
+      "publishedAt": "2026-10-08T09:10:55Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "充电技术发布，当前证据无明确 AI 事件。"
+    },
+    {
+      "caseId": "discovery-v2-source_official_openai_news-keep-3",
+      "collectionRunId": "5e97e201-5683-40c3-bd0a-158cdfb2aeda",
+      "sourceId": "source_official_openai_news",
+      "sourceName": "OpenAI · News",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "7dc86117-a91a-46e7-82a9-5f236d28981c",
+      "externalId": "https://openai.com/index/oracle",
+      "originalUrl": "https://openai.com/index/oracle",
+      "titleSnapshot": "How Oracle turns days of work into minutes with ChatGPT and Codex",
+      "excerptSnapshot": "Across recruiting, engineering, and operations, Oracle turns specialist knowledge into fast, repeatable workflows with ChatGPT Work and Codex.",
+      "publishedAt": "2026-10-08T16:00:00Z",
+      "metadataSnapshot": {
+        "collector": "media-discovery",
+        "trendProvider": null,
+        "trendSignalType": null,
+        "contentType": "OFFICIAL_ANNOUNCEMENT",
+        "windowHours": null
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "真实 SYSTEM 同轮新建 Raw 候选；用于跨来源 Discovery Recall 基线。"
+    },
+    {
+      "caseId": "discovery-v2-source_official_openai_news-keep-4",
+      "collectionRunId": "5e97e201-5683-40c3-bd0a-158cdfb2aeda",
+      "sourceId": "source_official_openai_news",
+      "sourceName": "OpenAI · News",
+      "collectionMethod": "RSS",
+      "actualDecision": "KEEP",
+      "rawItemId": "e2609b14-483b-455d-8c8f-bf52fd0567d5",
+      "externalId": "https://openai.com/index/pollo-ai",
+      "originalUrl": "https://openai.com/index/pollo-ai",
+      "titleSnapshot": "Pollo AI turns creative ideas into campaigns with OpenAI",
+      "excerptSnapshot": "With GPT-5.6, GPT-6 Astra, and GPT‑Image‑2.5, Pollo AI helps creators turn bold ideas into detailed images and cinematic video ads.",
+      "publishedAt": "2026-10-08T12:00:00Z",
+      "metadataSnapshot": {
+        "collector": "media-discovery",
+        "trendProvider": null,
+        "trendSignalType": null,
+        "contentType": "OFFICIAL_ANNOUNCEMENT",
+        "windowHours": null
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "真实 SYSTEM 同轮新建 Raw 候选；用于跨来源 Discovery Recall 基线。"
+    },
+    {
+      "caseId": "discovery-v2-source_official_openai_news-reject-5",
+      "collectionRunId": "5e97e201-5683-40c3-bd0a-158cdfb2aeda",
+      "sourceId": "source_official_openai_news",
+      "sourceName": "OpenAI · News",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "OUTSIDE_TIME_WINDOW",
+      "relationType": "NONE",
+      "externalId": "https://openai.com/index/the-eternal-complement",
+      "originalUrl": "https://openai.com/index/the-eternal-complement",
+      "titleSnapshot": "The eternal complement",
+      "excerptSnapshot": "Advanced AI may matter most for the routine work behind breakthrough ideas. Explore why execution could shape the next economy and the pace of progress.",
+      "publishedAt": "2026-10-01T17:00:00Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "内容 AI 相关但超出 Source freshness window；本轮应拒绝。"
+    },
+    {
+      "caseId": "discovery-v2-source_official_openai_news-reject-6",
+      "collectionRunId": "5e97e201-5683-40c3-bd0a-158cdfb2aeda",
+      "sourceId": "source_official_openai_news",
+      "sourceName": "OpenAI · News",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "OUTSIDE_TIME_WINDOW",
+      "relationType": "NONE",
+      "externalId": "https://openai.com/index/albertsons-reimagining-retail",
+      "originalUrl": "https://openai.com/index/albertsons-reimagining-retail",
+      "titleSnapshot": "How Albertsons Companies is reimagining retail from the inside out",
+      "excerptSnapshot": "Albertsons Cos. is using ChatGPT Enterprise and the OpenAI API to help teams work faster and make grocery shopping easier for millions of customers.",
+      "publishedAt": "2026-10-01T16:00:00Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "内容 AI 相关但超出 Source freshness window；本轮应拒绝。"
+    },
+    {
+      "caseId": "discovery-v2-source_official_openai_news-reject-7",
+      "collectionRunId": "5e97e201-5683-40c3-bd0a-158cdfb2aeda",
+      "sourceId": "source_official_openai_news",
+      "sourceName": "OpenAI · News",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "OUTSIDE_TIME_WINDOW",
+      "relationType": "NONE",
+      "externalId": "https://openai.com/index/disrupting-a-coordinated-model-distillation-campaign",
+      "originalUrl": "https://openai.com/index/disrupting-a-coordinated-model-distillation-campaign",
+      "titleSnapshot": "Disrupting a coordinated model-distillation campaign",
+      "excerptSnapshot": "Learn how OpenAI disrupted a campaign to extract protected model reasoning and is strengthening defenses against adversarial distillation.",
+      "publishedAt": "2026-09-30T10:30:00Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "重要 AI 安全内容但超出 Source freshness window；本轮应拒绝。"
+    },
+    {
+      "caseId": "discovery-v2-source_official_openai_news-reject-8",
+      "collectionRunId": "5e97e201-5683-40c3-bd0a-158cdfb2aeda",
+      "sourceId": "source_official_openai_news",
+      "sourceName": "OpenAI · News",
+      "collectionMethod": "RSS",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "OUTSIDE_TIME_WINDOW",
+      "relationType": "NONE",
+      "externalId": "https://openai.com/index/introducing-gpt-6-1-sol",
+      "originalUrl": "https://openai.com/index/introducing-gpt-6-1-sol",
+      "titleSnapshot": "Introducing GPT-6.1 Sol",
+      "excerptSnapshot": "Meet GPT-6.1 Sol: near-Astra intelligence for coding, computer use, and professional work at one-fifth of Astra’s standard API input and output token prices.",
+      "publishedAt": "2026-09-29T10:00:00Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "模型发布但超出 Source freshness window；本轮应拒绝。"
+    },
+    {
+      "caseId": "discovery-v2-source_research_arxiv_ai-stable-9",
+      "collectionRunId": "99641635-2a57-4949-8279-9a515dc8813e",
+      "sourceId": "source_research_arxiv_ai",
+      "sourceName": "arXiv · cs.AI Recent",
+      "collectionMethod": "RESEARCH",
+      "actualDecision": "KEEP",
+      "rawItemId": "91c5ec27-593d-4a26-82c6-e8867851e857",
+      "externalId": "arxiv:2610.10538v1",
+      "originalUrl": "http://arxiv.org/abs/2610.10538v1",
+      "titleSnapshot": "Never Look Back: Understanding Persistence in 3D Object Memory from Egocentric Videos",
+      "excerptSnapshot": "As we move through the world and carry out everyday tasks, we encounter objects that may become relevant only later. We are capable of recalling where we left something or what was inside a container, even without knowing we would need it later. Here, we study how an embodied assistant can build a similar memory from egocentric videos, by observing a person's day-to-day activities. We present Ledger, a persistent 3D object memory that combines object locations, their histories, and contextual descriptions. It associates observations across the recording and retains objects after they leave the view, including those the person never touches. It clusters each object's observations by resting locations and records a move only after repeated evidence, reducing the effect of localization noise. Short descriptions preserve details such as an object's contents or supporting surface. It saves these records to later answer spatial questions without having to access the original images or video. Our memory raises HD-EPIC accuracy from 29.7% to 42.6%, UCS-Bench accuracy from 33.8% to 38.5% and localizes Ego4D objects with a 0.99 m median error on returned predictions. Our analyses identify complementary roles for temporal persistence, contextual descriptions, and retrieval. Our study on 100 stitched streams of multiple scenes each further exposes failures in both retrieval and construction. Per-scene construction partially recovers the performance lost across scene changes compared to that of single scene streams.",
+      "publishedAt": "2026-10-07T17:59:41Z",
+      "metadataSnapshot": {
+        "collector": "research-discovery",
+        "contentType": "RESEARCH_PAPER"
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "arXiv 稳定论文记录在本轮被再次观察并 KEEP；当前无同轮 rejected Research 样本，负样本覆盖仍不足。"
+    },
+    {
+      "caseId": "discovery-v2-source_research_arxiv_ai-stable-10",
+      "collectionRunId": "99641635-2a57-4949-8279-9a515dc8813e",
+      "sourceId": "source_research_arxiv_ai",
+      "sourceName": "arXiv · cs.AI Recent",
+      "collectionMethod": "RESEARCH",
+      "actualDecision": "KEEP",
+      "rawItemId": "22b8582e-92ca-46fd-8dcc-abba209f5deb",
+      "externalId": "arxiv:2610.10536v1",
+      "originalUrl": "http://arxiv.org/abs/2610.10536v1",
+      "titleSnapshot": "Decoupling Exploration from Optimization in RLVR",
+      "excerptSnapshot": "Modern language models undergo reinforcement learning with verifiable rewards (RLVR) on top of already-trained checkpoints. A key promise of RLVR is the discovery of new reasoning strategies. In principle, a model can sample novel ideas absent from its prior training data. In practice, however, augmenting RLVR with strong novelty incentives has seen limited success and can degrade model quality. Because verifiable rewards supervise only a narrow slice of the model's knowledge and behavior, such degradations are difficult to recover from. Instead, we decouple exploration from optimization in a framework we call Exploration-Distillation (ExpDis). We train one or more explorer policies with a novelty bonus in the reward, filter their trajectories for correctness and quality, and distill them into a separate student policy. The student policy is then trained without a novelty bonus. We repeat the above procedure for several rounds, alternating between exploration and optimization. This decoupling allows us to aggressively scale exploration without degrading the student policy. Across seven mathematical reasoning benchmarks and two model families, ExpDis outperforms DAPO at the same wall-clock budget. Moreover, we observe improved pass@$k$ scaling, indicating that ExpDis produces models that generate more diverse correct solutions.",
+      "publishedAt": "2026-10-07T17:59:26Z",
+      "metadataSnapshot": {
+        "collector": "research-discovery",
+        "contentType": "RESEARCH_PAPER"
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "arXiv 稳定论文记录在本轮被再次观察并 KEEP；当前无同轮 rejected Research 样本，负样本覆盖仍不足。"
+    },
+    {
+      "caseId": "discovery-v2-source_research_arxiv_ai-stable-11",
+      "collectionRunId": "99641635-2a57-4949-8279-9a515dc8813e",
+      "sourceId": "source_research_arxiv_ai",
+      "sourceName": "arXiv · cs.AI Recent",
+      "collectionMethod": "RESEARCH",
+      "actualDecision": "KEEP",
+      "rawItemId": "1e24cda5-4846-4667-a676-7bd58183057a",
+      "externalId": "arxiv:2610.10528v1",
+      "originalUrl": "http://arxiv.org/abs/2610.10528v1",
+      "titleSnapshot": "Long-WAM: Scaling the Context of World-Action Models",
+      "excerptSnapshot": "Real-time robot control demands enough visual history to infer motion and task progress, but processing that history can delay action. We present Long-WAM, a model-system framework for scaling the context of causal world-action models under real-time control constraints. Our central finding is that access to history is not the same as using it: longer histories pay off far more when the video foundation is pretrained autoregressively (AR). We first learn causal prediction from robot and egocentric videos without action labels, then preserve this history-to-future structure during world-action adaptation. On RoboCasa GR-1, increasing context from 0.0 to 19.2 seconds raises success from 63.3% to 78.7%, whereas a bidirectionally pretrained initialization shows no net gain; robot-domain AR pretraining further raises peak success on GR-1 and LIBERO-Long. Long-WAM also achieves the best results among compared methods on LIBERO-Long, RoboTwin 2.0, and DOMINO. Streaming observation encoding, asynchronous execution, and hardware-specific acceleration enable deployment on RTX 5090, DGX Spark, and Jetson AGX Thor without dropping future prediction; on RTX 5090, each action chunk, including future-video latent prediction, takes 107.4 ms. Real-time deployment on Unitree G1 and YAM supports dynamic and long-horizon manipulation, including 95% success on dynamic cup stacking, where Pi0.5 and Fast-WAM succeed in none of 20 trials. As a memory-informed executor, Long-WAM also complements higher-level planning in composite tasks.",
+      "publishedAt": "2026-10-07T17:58:04Z",
+      "metadataSnapshot": {
+        "collector": "research-discovery",
+        "contentType": "RESEARCH_PAPER"
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "arXiv 稳定论文记录在本轮被再次观察并 KEEP；当前无同轮 rejected Research 样本，负样本覆盖仍不足。"
+    },
+    {
+      "caseId": "discovery-v2-source_research_arxiv_ai-stable-12",
+      "collectionRunId": "99641635-2a57-4949-8279-9a515dc8813e",
+      "sourceId": "source_research_arxiv_ai",
+      "sourceName": "arXiv · cs.AI Recent",
+      "collectionMethod": "RESEARCH",
+      "actualDecision": "KEEP",
+      "rawItemId": "cff10fff-8a5e-4841-88a0-d4409fc36e9a",
+      "externalId": "arxiv:2610.10515v1",
+      "originalUrl": "http://arxiv.org/abs/2610.10515v1",
+      "titleSnapshot": "RoboJEPA: Scaling Robotic Latent World Models",
+      "excerptSnapshot": "Latent world models have shown a remarkable ability to predict future states and to plan in the real world. In practice, however, we lack a principled way to estimate how their capabilities scale with model size, data, and compute, an open problem that slows progress in the field. In this work we present RoboJEPA, a world model based on the Joint Embedding Predictive Architecture (JEPA) and trained on a large-scale dataset spanning 12 robotic embodiments. We show that RoboJEPA's imagination error, the error of its latent rollouts, follows a second-order power law in compute, allowing us to predict model quality well beyond the scale at which the law is fit. We further show that downstream robotic planning performance improves predictably with compute, and that imagination error is strongly correlated with it, making it a reliable proxy for real-robot evaluation. Finally, we demonstrate that latent world models can be deployed zero-shot as robotic agents, planning toward a single goal image to solve tasks requiring long-horizon planning on real hardware. We release all model checkpoints together with our training and robot deployment code. To our knowledge, this is the first work to establish scaling laws for multi-embodiment robotic world models trained on real robot data, and RoboJEPA, at 8B parameters, is the largest JEPA predictor model trained to date.",
+      "publishedAt": "2026-10-07T17:54:42Z",
+      "metadataSnapshot": {
+        "collector": "research-discovery",
+        "contentType": "RESEARCH_PAPER"
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "arXiv 稳定论文记录在本轮被再次观察并 KEEP；当前无同轮 rejected Research 样本，负样本覆盖仍不足。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-keep-13",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "KEEP",
+      "rawItemId": "9c7bd332-606d-4605-ad6a-0c8777170dc3",
+      "externalId": "hn:50000488",
+      "originalUrl": "https://www.dgt.is/blog/2026-10-07-deepseek-freek-out/",
+      "titleSnapshot": "Why isn't the industry freaking out about DeepSeek 4.1 Flash?",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T00:14:48Z",
+      "metadataSnapshot": {
+        "collector": "trend",
+        "trendProvider": "HN_TOP",
+        "trendSignalType": "RANKING",
+        "contentType": "SOCIAL_POST",
+        "windowHours": null
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "真实 SYSTEM 同轮新建 Raw 候选；用于跨来源 Discovery Recall 基线。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-keep-14",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "KEEP",
+      "rawItemId": "af7883fd-d44c-4730-a51d-ac6ca44b09f7",
+      "externalId": "hn:50008187",
+      "originalUrl": "https://www.cnbc.com/2026/10/08/open-ai-revenue-nvidia-oracle-coreweave.html",
+      "titleSnapshot": "OpenAI annualised revenues $20B less than previously signalled",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T16:45:58Z",
+      "metadataSnapshot": {
+        "collector": "trend",
+        "trendProvider": "HN_TOP",
+        "trendSignalType": "RANKING",
+        "contentType": "SOCIAL_POST",
+        "windowHours": null
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "真实 SYSTEM 同轮新建 Raw 候选；用于跨来源 Discovery Recall 基线。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-reject-15",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "hn:50007764",
+      "originalUrl": "https://openrouter.ai/stepfun/step-5-preview",
+      "titleSnapshot": "Step 5 Preview, a 1M-context MoE from StepFun, shows up on OpenRouter",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T16:20:20Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "明确的新模型/大上下文 MoE AI 条目；不应因缺少通用 AI 词而丢失。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-reject-16",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "hn:50004790",
+      "originalUrl": "https://quesma.com/blog/invisible-cities-one-shot/",
+      "titleSnapshot": "I gave Opus 5.5 one prompt and six hours to visualize Invisible Cities",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T12:00:20Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "明确使用前沿模型完成任务，属于 AI Signal 候选；Discovery 应保留，后续价值层再判断。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-reject-17",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "hn:50005527",
+      "originalUrl": "https://vale.rocks/posts/dvd-menus",
+      "titleSnapshot": "Beauty in DVD Menus",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T13:22:01Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "与 AI 无关。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-reject-18",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "hn:50004115",
+      "originalUrl": "https://www.techspot.com/article/3178-oled-burn-in-test/",
+      "titleSnapshot": "OLED burn-in test: 30-month update",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T10:34:15Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "硬件显示测试，与 AI 无关。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-reject-19",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "hn:50006012",
+      "originalUrl": "https://orkut.com/",
+      "titleSnapshot": "Orkut.com",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T14:09:53Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "当前条目无 AI 事件上下文。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_hn_top-reject-20",
+      "collectionRunId": "99fec8bc-2cef-4a19-b1d9-70c2cf3ae4ea",
+      "sourceId": "source_runtime_trend_hn_top",
+      "sourceName": "Hacker News Top · AI Trend Discovery",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "hn:50007519",
+      "originalUrl": "https://www.solarpowerworldonline.com/2026/10/4-hour-battery-storage-is-cheaper-to-install-than-gas-turbines-all-across-globe/",
+      "titleSnapshot": "4-hour battery storage is cheaper to install than gas turbines all across globe",
+      "excerptSnapshot": null,
+      "publishedAt": "2026-10-08T16:03:33Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "能源存储价格信息，与 AI 无关。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_github_trend_proxy-keep-21",
+      "collectionRunId": "47eb38d9-7d63-4a93-bc8a-35c5502cf836",
+      "sourceId": "source_runtime_trend_github_trend_proxy",
+      "sourceName": "GitHub Trend Proxy · AI",
+      "collectionMethod": "TREND",
+      "actualDecision": "KEEP",
+      "rawItemId": "5816341c-6948-4edd-a402-3fb507476182",
+      "externalId": "github:1073224795",
+      "originalUrl": "https://github.com/obra/superpowers",
+      "titleSnapshot": "obra/superpowers",
+      "excerptSnapshot": "An agentic skills framework & software development methodology that works.",
+      "publishedAt": "2026-10-08T04:15:27Z",
+      "metadataSnapshot": {
+        "collector": "trend",
+        "trendProvider": "GITHUB_TREND_PROXY",
+        "trendSignalType": "PROXY",
+        "contentType": "TRENDING_REPO",
+        "windowHours": 72
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "真实 SYSTEM 同轮新建 Raw 候选；用于跨来源 Discovery Recall 基线。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_github_trend_proxy-keep-22",
+      "collectionRunId": "47eb38d9-7d63-4a93-bc8a-35c5502cf836",
+      "sourceId": "source_runtime_trend_github_trend_proxy",
+      "sourceName": "GitHub Trend Proxy · AI",
+      "collectionMethod": "TREND",
+      "actualDecision": "KEEP",
+      "rawItemId": "7fa50f58-20e8-4066-98f9-d8b92e10ab89",
+      "externalId": "github:1106996539",
+      "originalUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "titleSnapshot": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "excerptSnapshot": "An AI skill that provides design intelligence for building professional UI/UX across multiple platforms.",
+      "publishedAt": "2026-10-08T05:06:09Z",
+      "metadataSnapshot": {
+        "collector": "trend",
+        "trendProvider": "GITHUB_TREND_PROXY",
+        "trendSignalType": "PROXY",
+        "contentType": "TRENDING_REPO",
+        "windowHours": 72
+      },
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "真实 SYSTEM 同轮新建 Raw 候选；用于跨来源 Discovery Recall 基线。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_github_trend_proxy-reject-23",
+      "collectionRunId": "47eb38d9-7d63-4a93-bc8a-35c5502cf836",
+      "sourceId": "source_runtime_trend_github_trend_proxy",
+      "sourceName": "GitHub Trend Proxy · AI",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "github:1024554267",
+      "originalUrl": "https://github.com/NousResearch/hermes-agent",
+      "titleSnapshot": "NousResearch/hermes-agent",
+      "excerptSnapshot": "The agent that grows with you",
+      "publishedAt": "2026-10-08T19:47:18Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "NousResearch Hermes Agent 属于明确 AI Agent 工具，应保留为采用/工具 Signal。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_github_trend_proxy-reject-24",
+      "collectionRunId": "47eb38d9-7d63-4a93-bc8a-35c5502cf836",
+      "sourceId": "source_runtime_trend_github_trend_proxy",
+      "sourceName": "GitHub Trend Proxy · AI",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "github:552661142",
+      "originalUrl": "https://github.com/langchain-ai/langchain",
+      "titleSnapshot": "langchain-ai/langchain",
+      "excerptSnapshot": "The agent engineering platform.",
+      "publishedAt": "2026-10-08T19:24:41Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "LangChain 是明确 AI/Agent 工程平台，应保留为采用/工具 Signal。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_github_trend_proxy-reject-25",
+      "collectionRunId": "47eb38d9-7d63-4a93-bc8a-35c5502cf836",
+      "sourceId": "source_runtime_trend_github_trend_proxy",
+      "sourceName": "GitHub Trend Proxy · AI",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "github:589831718",
+      "originalUrl": "https://github.com/Comfy-Org/ComfyUI",
+      "titleSnapshot": "Comfy-Org/ComfyUI",
+      "excerptSnapshot": "The most powerful and modular diffusion model GUI, api and backend with a graph/nodes interface. The fastest local inference engine in the world.",
+      "publishedAt": "2026-10-08T17:10:25Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "KEEP_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "ComfyUI 是 diffusion model 工具生态，应保留为 AI 工具 Signal。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_github_trend_proxy-reject-26",
+      "collectionRunId": "47eb38d9-7d63-4a93-bc8a-35c5502cf836",
+      "sourceId": "source_runtime_trend_github_trend_proxy",
+      "sourceName": "GitHub Trend Proxy · AI",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "github:1042367133",
+      "originalUrl": "https://github.com/github/spec-kit",
+      "titleSnapshot": "github/spec-kit",
+      "excerptSnapshot": "💫 Toolkit to help you get started with SDD or any other process!",
+      "publishedAt": "2026-10-08T18:14:12Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "描述仅为通用 SDD/process toolkit，当前证据不足以判为 AI。"
+    },
+    {
+      "caseId": "discovery-v2-source_runtime_trend_github_trend_proxy-reject-27",
+      "collectionRunId": "47eb38d9-7d63-4a93-bc8a-35c5502cf836",
+      "sourceId": "source_runtime_trend_github_trend_proxy",
+      "sourceName": "GitHub Trend Proxy · AI",
+      "collectionMethod": "TREND",
+      "actualDecision": "REJECT",
+      "rejectionStage": "DISCOVERY_FILTER",
+      "rejectionReason": "NOT_AI_RELATED",
+      "relationType": "UNKNOWN",
+      "externalId": "github:585146387",
+      "originalUrl": "https://github.com/shadcn-ui/ui",
+      "titleSnapshot": "shadcn-ui/ui",
+      "excerptSnapshot": "Composable, accessible components with thoughtful defaults. Build your own component library with code you can customize, extend, and make your own.",
+      "publishedAt": "2026-10-08T19:01:15Z",
+      "metadataSnapshot": {},
+      "expectedDecision": "REJECT_NOW",
+      "reviewStatus": "PROVISIONAL",
+      "reviewerId": "assistant:AI-COLLECTION-GROUND-TRUTH-MULTISOURCE-003A",
+      "reviewedAt": "2026-10-09T00:30:00Z",
+      "reason": "通用 UI 组件库，与 AI 无直接关系。"
+    }
+  ]
+}

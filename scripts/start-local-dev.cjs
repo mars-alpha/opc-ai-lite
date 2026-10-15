@@ -6,6 +6,8 @@ const postgres = require("postgres");
 const project = path.resolve(__dirname, "..");
 const LOCAL_HOST = "127.0.0.1";
 const LOCAL_PORT = 15432;
+const DAILYHOT_LOCAL_PORT = 16688;
+const DAILYHOT_REMOTE_PORT = 6688;
 const REMOTE_DB_HOST = "127.0.0.1";
 const REMOTE_DB_PORT = 5432;
 const SSH_TARGET = "ubuntu@1.14.180.16";
@@ -49,8 +51,8 @@ function isPortOpen(port) {
   });
 }
 
-function startTunnel() {
-  console.log("[DEV PREFLIGHT] Development PostgreSQL tunnel missing; starting 127.0.0.1:15432...");
+function startTunnel(localPort, remoteHost, remotePort, label) {
+  console.log(`[DEV PREFLIGHT] ${label} tunnel missing; starting 127.0.0.1:${localPort}...`);
   return spawn(
     SSH_EXE,
     [
@@ -58,11 +60,29 @@ function startTunnel() {
       "-o", "BatchMode=yes",
       "-o", "ExitOnForwardFailure=yes",
       "-o", "ServerAliveInterval=30",
-      "-L", `${LOCAL_PORT}:${REMOTE_DB_HOST}:${REMOTE_DB_PORT}`,
+      "-L", `${localPort}:${remoteHost}:${remotePort}`,
       SSH_TARGET
     ],
     { cwd: project, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] }
   );
+}
+
+async function ensureTunnel(localPort, remoteHost, remotePort, label) {
+  if (await isPortOpen(localPort)) {
+    console.log(`[DEV PREFLIGHT] ${label} tunnel already ready: 127.0.0.1:${localPort}`);
+    return null;
+  }
+  const tunnel = startTunnel(localPort, remoteHost, remotePort, label);
+  let sshError = "";
+  tunnel.stderr.on("data", (chunk) => { sshError += chunk.toString(); });
+  try {
+    await waitForPort(localPort);
+  } catch (error) {
+    try { tunnel.kill(); } catch {}
+    fail(`Unable to establish ${label} SSH tunnel.` + (sshError ? " Check the configured SSH key/host." : ""), error);
+  }
+  console.log(`[DEV PREFLIGHT] ${label} tunnel ready: 127.0.0.1:${localPort}`);
+  return tunnel;
 }
 
 async function verifyDatabase(databaseUrl) {
@@ -110,40 +130,22 @@ async function main() {
     fail("Local dev database target must remain development / opc_ai_dev_app@127.0.0.1:15432/opc_ai_dev.");
   }
 
-  let tunnel = null;
-  if (await isPortOpen(LOCAL_PORT)) {
-    console.log("[DEV PREFLIGHT] Development PostgreSQL tunnel already ready: 127.0.0.1:15432");
-  } else {
-    tunnel = startTunnel();
-    let sshError = "";
-    tunnel.stderr.on("data", (chunk) => {
-      sshError += chunk.toString();
-    });
-
-    try {
-      await waitForPort(LOCAL_PORT);
-    } catch (error) {
-      try { tunnel.kill(); } catch {}
-      fail("Unable to establish Development PostgreSQL SSH tunnel." + (sshError ? " Check the configured SSH key/host." : ""), error);
-    }
-    console.log("[DEV PREFLIGHT] Development PostgreSQL tunnel ready: 127.0.0.1:15432");
-  }
+  const dbTunnel = await ensureTunnel(LOCAL_PORT, REMOTE_DB_HOST, REMOTE_DB_PORT, "Development PostgreSQL");
+  const dailyHotTunnel = await ensureTunnel(DAILYHOT_LOCAL_PORT, "127.0.0.1", DAILYHOT_REMOTE_PORT, "DailyHot");
 
   try {
     await verifyDatabase(databaseUrl);
   } catch (error) {
-    if (tunnel) {
-      try { tunnel.kill(); } catch {}
-    }
+    if (dbTunnel) try { dbTunnel.kill(); } catch {}
+    if (dailyHotTunnel) try { dailyHotTunnel.kill(); } catch {}
     fail("Development PostgreSQL connectivity check failed. Do not modify Auth or run migrations; restore the local tunnel/DB connectivity first.", error);
   }
 
   if (CHECK_ONLY) {
     console.log("[DEV PREFLIGHT] LOCAL_DEV_READY=PASS");
-    if (tunnel) {
-      console.log("[DEV PREFLIGHT] Tunnel was started for this check and will now close.");
-      try { tunnel.kill(); } catch {}
-    }
+    if (dbTunnel || dailyHotTunnel) console.log("[DEV PREFLIGHT] Tunnels started for this check will now close.");
+    if (dbTunnel) try { dbTunnel.kill(); } catch {}
+    if (dailyHotTunnel) try { dailyHotTunnel.kill(); } catch {}
     return;
   }
 
@@ -154,19 +156,43 @@ async function main() {
     { cwd: project, env: process.env, stdio: "inherit", windowsHide: true }
   );
 
-  const shutdown = () => {
+  let shuttingDown = false;
+  const shutdown = (exitCode) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     try { next.kill(); } catch {}
-    if (tunnel) {
-      try { tunnel.kill(); } catch {}
-    }
+    if (dbTunnel) try { dbTunnel.kill(); } catch {}
+    if (dailyHotTunnel) try { dailyHotTunnel.kill(); } catch {}
+    if (typeof exitCode === "number") process.exit(exitCode);
   };
 
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  const watchOwnedTunnel = (tunnel, label) => {
+    if (!tunnel) return;
+    tunnel.on("exit", (code, signal) => {
+      if (shuttingDown) return;
+      console.error(
+        `[DEV PREFLIGHT] ${label} tunnel exited unexpectedly (code=${code ?? "null"}, signal=${signal ?? "null"}). Stopping Next.js so local dev cannot remain half-healthy.`
+      );
+      shutdown(1);
+    });
+    tunnel.on("error", (error) => {
+      if (shuttingDown) return;
+      console.error(`[DEV PREFLIGHT] ${label} tunnel process error: ${error?.message ?? "unknown"}`);
+      shutdown(1);
+    });
+  };
+
+  watchOwnedTunnel(dbTunnel, "Development PostgreSQL");
+  watchOwnedTunnel(dailyHotTunnel, "DailyHot");
+
+  process.on("SIGINT", () => shutdown());
+  process.on("SIGTERM", () => shutdown());
 
   next.on("exit", (code, signal) => {
-    if (tunnel) {
-      try { tunnel.kill(); } catch {}
+    if (!shuttingDown) {
+      shuttingDown = true;
+      if (dbTunnel) try { dbTunnel.kill(); } catch {}
+      if (dailyHotTunnel) try { dailyHotTunnel.kill(); } catch {}
     }
     if (signal) process.kill(process.pid, signal);
     else process.exit(code ?? 0);

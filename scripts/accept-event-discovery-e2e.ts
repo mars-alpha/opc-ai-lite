@@ -1,14 +1,19 @@
 import { loadEnvConfig } from "@next/env";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { closeDatabase, getDatabase } from "../lib/server/db";
 import {
+  contentCollectionRuns,
+  contentEventClusterMembers,
+  contentEventClusters,
   contentEventRawItems,
   contentEvents,
+  contentExpansionRuns,
   contentRawItems,
   contentSources
 } from "../lib/server/db/schema";
 import { runSourceCollection } from "../lib/server/content/collection-runner";
 import { runEventExpansion } from "../lib/server/content/collection-expansion";
+import { runEventClustering } from "../lib/server/content/event-clustering";
 import { listEvents } from "../lib/server/content/discovery";
 import {
   getCurrentEventAiAnalysis,
@@ -29,6 +34,74 @@ const user = {
   displayName: "Event Discovery E2E",
   role: "ADMIN" as const
 };
+
+let cleanupBaselineEventIds = new Set<string>();
+let cleanupCreatedRawItemIds: string[] = [];
+let cleanupStartedAt: Date | null = null;
+let cleanupRan = false;
+
+async function cleanupAcceptanceData() {
+  if (cleanupRan) return;
+  cleanupRan = true;
+
+  const db = getDatabase();
+  if (!cleanupStartedAt) return;
+
+  const uniqueRawIds = [...new Set(cleanupCreatedRawItemIds)];
+  const links = uniqueRawIds.length
+    ? await db
+        .select({ eventId: contentEventRawItems.eventId })
+        .from(contentEventRawItems)
+        .where(inArray(contentEventRawItems.rawItemId, uniqueRawIds))
+    : [];
+  const linkedEventIds = [...new Set(links.map((item) => item.eventId))];
+  const newEventIds = linkedEventIds.filter((eventId) => !cleanupBaselineEventIds.has(eventId));
+
+  const memberships = newEventIds.length
+    ? await db
+        .select({
+          eventId: contentEventClusterMembers.eventId,
+          primaryEventId: contentEventClusters.primaryEventId
+        })
+        .from(contentEventClusterMembers)
+        .innerJoin(contentEventClusters, eq(contentEventClusters.id, contentEventClusterMembers.clusterId))
+        .where(inArray(contentEventClusterMembers.eventId, newEventIds))
+    : [];
+  const existingPrimaryIds = [...new Set(
+    memberships
+      .map((item) => item.primaryEventId)
+      .filter((eventId) => cleanupBaselineEventIds.has(eventId))
+  )];
+
+  await db
+    .delete(contentExpansionRuns)
+    .where(and(
+      eq(contentExpansionRuns.triggeredByEmail, user.email),
+      gte(contentExpansionRuns.startedAt, cleanupStartedAt)
+    ));
+
+  if (newEventIds.length) {
+    await db.delete(contentEvents).where(inArray(contentEvents.id, newEventIds));
+  }
+  if (uniqueRawIds.length) {
+    await db.delete(contentRawItems).where(inArray(contentRawItems.id, uniqueRawIds));
+  }
+  await db
+    .delete(contentCollectionRuns)
+    .where(and(
+      inArray(contentCollectionRuns.sourceId, [...SOURCE_IDS]),
+      gte(contentCollectionRuns.startedAt, cleanupStartedAt)
+    ));
+
+  for (const primaryEventId of existingPrimaryIds) {
+    const [stillExists] = await db
+      .select({ id: contentEvents.id })
+      .from(contentEvents)
+      .where(eq(contentEvents.id, primaryEventId))
+      .limit(1);
+    if (stillExists) await runEventClustering(primaryEventId);
+  }
+}
 
 async function ensureSources() {
   const db = getDatabase();
@@ -168,7 +241,14 @@ async function selectFreshEvent() {
 async function main() {
   await ensureSources();
 
+  const db = getDatabase();
+  cleanupBaselineEventIds = new Set(
+    (await db.select({ id: contentEvents.id }).from(contentEvents)).map((item) => item.id)
+  );
+  cleanupStartedAt = new Date();
+
   const createdRawItemIds: string[] = [];
+  cleanupCreatedRawItemIds = createdRawItemIds;
   const sourceRuns = [];
 
   for (const sourceId of SOURCE_IDS) {
@@ -241,16 +321,17 @@ async function main() {
       " failed=" +
       expansion.summary.failed
   );
-  console.log("EVENT_DISCOVERY_E2E_CLUSTER_ID=" + (expansion.clusterId ?? "NONE"));
-  console.log("EVENT_DISCOVERY_E2E_CLUSTER_MEMBERS=" + expansion.clusterMemberCount);
+  console.log("EVENT_DISCOVERY_E2E_EXPANSION_EVIDENCE=" + expansion.summary.evidenceCount);
+  console.log("EVENT_DISCOVERY_E2E_EXPANSION_ZH=" + expansion.summary.chineseEvidenceCount);
   console.log(
-    "EVENT_DISCOVERY_E2E_SIGNAL=PASS hotness=" +
-      expansion.signalScores.hotness +
-      " velocity=" +
-      expansion.signalScores.velocity +
-      " authority=" +
-      expansion.signalScores.authority
+    "EVENT_DISCOVERY_E2E_EXPANSION_SHADOW=PASS score=" +
+      expansion.shadowExpansionSignal.score +
+      " mode=" +
+      expansion.shadowExpansionSignal.mode
   );
+  if (expansion.formalHotspotPromotion !== false || expansion.formalRankingChanged !== false) {
+    throw new Error("E2E_EXPANSION_MUST_NOT_CHANGE_FORMAL_HOTSPOT");
+  }
 
   const config = getConfiguredChatModelConfig();
   if (!config) {
@@ -281,9 +362,17 @@ async function main() {
 
 main()
   .then(async () => {
+    await cleanupAcceptanceData();
+    console.log("EVENT_DISCOVERY_E2E_TEST_DATA_CLEANUP=PASS");
     await closeDatabase();
   })
   .catch(async (error) => {
+    try {
+      await cleanupAcceptanceData();
+      console.log("EVENT_DISCOVERY_E2E_TEST_DATA_CLEANUP=PASS");
+    } catch (cleanupError) {
+      console.error("EVENT_DISCOVERY_E2E_TEST_DATA_CLEANUP_FAILED", cleanupError);
+    }
     try { await closeDatabase(); } catch {}
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);

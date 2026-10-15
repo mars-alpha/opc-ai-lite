@@ -7,8 +7,19 @@ const groups = [
   {
     label: "平台",
     items: [
-      { href: "/admin", label: "运营总览" },
-      { href: "/admin/content?view=strategy", label: "内容采集" },
+      { href: "/admin", label: "运营总览" }
+    ]
+  },
+  {
+    label: "内容",
+    items: [
+      { href: "/admin/sources", label: "来源管理" },
+      { href: "/admin/intelligence", label: "热点追踪" }
+    ]
+  },
+  {
+    label: "课程",
+    items: [
       { href: "/admin/courses", label: "课程维护" },
       { href: "/admin/learning", label: "学习洞察" }
     ]

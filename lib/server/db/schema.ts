@@ -1,6 +1,7 @@
 import {
   boolean,
   check,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -512,37 +513,55 @@ export const contentSources = pgTable(
   (table) => [uniqueIndex("content_sources_type_ref_uidx").on(table.sourceType, table.providerRef)]
 );
 
-export const contentCollectionStrategies = pgTable("content_collection_strategies", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  aiMode: text("ai_mode").notNull().default("NONE"),
-  modelRef: text("model_ref"),
-  topics: jsonb("topics").notNull().default([]),
-  competitorAccounts: jsonb("competitor_accounts").notNull().default([]),
-  collectComments: boolean("collect_comments").notNull().default(false),
-  filters: jsonb("filters").notNull().default({}),
-  advancedConfig: jsonb("advanced_config").notNull().default({}),
-  status: text("status").notNull().default("ACTIVE"),
-  enabled: boolean("enabled").notNull().default(true),
-  testStatus: text("test_status").notNull().default("NOT_TESTED"),
-  testResult: jsonb("test_result").notNull().default({}),
-  lastTestedAt: timestamp("last_tested_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-
-export const contentCollectionStrategySources = pgTable(
-  "content_collection_strategy_sources",
+export const contentEntities = pgTable(
+  "content_entities",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    strategyId: text("strategy_id").notNull().references(() => contentCollectionStrategies.id, { onDelete: "cascade" }),
-    sourceId: text("source_id").notNull().references(() => contentSources.id, { onDelete: "cascade" }),
-    role: text("role").notNull().default("RESOLVED"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+    id: text("id").primaryKey(),
+    entityType: text("entity_type").notNull(),
+    canonicalName: text("canonical_name").notNull(),
+    displayNameZh: text("display_name_zh").notNull(),
+    aliases: jsonb("aliases").notNull().default([]),
+    officialDomains: jsonb("official_domains").notNull().default([]),
+    parentEntityId: text("parent_entity_id"),
+    ownedByEntityId: text("owned_by_entity_id"),
+    successorOfEntityId: text("successor_of_entity_id"),
+    predecessorOfEntityId: text("predecessor_of_entity_id"),
+    referenceStrength: text("reference_strength").notNull().default("NONE"),
+    status: text("status").notNull().default("TEMPORARY"),
+    mergedIntoEntityId: text("merged_into_entity_id"),
+    firstSeenAt: timestamp("first_seen_at", { withTimezone: true }).notNull().defaultNow(),
+    metadata: jsonb("metadata").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table) => [
-    uniqueIndex("content_collection_strategy_sources_uidx").on(table.strategyId, table.sourceId)
+    uniqueIndex("content_entities_canonical_name_uidx").on(table.entityType, table.canonicalName),
+    index("content_entities_status_idx").on(table.status),
+    index("content_entities_type_idx").on(table.entityType)
+  ]
+);
+
+export const contentSourceConnections = pgTable(
+  "content_source_connections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    platform: text("platform").notNull(),
+    status: text("status").notNull().default("DISCONNECTED"),
+    sourceMode: text("source_mode").notNull(),
+    loginUrl: text("login_url").notNull(),
+    pendingTokenHash: text("pending_token_hash"),
+    pendingExpiresAt: timestamp("pending_expires_at", { withTimezone: true }),
+    runnerTokenHash: text("runner_token_hash"),
+    runnerSessionRef: text("runner_session_ref"),
+    runnerClientRef: text("runner_client_ref"),
+    lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
+    lastErrorCode: text("last_error_code"),
+    metadata: jsonb("metadata").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("content_source_connections_platform_uidx").on(table.platform)
   ]
 );
 
@@ -592,27 +611,43 @@ export const contentRawItemObservations = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table) => [
-    uniqueIndex("content_raw_item_observations_raw_source_uidx").on(table.rawItemId, table.sourceId)
+    uniqueIndex("content_raw_item_observations_raw_source_uidx").on(table.rawItemId, table.sourceId),
+    index("content_raw_item_observations_source_observed_idx").on(table.sourceId, table.observedAt),
+    index("content_raw_item_observations_observed_at_idx").on(table.observedAt)
   ]
 );
 
-export const contentCollectionRuns = pgTable("content_collection_runs", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  sourceId: text("source_id").references(() => contentSources.id, { onDelete: "set null" }),
-  sourceName: text("source_name").notNull(),
-  collectionMethod: text("collection_method").notNull(),
-  requestedUrl: text("requested_url"),
-  status: text("status").notNull().default("RUNNING"),
-  receivedCount: integer("received_count").notNull().default(0),
-  createdCount: integer("created_count").notNull().default(0),
-  duplicateCount: integer("duplicate_count").notNull().default(0),
-  errorCode: text("error_code"),
-  errorMessage: text("error_message"),
-  triggeredByEmail: text("triggered_by_email"),
-  metadata: jsonb("metadata").notNull().default({}),
-  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
-  finishedAt: timestamp("finished_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+export const contentCollectionRuns = pgTable(
+  "content_collection_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sourceId: text("source_id").references(() => contentSources.id, { onDelete: "set null" }),
+    sourceName: text("source_name").notNull(),
+    collectionMethod: text("collection_method").notNull(),
+    requestedUrl: text("requested_url"),
+    status: text("status").notNull().default("RUNNING"),
+    receivedCount: integer("received_count").notNull().default(0),
+    createdCount: integer("created_count").notNull().default(0),
+    duplicateCount: integer("duplicate_count").notNull().default(0),
+    errorCode: text("error_code"),
+    errorMessage: text("error_message"),
+    triggeredByEmail: text("triggered_by_email"),
+    metadata: jsonb("metadata").notNull().default({}),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    index("content_collection_runs_source_started_idx").on(table.sourceId, table.startedAt),
+    index("content_collection_runs_started_at_idx").on(table.startedAt)
+  ]
+);
+
+export const contentRadarSnapshots = pgTable("content_radar_snapshots", {
+  key: text("key").primaryKey(),
+  payload: jsonb("payload").notNull().default({}),
+  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 
 
@@ -625,6 +660,16 @@ export const contentEvents = pgTable(
     summary: text("summary"),
     keywords: jsonb("keywords").notNull().default([]),
     entities: jsonb("entities").notNull().default([]),
+    eventType: text("event_type").notNull().default("INDUSTRY_HOTSPOT"),
+    verificationStatus: text("verification_status").notNull().default("UNVERIFIED"),
+    primaryEntityId: text("primary_entity_id"),
+    subjectEntityId: text("subject_entity_id"),
+    eventAt: timestamp("event_at", { withTimezone: true }),
+    generationReadiness: jsonb("generation_readiness").notNull().default({}),
+    policyVersion: text("policy_version").notNull().default("ai-intelligence-policy-v1"),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    resurrectedAt: timestamp("resurrected_at", { withTimezone: true }),
+    metadata: jsonb("metadata").notNull().default({}),
     discoveryStatus: text("discovery_status").notNull().default("DISCOVERED"),
     hotnessScore: integer("hotness_score"),
     relevanceScore: integer("relevance_score"),
@@ -637,6 +682,34 @@ export const contentEvents = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table) => [uniqueIndex("content_events_fingerprint_uidx").on(table.fingerprint)]
+);
+
+
+export const contentManualCollectionTasks = pgTable(
+  "content_manual_collection_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    taskType: text("task_type").notNull(),
+    runMode: text("run_mode").notNull().default("ONCE"),
+    status: text("status").notNull().default("ACTIVE"),
+    sourceId: text("source_id").references(() => contentSources.id, { onDelete: "set null" }),
+    targetUrl: text("target_url"),
+    targetRawItemId: uuid("target_raw_item_id").references(() => contentRawItems.id, { onDelete: "set null" }),
+    targetEventId: uuid("target_event_id").references(() => contentEvents.id, { onDelete: "set null" }),
+    scheduleConfig: jsonb("schedule_config").notNull().default({}),
+    collectionConfig: jsonb("collection_config").notNull().default({}),
+    resultSummary: jsonb("result_summary").notNull().default({}),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    nextRunAt: timestamp("next_run_at", { withTimezone: true }),
+    createdByEmail: text("created_by_email").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    index("content_manual_collection_tasks_status_idx").on(table.status),
+    index("content_manual_collection_tasks_next_run_idx").on(table.nextRunAt),
+    index("content_manual_collection_tasks_source_idx").on(table.sourceId)
+  ]
 );
 
 export const contentEventClusters = pgTable(
@@ -723,6 +796,31 @@ export const contentExpansionRuns = pgTable("content_expansion_runs", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
 
+export const contentEventExpansionEvidence = pgTable(
+  "content_event_expansion_evidence",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id").notNull().references(() => contentEvents.id, { onDelete: "cascade" }),
+    rawItemId: uuid("raw_item_id").notNull().references(() => contentRawItems.id, { onDelete: "cascade" }),
+    expansionRunId: uuid("expansion_run_id").references(() => contentExpansionRuns.id, { onDelete: "set null" }),
+    expansionType: text("expansion_type").notNull(),
+    mediaType: text("media_type").notNull(),
+    language: text("language").notNull().default("EN_OR_OTHER"),
+    relevanceScore: integer("relevance_score").notNull(),
+    valueScore: integer("value_score").notNull(),
+    rankScore: integer("rank_score").notNull(),
+    shadowSignalScore: integer("shadow_signal_score").notNull().default(0),
+    query: text("query"),
+    metadata: jsonb("metadata").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("content_event_expansion_evidence_event_raw_uidx").on(table.eventId, table.rawItemId),
+    index("content_event_expansion_evidence_event_rank_idx").on(table.eventId, table.rankScore)
+  ]
+);
+
 export const contentEventRawItems = pgTable(
   "content_event_raw_items",
   {
@@ -752,16 +850,72 @@ export const contentEventSignals = pgTable("content_event_signals", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
 
+export const contentDemandSignals = pgTable(
+  "content_demand_signals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id").notNull().references(() => contentEvents.id, { onDelete: "cascade" }),
+    clusterId: uuid("cluster_id").references(() => contentEventClusters.id, { onDelete: "cascade" }),
+    demandType: text("demand_type").notNull(),
+    titleZh: text("title_zh").notNull(),
+    summaryZh: text("summary_zh").notNull(),
+    sampleCount: integer("sample_count").notNull().default(0),
+    uniqueAuthorCount: integer("unique_author_count").notNull().default(0),
+    representativeComments: jsonb("representative_comments").notNull().default([]),
+    sourcePlatforms: jsonb("source_platforms").notNull().default([]),
+    provenance: jsonb("provenance").notNull().default({}),
+    confidence: integer("confidence").notNull().default(0),
+    generatedMode: text("generated_mode").notNull().default("AI"),
+    modelRef: text("model_ref"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    index("content_demand_signals_event_idx").on(table.eventId),
+    index("content_demand_signals_cluster_idx").on(table.clusterId)
+  ]
+);
+
 export const contentCandidateDecisions = pgTable("content_candidate_decisions", {
   id: uuid("id").primaryKey().defaultRandom(),
   eventId: uuid("event_id").notNull().references(() => contentEvents.id, { onDelete: "cascade" }),
   decision: text("decision").notNull(),
+  ignoreReason: text("ignore_reason"),
   selectedTypes: jsonb("selected_types").notNull().default([]),
   note: text("note"),
   decidedBy: uuid("decided_by").references(() => users.id, { onDelete: "set null" }),
   decidedByEmail: text("decided_by_email").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
+
+export const contentArtifacts = pgTable(
+  "content_artifacts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    artifactType: text("artifact_type").notNull(),
+    schemaVersion: text("schema_version").notNull(),
+    eventId: uuid("event_id").notNull().references(() => contentEvents.id, { onDelete: "cascade" }),
+    contentId: text("content_id").references(() => contentItems.id, { onDelete: "cascade" }),
+    version: integer("version").notNull().default(1),
+    parentArtifactIds: jsonb("parent_artifact_ids").notNull().default([]),
+    payload: jsonb("payload").notNull().default({}),
+    contentHash: text("content_hash").notNull(),
+    generatedMode: text("generated_mode").notNull().default("CORE"),
+    adapterId: text("adapter_id"),
+    skillId: text("skill_id"),
+    skillVersion: text("skill_version"),
+    modelProfileId: text("model_profile_id"),
+    aiRunId: uuid("ai_run_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("content_artifacts_event_type_version_uidx").on(
+      table.eventId,
+      table.artifactType,
+      table.version
+    )
+  ]
+);
 
 export const contentEvidence = pgTable("content_evidence", {
   id: uuid("id").primaryKey().defaultRandom(),

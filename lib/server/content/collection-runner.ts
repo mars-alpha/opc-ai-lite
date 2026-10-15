@@ -1,19 +1,203 @@
 import "server-only";
+import { isPublicSourceRelayEnabled, collectDeepMindFeedThroughRelay } from "./overseas-collector-relay-client";
+import { assessCollectionItemQuality, selectBackfillWindow } from "./collection-item-quality";
 
+import { createHash } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import type { AuthUser } from "../auth/service";
 import { getDatabase } from "../db";
-import { contentCollectionRuns, contentSources } from "../db/schema";
-import { eq } from "drizzle-orm";
-import { runFreshScan } from "./discovery";
+import {
+  contentCollectionRuns,
+  contentEventRawItems,
+  contentSources
+} from "../db/schema";
+import { and, eq, inArray, lt } from "drizzle-orm";
+import { ingestRawItem, runFreshScan } from "./discovery";
 import { assertCollectorReferenceOnly, COLLECTOR_MEDIA_POLICY } from "./discovery-contract";
 import { buildSearchDiscoveryUrl, collectSearchDiscovery, resolveSearchDiscoveryConfig } from "./search-discovery";
+import {
+  filterCheapDiscoveryCandidates,
+  filterDiscoveryCandidates
+} from "./discovery-filter";
+import { runEventClustering } from "./event-clustering";
+import { evaluateEventRelevance } from "./event-relevance-gate";
+import {
+  buildTrendDiscoveryPrimaryUrl,
+  collectTrendDiscovery,
+  resolveTrendDiscoveryConfig
+} from "./trend-discovery";
+import { calculateEventClusterSignals } from "./event-signal";
+import {
+  normalizeCollectionProvenance,
+  provenanceMetadata
+} from "../../content/collection-provenance-contract";
+import {
+  inferCollectionContentType,
+  resolveSourcePolicy,
+  sourceContentRule,
+  sourceFreshnessHours
+} from "./source-policy";
+import { resolveEntitiesForContent } from "./entity-resolution";
+import { resolveKnownEntities, syncCoreEntityRegistry } from "./entity-registry";
+import { classifyIntelligenceEvent, evaluateEventPolicy } from "./event-policy";
+import {
+  evaluateDeterministicQualityGate,
+  evaluatePollutionGate
+} from "./pollution-syndication-gate";
+import {
+  buildQualificationCheckpoint,
+  qualificationPreviewPolicyForSource,
+  refreshSourceRuntimeQualification,
+  SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION,
+  validateQualificationPreviewTarget
+} from "./source-qualification-runtime";
+import { normalizeDiscoveryKeywordPolicy } from "./discovery-keyword-policy";
+import {
+  resolveSourceAcquisitionPlan,
+  type SourceAcquisitionRoute
+} from "./source-acquisition-plan";
+import {
+  collectSourceRuntimeAdapter,
+  hasSourceRuntimeAdapter
+} from "./source-acquisition-runtime-adapters";
 
 export const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const FETCH_TIMEOUT_MS = 12_000;
 const MAX_REDIRECTS = 3;
 const USER_AGENT = "OPC-AI-Collector/1.0 (+https://opcai.fun)";
+const TRANSIENT_FETCH_RETRY_DELAYS_MS = [250, 750] as const;
+
+export const STALE_COLLECTION_RUN_MINUTES = 15;
+
+export async function recoverStaleCollectionRuns(now = new Date()) {
+  const db = getDatabase();
+  const cutoff = new Date(now.getTime() - STALE_COLLECTION_RUN_MINUTES * 60_000);
+  const staleRuns = await db
+    .select()
+    .from(contentCollectionRuns)
+    .where(and(
+      eq(contentCollectionRuns.status, "RUNNING"),
+      lt(contentCollectionRuns.startedAt, cutoff)
+    ))
+    .limit(200);
+
+  if (!staleRuns.length) {
+    return { recovered: 0, sourceIds: [] as string[] };
+  }
+
+  const recoveredAt = new Date();
+  const productionSourceIds = new Set<string>();
+
+  for (const run of staleRuns) {
+    const metadata =
+      run.metadata && typeof run.metadata === "object" && !Array.isArray(run.metadata)
+        ? run.metadata as Record<string, unknown>
+        : {};
+    const qualificationOnly = metadata.qualificationOnly === true;
+
+    await db.update(contentCollectionRuns).set({
+      status: "FAILED",
+      errorCode: "COLLECTION_STALE_RUN_RECOVERED",
+      errorMessage: "RUNNING collection exceeded the stale-run threshold and was recovered by the next server-native cycle.",
+      finishedAt: recoveredAt,
+      metadata: {
+        ...metadata,
+        staleRunRecovery: {
+          version: "collection-stale-run-recovery-v1",
+          recoveredAt: recoveredAt.toISOString(),
+          cutoffAt: cutoff.toISOString(),
+          thresholdMinutes: STALE_COLLECTION_RUN_MINUTES,
+          excludeFromRuntimeQualification: true
+        }
+      }
+    }).where(eq(contentCollectionRuns.id, run.id));
+
+    if (!qualificationOnly && run.sourceId) {
+      productionSourceIds.add(run.sourceId);
+    }
+  }
+
+  return {
+    recovered: staleRuns.length,
+    sourceIds: [...productionSourceIds]
+  };
+}
+
+const REJECTED_SAMPLE_CAPTURE_VERSION = "ai-rejected-sample-capture-v1";
+const MAX_REJECTED_SAMPLES_PER_RUN = 100;
+
+type RejectedSampleAudit = {
+  stage:
+    | "DISCOVERY_FILTER"
+    | "SOURCE_POLICY"
+    | "DETERMINISTIC_QUALITY_GATE"
+    | "POLLUTION_GATE";
+  sourceId: string;
+  sourceName: string;
+  platform: string;
+  collectionMethod: string;
+  externalId: string | null;
+  originalUrl: string | null;
+  title: string;
+  excerpt: string | null;
+  publishedAt: string | null;
+  relationType: string;
+  reason: string;
+  metadataSnapshot: Record<string, unknown>;
+};
+
+function boundedText(value: unknown, max: number) {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(0, max) : null;
+}
+
+function safeRejectedMetadataSnapshot(metadata: Record<string, unknown> | undefined) {
+  if (!metadata) return {};
+  const allowed = [
+    "collector",
+    "trendProvider",
+    "trendSignalType",
+    "trendRank",
+    "sourceRole",
+    "rankingObservedNow",
+    "contentType",
+    "windowHours",
+    "searchQuery",
+    "proxyDefinition"
+  ] as const;
+  return Object.fromEntries(
+    allowed.flatMap((key) => metadata[key] === undefined ? [] : [[key, metadata[key]]])
+  );
+}
+
+function rejectedSampleAudit(input: {
+  stage: RejectedSampleAudit["stage"];
+  item: NormalizedCollectedItem;
+  sourceId: string;
+  sourceName: string;
+  platform: string;
+  collectionMethod: string;
+  relationType: string;
+  reason: string;
+}): RejectedSampleAudit {
+  return {
+    stage: input.stage,
+    sourceId: input.sourceId,
+    sourceName: input.sourceName.slice(0, 240),
+    platform: input.platform.slice(0, 80),
+    collectionMethod: input.collectionMethod.slice(0, 80),
+    externalId: boundedText(input.item.externalId, 240),
+    originalUrl: boundedText(input.item.originalUrl, 1200),
+    title: input.item.title.slice(0, 500),
+    excerpt: boundedText(input.item.excerpt, 1000),
+    publishedAt: boundedText(input.item.publishedAt, 80),
+    relationType: input.relationType.slice(0, 80),
+    reason: input.reason.slice(0, 240),
+    metadataSnapshot: safeRejectedMetadataSnapshot(input.item.metadata)
+  };
+}
 
 export type NormalizedCollectedItem = {
   externalId?: string | null;
@@ -65,6 +249,29 @@ function isPrivateIpv6(ip: string) {
   return false;
 }
 
+function configuredInternalServiceOrigins() {
+  return new Set(
+    (process.env.COLLECTION_INTERNAL_SERVICE_ORIGINS ?? "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .flatMap((value) => {
+        try {
+          const url = new URL(value);
+          if (url.protocol !== "http:" && url.protocol !== "https:") return [];
+          if (url.username || url.password) return [];
+          return [url.origin.toLowerCase()];
+        } catch {
+          return [];
+        }
+      })
+  );
+}
+
+function isConfiguredInternalService(url: URL) {
+  return configuredInternalServiceOrigins().has(url.origin.toLowerCase());
+}
+
 export async function assertPublicHttpUrl(input: string) {
   let url: URL;
   try {
@@ -74,6 +281,7 @@ export async function assertPublicHttpUrl(input: string) {
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("COLLECTION_URL_PROTOCOL_BLOCKED");
   if (url.username || url.password) throw new Error("COLLECTION_URL_CREDENTIALS_BLOCKED");
+  if (isConfiguredInternalService(url)) return url;
 
   const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) {
@@ -129,17 +337,54 @@ async function readLimitedBody(response: Response) {
   return new TextDecoder("utf-8").decode(merged);
 }
 
-async function fetchPublicText(input: string, accept = "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9, */*;q=0.5") {
+function transientFetchErrorCode(error: unknown) {
+  const cause =
+    error && typeof error === "object" && "cause" in error
+      ? (error as { cause?: { code?: unknown } }).cause
+      : undefined;
+  const code = typeof cause?.code === "string" ? cause.code : "";
+  if (
+    code === "UND_ERR_CONNECT_TIMEOUT" ||
+    code === "ETIMEDOUT" ||
+    code === "ECONNREFUSED" ||
+    code === "ENETUNREACH" ||
+    code === "ECONNRESET" ||
+    code === "UND_ERR_SOCKET" ||
+    code === "EAI_AGAIN" ||
+    (error instanceof Error && error.name === "TimeoutError")
+  ) {
+    return "COLLECTION_NETWORK_UNREACHABLE";
+  }
+  return null;
+}
+
+async function fetchWithTransientRetry(current: URL, accept: string) {
+  for (let attempt = 0; attempt <= TRANSIENT_FETCH_RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      return await fetch(current, {
+        redirect: "manual",
+        headers: {
+          "user-agent": USER_AGENT,
+          accept
+        },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+      });
+    } catch (error) {
+      const transientCode = transientFetchErrorCode(error);
+      if (!transientCode) throw new Error("COLLECTION_NETWORK_FAILED");
+      if (attempt >= TRANSIENT_FETCH_RETRY_DELAYS_MS.length) {
+        throw new Error(transientCode);
+      }
+      await new Promise((resolve) => setTimeout(resolve, TRANSIENT_FETCH_RETRY_DELAYS_MS[attempt]));
+    }
+  }
+  throw new Error("COLLECTION_NETWORK_UNREACHABLE");
+}
+
+export async function fetchPublicText(input: string, accept = "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9, */*;q=0.5") {
   let current = await assertPublicHttpUrl(input);
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount += 1) {
-    const response = await fetch(current, {
-      redirect: "manual",
-      headers: {
-        "user-agent": USER_AGENT,
-        accept
-      },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
-    });
+    const response = await fetchWithTransientRetry(current, accept);
 
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
@@ -239,7 +484,7 @@ export function parseFeedDocument(body: string, feedUrl: string): NormalizedColl
     const externalId = tagValue(block, ["guid", "id"]) || link;
     const author = tagValue(block, ["dc:creator", "author", "name"]) || null;
     const publishedAt = normalizeDate(tagValue(block, ["pubDate", "published", "updated", "dc:date"]));
-    const excerpt = tagValue(block, ["description", "summary", "content:encoded", "content"]) || null;
+    const excerpt = tagValue(block, ["content:encoded", "content", "description", "summary"]) || null;
     return [{
       externalId,
       originalUrl: link,
@@ -248,9 +493,104 @@ export function parseFeedDocument(body: string, feedUrl: string): NormalizedColl
       excerpt,
       publishedAt,
       platformMetrics: {},
-      metadata: { collector: "feed", feedUrl }
+      metadata: { collector: "feed", feedUrl, collectionQuality: assessCollectionItemQuality({ title, excerpt, author, originalUrl: link, publishedAt }) }
     }];
   });
+}
+
+function sitemapTitle(url: URL) {
+  const segment = url.pathname.split("/").filter(Boolean).pop() ?? url.hostname;
+  try {
+    return decodeURIComponent(segment).replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim() || url.hostname;
+  } catch {
+    return segment.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim() || url.hostname;
+  }
+}
+
+export function parseSitemapDocument(
+  body: string,
+  sitemapUrl: string,
+  scopeUrl?: string | null
+): NormalizedCollectedItem[] {
+  const sitemap = new URL(sitemapUrl);
+  const scope = scopeUrl ? new URL(scopeUrl) : sitemap;
+  const scopePath = scope.pathname === "/" ? "/" : scope.pathname.replace(/\/+$/, "");
+  const blocks = [...body.matchAll(/<url\b[^>]*>([\s\S]*?)<\/url>/gi)].map((match) => match[1]);
+
+  return blocks
+    .flatMap((block) => {
+      const loc = tagValue(block, ["loc"]);
+      if (!loc) return [];
+      let url: URL;
+      try {
+        url = new URL(loc, sitemapUrl);
+      } catch {
+        return [];
+      }
+      if (url.hostname.toLowerCase() !== scope.hostname.toLowerCase()) return [];
+      if (scopePath !== "/" && !(url.pathname === scopePath || url.pathname.startsWith(scopePath + "/"))) return [];
+      const publishedAt = normalizeDate(tagValue(block, ["lastmod"]));
+      return [{
+        externalId: url.toString(),
+        originalUrl: url.toString(),
+        title: sitemapTitle(url),
+        author: null,
+        excerpt: null,
+        publishedAt,
+        platformMetrics: {},
+        metadata: {
+          collector: "sitemap",
+          sitemapUrl,
+          discoveryOnly: true,
+          factualSource: false,
+          referenceOnly: true
+        }
+      }];
+    })
+    .sort((a, b) => (b.publishedAt ? Date.parse(b.publishedAt) : 0) - (a.publishedAt ? Date.parse(a.publishedAt) : 0))
+    .slice(0, 100);
+}
+
+function parseSitemapIndexUrls(body: string, sitemapUrl: string) {
+  const parent = new URL(sitemapUrl);
+  return [...body.matchAll(/<sitemap\b[^>]*>([\s\S]*?)<\/sitemap>/gi)]
+    .flatMap((match) => {
+      const loc = tagValue(match[1], ["loc"]);
+      if (!loc) return [];
+      try {
+        const url = new URL(loc, sitemapUrl);
+        return url.hostname.toLowerCase() === parent.hostname.toLowerCase() ? [url.toString()] : [];
+      } catch {
+        return [];
+      }
+    })
+    .slice(0, 5);
+}
+
+export async function collectSitemap(url: string, scopeUrl?: string | null) {
+  const fetched = await fetchPublicText(url, "application/xml, text/xml, */*;q=0.5");
+  const direct = parseSitemapDocument(fetched.body, fetched.finalUrl, scopeUrl);
+  if (direct.length) return direct;
+
+  const childUrls = parseSitemapIndexUrls(fetched.body, fetched.finalUrl);
+  if (!childUrls.length) throw new Error("SITEMAP_NO_URLS");
+  const batches = await Promise.all(childUrls.map(async (child) => {
+    try {
+      const nested = await fetchPublicText(child, "application/xml, text/xml, */*;q=0.5");
+      return parseSitemapDocument(nested.body, nested.finalUrl, scopeUrl);
+    } catch {
+      return [];
+    }
+  }));
+  const byUrl = new Map<string, NormalizedCollectedItem>();
+  for (const item of batches.flat()) {
+    if (item.originalUrl && !byUrl.has(item.originalUrl)) byUrl.set(item.originalUrl, item);
+  }
+  const items = [...byUrl.values()]
+    .sort((a, b) => (b.publishedAt ? Date.parse(b.publishedAt) : 0) - (a.publishedAt ? Date.parse(a.publishedAt) : 0))
+    .slice(0, 100);
+  if (!items.length) throw new Error("SITEMAP_NO_URLS");
+  return items;
 }
 
 function metaContent(html: string, names: string[]) {
@@ -297,12 +637,13 @@ export function parseHtmlDocument(html: string, finalUrl: string, metadata: Reco
 }
 
 export async function collectRss(url: string) {
-  const fetched = await fetchPublicText(url);
+  const viaRelay = url === "https://deepmind.google/blog/rss.xml" && isPublicSourceRelayEnabled();
+  const fetched = viaRelay ? await collectDeepMindFeedThroughRelay() : await fetchPublicText(url);
   const items = parseFeedDocument(fetched.body, fetched.finalUrl);
   if (items.length === 0) throw new Error("RSS_NO_ITEMS");
   return items.map((item) => ({
     ...item,
-    metadata: { ...(item.metadata ?? {}), contentType: fetched.contentType, statusCode: fetched.status }
+    metadata: { ...(item.metadata ?? {}), contentType: fetched.contentType, statusCode: fetched.status, acquisitionTransport: viaRelay ? "DENO_RELAY" : "DIRECT" }
   }));
 }
 
@@ -323,37 +664,134 @@ export async function collectHttpPage(url: string) {
   });
 }
 
-export async function collectManualUrl(url: string) {
-  const items = await collectHttpPage(url);
-  return items.map((item) => ({
-    ...item,
-    metadata: { ...(item.metadata ?? {}), collector: "manual" }
-  }));
+export async function collectJinaReader(url: string) {
+  const original = await assertPublicHttpUrl(url);
+  const jinaUrl = "https://r.jina.ai/" + original.toString();
+  const fetched = await fetchPublicText(
+    jinaUrl,
+    "text/markdown, text/plain;q=0.9, */*;q=0.5"
+  );
+  const body = fetched.body.trim();
+  if (!body) throw new Error("COLLECTION_JINA_EMPTY");
+  const title =
+    body.match(/^#\s+(.+)$/m)?.[1]?.trim() ??
+    body.match(/^Title:\s*(.+)$/mi)?.[1]?.trim() ??
+    original.hostname;
+  const excerpt =
+    body
+      .replace(/^Title:.*$/gmi, "")
+      .replace(/^URL Source:.*$/gmi, "")
+      .replace(/^Markdown Content:.*$/gmi, "")
+      .replace(/^#+\s+/gm, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 4000) || null;
+  return [{
+    externalId: original.toString(),
+    originalUrl: original.toString(),
+    title,
+    author: null,
+    excerpt,
+    publishedAt: null,
+    platformMetrics: {},
+    metadata: {
+      collector: "jina_reader",
+      jinaUrl,
+      contentType: fetched.contentType,
+      statusCode: fetched.status
+    }
+  }];
 }
 
 export async function runSourceCollection(
   user: AuthUser,
   sourceId: string,
-  input: { manualUrl?: string } = {},
+  input: {
+    provenance?: unknown;
+    qualificationOnly?: boolean;
+    backfillWindow?: { from: string; to: string };
+  } = {},
   collectorOverride?: (method: string, url: string) => Promise<NormalizedCollectedItem[]>
 ) {
+  if (input.backfillWindow) {
+    const from = Date.parse(input.backfillWindow.from), to = Date.parse(input.backfillWindow.to);
+    if (!Number.isFinite(from) || !Number.isFinite(to) || from >= to || to - from > 168 * 3_600_000 || to > Date.now())
+      throw new Error("COLLECTION_BACKFILL_WINDOW_INVALID");
+  }
   const db = getDatabase();
   const [source] = await db.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1);
   if (!source) throw new Error("DISCOVERY_SOURCE_NOT_FOUND");
   if (!source.enabled || source.status !== "ACTIVE") throw new Error("DISCOVERY_SOURCE_INACTIVE");
 
   const method = source.collectionMethod.toUpperCase();
+  const acquisition = resolveSourceAcquisitionPlan({
+    collectionMethod: source.collectionMethod,
+    platform: source.platform,
+    providerRef: source.providerRef,
+    canonicalUrl: source.canonicalUrl,
+    metadata: source.metadata,
+    collectionConfig: source.collectionConfig
+  });
+  if (acquisition.kind === "UNRESOLVED") {
+    throw new Error("COLLECTION_ACQUISITION_ROUTE_REQUIRED");
+  }
+  const provenance = normalizeCollectionProvenance(input.provenance, {
+    origin: "SYSTEM",
+    collectionPurpose:
+      acquisition.kind === "TREND_DISCOVERY"
+        ? "TREND"
+        : acquisition.kind === "SEARCH_DISCOVERY"
+          ? "EXPANSION"
+          : acquisition.kind === "RSS_ATOM" || acquisition.kind === "SITEMAP" || acquisition.kind === "STATIC_PAGE" || acquisition.kind === "PUBLIC_GENERATED_FEED"
+            ? "LATEST"
+            : "EXPANSION"
+  });
+  if (provenance.origin !== "SYSTEM") {
+    throw new Error("SYSTEM_COLLECTION_RUNTIME_ONLY");
+  }
+  if (
+    input.qualificationOnly === true &&
+    (
+      provenance.origin !== "SYSTEM" ||
+      !provenance.runKind?.startsWith("SOURCE_QUALIFICATION:")
+    )
+  ) {
+    throw new Error("ADAPTER_QUALIFICATION_RUN_KIND_REQUIRED");
+  }
   const searchConfig =
     method === "SEARCH" ? resolveSearchDiscoveryConfig(source.collectionConfig) : null;
+  const trendInput = input.backfillWindow ? { ...(source.collectionConfig as Record<string, unknown>), windowHours: 168 } : source.collectionConfig;
+  const trendConfig =
+    method === "TREND" ? resolveTrendDiscoveryConfig(trendInput) : null;
+  function requestedUrlForRoute(route: SourceAcquisitionRoute) {
+    if (route.kind === "SEARCH_DISCOVERY" && searchConfig) return buildSearchDiscoveryUrl(searchConfig);
+    if (route.kind === "TREND_DISCOVERY" && trendConfig) return buildTrendDiscoveryPrimaryUrl(trendConfig);
+    return route.targetUrl?.trim() || source.canonicalUrl?.trim() || "";
+  }
+  const runnableRoutes = acquisition.routes.filter((route) => route.enabled);
   const requestedUrl =
-    method === "MANUAL"
-      ? input.manualUrl?.trim() || source.canonicalUrl?.trim() || ""
-      : method === "SEARCH" && searchConfig
-        ? buildSearchDiscoveryUrl(searchConfig)
-        : source.canonicalUrl?.trim() || "";
+    requestedUrlForRoute(acquisition.primaryRoute) ||
+    runnableRoutes.map(requestedUrlForRoute).find(Boolean) ||
+    "";
   if (!requestedUrl) throw new Error("COLLECTION_SOURCE_URL_REQUIRED");
+  if (input.qualificationOnly === true) {
+    const previewPolicy = qualificationPreviewPolicyForSource({
+      canonicalUrl: source.canonicalUrl,
+      collectionConfig: source.collectionConfig,
+      metadata: source.metadata
+    });
+    if (!previewPolicy.allowedHosts.length) {
+      throw new Error("QUALIFICATION_TARGET_HOST_DECLARATION_REQUIRED");
+    }
+    validateQualificationPreviewTarget({
+      canonicalUrl: source.canonicalUrl,
+      targetUrl: requestedUrl,
+      allowedHosts: previewPolicy.allowedHosts,
+      allowedPathPrefixes: previewPolicy.allowedPathPrefixes
+    });
+  }
 
-  const runMetadata = searchConfig
+  const baseRunMetadata = searchConfig
     ? {
         platform: source.platform,
         searchProvider: searchConfig.provider,
@@ -361,7 +799,53 @@ export async function runSourceCollection(
         windowHours: searchConfig.windowHours,
         resultLimit: searchConfig.resultLimit
       }
-    : { platform: source.platform };
+    : trendConfig
+      ? {
+          platform: source.platform,
+          trendProvider: trendConfig.provider,
+          searchQuery: trendConfig.searchQuery,
+          windowHours: trendConfig.windowHours,
+          resultLimit: trendConfig.resultLimit,
+          signalOnly: true
+        }
+      : { platform: source.platform };
+  const runMetadata = {
+    ...baseRunMetadata,
+    collectionRuntimeVersion: SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION,
+    qualificationCheckpoint: buildQualificationCheckpoint({
+      sourceId: source.id,
+      platform: source.platform,
+      collectionMethod: source.collectionMethod,
+      canonicalUrl: source.canonicalUrl,
+      providerRef: source.providerRef,
+      collectionConfig: source.collectionConfig,
+      metadata: source.metadata
+    }).checkpoint,
+    acquisitionKind: acquisition.kind,
+    acquisitionReason: acquisition.reason,
+    acquisitionFallbackKinds: acquisition.fallbackKinds,
+    acquisitionRouteId: acquisition.primaryRoute.id,
+    acquisitionRouteRole: acquisition.primaryRoute.role,
+    acquisitionRouteCostLevel: acquisition.primaryRoute.costLevel,
+    acquisitionRoutes: acquisition.routes.map((route) => ({
+      id: route.id,
+      role: route.role,
+      kind: route.kind,
+      costLevel: route.costLevel,
+      enabled: route.enabled,
+      serverRuntimeSupported: route.serverRuntimeSupported
+    })),
+    ...provenanceMetadata(provenance)
+  };
+  const acquisitionRouteAttempts: Array<{
+    routeId: string;
+    role: string;
+    kind: string;
+    costLevel: string;
+    status: "SUCCEEDED" | "FAILED" | "SKIPPED";
+    errorCode: string | null;
+  }> = [];
+  let selectedAcquisitionRoute: SourceAcquisitionRoute | null = null;
 
   const [run] = await db.insert(contentCollectionRuns).values({
     sourceId: source.id,
@@ -376,44 +860,444 @@ export async function runSourceCollection(
   try {
     let items: NormalizedCollectedItem[];
     if (collectorOverride) {
+      selectedAcquisitionRoute = acquisition.primaryRoute;
       items = await collectorOverride(method, requestedUrl);
-    } else if (method === "MANUAL") {
-      items = await collectManualUrl(requestedUrl);
-    } else if (method === "RSS") {
-      items = await collectRss(requestedUrl);
-    } else if (method === "HTTP") {
-      items = await collectHttpPage(requestedUrl);
-    } else if (method === "SEARCH") {
-      const search = await collectSearchDiscovery(source.collectionConfig, fetchPublicJson);
-      items = search.items;
+      acquisitionRouteAttempts.push({
+        routeId: selectedAcquisitionRoute.id,
+        role: selectedAcquisitionRoute.role,
+        kind: selectedAcquisitionRoute.kind,
+        costLevel: selectedAcquisitionRoute.costLevel,
+        status: "SUCCEEDED",
+        errorCode: null
+      });
     } else {
-      throw new Error("COLLECTION_METHOD_NOT_SUPPORTED");
+      let collected: NormalizedCollectedItem[] | null = null;
+      let lastRouteError: unknown = null;
+      for (const route of runnableRoutes) {
+        const routeUrl = requestedUrlForRoute(route);
+        if (!route.serverRuntimeSupported) {
+          acquisitionRouteAttempts.push({
+            routeId: route.id,
+            role: route.role,
+            kind: route.kind,
+            costLevel: route.costLevel,
+            status: "SKIPPED",
+            errorCode: "COLLECTION_ADAPTER_RUNTIME_REQUIRED"
+          });
+          continue;
+        }
+        if (!routeUrl) {
+          acquisitionRouteAttempts.push({
+            routeId: route.id,
+            role: route.role,
+            kind: route.kind,
+            costLevel: route.costLevel,
+            status: "SKIPPED",
+            errorCode: "COLLECTION_SOURCE_URL_REQUIRED"
+          });
+          continue;
+        }
+        if (input.qualificationOnly === true) {
+          const previewPolicy = qualificationPreviewPolicyForSource({
+            canonicalUrl: source.canonicalUrl,
+            collectionConfig: source.collectionConfig,
+            metadata: source.metadata
+          });
+          validateQualificationPreviewTarget({
+            canonicalUrl: source.canonicalUrl,
+            targetUrl: routeUrl,
+            allowedHosts: previewPolicy.allowedHosts,
+            allowedPathPrefixes: previewPolicy.allowedPathPrefixes
+          });
+        }
+        try {
+          if (route.runtimeOwner && hasSourceRuntimeAdapter(route.runtimeOwner)) {
+            collected = await collectSourceRuntimeAdapter({
+              runtimeOwner: route.runtimeOwner,
+              fetchJson: fetchPublicJson
+            });
+          } else if (route.kind === "RSS_ATOM") {
+            collected = await collectRss(routeUrl);
+          } else if (route.kind === "SITEMAP") {
+            collected = await collectSitemap(routeUrl, source.canonicalUrl);
+          } else if (route.kind === "STATIC_PAGE") {
+            collected = await collectHttpPage(routeUrl);
+          } else if (route.kind === "JINA_READER") {
+            collected = await collectJinaReader(routeUrl);
+          } else if (route.kind === "SEARCH_DISCOVERY") {
+            const search = await collectSearchDiscovery(source.collectionConfig, fetchPublicJson);
+            collected = search.items;
+          } else if (route.kind === "TREND_DISCOVERY") {
+            const trend = await collectTrendDiscovery(trendInput, fetchPublicJson, {
+              fetchText: async (url) => fetchPublicText(url),
+              fetchImpl: fetch
+            });
+            collected = trend.items;
+          } else {
+            throw new Error("COLLECTION_ADAPTER_RUNTIME_REQUIRED:" + route.kind);
+          }
+          selectedAcquisitionRoute = route;
+          acquisitionRouteAttempts.push({
+            routeId: route.id,
+            role: route.role,
+            kind: route.kind,
+            costLevel: route.costLevel,
+            status: "SUCCEEDED",
+            errorCode: null
+          });
+          break;
+        } catch (routeError) {
+          lastRouteError = routeError;
+          acquisitionRouteAttempts.push({
+            routeId: route.id,
+            role: route.role,
+            kind: route.kind,
+            costLevel: route.costLevel,
+            status: "FAILED",
+            errorCode: errorCode(routeError)
+          });
+        }
+      }
+      if (!collected || !selectedAcquisitionRoute) {
+        throw lastRouteError instanceof Error
+          ? lastRouteError
+          : new Error("COLLECTION_NO_RUNNABLE_ACQUISITION_ROUTE");
+      }
+      items = collected;
+    }
+    const acquisitionFallbackReason =
+      selectedAcquisitionRoute?.role === "FALLBACK"
+        ? acquisitionRouteAttempts.find((attempt) =>
+            attempt.routeId !== selectedAcquisitionRoute?.id &&
+            (attempt.status === "FAILED" || attempt.status === "SKIPPED")
+          )?.errorCode ?? "PRIMARY_ROUTE_UNAVAILABLE"
+        : null;
+
+    items = items.map((item) => ({
+      ...item,
+      metadata: {
+        ...(item.metadata ?? {}),
+        originPublisher:
+          typeof item.metadata?.originPublisher === "string" && item.metadata.originPublisher.trim()
+            ? item.metadata.originPublisher
+            : source.name
+      }
+    }));
+
+    const backfill = input.backfillWindow ? selectBackfillWindow(items, new Date(input.backfillWindow.from), new Date(input.backfillWindow.to)) : null;
+    if (backfill) items = backfill.items;
+    items = items.map(item => ({ ...item, metadata: { ...item.metadata, collectionQuality: assessCollectionItemQuality(item),
+      ...(backfill ? { backfillWindow: { from: backfill.from, to: backfill.to, historyCompleteness: backfill.historyCompleteness } } : {}) } }));
+    if (backfill) Object.assign(runMetadata, { backfillWindow: { ...backfill, items: undefined } });
+    assertCollectorReferenceOnly(items);
+    if (input.qualificationOnly === true) {
+      const candidateKeys = items.map((item) =>
+        createHash("sha256")
+          .update(
+            [
+              item.originalUrl?.trim() ?? "",
+              item.externalId?.trim() ?? "",
+              item.title.trim()
+            ].join("\n")
+          )
+          .digest("hex")
+      );
+      const publishedCount = items.filter((item) => Boolean(item.publishedAt)).length;
+      const [completed] = await db.update(contentCollectionRuns).set({
+        status: "SUCCEEDED",
+        receivedCount: items.length,
+        createdCount: 0,
+        duplicateCount: 0,
+        finishedAt: new Date(),
+        metadata: {
+          ...runMetadata,
+          mediaPolicy: COLLECTOR_MEDIA_POLICY,
+          qualificationOnly: true,
+          qualificationCandidateKeys: candidateKeys.slice(0, 200),
+          qualificationPublishedCount: publishedCount,
+          qualificationPublishedCoverage: items.length
+            ? publishedCount / items.length
+            : 0,
+          acquisitionRouteId: selectedAcquisitionRoute?.id ?? acquisition.primaryRoute.id,
+          acquisitionRouteRole: selectedAcquisitionRoute?.role ?? acquisition.primaryRoute.role,
+          acquisitionRouteCostLevel: selectedAcquisitionRoute?.costLevel ?? acquisition.primaryRoute.costLevel,
+          acquisitionRouteAttempts,
+          acquisitionFallbackReason
+        }
+      }).where(eq(contentCollectionRuns.id, run.id)).returning();
+      return completed;
+    }
+    const policy = resolveSourcePolicy(source);
+    const configuredWindow = input.backfillWindow ? 168 : sourceFreshnessHours(source);
+    const collectionConfig =
+      source.collectionConfig && typeof source.collectionConfig === "object" && !Array.isArray(source.collectionConfig)
+        ? source.collectionConfig as Record<string, unknown>
+        : {};
+    const keywordPolicy = normalizeDiscoveryKeywordPolicy(collectionConfig.keywordPolicy);
+    const cheapFilterResult = filterCheapDiscoveryCandidates(items, {
+      windowHours: configuredWindow,
+      sourceName: source.name,
+      sourcePlatform: source.platform,
+      sourceMethod: method,
+      sourceType: policy?.sourceType ?? source.sourceType,
+      strategyTopics: Array.isArray(source.topics)
+        ? source.topics.filter((item): item is string => typeof item === "string")
+        : [],
+      keywordPolicy
+    });
+    const knownEntitiesByIndex = new Map<number, Awaited<ReturnType<typeof resolveKnownEntities>>>();
+    if (provenance.origin === "SYSTEM" && cheapFilterResult.items.length) {
+      await syncCoreEntityRegistry();
+      const resolvedKnownEntities = await Promise.all(cheapFilterResult.items.map((item) =>
+        resolveKnownEntities({ title: item.title, excerpt: item.excerpt })
+      ));
+      resolvedKnownEntities.forEach((entities, index) => knownEntitiesByIndex.set(index, entities));
+    }
+    const filterResult = await filterDiscoveryCandidates(cheapFilterResult.items, {
+      windowHours: configuredWindow,
+      sourceName: source.name,
+      sourcePlatform: source.platform,
+      sourceMethod: method,
+      sourceType: policy?.sourceType ?? source.sourceType,
+      requireExplicitAiRelation:
+        provenance.origin === "SYSTEM" &&
+        (policy?.sourceType === "MEDIA" || policy?.sourceType === "SOCIAL" || policy?.sourceType === "DEVELOPER"),
+      knownEntitiesByIndex,
+      strategyTopics: Array.isArray(source.topics)
+        ? source.topics.filter((item): item is string => typeof item === "string")
+        : [],
+      keywordPolicy
+    });
+    const policyItems = [];
+    const rejectedSamples: RejectedSampleAudit[] = [];
+    if (provenance.origin === "SYSTEM") {
+      for (const decision of cheapFilterResult.decisions) {
+        if (decision.keep) continue;
+        const rejectedItem = items[decision.index];
+        if (!rejectedItem) continue;
+        rejectedSamples.push(rejectedSampleAudit({
+          stage: "DISCOVERY_FILTER",
+          item: rejectedItem,
+          sourceId: source.id,
+          sourceName: source.name,
+          platform: source.platform,
+          collectionMethod: method,
+          relationType: decision.relationType,
+          reason: decision.reason
+        }));
+      }
+      for (const decision of filterResult.decisions) {
+        if (decision.keep) continue;
+        const rejectedItem = cheapFilterResult.items[decision.index];
+        if (!rejectedItem) continue;
+        rejectedSamples.push(rejectedSampleAudit({
+          stage: "DISCOVERY_FILTER",
+          item: rejectedItem,
+          sourceId: source.id,
+          sourceName: source.name,
+          platform: source.platform,
+          collectionMethod: method,
+          relationType: decision.relationType,
+          reason: decision.reason
+        }));
+      }
     }
 
-    assertCollectorReferenceOnly(items);
-    const result = await runFreshScan({ sourceId: source.id, items });
+    for (const item of filterResult.items) {
+      const metadata = item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
+        ? item.metadata as Record<string, unknown>
+        : {};
+      const contentType = inferCollectionContentType({
+        metadata,
+        originalUrl: item.originalUrl,
+        collectionMethod: method,
+        platform: source.platform,
+        source
+      });
+      const rule = sourceContentRule(source, contentType);
+      const discoveryFilter = metadata.discoveryFilter && typeof metadata.discoveryFilter === "object" && !Array.isArray(metadata.discoveryFilter)
+        ? metadata.discoveryFilter as Record<string, unknown>
+        : {};
+      const relationType = typeof discoveryFilter.relationType === "string" ? discoveryFilter.relationType : "UNKNOWN";
+      const deterministicQuality = evaluateDeterministicQualityGate(item);
+      if (!deterministicQuality.pass) {
+        rejectedSamples.push(rejectedSampleAudit({
+          stage: "DETERMINISTIC_QUALITY_GATE",
+          item,
+          sourceId: source.id,
+          sourceName: source.name,
+          platform: source.platform,
+          collectionMethod: method,
+          relationType,
+          reason: deterministicQuality.reasons.join("|")
+        }));
+        continue;
+      }
+      const pollutionGate = evaluatePollutionGate(item);
+      if (!pollutionGate.pass) {
+        rejectedSamples.push(rejectedSampleAudit({
+          stage: "POLLUTION_GATE",
+          item,
+          sourceId: source.id,
+          sourceName: source.name,
+          platform: source.platform,
+          collectionMethod: method,
+          relationType,
+          reason: pollutionGate.reasons.join("|")
+        }));
+        continue;
+      }
+      const signalOnlyNoise = provenance.origin === "SYSTEM" && rule.role === "SIGNAL" && (relationType === "UNKNOWN" || relationType === "NONE");
+      if (signalOnlyNoise) {
+        rejectedSamples.push(rejectedSampleAudit({
+          stage: "SOURCE_POLICY",
+          item,
+          sourceId: source.id,
+          sourceName: source.name,
+          platform: source.platform,
+          collectionMethod: method,
+          relationType,
+          reason: "SIGNAL_WITHOUT_AI_RELATION"
+        }));
+        continue;
+      }
+      const entityResolution = await resolveEntitiesForContent({
+        title: item.title,
+        excerpt: item.excerpt,
+        publishedAt: item.publishedAt
+      }, { allowAi: false });
+      const entities = entityResolution.entities;
+      const eventType = classifyIntelligenceEvent({ title: item.title, excerpt: item.excerpt, contentType });
+      policyItems.push({
+        ...item,
+        metadata: {
+          ...metadata,
+          contentType,
+          intelligencePolicy: {
+            version: "ai-intelligence-policy-v1",
+            sourcePolicyKey: policy?.key ?? null,
+            sourceRole: rule.role,
+            confirmationScope: rule.confirmationScope,
+            confirmationAuthority: rule.confirmationAuthority,
+            canContributeHotness: rule.canContributeHotness,
+            requiresFactConfirmation: rule.requiresFactConfirmation,
+            operatorInterest: null
+          },
+          resolvedEntities: entities,
+          entityResolution: {
+            mode: entityResolution.mode,
+            createdTemporaryEntityIds: entityResolution.createdTemporaryEntityIds
+          },
+          eventType
+        }
+      });
+    }
+    // Presentation/localization must not block source collection. Raw/Observation
+    // is persisted first; Chinese presentation falls back to original text until
+    // presentation enrichment is available.
+    const result = await runFreshScan({ sourceId: source.id, items: policyItems, provenance });
+    // New facts always refresh their Event. Repeated observations only need an
+    // Event refresh for TREND routes where rank/engagement can change without a
+    // new Raw Item. Re-reading unchanged RSS/web items must not trigger a full
+    // cluster/policy/signal recomputation on every source run.
+    const eventRefreshRawItemIds = method === "TREND"
+      ? result.rawItemIds
+      : result.createdRawItemIds;
+    const affectedEventLinks = eventRefreshRawItemIds.length
+      ? await db
+          .select({ eventId: contentEventRawItems.eventId })
+          .from(contentEventRawItems)
+          .where(inArray(contentEventRawItems.rawItemId, eventRefreshRawItemIds))
+      : [];
+    const eventIds = [...new Set(affectedEventLinks.map((item) => item.eventId))];
+    const relevanceGateResults: Array<{
+      eventId: string;
+      aiRelevant: boolean;
+      mode: string;
+      relationType: string;
+      reason: string;
+    }> = [];
+    for (const eventId of eventIds) {
+      await runEventClustering(eventId);
+      const gate = await evaluateEventRelevance(eventId, { allowAi: false });
+      await evaluateEventPolicy(eventId);
+      await calculateEventClusterSignals(eventId);
+      if (gate) {
+        relevanceGateResults.push({
+          eventId,
+          aiRelevant: gate.aiRelevant,
+          mode: gate.mode,
+          relationType: gate.relationType,
+          reason: gate.reason
+        });
+      }
+    }
     const [completed] = await db.update(contentCollectionRuns).set({
       status: "SUCCEEDED",
-      receivedCount: result.received,
+      receivedCount: items.length,
       createdCount: result.created,
       duplicateCount: result.duplicates,
       finishedAt: new Date(),
       metadata: {
         ...runMetadata,
         mediaPolicy: COLLECTOR_MEDIA_POLICY,
+        discoveryFilter: {
+          version: "ai-discovery-filter-v2",
+          cheapGate: cheapFilterResult.stats,
+          ...filterResult.stats,
+          droppedReasons: filterResult.decisions
+            .filter((item) => !item.keep)
+            .reduce<Record<string, number>>((acc, item) => {
+              acc[item.reason] = (acc[item.reason] ?? 0) + 1;
+              return acc;
+            }, {})
+        },
+        eventRelevanceGate: {
+          version: "event-relevance-gate-v1",
+          evaluatedEvents: relevanceGateResults.length,
+          aiRelevantEvents: relevanceGateResults.filter((item) => item.aiRelevant).length,
+          blockedEvents: relevanceGateResults.filter((item) => !item.aiRelevant).length,
+          results: relevanceGateResults.slice(0, 100)
+        },
+        rejectedSampleCapture: {
+          version: REJECTED_SAMPLE_CAPTURE_VERSION,
+          captured: Math.min(rejectedSamples.length, MAX_REJECTED_SAMPLES_PER_RUN),
+          totalRejected: rejectedSamples.length,
+          truncated: rejectedSamples.length > MAX_REJECTED_SAMPLES_PER_RUN,
+          samples: rejectedSamples.slice(0, MAX_REJECTED_SAMPLES_PER_RUN)
+        },
         storedCount: result.stored,
         rawItemIds: result.rawItemIds.slice(0, 200),
-        createdRawItemIds: result.createdRawItemIds.slice(0, 200)
+        createdRawItemIds: result.createdRawItemIds.slice(0, 200),
+        acquisitionRouteId: selectedAcquisitionRoute?.id ?? acquisition.primaryRoute.id,
+        acquisitionRouteRole: selectedAcquisitionRoute?.role ?? acquisition.primaryRoute.role,
+        acquisitionRouteCostLevel: selectedAcquisitionRoute?.costLevel ?? acquisition.primaryRoute.costLevel,
+        acquisitionRouteAttempts,
+        acquisitionFallbackReason
       }
     }).where(eq(contentCollectionRuns.id, run.id)).returning();
+    await db.update(contentSources).set({
+      lastCollectedAt: completed.finishedAt ?? new Date(),
+      updatedAt: new Date()
+    }).where(eq(contentSources.id, source.id));
+    if (provenance.origin === "SYSTEM") {
+      await refreshSourceRuntimeQualification(source.id).catch(() => null);
+    }
     return completed;
   } catch (error) {
     await db.update(contentCollectionRuns).set({
       status: "FAILED",
       errorCode: errorCode(error),
       errorMessage: errorMessage(error),
-      finishedAt: new Date()
+      finishedAt: new Date(),
+      metadata: {
+        ...runMetadata,
+        acquisitionRouteAttempts
+      }
     }).where(eq(contentCollectionRuns.id, run.id));
+    if (provenance.origin === "SYSTEM" && input.qualificationOnly !== true) {
+      await refreshSourceRuntimeQualification(source.id).catch(() => null);
+    }
     throw error;
   }
 }

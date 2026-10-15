@@ -25,6 +25,12 @@ function assert(condition: unknown, code: string): asserts condition {
   if (!condition) throw new Error("COLLECTION_RUNNER_ACCEPT_FAILED:" + code);
 }
 
+function uniqueAcceptanceUrl(value: string, sourceId: string) {
+  const url = new URL(value);
+  url.pathname = url.pathname.replace(/\/$/, "") + "/accept-" + encodeURIComponent(sourceId);
+  return url.toString();
+}
+
 const HTML_FIXTURE = `<!doctype html>
 <html>
 <head>
@@ -96,10 +102,24 @@ async function main() {
       privateBlocked = error instanceof Error && error.message === "COLLECTION_URL_PRIVATE_BLOCKED";
     }
     assert(privateBlocked, "PRIVATE_URL_NOT_BLOCKED");
+    const previousInternalOrigins = process.env.COLLECTION_INTERNAL_SERVICE_ORIGINS;
+    process.env.COLLECTION_INTERNAL_SERVICE_ORIGINS = "http://127.0.0.1:16688";
+    const internalAllowed = await assertPublicHttpUrl("http://127.0.0.1:16688/weibo");
+    assert(internalAllowed.origin === "http://127.0.0.1:16688", "CONFIGURED_INTERNAL_ORIGIN_NOT_ALLOWED");
+    let unrelatedPrivateBlocked = false;
+    try {
+      await assertPublicHttpUrl("http://127.0.0.1:3000/");
+    } catch (error) {
+      unrelatedPrivateBlocked = error instanceof Error && error.message === "COLLECTION_URL_PRIVATE_BLOCKED";
+    }
+    assert(unrelatedPrivateBlocked, "UNRELATED_PRIVATE_URL_MUST_STAY_BLOCKED");
+    if (previousInternalOrigins === undefined) delete process.env.COLLECTION_INTERNAL_SERVICE_ORIGINS;
+    else process.env.COLLECTION_INTERNAL_SERVICE_ORIGINS = previousInternalOrigins;
 
-    const manual = parseHtmlDocument(HTML_FIXTURE, "https://example.com/manual");
-    assert(manual.length === 1 && manual[0]?.title === "OPC Collector Test Article", "MANUAL_PARSE_FAILED");
-    assert(manual[0]?.originalUrl === "https://example.com/test-article", "MANUAL_CANONICAL_FAILED");
+
+    const html = parseHtmlDocument(HTML_FIXTURE, "https://example.com/article");
+    assert(html.length === 1 && html[0]?.title === "OPC Collector Test Article", "HTML_PARSE_FAILED");
+    assert(html[0]?.originalUrl === "https://example.com/test-article", "HTML_CANONICAL_FAILED");
 
     const http = parseHtmlDocument(HTML_FIXTURE, "https://example.com/http", { collector: "http" });
     assert(http.length === 1 && Boolean(http[0]?.excerpt), "HTTP_PARSE_FAILED");
@@ -153,17 +173,32 @@ async function main() {
       enabled: true,
       authorityScore: 80,
       topics: ["acceptance"],
-      collectionConfig: {},
+      collectionConfig: { sourceFreshnessHours: 24 * 30 },
       signalConfig: {},
       metadata: { acceptance: true }
     });
 
-    const collectorOverride = async () => parseFeedDocument(RSS_FIXTURE, "https://example.com/feed.xml");
+    const collectorOverride = async () =>
+      parseFeedDocument(RSS_FIXTURE, "https://example.com/feed.xml").map((item, index) => ({
+        ...item,
+        excerpt: index === 0 ? "A".repeat(4500) : item.excerpt,
+        externalId: (item.externalId ?? "fixture") + ":" + sourceId,
+        originalUrl: item.originalUrl
+          ? uniqueAcceptanceUrl(item.originalUrl, sourceId)
+          : item.originalUrl
+      }));
 
     const first = await runSourceCollection(user, sourceId, {}, collectorOverride);
+    console.log("FIRST_RUN_DIAGNOSTIC=" + JSON.stringify({
+      receivedCount: first.receivedCount,
+      createdCount: first.createdCount,
+      duplicateCount: first.duplicateCount,
+      metadata: first.metadata
+    }));
     assert(first.status === "SUCCEEDED", "FIRST_RUN_FAILED");
     assert(first.receivedCount === 2, "FIRST_RUN_COUNT_WRONG");
     assert(first.createdCount === 2, "FIRST_RUN_CREATED_WRONG");
+    assert(first.status === "SUCCEEDED", "LONG_EVENT_SUMMARY_MUST_NOT_FAIL_RUN");
 
     const second = await runSourceCollection(user, sourceId, {}, collectorOverride);
     assert(second.status === "SUCCEEDED", "SECOND_RUN_FAILED");
@@ -186,7 +221,13 @@ async function main() {
     const searchRun = await runSourceCollection(user, sourceId, {}, async (method, requestedUrl) => {
       assert(method === "SEARCH", "SEARCH_METHOD_NOT_USED");
       assert(requestedUrl.startsWith("https://hn.algolia.com/api/v1/search_by_date?"), "SEARCH_RUN_URL_INVALID");
-      return search.items;
+      return search.items.map((item) => ({
+        ...item,
+        externalId: (item.externalId ?? "search") + ":" + sourceId,
+        originalUrl: item.originalUrl
+          ? uniqueAcceptanceUrl(item.originalUrl, sourceId)
+          : item.originalUrl
+      }));
     });
     assert(searchRun.status === "SUCCEEDED", "SEARCH_RUN_FAILED");
     assert(searchRun.createdCount === 1, "SEARCH_RUN_CREATED_WRONG");
@@ -222,12 +263,13 @@ async function main() {
       );
     assert(failedRuns.some((run) => run.errorCode === "COLLECTION_HTTP_503"), "FAILED_RUN_NOT_RECORDED");
 
-    console.log("COLLECTION_RUNNER_MANUAL_PARSE=PASS");
+    console.log("COLLECTION_RUNNER_HTML_PARSE=PASS");
     console.log("COLLECTION_RUNNER_HTTP_PARSE=PASS");
     console.log("COLLECTION_RUNNER_RSS_PARSE=PASS");
     console.log("COLLECTION_RUNNER_SEARCH_DISCOVERY=PASS");
     console.log("COLLECTION_RUNNER_RERUN_DEDUPE=PASS");
     console.log("COLLECTION_RUNNER_EVENT_SEED=PASS");
+    console.log("COLLECTION_RUNNER_EVENT_SUMMARY_BOUNDARY=PASS");
     console.log("COLLECTION_RUNNER_FAILURE_TRACE=PASS");
     console.log("COLLECTION_RUNNER_SSRF=PASS");
   } finally {

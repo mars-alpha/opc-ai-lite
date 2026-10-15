@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AdminCollectionStrategyPanel } from "./AdminCollectionStrategyPanel";
 import { AdminContentStudioWorkspace } from "./AdminContentStudioWorkspace";
 
-type View = "INTELLIGENCE" | "WORKBENCH" | "STRATEGY";
+type View = "INTELLIGENCE" | "WORKBENCH";
 type PublicationStatus = "DRAFT" | "REVIEW" | "PUBLISHED" | "ARCHIVED";
 
 type DiscoveryEvent = {
@@ -36,6 +35,7 @@ type RawItem = {
   originalUrl: string | null;
   author: string | null;
   excerpt: string | null;
+  metadata: Record<string, unknown>;
   platformMetrics: Record<string, unknown>;
   collectedAt: string;
   publishedAt: string | null;
@@ -43,12 +43,6 @@ type RawItem = {
   clusterId: string | null;
   keywords: string[];
   entities: string[];
-  collectionStrategies: Array<{
-    id: string;
-    name: string;
-    topics: string[];
-    languagePolicy: "ZH_PREFERRED" | "ZH_EN" | "ANY";
-  }>;
   observations: Array<{
     id: string;
     sourceId: string;
@@ -60,9 +54,62 @@ type RawItem = {
   }>;
 };
 
+function reviewLocalization(raw: RawItem) {
+  const value = raw.metadata?.reviewLocalization;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const item = value as Record<string, unknown>;
+  return {
+    originalTitle: typeof item.originalTitle === "string" ? item.originalTitle : raw.title,
+    originalExcerpt: typeof item.originalExcerpt === "string" ? item.originalExcerpt : raw.excerpt,
+    displayTitleZh: typeof item.displayTitleZh === "string" ? item.displayTitleZh : null,
+    displayExcerptZh: typeof item.displayExcerptZh === "string" ? item.displayExcerptZh : null,
+    translationStatus: typeof item.translationStatus === "string" ? item.translationStatus : "UNAVAILABLE"
+  };
+}
+
+function reviewTitle(raw: RawItem) {
+  return reviewLocalization(raw)?.displayTitleZh || raw.title;
+}
+
+function reviewExcerpt(raw: RawItem) {
+  return reviewLocalization(raw)?.displayExcerptZh || raw.excerpt;
+}
+
+type TopicDiagnosisPayload = {
+  verdict: "ADOPT_RECOMMENDED" | "WATCH_RECOMMENDED" | "REJECT_RECOMMENDED";
+  whyItMatters: string;
+  readerValue: string;
+  suggestedAngle: string;
+  duplicationRisk: "LOW" | "MEDIUM" | "HIGH";
+  timeliness: "LOW" | "MEDIUM" | "HIGH";
+  evidenceReadiness: "INSUFFICIENT" | "PARTIAL" | "SUFFICIENT";
+  differentiation: "LOW" | "MEDIUM" | "HIGH";
+  evidenceGaps: string[];
+  risks: string[];
+};
+
+type TopicDiagnosisArtifact = {
+  id: string;
+  version: number;
+  generatedMode: "AI" | "HUMAN" | "CORE";
+  payload: TopicDiagnosisPayload;
+  createdAt: string;
+};
+
+type DemandSignal = {
+  id: string;
+  demandType: "QUESTION" | "PAIN_POINT" | "REQUEST" | "OPINION";
+  titleZh: string;
+  summaryZh: string;
+  sampleCount: number;
+  uniqueAuthorCount: number;
+  representativeComments: Array<{ text: string; platform: string; author: string | null }>;
+  sourcePlatforms: string[];
+  confidence: number;
+  generatedMode: string;
+};
+
 const views: Array<{ key: View; label: string; description: string }> = [
-  { key: "STRATEGY", label: "采集策略", description: "决定系统去哪里找、找什么" },
-  { key: "INTELLIGENCE", label: "今日情报", description: "先判断今天什么值得关注" },
   { key: "WORKBENCH", label: "内容工作台", description: "把已采用选题推进到审核发布" }
 ];
 
@@ -123,12 +170,6 @@ function discoverySourceNames(raw: RawItem) {
   ].map((item) => item.trim()).filter(Boolean))];
 }
 
-function languagePolicyLabel(value: RawItem["collectionStrategies"][number]["languagePolicy"]) {
-  if (value === "ZH_PREFERRED") return "中文优先";
-  if (value === "ZH_EN") return "中文 + 英文";
-  return "不限制";
-}
-
 function spreadLabel(score: number | null) {
   if (score === null) return "待积累";
   if (score >= 70) return "正在升温";
@@ -136,7 +177,35 @@ function spreadLabel(score: number | null) {
   return "传播平稳";
 }
 
-export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: { initialView?: View }) {
+function diagnosisVerdictLabel(value: TopicDiagnosisPayload["verdict"]) {
+  if (value === "ADOPT_RECOMMENDED") return "建议采用";
+  if (value === "REJECT_RECOMMENDED") return "建议忽略";
+  return "建议观察";
+}
+
+function levelLabel(value: "LOW" | "MEDIUM" | "HIGH") {
+  if (value === "HIGH") return "高";
+  if (value === "MEDIUM") return "中";
+  return "低";
+}
+
+function evidenceLabel(value: TopicDiagnosisPayload["evidenceReadiness"]) {
+  if (value === "SUFFICIENT") return "较充分";
+  if (value === "PARTIAL") return "部分充分";
+  return "不足";
+}
+
+function demandTypeLabel(value: DemandSignal["demandType"]) {
+  const labels: Record<DemandSignal["demandType"], string> = {
+    QUESTION: "问题",
+    PAIN_POINT: "痛点",
+    REQUEST: "需求",
+    OPINION: "观点"
+  };
+  return labels[value];
+}
+
+export function AdminPlatformContentWorkspace({ initialView = "WORKBENCH" }: { initialView?: View }) {
   const [view, setView] = useState<View>(initialView);
   const [events, setEvents] = useState<DiscoveryEvent[]>([]);
   const [rawItems, setRawItems] = useState<RawItem[]>([]);
@@ -144,6 +213,12 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
   const [selectedContentId, setSelectedContentId] = useState("");
   const [loading, setLoading] = useState(true);
   const [busyEventId, setBusyEventId] = useState("");
+  const [topicDiagnosis, setTopicDiagnosis] = useState<TopicDiagnosisArtifact | null>(null);
+  const [diagnosisLoading, setDiagnosisLoading] = useState(false);
+  const [diagnosingEventId, setDiagnosingEventId] = useState("");
+  const [demandSignals, setDemandSignals] = useState<DemandSignal[]>([]);
+  const [demandLoading, setDemandLoading] = useState(false);
+  const [demandBusyEventId, setDemandBusyEventId] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [hotspotGroup, setHotspotGroup] = useState<"RISING" | "ACTIVE" | "NEW" | "ALL">("RISING");
 
@@ -172,7 +247,54 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
     }
   }
 
+  async function loadDemandSignals(eventId: string) {
+    if (!eventId) {
+      setDemandSignals([]);
+      return;
+    }
+    setDemandLoading(true);
+    try {
+      const data = await readJson(
+        "/api/admin/content/discovery/events/" + encodeURIComponent(eventId) + "/demand-signals"
+      );
+      setDemandSignals((data.items ?? []) as DemandSignal[]);
+    } catch (error) {
+      setDemandSignals([]);
+      setMessage(error instanceof Error ? error.message : "需求信号读取失败");
+    } finally {
+      setDemandLoading(false);
+    }
+  }
+
+  async function loadTopicDiagnosis(eventId: string) {
+    if (!eventId) {
+      setTopicDiagnosis(null);
+      return;
+    }
+    setDiagnosisLoading(true);
+    try {
+      const data = await readJson(
+        "/api/admin/content/discovery/events/" + encodeURIComponent(eventId) + "/topic-diagnosis"
+      );
+      setTopicDiagnosis((data.item ?? null) as TopicDiagnosisArtifact | null);
+    } catch (error) {
+      setTopicDiagnosis(null);
+      setMessage(error instanceof Error ? error.message : "选题诊断读取失败");
+    } finally {
+      setDiagnosisLoading(false);
+    }
+  }
+
   useEffect(() => { void loadAll(); }, []);
+
+  useEffect(() => {
+    if (view !== "INTELLIGENCE" || !selectedEventId) {
+      setTopicDiagnosis(null);
+      return;
+    }
+    void loadTopicDiagnosis(selectedEventId);
+    void loadDemandSignals(selectedEventId);
+  }, [view, selectedEventId]);
 
   const todayEvents = useMemo(() => events.filter((item) => todayKey(item.lastSeenAt)), [events]);
   const intelligenceEvents = useMemo(() => {
@@ -214,9 +336,6 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
         observations: [...existing.observations, ...item.observations].filter(
           (observation, index, list) =>
             list.findIndex((candidate) => candidate.sourceId === observation.sourceId) === index
-        ),
-        collectionStrategies: [...existing.collectionStrategies, ...item.collectionStrategies].filter(
-          (strategy, index, list) => list.findIndex((candidate) => candidate.id === strategy.id) === index
         )
       });
     }
@@ -230,13 +349,6 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
     const count = new Set(matches.flatMap((raw) => [raw.sourceId, ...raw.observations.map((item) => item.sourceId)])).size;
     return [event.id, count] as const;
   })), [events, rawItems]);
-  const selectedStrategyTopics = useMemo(() => uniqueTags(
-    ...selectedEventRaw.map((raw) => raw.collectionStrategies.flatMap((strategy) => strategy.topics))
-  ), [selectedEventRaw]);
-  const selectedStrategies = useMemo(() => [...new Map(
-    selectedEventRaw.flatMap((raw) => raw.collectionStrategies).map((strategy) => [strategy.id, strategy])
-  ).values()], [selectedEventRaw]);
-
   useEffect(() => {
     if (view !== "INTELLIGENCE") return;
     if (visibleHotspotEvents.some((item) => item.id === selectedEventId)) return;
@@ -244,6 +356,48 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
   }, [view, visibleHotspotEvents, selectedEventId]);
   async function openEvent(eventId: string) {
     setSelectedEventId(eventId);
+  }
+
+  async function generateTopicDiagnosis(eventId: string) {
+    setDiagnosingEventId(eventId);
+    setMessage(null);
+    try {
+      const response = await fetch(
+        "/api/admin/content/discovery/events/" + encodeURIComponent(eventId) + "/topic-diagnosis",
+        { method: "POST" }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? "选题诊断失败");
+      setTopicDiagnosis((data.item ?? null) as TopicDiagnosisArtifact | null);
+      setMessage("选题诊断已生成，请结合来源人工判断。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "选题诊断失败");
+    } finally {
+      setDiagnosingEventId("");
+    }
+  }
+
+  async function generateDemandSignals(eventId: string) {
+    setDemandBusyEventId(eventId);
+    setMessage(null);
+    try {
+      const response = await fetch(
+        "/api/admin/content/discovery/events/" + encodeURIComponent(eventId) + "/demand-signals",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ trigger: "ADMIN_EXPLICIT" })
+        }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? "需求信号生成失败");
+      setDemandSignals((data.items ?? []) as DemandSignal[]);
+      setMessage("需求信号已生成。评论只用于判断大家在问什么，不作为事实依据。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "需求信号生成失败");
+    } finally {
+      setDemandBusyEventId("");
+    }
   }
 
   async function decide(eventId: string, decision: "ADOPT" | "WATCH" | "IGNORE") {
@@ -325,13 +479,98 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
 
                   <section className="official-detail-section">
                     <div className="official-section-title"><strong>标签</strong><span>帮助快速理解主题</span></div>
-                    <div className="official-tag-row">{uniqueTags(selectedEvent.entities, selectedEvent.keywords, selectedStrategyTopics).map((tag) => <span key={tag}>{tag}</span>)}</div>
-                    {selectedStrategies.length ? (
-                      <div className="official-intelligence-provenance">
-                        <span>{"采集策略：" + selectedStrategies.map((strategy) => strategy.name).join(" · ")}</span>
-                        <span>{"语言：" + [...new Set(selectedStrategies.map((strategy) => languagePolicyLabel(strategy.languagePolicy)))].join(" · ")}</span>
+                    <div className="official-tag-row">{uniqueTags(selectedEvent.entities, selectedEvent.keywords).map((tag) => <span key={tag}>{tag}</span>)}</div>
+                  </section>
+
+                  <section className="official-detail-section official-demand-signals">
+                    <div className="official-section-title">
+                      <strong>需求信号 · 大家在问什么</strong>
+                      <span>评论只用于需求判断，不作为事实依据</span>
+                    </div>
+                    {demandLoading ? (
+                      <div className="admin-empty">正在读取需求信号…</div>
+                    ) : demandSignals.length ? (
+                      <div className="official-demand-grid">
+                        {demandSignals.map((signal) => (
+                          <article key={signal.id}>
+                            <header>
+                              <div><span>{demandTypeLabel(signal.demandType)}</span><strong>{signal.titleZh}</strong></div>
+                              <em>{signal.sampleCount + " 条"}</em>
+                            </header>
+                            <p>{signal.summaryZh}</p>
+                            <footer>
+                              <span>{signal.sourcePlatforms.join(" · ") || "评论来源"}</span>
+                              <span>{signal.uniqueAuthorCount ? signal.uniqueAuthorCount + " 位用户" : "作者数未知"}</span>
+                            </footer>
+                            {signal.representativeComments.length ? (
+                              <details>
+                                <summary>查看代表性评论</summary>
+                                {signal.representativeComments.map((item, index) => (
+                                  <blockquote key={index}>{item.text}</blockquote>
+                                ))}
+                              </details>
+                            ) : null}
+                          </article>
+                        ))}
                       </div>
-                    ) : null}
+                    ) : (
+                      <div className="official-demand-empty">
+                        <div><strong>还没有需求信号</strong><span>只在明确触发后按需采集有限评论，先清洗去重，再交给 AI 做需求归类。</span></div>
+                        <button type="button" className="btn btn-secondary" disabled={demandBusyEventId === selectedEvent.id} onClick={() => void generateDemandSignals(selectedEvent.id)}>
+                          {demandBusyEventId === selectedEvent.id ? "分析中…" : "采集需求信号"}
+                        </button>
+                      </div>
+                    )}
+                  </section>
+
+                  <section className="official-detail-section official-topic-diagnosis">
+                    <div className="official-section-title">
+                      <strong>选题诊断</strong>
+                      <span>AI / 规则只给建议，最终由你判断</span>
+                    </div>
+                    {diagnosisLoading ? (
+                      <div className="admin-empty">正在读取选题诊断…</div>
+                    ) : topicDiagnosis ? (
+                      <>
+                        <div className="official-diagnosis-head">
+                          <div><span>当前建议</span><strong>{diagnosisVerdictLabel(topicDiagnosis.payload.verdict)}</strong></div>
+                          <small>{"v" + topicDiagnosis.version + " · " + (topicDiagnosis.generatedMode === "AI" ? "AI 分析" : "规则分析")}</small>
+                        </div>
+                        <div className="official-diagnosis-grid">
+                          <article className="wide"><span>为什么重要</span><p>{topicDiagnosis.payload.whyItMatters}</p></article>
+                          <article className="wide"><span>对读者的价值</span><p>{topicDiagnosis.payload.readerValue}</p></article>
+                          <article className="wide"><span>建议写作角度</span><p>{topicDiagnosis.payload.suggestedAngle}</p></article>
+                          <article><span>证据充分度</span><strong>{evidenceLabel(topicDiagnosis.payload.evidenceReadiness)}</strong></article>
+                          <article><span>重复风险</span><strong>{levelLabel(topicDiagnosis.payload.duplicationRisk)}</strong></article>
+                          <article><span>时效</span><strong>{levelLabel(topicDiagnosis.payload.timeliness)}</strong></article>
+                        </div>
+                        {topicDiagnosis.payload.evidenceGaps.length || topicDiagnosis.payload.risks.length ? (
+                          <div className="official-diagnosis-notes">
+                            {topicDiagnosis.payload.evidenceGaps.length ? (
+                              <div><strong>还缺什么</strong>{topicDiagnosis.payload.evidenceGaps.map((item) => <span key={item}>{item}</span>)}</div>
+                            ) : null}
+                            {topicDiagnosis.payload.risks.length ? (
+                              <div><strong>需要注意</strong>{topicDiagnosis.payload.risks.map((item) => <span key={item}>{item}</span>)}</div>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </>
+                    ) : (
+                      <div className="official-diagnosis-empty">
+                        <div>
+                          <strong>先生成选题诊断</strong>
+                          <span>系统会结合当前事件、来源覆盖与已有分析给出建议，不会自动采用。</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          disabled={diagnosingEventId === selectedEvent.id}
+                          onClick={() => void generateTopicDiagnosis(selectedEvent.id)}
+                        >
+                          {diagnosingEventId === selectedEvent.id ? "诊断中…" : "生成选题诊断"}
+                        </button>
+                      </div>
+                    )}
                   </section>
 
                   <section className="official-detail-section">
@@ -339,15 +578,24 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
                     <div className="official-source-list">
                       {selectedEventRaw.length ? selectedEventRaw.map((raw) => (
                         <article key={raw.id}>
-                          <div><strong>{raw.title}</strong><span>{siteLabel(raw)} · {formatDate(raw.publishedAt || raw.collectedAt)}</span></div>
-                          {raw.excerpt ? <p>{raw.excerpt}</p> : null}
+                          <div><strong>{reviewTitle(raw)}</strong><span>{siteLabel(raw)} · {formatDate(raw.publishedAt || raw.collectedAt)}</span></div>
+                          {reviewExcerpt(raw) ? <p>{reviewExcerpt(raw)}</p> : null}
+                          {reviewLocalization(raw)?.translationStatus === "TRANSLATED" ? (
+                            <details>
+                              <summary>查看英文原文</summary>
+                              <strong>{reviewLocalization(raw)?.originalTitle}</strong>
+                              {reviewLocalization(raw)?.originalExcerpt ? <p>{reviewLocalization(raw)?.originalExcerpt}</p> : null}
+                            </details>
+                          ) : null}
                           <footer>
                             <div className="official-source-facts">
                               <span>{"发现来源：" + discoverySourceNames(raw).join(" · ")}</span>
-                              {raw.collectionStrategies.length ? <span>{"采集策略：" + raw.collectionStrategies.map((strategy) => strategy.name).join(" · ")}</span> : null}
                               <span>{interactionText(raw) || "暂无互动数据"}</span>
                             </div>
-                            {raw.originalUrl ? <a href={raw.originalUrl} target="_blank" rel="noreferrer">查看原文 ↗</a> : null}
+                            <div>
+                              {reviewLocalization(raw)?.translationStatus === "TRANSLATED" ? <span title={reviewLocalization(raw)?.originalTitle}>中英对照</span> : null}
+                              {raw.originalUrl ? <a href={raw.originalUrl} target="_blank" rel="noreferrer">查看原文 ↗</a> : null}
+                            </div>
                           </footer>
                         </article>
                       )) : <div className="admin-empty">暂无可展示原文。</div>}
@@ -355,11 +603,11 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
                   </section>
 
                   <footer className="official-decision-bar">
-                    <div><strong>人工判断</strong><small>核对来源后决定是否采用</small></div>
+                    <div><strong>人工判断</strong><small>{topicDiagnosis ? "结合诊断与来源决定是否采用" : "完成选题诊断后再做决定"}</small></div>
                     <div>
-                      <button type="button" className="btn btn-secondary" disabled={busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "WATCH")}>观察</button>
-                      <button type="button" className="btn btn-secondary" disabled={busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "IGNORE")}>忽略</button>
-                      <button type="button" className="btn btn-primary" disabled={busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "ADOPT")}>采用并进入内容工作台</button>
+                      <button type="button" className="btn btn-secondary" disabled={!topicDiagnosis || busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "WATCH")}>观察</button>
+                      <button type="button" className="btn btn-secondary" disabled={!topicDiagnosis || busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "IGNORE")}>忽略</button>
+                      <button type="button" className="btn btn-primary" disabled={!topicDiagnosis || busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "ADOPT")}>采用并进入内容工作台</button>
                     </div>
                   </footer>
                 </>
@@ -376,9 +624,6 @@ export function AdminPlatformContentWorkspace({ initialView = "INTELLIGENCE" }: 
         </section>
       ) : null}
 
-      {view === "STRATEGY" ? (
-        <AdminCollectionStrategyPanel />
-      ) : null}
     </div>
   );
 }

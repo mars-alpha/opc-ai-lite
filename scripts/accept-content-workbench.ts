@@ -72,12 +72,13 @@ assert(!admin.includes("updateAdminKnowledgeItem"), "DIRECT_KNOWLEDGE_UPDATE_MUS
 assert(studioUi.includes("审核通过"), "HUMAN_REVIEW_UI_MISSING");
 assert(studioUi.includes("正式发布"), "PUBLISH_UI_MISSING");
 assert(adminPage.includes("AdminPlatformContentWorkspace"), "PLATFORM_CONTENT_WORKSPACE_MISSING");
-assert(platformWorkspaceUi.includes('type View = "INTELLIGENCE" | "WORKBENCH" | "STRATEGY"'), "PLATFORM_CONTENT_OPS_VIEW_MODEL_MISSING");
-assert(platformWorkspaceUi.includes('initialView = "INTELLIGENCE"'), "PLATFORM_CONTENT_INTELLIGENCE_DEFAULT_MISSING");
+assert(platformWorkspaceUi.includes('type View = "INTELLIGENCE" | "WORKBENCH"'), "PLATFORM_CONTENT_OPS_VIEW_MODEL_MISSING");
+assert(platformWorkspaceUi.includes('initialView = "WORKBENCH"'), "PLATFORM_CONTENT_WORKBENCH_DEFAULT_MISSING");
 assert(platformWorkspaceUi.includes("<AdminContentStudioWorkspace"), "CONTENT_PRODUCTION_ENTRY_MISSING");
-assert(platformWorkspaceUi.includes("今日情报"), "INTELLIGENCE_ENTRY_MISSING");
 assert(platformWorkspaceUi.includes("内容工作台"), "WORKBENCH_ENTRY_MISSING");
-assert(platformWorkspaceUi.includes("采集策略"), "STRATEGY_ENTRY_MISSING");
+assert(!platformWorkspaceUi.includes("采集策略"), "LEGACY_STRATEGY_ENTRY_PRESENT");
+assert(!platformWorkspaceUi.includes("热点追踪"), "DUPLICATE_HOT_TRACKING_ENTRY_PRESENT");
+assert(adminPage.includes('redirect("/admin/intelligence")'), "CONTENT_DEFAULT_REDIRECT_TO_INTELLIGENCE_MISSING");
 assert(!platformWorkspaceUi.includes("开始整理"), "TOPIC_INTERMEDIATE_ACTION_PRESENT");
 assert(adoption.includes("ensureContentDraftForEvent"), "DIRECT_ADOPT_DRAFT_MISSING");
 assert(adoption.includes("autoLinked: true"), "AUTO_PROVENANCE_LINK_MISSING");

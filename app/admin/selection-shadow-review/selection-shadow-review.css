@@ -1,0 +1,31 @@
+.selection-gold-review-page { min-height: 100vh; }
+.selection-gold-status { align-self: flex-start; padding: 7px 10px; border: 1px solid #d8e3f5; border-radius: 999px; background: #f6f9ff; color: #53719e; font-size: 11px; font-weight: 800; }
+.selection-gold-summary { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 14px; }
+.selection-gold-summary span { padding: 6px 9px; border: 1px solid #e1e7ef; border-radius: 8px; background: #fff; font-size: 12px; color: #65748a; }
+.selection-gold-shell { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; min-height: 620px; }
+.selection-gold-list, .selection-gold-main { border: 1px solid #dfe6ef; border-radius: 12px; background: #fff; overflow: hidden; }
+.selection-gold-filters { display: flex; gap: 6px; padding: 10px; border-bottom: 1px solid #edf0f5; }
+.selection-gold-filters button { border: 1px solid #dfe6ef; background: #fff; border-radius: 7px; padding: 6px 9px; cursor: pointer; font-size: 12px; }
+.selection-gold-filters button.is-active { background: #eef4ff; color: #2864e8; border-color: #c8d8fb; }
+.selection-gold-items { max-height: 680px; overflow: auto; }
+.selection-gold-item { width: 100%; text-align: left; border: 0; border-bottom: 1px solid #edf0f5; background: #fff; padding: 11px 12px; cursor: pointer; }
+.selection-gold-item.is-active { background: #f4f7fd; }
+.selection-gold-item strong { display: block; font-size: 13px; line-height: 1.45; color: #27364b; }
+.selection-gold-item span { display: block; margin-top: 5px; font-size: 11px; color: #8793a5; }
+.selection-gold-main { padding: 18px; }
+.selection-gold-main h2 { margin: 0 0 8px; font-size: 20px; }
+.selection-gold-muted { color: #8190a5; font-size: 12px; }
+.selection-gold-summary-text { color: #526176; line-height: 1.7; margin: 12px 0; }
+.selection-gold-evidence { margin: 16px 0; display: grid; gap: 8px; }
+.selection-gold-evidence article { border: 1px solid #e4e9f0; border-radius: 9px; padding: 10px; }
+.selection-gold-evidence strong { display: block; font-size: 12px; color: #34455f; }
+.selection-gold-evidence p { margin: 6px 0 0; font-size: 12px; color: #65748a; line-height: 1.6; }
+.selection-gold-form { border-top: 1px solid #edf0f5; padding-top: 14px; display: grid; gap: 10px; }
+.selection-gold-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.selection-gold-actions button { border: 1px solid #d8e1ee; background: #fff; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: 700; }
+.selection-gold-actions button.is-active { border-color: #2864e8; color: #2864e8; background: #eef4ff; }
+.selection-gold-form select, .selection-gold-form textarea { width: 100%; border: 1px solid #d8e1ee; border-radius: 8px; padding: 9px; font: inherit; }
+.selection-gold-form textarea { min-height: 90px; resize: vertical; }
+.selection-gold-save { justify-self: start; border: 0; border-radius: 8px; background: #2864e8; color: #fff; padding: 9px 16px; font-weight: 800; cursor: pointer; }
+.selection-gold-save:disabled { opacity: .5; cursor: default; }
+@media (max-width: 900px) { .selection-gold-shell { grid-template-columns: 1fr; } .selection-gold-items { max-height: 300px; } }

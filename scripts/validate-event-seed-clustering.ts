@@ -21,6 +21,7 @@ for (const name of [
   assert(cluster.includes(name), "CLUSTER_FUNCTION_MISSING:" + name);
 }
 assert(cluster.includes("TITLE_EXACT"), "EXACT_TITLE_RULE_MISSING");
+assert(cluster.includes("ENTITY_ACTION_VERSION_EXACT"), "ENTITY_ACTION_VERSION_RULE_MISSING");
 assert(cluster.includes("TITLE_TOKEN_OVERLAP"), "TITLE_OVERLAP_RULE_MISSING");
 assert(cluster.includes("TIME_WINDOW"), "TIME_WINDOW_RULE_MISSING");
 assert(discovery.includes("findEventSeedCluster"), "DISCOVERY_CLUSTER_INTEGRATION_MISSING");

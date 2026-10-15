@@ -147,6 +147,12 @@ Business Task
 
 上下文治理见 `docs/CONTEXT_GOVERNANCE.md`。
 
+### Official AI Daily Content Boundary
+
+官方内容采集当前只服务 AI 日报；Content Core 继续拥有状态、校验、持久化与发布权，语义能力通过受控 Adapter / Skill 进入。
+
+具体生产阶段、Evidence 规则、Formatted Draft、Human Gate、Asset 与 Validator 只由 `docs/content/CONTENT_AI_DAILY_*` 四份 current contract 拥有，本架构文件不维护第二份内容流程正文。COS / Remotion 仍只是未来 Asset / Renderer Adapter 选择，不是当前运行时依赖。
+
 ## 7. Storage
 
 ### PostgreSQL

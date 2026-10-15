@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { contentWorkbenchError, requireAdminRequest } from "../../../../../../lib/server/admin/api";
-import { ingestRawItem, listRawItems } from "../../../../../../lib/server/content/discovery";
+import { listRawItems } from "../../../../../../lib/server/content/discovery";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +17,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  try {
-    await requireAdminRequest(request);
-    const body = await request.json().catch(() => null);
-    return NextResponse.json(await ingestRawItem(body));
-  } catch (error) {
-    return contentWorkbenchError(error, "RAW_ITEM_INGEST_FAILED") ??
-      NextResponse.json({ error: "RAW_ITEM_INGEST_FAILED" }, { status: 500 });
-  }
+  await requireAdminRequest(request);
+  return NextResponse.json(
+    { error: "RAW_ITEM_DIRECT_INGEST_RETIRED", owner: "SYSTEM_COLLECTION" },
+    { status: 410 }
+  );
 }

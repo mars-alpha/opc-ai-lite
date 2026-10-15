@@ -4,14 +4,20 @@
 
 ## 1. 当前产品阶段
 
-- 正式学习路径已完成并冻结：Track 01～05 共 81 节正式课程。
-- 当前课程目录、六步课程壳层、正式 Runtime 与学习路径展示均作为已确认基线。
-- 当前开发重点转向统一内容后台、AI 日报、进阶练习、移动端以及后续多端接入。
-- 正式域名：`https://opcai.fun`。
-- 当前生产服务器：`1.14.180.16`。
-- 生产链路：Nginx → PM2 `opc-ai` → Next.js:3000。
-- HTTP 已跳转 HTTPS；Let’s Encrypt 自动续期已配置。
-- 当前生产应用已重新部署到 main 基线 `89a58c3`；部署目录为 `/var/www/opc-ai`。
+- 正式学习平台与 81 节课程保持冻结基线；本轮只治理来源管理 → 热点追踪生产链，不改变课程前端。
+- 后台内容域当前只保留三个产品 Owner：`/admin/sources` 来源管理、`/admin/intelligence` 热点追踪、Adopt 后内容工作台。旧人工采集产品、独立 Automatic Collection workbench、Rising/上升趋势产品路径均已退出 current owner。
+- **Source Management 是唯一 Source 资产入口；SYSTEM Collection 是唯一正式采集执行基准。** 未来新增来源只能经 Discover → Check/Preview → Register → Qualify 后进入同一 SYSTEM Collection。
+- 正式生产闭环固定为：`Source Management → SYSTEM Collection → Raw/Observation → Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → Worth Practicing / Topic Momentum / Curation → Radar Snapshot → 热点追踪`。
+- Discovery Expansion current owner 为 `refreshSourceManagedEventExpansion`：只消费 current Source 已采 Raw，不创建 hidden expansion Source；168h bounded；成功 Event 6h cooldown、失败 Event 1h retry；出现 Practical Evidence 后只补证据，不自动调用 AI。
+- 「今日值得做」只使用 Worth Practicing，且必须有真实可执行实践：`OPC Value=AVAILABLE` + `Practical Evidence > 0` + 至少 2 条明确可执行 EXPERIENCE / TUTORIAL / USE_CASE / WORK_IMPACT 证据 + 至少 2 个独立实践来源 + 至少 2 种实践类型。`suggestedContentTypes` 只作为 AI 分析建议，不再作为入场门槛；纯新闻、泛分析、仅 whyItMatters 不进入。
+- 精选 owner 为 `bole-daily-curation-v6-recall-balanced`：Hard Gate 保持 AI relevance + ≤72h + CONFIRMED_OFFICIAL/CONFIRMED_MEDIA + MAJOR/NORMAL；在不降低事实门槛的前提下，提高 Freshness / Evidence Quality / Importance 权重，降低 Practical / Independence / Corroboration 对新近单源官方更新的早期惩罚；FEATURED≥66；TOP_PICK≥78 且要求更强 value/evidence gate。
+- 当前热点 owner 为 `topic-momentum-v7-independent-institutions-decay`：榜单统计过去 7 天，同一 Event 的独立账号/机构按 `originPublisher / author / Source identity` 归一；聚合器仅转发、且没有可识别原始账号/机构时不作为独立参与者；重复采集只算一次；每个参与者按 72 小时半衰期衰减。热度衡量讨论活跃度，不是报道质量，不改变 Fact Authority。趋势只允许比较持续覆盖的同一组参与者；缺少可比历史时 `trend=null`，不展示趋势线。
+- AI HOT 当前是 Source Directory 中一个 Aggregated Discovery Source（`source_radar_ai_hot`），通过 PUBLIC_JSON_API 进入 SYSTEM Collection；`factualSource=false / signalSource=true / referenceOnly=true`。AI HOT 与直连原站共享 originPublisher 去重，不取得 Fact Authority，也不拥有独立采集入口。
+- 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
+- Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
+- 真实 Development 闭环已验证：Source-managed Expansion 可产出 EXPERIENCE / TUTORIAL / USE_CASE / WORK_IMPACT Evidence；Event AI Analysis 可复用/刷新；Worth Practicing 已从 0 恢复为非空；Radar Snapshot 持久化 currentHot / worthPracticing / items。
+- `/admin/intelligence` 保持既有排版和 CSS：顶部当前热点、中部今日值得做、主时间线精选 / 全部动态。全部动态覆盖最近 7 天全部 Event；首批最多 120 条只是分页批量，按日期折叠、摘要最多 100 字，通过 cursor“加载更多”持续读取直到 7 天窗口全部 Event；产品总量不设 120 条上限。精选独立从完整 7 天 Event 窗口生成，因此不会因首页分页漏掉高分 Event。
+- 当前架构正文唯一 owner：`docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；实现映射唯一 owner：`docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。历史 Phase/Acceptance 只通过 Git 追溯，不再复制到 Current Facts。
 
 ## 2. 技术基线
 
@@ -26,6 +32,10 @@ Reverse proxy         Nginx
 Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
+
+采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current`，生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
+
+生产数据库迁移history为38条。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接。生产Web当前为 `/opt/opc-services/opc-admin-web-20261015`，由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。旧兼容维护包保留作Web回退。待办唯一见TASKS。
 
 正式应用入口是 `app/*`。根目录早期静态 HTML/CSS/JS 原型不属于正式 Runtime，并已退出 current tree。
 
@@ -110,53 +120,45 @@ Mobile 与未来微信/抖音小程序共享同一业务后台、用户、课程
 ### 管理后台
 
 `/admin` 当前正式导航：
-- 平台：运营总览、内容采集、课程维护、学习洞察；
+- 平台：运营总览；
+- 内容：来源管理、热点追踪；
+- 课程：课程维护、学习洞察；
 - 用户：用户与权益。
+
+`/admin/intelligence` 是唯一「热点追踪」产品入口；`/admin/sources` 是唯一来源配置入口。旧 `/admin/manual-collection` 只保留兼容重定向，不再拥有工作区、Task 或 Result。
+- `/admin/intelligence` 保持既有页面排版：当前热点 + 今日值得做 + 精选 / 全部动态时间线；全部动态以最近 7 天 bounded window + cursor 分页为正式读模型；单页最多 120 条，持续“加载更多”直到该 7 天窗口全部 Event 读取完。旧 Latest / Worth Practicing / Unverified 仅是内部数据状态，不再是产品栏目；旧 Rising / Formal Rising 算法不恢复。
+- `/admin/sources` 统一承担 Source / Creator / Qualification / Route / Onboarding；current acquisition 不提供认证 Connection / Login Runner。
+- 新增信息源采用 capability-first：先识别 URL / Creator，再用当前已部署的 server-native 能力做 bounded live Check / Probe，必须拿到真实 Preview 样本并通过重复检查后才可入库；理论支持、浏览器能打开、账号已登录或未来可开发能力都不能代替可采证据。
+- Website / Creator 当前以 RSS / Atom / Sitemap / 公开 API 或其他 server-native Route 的 live sample 为准；没有无需用户登录且服务器可运行的 Route 时保持 UNRESOLVED。
+- 国内热点发现继续复用 AI HOT / DailyHot / RSSHub / current Trend Discovery provider；国内 Browser Trend Runner 不再自动创建微博/抖音/小红书/知乎第二套 Trend Source。
 
 AI 能力配置与系统域仅保留产品边界，底层能力未完成前不暴露正式页面或导航。兼容路由 `/admin/platform`、`/admin/memberships` 只做重定向。
 
-`/admin/content` 对外统一称“内容采集”，固定三个视图：**采集策略 / 今日情报 / 内容工作台**。
-- 采集策略 owner：`AdminCollectionStrategyPanel`；Strategy 与 Source Registry 分离。当前可真实执行的 Collector 为 RSS / HTTP / Manual URL / HN Algolia / GitHub Search；RSSHub、Creator / Comment、MediaCrawler 类能力仍是扩展位。
+旧 `/admin/content` 不再拥有“热点追踪”或“采集策略”正式入口：默认重定向 `/admin/intelligence`；内容工作台兼容入口继续服务 AI Daily 链路，不再扩展第二套采集策略。
+- Current Collection 不再按“继续增加站点专用 Collector”扩张；默认复用通用 Acquisition Family：RSS/Atom、Sitemap、公开 API/JSON、generated feed/feed bridge、bounded Reader/parser、server-native Platform API、Search/Trend/Transcript。Browser/Login Session 不属于 current family。HN、GitHub、DailyHot 等只是逻辑 Source / provider 配置，不应各自复制一套采集生命周期。
 - Collector 固定 `REFERENCE_ONLY`，只返回引用、文本、指标与 metadata，不拥有长期保存媒体的权限。
-- Raw Item 有 URL 时按 canonical URL 全局去重，Observation 保存多 Source / Platform 发现事实。
-- Event Seed / Expansion / Cluster / Signal 由确定性 Core 运行；复杂分数只用于排序与审计，不作为普通管理员主界面。
-- 今日情报由 Human 执行 ADOPT / WATCH / IGNORE；Discovery 不直接写 Content。
-- ADOPT 由 `lib/server/content/adoption.ts` 幂等建立 Content DRAFT、关联 Evidence，并进入 `AdminContentStudioWorkspace`。
-- Content Brief Enrichment 是 ADOPT 后的可选 AI 能力，只补核心观点 / 受众 / 目的 / 标签；AI 不拥有 Event Decision、Content 状态或发布权，未配置模型时 Core 流程仍可运行。
-- 内容工作台唯一 UI owner 为 `AdminContentStudioWorkspace`；旧 AdminContentConsole / Lifecycle / Knowledge Routing 展示层已退出 current tree。
-- 审核状态固定为 DRAFT → REVIEW → PUBLISHED；没有实际结果不得审核通过。
+- Raw Item 的 canonical URL 去重只是第一级确定性去重；同一事实不同 URL 继续通过 normalized title / entity+action+version / Event semantic clustering 聚合。Observation 保存多 Source / Platform 发现事实，禁止把“URL 不同”误当成“Event 不同”。
+- 同一事实若由多个来源发现，不因“工具重复”删除来源观察：相同 canonical URL 只保留一个 Raw Item，但 `content_raw_item_observations` 分别保留来源 / 平台发现事实；不同原文 URL、不同报道角度或不同观点继续作为独立 Raw Item，在 Event / Cluster 层再聚合，不提前抹平观点差异。
+## 7A. 发现与采集当前收口
 
-`/admin/courses` 以 `learningTracks` + `formalLessonSpecs` 作为 5 Track / 81 Lesson 正式身份源。课程更新固定走 `DRAFT → REVIEW → PUBLISHED`；正式发布通过 Course Maintenance version 能力写入历史，并同步 Learning Path / Lesson Runtime / 目录标题。81/81 Lesson 的 Published Check、Practice 与 Admin Snapshot identity 已对齐；课程维护不调用 Course Builder Workflow，也不重新生成课程内容。
+- 自动链与人工AI已分离；生产迁移与唯一SYSTEM timer切换已完成。部署位置见§2，当前能力缺口见§7B，运行规则见采集架构合同§13。
 
-Learning Insight V2 已完成真实闭环：正式课程列表固定来自 81 Lesson Registry；Effective Evidence Set 是 AI 证据唯一入口；流程为 Human Gate 1 → Task A 整课诊断 → Task B 文本替换 Patch → 学员观感 Before / After Preview → Human 发布。Issue Cycle 只按当前周期计算风险，`REVIEWED / DISMISSED / WATCHING` 退出当前未处理风险；红/黄/绿排序仍由确定性 Core 控制。AI 不拥有课程结构、Issue 状态或最终发布权。
+- Current 架构只认 `docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；Current 代码映射只认 `docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。
+- Source / Creator / Qualification / Acquisition Route 的产品 Owner 只有 Source Management；Collection executor 只有 SYSTEM Collection；fixed tick 只有 `run-server-native-automatic-cycle.ts`。
+- Fact / Signal / Presentation / Operations Authority 严格隔离：Aggregator / Trend / Engagement / Topic Momentum 不提升 Fact Authority；Coverage-critical Source 不自动停用。
+- 当前生产链不依赖 Login/Browser Session；X / 小红书旧 Runner、Manual Collection Core、Rising Score/Shadow 以及 hidden Expansion Source 均不属于 current runtime。
 
-当前可重跑验收、历史 simulation、人工临时验收和一次性修复过程不再写入本文件；过程证据通过 Git history、validators 和 acceptance scripts 追溯。
+## 7B. 来源管理 / 热点追踪已实现与缺口（2026-10-15代码核对）
 
-知识更新 / Knowledge Proposal 仍可通过现有 Bridge 进入 Course Maintenance DRAFT，用于非 Learning Insight AI 自动更新场景；该 Bridge 保留 sourceContext、冲突保护与可重跑 acceptance。Learning Insight V2 的 AI 更新链已不再复用这条二次提交路径：Human 在学员观感 Before / After Preview 完成最终确认后，由 Core 复用现有 Course Maintenance 发布能力直接生成正式新版本并留下 PUBLISHED 历史；已有人工 DRAFT / REVIEW 时仍 fail-closed，不静默合并或覆盖。
-
-学习洞察 V2 current owners 固定为 `docs/learning-insight/` 下四份契约：`LEARNING_INSIGHT_WORKBENCH_V2_PRODUCT_CONTRACT.md`、`LEARNING_INSIGHT_AI_PROMPT_CONTRACT.md`、`LEARNING_INSIGHT_STRUCTURED_OUTPUT_CONTRACT.md`、`LEARNING_INSIGHT_DETERMINISTIC_VALIDATOR_CONTRACT.md`。Repository Governance 只允许这四份 current owner。
-
-V2 的职责边界固定为：机械代码负责采集、聚合、阈值、去重、课程定位、状态、Patch 校验与最终发布动作；Human 只保留两次明确 Gate——Gate 1“是否交给 AI 分析”和 Final Preview Gate“是否发布最终版本”；AI 只做 Task A“整课诊断 + 判断当前课程是否需要修改”和 Task B“为当前单一课程生成文本替换 Patch”。Task A / Task B 均使用固定 Prompt 与纯 JSON Schema，所有 evidence_ref / course_id / path / current_value 必须通过确定性校验；AI 不直接拥有 Learning Issue 状态，也不拥有最终发布权。
-
-Learning Insight 数据边界已增加 Source Matrix：当前确定性自动聚合只包括 Step 3 Check 异常、Step 4 Practice 困难、提示使用率高和帮助度低；`still_confused` 当前属于“已有事件采集但尚未形成聚合规则”。内容疑似错误 / 内容待更新核查当前没有统一自动入口，必须来自管理员、知识更新、内容采集或可信来源 Evidence，不能由学员反馈直接生成，也不能由 AI 凭模型常识自行声明。Task A 输入已收敛为课程级 `course_issue_bundle + course_issue_timeline + data_availability`，必须一次分析当前课程累计问题；缺失数据明确 unavailable，不允许补造。
-
-Learning Insight Workbench 已按 V2.1「学习洞察」重构：左侧为“课程诊断”状态列表，一行只代表一门课程；右侧主工作区按“课程抬头 → 01 问题汇总 → 02 真实数据 → 03 处理这门课程 → 04 AI 综合诊断”组织。01 问题汇总只做课程级统计，不可点击、不保存问题选中状态，也不驱动 02。02 唯一事实入口为 Effective Evidence Set，只提供“学习反馈 / 学习行为”两个互斥视图；反馈默认前 5 条并支持查看全部，行为按指标卡展示，并叠加有效 / 仅供参考 / 排除摘要。03 固定为“无需处理 → 继续观察 → 人工修正 → AI分析/更新对照”；04 只承载整课诊断。顶部流程条当前固定为“系统发现 → 人工确认 → AI 诊断 → 确认发布”。课程诊断列表只保留“搜索课程 + 风险筛选”，默认按确定性 Core 的排列顺序检查。
-
-当前 Course Health Core 使用现有真实数据生成：累计反馈数、累计问题数、未处理问题数、最老未处理问题时间、学习问题的学员影响人数、课程首次问题时间、最近问题时间、正式处理次数，以及按 issueCategory 聚合的 occurrenceCount / firstSeenAt / lastSeenAt / affectedUserCount；内容治理项不计入学员影响人数。累计反馈唯一 owner 为课程级 `learningFeedback` 全量记录按 lessonId 统计，不使用 Course Insight 数量代替反馈数；02“学习反馈”与顶部“累计反馈”必须使用相同课程级口径，不再按当前 Issue 过滤。正式处理次数唯一 owner 为 `lessons.version`，规则固定为 `max(0, version - 1)`，只代表已正式发布的课程更新，不统计 DRAFT / REVIEW / CANCELLED。时间来源固定为现有 courseInsights / learningFeedback 的 createdAt / updatedAt；不使用 updatedAt 冒充首次时间。当前仍没有统一 owner 的上线时间、学习人数、完成率、近 7/30 天趋势，因此不会在 UI 中预造。
-
-课程风险排序由确定性 Core 完成，并固定使用“当前未处理问题”而不是历史累计问题：未处理问题 ≥10 → ATTENTION（红）；未处理问题 5～9 → WATCH（黄）；未处理问题 0～4 → NORMAL（绿）；Visual Review 绿色样本固定使用 ≤1。REVIEWED / DISMISSED 不继续抬高风险。默认排序权重固定为红 > 黄 > 绿；同颜色内只按 oldestOpenIssueAt 从早到晚排序，积压越久越靠前；时间完全一致时仅按 courseKey 稳定排序。openIssueCount、affectedUserCount、最近更新时间均不得参与同颜色默认排序。该规则只用于当前 Course Health 排序与提示，不属于 AI 自动评分。
-
-V2 Patch 当前只允许替换现有 AdminCourseSnapshot 的字符串叶子字段；不允许 AI 增删 Step / 卡片 / Check / Practice，不允许修改 ID、questionType、correctValues / correctAnswer、passScore / 分值、权限、状态或版本。需要结构变化时必须返回 `REQUIRES_MANUAL_STRUCTURE_CHANGE`，另开明确人工任务。
-
-Development `opc_ai_dev` 与 Production `opc_ai_prod` 当前均为 Drizzle migration `0000`～`0025`（26 条），并已迁到轻量服务器本机 PostgreSQL 14。服务器 PostgreSQL 仅监听 `127.0.0.1:5432`；本地开发通过 SSH 隧道 `127.0.0.1:15432 → 服务器 127.0.0.1:5432` 访问 `opc_ai_dev`。Development 应用账号为 `opc_ai_dev_app`，Migration 账号为 `opcai`；Production 应用账号为 `opc_ai_prod_app`。Development / Production 每天 03:30 自动备份，保留 7 天。
-
-用户与权益当前真实能力：用户搜索、ACTIVE / DISABLED、学习概况、会员开始/到期/永久/延长/取消，以及管理员审计。历史 `users.admin_note` 仅作为数据库兼容字段，不属于当前产品 contract。
-
-“用户与权益”历史测试账号 `test-*@dev.opcai.local` 共 11 个已清除，真实管理员保留。内容采集历史 E2E / acceptance / 演示数据已从 Development 与 Production 的全部 `content_*` 表清场；当前内容采集从空数据基线开始，不再把历史两条 Content Draft、E2E Source、Raw Item、Event、Review 或 Audit 当作正式事实。
-
-历史模拟课程、模拟 Issue、模拟 learningFeedback、Visual Review 课程数据与旧 `demo-learning-*` 均已清理。Development 不再保留额外的模拟 Track 01 课程；需要测试 Learning Insight 时，只允许使用不会注册为正式课程、不会写入正式 Runtime PUBLISHED Check / Practice 的隔离测试数据。
-
-AI 日报、热点能力练习、实操项目和课程维护可以共享 Event / Source，但不共享内容模板。当前后台课程更新直接维护现有正式课程 snapshot，不调用 Course Builder Workflow；Course Builder 继续只负责独立的课程生产流程。
+- 已实现：Source Identity与Acquisition Route分离、显式路由/资格、SYSTEM唯一周期、规则召回、Raw/Observation去重、Event/Evidence、Momentum/Curation及共享实践门槛。来源目录为实时数据，不能以固定数量作为产品事实。
+- 海外出口仅部分统一：RSS中DeepMind显式走Relay，其余海外Feed仍可能直连；Deno当前固定四类provider，不是任意URL代理。统一Egress是目标，尚未实现全源覆盖。
+- HTTP尚未保存ETag/Last-Modified或处理304跳过；已有cadence/治理与有限网络重试，不等同已具备按七日产出的自适应频率和完整失败退避。
+- 列表已有Feed正文优先、字段完整性和七日可获取窗口记录；没有完整的按需详情队列、全源分页积压/正文缺口诊断或可验证原创率。七日补采不保证上游完整历史。
+- Radar持久化快照存在，但读取没有按generatedAt判定过期；内存TTL不能保证数据新鲜。Decision、Event更新、审计当前非同事务；忽略后的即时和跨进程一致性仍需修正。
+- 来源启停/归档尚未与操作者审计同事务；onboarding资格操作仍固定写QUALIFIED阶段，不能把此标签当真实AUTO_READY证明。
+- 当前发现以URL预览/注册及已有来源目录为基础；尚无独立候选来源待审表。主题规则召回不证明实践作者覆盖充分。
+- 热点、精选、今日值得做为三个独立维度，判定规则由采集合同负责。今日值得做依赖OPC分析及实践证据；无人触发的采集不调用AI补资格。ADOPT目前只记录采用意图，不代表内容工作台生产链已打通。
+- 证据限度：部署、迁移与单轮真实采集已验证；连续72小时稳定性、来源发现召回率、登录后页面体验尚未完成验收。本轮只核对本地代码与既有部署记录，未重新探测服务器实时健康。
 
 ## 8. 会员与公众号
 
@@ -172,7 +174,7 @@ AI 日报、热点能力练习、实操项目和课程维护可以共享 Event /
 
 ## 9. 数据与存储方向
 
-数据库技术边界固定为标准 PostgreSQL + Drizzle；当前 Development / Production 均使用轻量服务器本机 PostgreSQL，以独立数据库与账号隔离。TencentDB 已退出 current runtime path。
+数据库技术边界固定为标准 PostgreSQL + Drizzle；当前 Development / Production 均使用轻量服务器本机 PostgreSQL，以独立数据库与账号隔离。原按量 TencentDB PostgreSQL 已销毁并进入隔离/回收流程，且已退出 current runtime path。
 
 Workbench 当前数据边界：
 - PostgreSQL：身份、Workspace、权限、Workflow/Prompt/Skill 配置、最小运行状态、第三方连接，以及 OPC AI 官方业务事实；
@@ -203,6 +205,18 @@ Task B 当前共享 owner 为 `lib/server/learning-insights/task-b.ts`。独立 
 
 03「处理这门课程」当前按钮顺序固定为“无需处理 → 继续观察 → 人工修正 → AI分析”。人工修正使用显式 URL `/admin/courses?course=<maintenanceKey>&intent=edit` + sessionStorage fallback：课程维护 Server Page 把目标课程与 EDIT intent 直接传入 Registry；已有 DRAFT/REVIEW 直接打开对应候选，无活动候选则创建人工 DRAFT 并立即进入 EDIT，不再只落到课程维护首页。AI 分析运行中按钮显示“AI分析中…”，Task A→Task B 成功后同一按钮变为“更新对照”，不再显示第二个“生成具体修正方案”。
 
+## 10A. AI Collection System Current Architecture
+
+`Source Management / Onboarding → Source Identity → Acquisition Route → Qualification → SYSTEM Collection → Relevance → Raw/Observation → Layered Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → Worth Practicing / Topic Momentum / Curation → Radar Snapshot → Hot Tracking`
+
+固定边界：
+- `runSourceCollection` / `runSystemSourcePortfolio` 负责正式采集；operator-added Source 与 baseline Source 走同一执行链。
+- `run-server-native-automatic-cycle.ts` 是 fixed tick 唯一 owner，并依次执行 due Source、Qualification、bounded Discovery Expansion、bounded Topic Momentum、Radar Snapshot。
+- Discovery Expansion 与 Topic Momentum 都只能复用 Source Management 已采 Raw；不得创建第二来源池。
+- AI HOT / DailyHot 等聚合器只提供 Discovery / Hot Signal；origin 去重后才计独立来源；事实确认仍来自合格 Fact Source。
+- 旧 Rising Score / Formal Rising、Manual Collection 产品与 Login/Browser acquisition owner 已退出 current tree。
+- 热点追踪页面只接上述数据，不改现有排版和 CSS。
+
 ## 11. 当前下一步
 
 当前状态：`LEARNING INSIGHT V2 CLOSED LOOP / ISSUE CYCLE / PASS`。
@@ -225,3 +239,7 @@ Learning Insight Task A 当前 AI Provider 事实：Development 已通过现有 
 Task A 真实 Provider Acceptance 已 PASS：使用一门正式课程完整 Step 1～6 + 临时 acceptance Issue，通过 Human Gate 1 后调用真实 DeepSeek，输出通过 `learning_issue_diagnosis_v2` Schema / Evidence / Course / Step Validator；测试 Issue 与本次 AI Run 已精准清理，未创建 Course Candidate。
 真实 Provider 回归暴露并已修正两项工程边界：整课诊断请求超时由通用 45 秒改为 Task A 显式 120 秒；Prompt 现在向模型提供 allowed fields / enums / exact_shape。Provider 返回但 Validator 拒绝时，FAILED ai_runs 保存 rawOutput 用于审计，不进入正式诊断。
 当前真实 Development 学习数据尚不足以产生 Learning Issue：lesson_check_responses、practice_submissions、LESSON_HELPFULNESS、hint_revealed 当前无可聚合样本，因此 Task A 产品态 Human Review 暂无真实课程可运行；不得为进入 Task A 人工伪造正式问题。
+
+- 临时 Cluster Human Review 测试面已退出 current 产品：`/admin/cluster-review`、对应 API、AdminClusterHumanReview、Development review service 与专用 review script/package entry 已物理删除；后台不再存在「内部 / Cluster 审核」菜单。正式 Event clustering / ground-truth / calibration 核心能力保持不变，不因测试页面退出而删除。
+
+- 内容域当前能力与缺口见§7B；历史Expansion和E2E清理过程退出当前事实正文。

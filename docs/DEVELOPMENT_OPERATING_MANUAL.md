@@ -210,6 +210,22 @@ OPC 会员固定增加：
 
 管理员看到业务任务，不先看到数据库字段。
 
+内容采集当前只有一个正式内容产品：**AI 日报**。内容生产的字段、阶段、Validator 和实施 Mapping 由 `docs/content/CONTENT_AI_DAILY_*` 四份 current contract 拥有；本手册只规定开发顺序与治理，不复制其结构正文。
+
+采集层 current architecture 固定为：
+
+`Source Management → Qualified / Enabled Source → SYSTEM Collection Runtime → Raw / Observation → Dedup → Event / Evidence → Event Momentum → 热点追踪`
+
+固定治理：
+- 不再存在独立“人工采集”产品；管理员新增网站、RSS、Creator、账号、持续关注条件都在来源管理配置；current Acquisition Route 必须无需用户交互登录并可由服务器持续运行，Browser/Login Session 不进入 current acquisition；
+- 新增来源必须 capability-first：先做当前能力的 bounded live Check / Probe 并取得真实 Preview 样本，再允许 Register；无法证明当前可采则不入库；
+- SYSTEM Collection Runtime 是唯一执行基准，operator-added 只是 Source provenance，不创建第二套采集任务生命周期；
+- 旧 Rising / Formal Rising 评分不恢复；Hot Tracking 的早期升温由 Event Momentum v2 直接计算，Google Trends、平台排名、GitHub/HN rank 等仍只能作为 Discovery Signal；
+- Event Momentum 分 RISING（0–24h）与 SUSTAINED（24–168h），按独立来源、Creator、跨日、跨平台/实践与互动判断；文章重复、同源重复不得增加独立来源数；
+- Event Momentum 只负责 PRESENTATION_ONLY，不修改 Verification / Fact Authority；
+- Topic Momentum follow-up 与高频 Source Cycle 解耦，避免 3–7 天追踪拖慢基础采集；
+- 历史 Manual / Rising 文件只能作兼容或 Git 追溯，不得作为新任务入口继续扩展。
+
 ### 5.2 AI 能力配置
 
 必须补齐：
@@ -344,7 +360,11 @@ OPC 会员固定增加：
 
 ### 7.2 OPC AI 官方内容
 
-默认只保留一次必要 Human Gate。
+默认不增加无信息增量的重复 Human Gate。
+
+AI 日报当前固定有两次不同职责的 Gate：
+- 具体 Gate 名称、输入和职责以 `docs/content/CONTENT_AI_DAILY_PRODUCT_CONTRACT.md` 为唯一 owner；
+- 本手册只确认它们不是“审核通过后再点一次发布”的重复 Gate。
 
 如果：
 - 人工确认时已经看到最终内容、证据和去向；
@@ -537,7 +557,43 @@ MVP 推荐：
 - 输出；
 - 删除哪些旧 UI。
 
-### Phase C — Workbench Product Spec
+### Phase C — AI Daily Discovery → Intelligence → Content Pipeline
+
+当前内容系统优先执行，唯一产品边界 owner 为 `docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`。
+
+Current sequence（历史 Phase 020–028 已退出 current roadmap，由 Git 追溯）：
+1. Source Management：Source / Creator / Qualification / Route / Add Source / Collection Conditions 唯一配置面；current acquisition 不提供登录 Connection / Browser Session；
+2. SYSTEM Collection Runtime：唯一采集执行基准，所有已启用来源进入统一 Raw / Observation；
+3. Entity / Event / Verification：事实判断独立于热度；
+4. Event Momentum：Event 后 0–24h 判断 RISING，24–168h 判断 SUSTAINED，持续观察 independent Source / Creator participation / active days / cross-platform / practical evidence / engagement；
+5. 热点追踪：今日值得看 / 精选 / 全部动态 / 热点榜；旧 Rising Score 不再是 current view 或 Hotspot Gate；
+6. Comment Demand Mining：只输出 Demand Signal；
+7. Human Acceptance；
+8. 上游闭环后再重新规划 Content Workbench。
+
+每个 Phase 必须遵守：
+- 先读 COLLECTION_ARCHITECTURE_CONTRACT.md::3A；
+- 先写/更新 deterministic Validator 或 acceptance；
+- 不建立第二套 Source / Raw / Event / Evidence / Content 状态；
+- 完成后运行 content:workspace-responsibility:check；
+- 涉及 UI 必须 Human Review / USER_APPROVED 后才能进入依赖该 UI 的下一阶段。
+
+AI Daily Content Contract 继续拥有 Adopt 后 Topic Diagnosis → Evidence Pack → Outline → Draft → Formatted Draft → Review → Publish 的内容生产合同，但不得反向拥有采集、Source、Event Verification 或 Hotspot Ranking。
+
+当前不做：
+- 为页面简化提前合并业务 Owner；
+- Raw 直接进入 Draft；
+- 评论 Demand Signal 充当 Fact Evidence；
+- 粉丝/播放指标直接决定 Hotspot；
+- 未落地 Capability 标记 READY；
+- 把 Runtime Health（LIVE_PASS / LOGIN_REQUIRED 等）直接当 Source Qualification（AUTO_READY / CONDITIONAL 等）；
+- 因某个平台存在 Collector/Route 就默认加入 AUTO；
+- 门户转载数量直接增加 Evidence Count；
+- 全平台统一使用单一播放/粉丝阈值；
+- 评论默认全量持续抓取；
+- AI 自动发布。
+
+### Phase D — Workbench Product Spec
 
 目标：
 在不依赖 Admin UI 的情况下单独设计个人工作台。
@@ -554,7 +610,7 @@ MVP 推荐：
 
 Human Review 后再实现。
 
-### Phase D — Workbench Foundation
+### Phase E — Workbench Foundation
 
 实现：
 - Workspace；
@@ -566,7 +622,7 @@ Human Review 后再实现。
 - Template Reader；
 - Export。
 
-### Phase E — Connections / Templates
+### Phase F — Connections / Templates
 
 实现：
 - 飞书；
@@ -574,10 +630,9 @@ Human Review 后再实现。
 - 用户私有配置；
 - 版本管理。
 
-### Phase F — Official Platform Automation
+### Phase G — Other Official Platform Automation
 
-再回到：
-- AI 日报；
+AI 日报核心链完成后，再评估：
 - Knowledge；
 - Practice；
 - Course Impact；
@@ -707,6 +762,13 @@ npm run learning:course-governance:check
 npm run learning:course-production-workflow:check
 npm run learning:formal-registry:check
 npm run scripts:current:check
+```
+
+内容系统：
+
+```bash
+npm run content:workspace-responsibility:check
+npm run content:collection-architecture:check
 ```
 
 数据库：

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import "./official-content.css";
 import { AdminPlatformContentWorkspace } from "../../../components/AdminPlatformContentWorkspace";
 import { getSessionUser, SESSION_COOKIE } from "../../../lib/server/auth/service";
@@ -9,7 +10,10 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminContentPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   const params = await searchParams;
-  const initialView = params.view === "strategy" ? "STRATEGY" : params.view === "workbench" ? "WORKBENCH" : "INTELLIGENCE";
+  if (params.view !== "workbench") {
+    redirect("/admin/intelligence");
+  }
+  const initialView = "WORKBENCH";
   const cookieStore = await cookies();
   const user = await getSessionUser(cookieStore.get(SESSION_COOKIE)?.value ?? null);
 
@@ -46,7 +50,7 @@ export default async function AdminContentPage({ searchParams }: { searchParams:
         <div>
           <span>PLATFORM / CONTENT</span>
           <h1>内容采集</h1>
-          <p>先判断今天值得关注什么，再整理内容；采集规则单独配置，不把所有动作堆在同一屏。</p>
+          <p>已采用的 AI 事件在这里继续整理、审核和发布。</p>
         </div>
       </div>
       <AdminPlatformContentWorkspace initialView={initialView} />

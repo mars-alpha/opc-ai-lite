@@ -3,8 +3,9 @@ import "server-only";
 import { and, gte, lte } from "drizzle-orm";
 import { getDatabase } from "../db";
 import { contentEvents } from "../db/schema";
+import { buildEntityActionVersionKey } from "./raw-relevance-dedup";
 
-export const EVENT_SEED_CLUSTER_RULE_VERSION = "event-seed-cluster-v1";
+export const EVENT_SEED_CLUSTER_RULE_VERSION = "event-seed-cluster-v2";
 export const EVENT_SEED_CLUSTER_TIME_WINDOW_HOURS = 72;
 export const EVENT_SEED_CLUSTER_THRESHOLD = 80;
 
@@ -17,6 +18,7 @@ type SeedTerms = {
   title: string;
   keywords?: string[];
   entities?: string[];
+  eventType?: string;
   observedAt: Date;
 };
 
@@ -25,6 +27,7 @@ type EventTerms = {
   title: string;
   keywords: unknown;
   entities: unknown;
+  eventType?: string;
   firstSeenAt: Date;
   lastSeenAt: Date;
 };
@@ -32,7 +35,7 @@ type EventTerms = {
 export type EventSeedClusterScore = {
   eventId: string;
   score: number;
-  reason: "TITLE_EXACT" | "TITLE_TOKEN_OVERLAP";
+  reason: "TITLE_EXACT" | "ENTITY_ACTION_VERSION_EXACT" | "TITLE_TOKEN_OVERLAP";
   metadata: {
     titleScore: number;
     tokenOverlap: number;
@@ -40,6 +43,7 @@ export type EventSeedClusterScore = {
     keywordOverlap: number;
     entityOverlap: number;
     hoursApart: number;
+    semanticKey?: string;
     rules: string[];
   };
 };
@@ -125,10 +129,44 @@ export function scoreEventSeedCandidate(seed: SeedTerms, candidate: EventTerms):
   const candidateTime = candidate.lastSeenAt.getTime();
   const hoursApart = Math.abs(observed - candidateTime) / (60 * 60 * 1000);
   if (hoursApart > EVENT_SEED_CLUSTER_TIME_WINDOW_HOURS) return null;
+  if (
+    seed.eventType &&
+    seed.eventType !== "INDUSTRY_HOTSPOT" &&
+    (candidate.eventType ?? "INDUSTRY_HOTSPOT") !== "INDUSTRY_HOTSPOT" &&
+    seed.eventType !== candidate.eventType
+  ) return null;
 
   const normalizedSeed = normalizeEventSeedTitle(seed.title);
   const normalizedCandidate = normalizeEventSeedTitle(candidate.title);
   if (!normalizedSeed || !normalizedCandidate) return null;
+
+  const seedSemanticKey = buildEntityActionVersionKey({
+    title: seed.title,
+    entities: stringList(seed.entities ?? []),
+    eventType: seed.eventType
+  });
+  const candidateSemanticKey = buildEntityActionVersionKey({
+    title: candidate.title,
+    entities: stringList(candidate.entities),
+    eventType: candidate.eventType
+  });
+  if (seedSemanticKey && candidateSemanticKey && seedSemanticKey === candidateSemanticKey) {
+    return {
+      eventId: candidate.id,
+      score: 98,
+      reason: "ENTITY_ACTION_VERSION_EXACT",
+      metadata: {
+        titleScore: 0,
+        tokenOverlap: 0,
+        jaccard: 0,
+        keywordOverlap: termOverlap(seed.keywords ?? [], stringList(candidate.keywords)),
+        entityOverlap: termOverlap(seed.entities ?? [], stringList(candidate.entities)),
+        hoursApart,
+        semanticKey: seedSemanticKey,
+        rules: ["ENTITY_ACTION_VERSION_EXACT", "TIME_WINDOW"]
+      }
+    };
+  }
 
   if (normalizedSeed === normalizedCandidate) {
     return {
@@ -150,13 +188,15 @@ export function scoreEventSeedCandidate(seed: SeedTerms, candidate: EventTerms):
   const titleStats = overlapStats(titleTokens(seed.title), titleTokens(candidate.title));
   const keywordOverlap = termOverlap(seed.keywords ?? [], stringList(candidate.keywords));
   const entityOverlap = termOverlap(seed.entities ?? [], stringList(candidate.entities));
+  const seedEntities = stringList(seed.entities ?? []);
+  const candidateEntities = stringList(candidate.entities);
+  if (seedEntities.length && candidateEntities.length && entityOverlap === 0) return null;
 
   let titleScore = Math.round(Math.max(titleStats.jaccard * 100, titleStats.overlap * 86));
   if (conflictingNumbers(seed.title, candidate.title)) titleScore = Math.min(titleScore, 55);
 
-  let score = titleScore;
+  let score = titleScore + Math.round(entityOverlap * 18);
   if (titleScore >= 60) {
-    score += Math.round(entityOverlap * 8);
     score += Math.round(keywordOverlap * 5);
   }
   if (titleScore >= 65 && hoursApart <= 12) score += 4;
@@ -176,7 +216,7 @@ export function scoreEventSeedCandidate(seed: SeedTerms, candidate: EventTerms):
       keywordOverlap,
       entityOverlap,
       hoursApart,
-      rules: ["TITLE_TOKEN_OVERLAP", "TIME_WINDOW"]
+      rules: ["TITLE_TOKEN_OVERLAP", "ENTITY_COMPATIBLE", "EVENT_TYPE_COMPATIBLE", "TIME_WINDOW"]
     }
   };
 }
@@ -191,6 +231,7 @@ export async function findEventSeedCluster(input: SeedTerms) {
       title: contentEvents.title,
       keywords: contentEvents.keywords,
       entities: contentEvents.entities,
+      eventType: contentEvents.eventType,
       firstSeenAt: contentEvents.firstSeenAt,
       lastSeenAt: contentEvents.lastSeenAt
     })

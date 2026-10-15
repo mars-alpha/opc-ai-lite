@@ -19,6 +19,8 @@ const SOURCE_A = "source_accept_global_dedupe_a";
 const SOURCE_B = "source_accept_global_dedupe_b";
 const TITLE = "Global URL Dedupe Acceptance Story";
 const CANONICAL = "https://example.com/global-dedupe?id=42";
+const TITLE_LAYER_A = "OpenAI launches GPT-5.6 API";
+const TITLE_LAYER_A_VARIANT = "OpenAI launches GPT 5.6 API!";
 
 function assert(condition: unknown, code: string): asserts condition {
   if (!condition) throw new Error("RAW_ITEM_GLOBAL_DEDUPE_FAILED:" + code);
@@ -29,7 +31,7 @@ async function cleanup() {
   const raws = await db
     .select({ id: contentRawItems.id })
     .from(contentRawItems)
-    .where(eq(contentRawItems.title, TITLE));
+    .where(inArray(contentRawItems.sourceId, [SOURCE_A, SOURCE_B]));
   const rawIds = raws.map((item) => item.id);
   if (rawIds.length) {
     await db.delete(contentEventRawItems).where(inArray(contentEventRawItems.rawItemId, rawIds));
@@ -135,9 +137,39 @@ async function main() {
     );
   assert(duplicateRows.length === 1, "MULTIPLE_RAW_ITEMS_REMAIN");
 
+  const titleFirst = await ingestRawItem({
+    sourceId: SOURCE_A,
+    externalId: "title-a-1",
+    originalUrl: "https://example.com/title-layer-a",
+    title: TITLE_LAYER_A,
+    excerpt: "First title-layer observation"
+  });
+  const titleSameSource = await ingestRawItem({
+    sourceId: SOURCE_A,
+    externalId: "title-a-2",
+    originalUrl: "https://example.com/title-layer-a-copy",
+    title: TITLE_LAYER_A_VARIANT,
+    excerpt: "Same logical item from the same source"
+  });
+  const titleCrossSource = await ingestRawItem({
+    sourceId: SOURCE_B,
+    externalId: "title-b-1",
+    originalUrl: "https://example.com/title-layer-b",
+    title: TITLE_LAYER_A_VARIANT,
+    excerpt: "Independent source evidence"
+  });
+
+  assert(titleFirst.created === true, "TITLE_LAYER_FIRST_NOT_CREATED");
+  assert(titleSameSource.created === false, "SAME_SOURCE_NORMALIZED_TITLE_NOT_DEDUPED");
+  assert(titleSameSource.item.id === titleFirst.item.id, "SAME_SOURCE_TITLE_RAW_ID_MISMATCH");
+  assert(titleCrossSource.created === true, "CROSS_SOURCE_TITLE_EVIDENCE_COLLAPSED");
+  assert(titleCrossSource.item.id !== titleFirst.item.id, "CROSS_SOURCE_TITLE_RAW_ID_COLLAPSED");
+
   console.log("RAW_ITEM_GLOBAL_CANONICAL_DEDUPE=PASS");
   console.log("RAW_ITEM_SOURCE_OBSERVATIONS=PASS");
   console.log("RAW_ITEM_CANONICAL_NORMALIZATION=PASS");
+  console.log("RAW_ITEM_SAME_SOURCE_TITLE_DEDUPE=PASS");
+  console.log("RAW_ITEM_CROSS_SOURCE_EVIDENCE_PRESERVED=PASS");
 }
 
 main()

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { contentWorkbenchError, requireAdminRequest } from "../../../../../../../../lib/server/admin/api";
 import {
+  listEventExpansionEvidence,
   listEventExpansionRuns,
-  runEventExpansion
+  refreshSourceManagedEventExpansion
 } from "../../../../../../../../lib/server/content/collection-expansion";
-import { getExpansionPlan } from "../../../../../../../../lib/server/content/discovery";
 
 export const dynamic = "force-dynamic";
 
@@ -15,11 +15,16 @@ export async function GET(
   try {
     await requireAdminRequest(request);
     const { eventId } = await params;
-    const [plan, runs] = await Promise.all([
-      getExpansionPlan(eventId),
-      listEventExpansionRuns(eventId)
+    const [runs, evidence] = await Promise.all([
+      listEventExpansionRuns(eventId),
+      listEventExpansionEvidence(eventId)
     ]);
-    return NextResponse.json({ ...plan, runs });
+    return NextResponse.json({
+      mode: "SOURCE_MANAGEMENT_SYSTEM_COLLECTION_ONLY",
+      authority: "REFERENCE_ONLY",
+      runs,
+      evidence
+    });
   } catch (error) {
     return contentWorkbenchError(error, "EVENT_EXPANSION_FAILED") ??
       NextResponse.json({ error: "EVENT_EXPANSION_FAILED" }, { status: 500 });
@@ -31,10 +36,10 @@ export async function POST(
   { params }: { params: Promise<{ eventId: string }> }
 ) {
   try {
-    const user = await requireAdminRequest(request);
+    await requireAdminRequest(request);
     const { eventId } = await params;
-    const body = await request.json().catch(() => ({}));
-    return NextResponse.json(await runEventExpansion(user, eventId, body));
+    await request.json().catch(() => ({}));
+    return NextResponse.json(await refreshSourceManagedEventExpansion(eventId, 168));
   } catch (error) {
     return contentWorkbenchError(error, "EVENT_EXPANSION_RUN_FAILED") ??
       NextResponse.json({ error: "EVENT_EXPANSION_RUN_FAILED" }, { status: 500 });

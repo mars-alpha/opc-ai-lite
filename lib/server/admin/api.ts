@@ -47,10 +47,15 @@ export function contentWorkbenchError(error: unknown, fallback: string) {
     code === "COLLECTION_JSON_INVALID" ||
     code === "COLLECTION_REDIRECT_INVALID" ||
     code === "COLLECTION_REDIRECT_LIMIT" ||
+    code === "COLLECTION_NETWORK_UNREACHABLE" ||
+    code === "COLLECTION_NETWORK_FAILED" ||
     code === "RSS_NO_ITEMS" ||
     code === "COLLECTION_PAGE_TITLE_MISSING"
   ) {
     return NextResponse.json({ error: code }, { status: 502 });
+  }
+  if (code.startsWith("GLOBAL_TREND_RUNNER_")) {
+    return NextResponse.json({ error: code }, { status: 400 });
   }
   if (
     code === "CONTENT_NOT_REVIEW_READY" ||
@@ -59,6 +64,7 @@ export function contentWorkbenchError(error: unknown, fallback: string) {
     code === "CONTENT_ALREADY_PUBLISHED" ||
     code === "CONTENT_PUBLISHED_IMMUTABLE" ||
     code === "CONTENT_ARCHIVED_IMMUTABLE" ||
+    code === "TOPIC_DIAGNOSIS_REQUIRED" ||
     code === "DISCOVERY_SOURCE_INACTIVE"
   ) {
     return NextResponse.json({ error: code }, { status: 409 });

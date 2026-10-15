@@ -82,7 +82,7 @@ export default async function AdminDashboardPage() {
 
   const shortcuts = [
     { href: "/admin/users", title: "用户与权益", detail: "账号、学习概况、会员与 Entitlement" },
-    { href: "/admin/content?view=strategy", title: "内容采集", detail: "配置采集策略与采集范围" },
+    { href: "/admin/intelligence", title: "热点追踪", detail: "查看今日值得看、精选、全部动态与事件热点榜" },
     { href: "/admin/courses", title: "课程维护", detail: "查看课程状态与版本" },
     { href: "/admin/learning", title: "学习洞察", detail: "查看问题、风险与更新候选" }
   ];

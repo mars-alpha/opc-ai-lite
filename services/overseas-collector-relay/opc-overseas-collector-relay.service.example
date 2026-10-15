@@ -1,0 +1,25 @@
+[Unit]
+Description=OPC Overseas Collector Relay
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc-relay
+Group=opc-relay
+WorkingDirectory=/opt/opc-services/opc-overseas-collector-relay
+EnvironmentFile=/etc/opc-overseas-collector-relay.env
+ExecStart=/usr/bin/node --import tsx services/overseas-collector-relay/server.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/tmp
+MemoryMax=256M
+CPUQuota=50%
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

@@ -51,7 +51,7 @@ export async function ensureContentDraftForEvent(user: AuthUser, eventIdInput: s
     .values({
       id: contentId,
       title: event.title,
-      summary: event.summary || "来自今日情报的已采用选题，待补充内容观点与成稿。",
+      summary: event.summary || "来自热点追踪的已采用选题，待补充内容观点与成稿。",
       audience: null,
       purpose: null,
       tags: Array.isArray(event.keywords) ? event.keywords : [],

@@ -18,6 +18,8 @@
 - docs/ARCHITECTURE.md
 - docs/domains/*
 - docs/learning/* current owner
+- docs/learning-insight/* current owner
+- docs/content/* current owner
 - 当前代码 / Schema / API
 
 ### Layer C — Task Evidence
@@ -30,6 +32,11 @@
 - `lib/learning/course-content/*` = 已冻结的正式课程生产内容，只在具体课程实现/Runtime 问题中按需读取；
 - `fixtures/*` = Validator / Acceptance 测试数据，不得承载正式生产课程；
 - `git-history:...` = 历史 provenance 标签，只用于追溯，永远不是 current owner。
+
+当前专项 owner 同样按任务按需加载：
+- `docs/learning-insight/*` = 学习洞察 current contracts；
+- `docs/content/*` = 内容采集与 AI 日报 current contracts；当前目录只允许六份 owner：两份 `COLLECTION_*` 负责采集架构 / implementation mapping，四份 `CONTENT_AI_DAILY_*` 负责 Adopt 后 AI 日报生产链；
+- 未列入 current owner 集合的历史 Brief / Result / Proposal 不得作为新任务默认上下文。
 
 ## 3. Owner Rule
 

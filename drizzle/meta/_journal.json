@@ -183,6 +183,90 @@
       "when": 1790792316699,
       "tag": "0025_lethal_dark_beast",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791013940130,
+      "tag": "0026_strong_sue_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791023671020,
+      "tag": "0027_small_la_nuit",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791026661095,
+      "tag": "0028_striped_tarot",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791031865138,
+      "tag": "0029_sudden_ricochet",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1791034148007,
+      "tag": "0030_spotty_talkback",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791194149756,
+      "tag": "0031_stormy_bug",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1791465382021,
+      "tag": "0032_ai_intelligence_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791467344209,
+      "tag": "0033_collection_decision_ignore_reason",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791502634826,
+      "tag": "0034_event_expansion_evidence",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1791792681557,
+      "tag": "0035_radar_read_path_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791793015094,
+      "tag": "0036_radar_collection_run_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1791793232807,
+      "tag": "0037_radar_snapshot_store",
+      "breakpoints": true
     }
   ]
 }

@@ -1,14 +1,12 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
-import { and, desc, eq, inArray, or } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, or } from "drizzle-orm";
 import type { AuthUser } from "../auth/service";
 import { getDatabase } from "../db";
 import {
   contentCandidateDecisions,
   contentCollectionRuns,
-  contentCollectionStrategies,
-  contentCollectionStrategySources,
   contentEventClusterMembers,
   contentEventClusterAnalyses,
   contentEventClusters,
@@ -23,14 +21,29 @@ import {
   buildExpansionQueries,
   EVENT_SIGNAL_TYPES,
   normalizeCandidateDecision,
+  normalizeIgnoreReason,
   normalizeSignalScore,
   type EventSignalType
 } from "./discovery-contract";
 import { recordContentAudit } from "./workbench";
 import { EVENT_SEED_CLUSTER_RULE_VERSION, findEventSeedCluster } from "./event-seed-clustering";
+import {
+  RAW_RELEVANCE_DEDUP_VERSION,
+  RAW_TITLE_DEDUP_WINDOW_HOURS,
+  rawNormalizedTitleHash
+} from "./raw-relevance-dedup";
+import {
+  normalizeCollectionProvenance,
+  provenanceMetadata
+} from "../../content/collection-provenance-contract";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function clusterEligibleForIntelligence(metadata: unknown) {
+  if (!isRecord(metadata) || !isRecord(metadata.relevanceGate)) return true;
+  return metadata.relevanceGate.aiRelevant !== false;
 }
 
 function requiredText(value: unknown, code: string, max: number) {
@@ -122,6 +135,75 @@ async function upsertRawItemObservation(input: {
   metadata: Record<string, unknown>;
 }) {
   const db = getDatabase();
+  const observedAt = new Date();
+  const [existing] = await db
+    .select()
+    .from(contentRawItemObservations)
+    .where(and(
+      eq(contentRawItemObservations.rawItemId, input.rawItemId),
+      eq(contentRawItemObservations.sourceId, input.sourceId)
+    ))
+    .limit(1);
+
+  const trendRank = Number(input.platformMetrics.trendRank);
+  const hotValue = Number(input.platformMetrics.hotValue);
+  const hasTrendSample = Number.isFinite(trendRank) || Number.isFinite(hotValue);
+  const existingMetadata = existing && isRecord(existing.metadata) ? existing.metadata : {};
+  const existingContexts = Array.isArray(existingMetadata.collectionContexts)
+    ? existingMetadata.collectionContexts.filter(isRecord).slice(-19)
+    : [];
+  const existingSamples = Array.isArray(existingMetadata.trendSamples)
+    ? existingMetadata.trendSamples.filter(isRecord).slice(-95)
+    : [];
+  const trendSamples = hasTrendSample
+    ? [
+        ...existingSamples,
+        {
+          observedAt: observedAt.toISOString(),
+          trendRank: Number.isFinite(trendRank) ? trendRank : null,
+          hotValue: Number.isFinite(hotValue) ? hotValue : null
+        }
+      ]
+    : existingSamples;
+  const incomingOrigin =
+    typeof input.metadata.collectionOrigin === "string"
+      ? input.metadata.collectionOrigin.trim().toUpperCase()
+      : null;
+  const incomingPurpose =
+    typeof input.metadata.collectionPurpose === "string"
+      ? input.metadata.collectionPurpose
+      : null;
+  const incomingRunKind =
+    typeof input.metadata.collectionRunKind === "string"
+      ? input.metadata.collectionRunKind
+      : null;
+  const currentContext = incomingOrigin && incomingPurpose
+    ? {
+        origin: incomingOrigin,
+        collectionPurpose: incomingPurpose,
+        runKind: incomingRunKind,
+        observedAt: observedAt.toISOString()
+      }
+    : null;
+  const contextKey = (value: Record<string, unknown>) =>
+    [value.origin, value.collectionPurpose, value.runKind ?? ""].join("|");
+  const collectionContexts = currentContext
+    ? [
+        ...existingContexts.filter((item) => contextKey(item) !== contextKey(currentContext)),
+        currentContext
+      ].slice(-20)
+    : existingContexts;
+  const mergedMetadata = {
+    ...existingMetadata,
+    ...input.metadata,
+    ...(collectionContexts.length ? { collectionContexts } : {})
+  };
+  const metadata = trendSamples.length
+    ? { ...mergedMetadata, trendSamples, trendSampleLimit: 96 }
+    : mergedMetadata;
+  const persistedPlatformMetrics = input.platformMetrics;
+  const persistedObservedAt = observedAt;
+
   const [item] = await db
     .insert(contentRawItemObservations)
     .values({
@@ -130,10 +212,10 @@ async function upsertRawItemObservation(input: {
       platform: input.platform,
       externalId: input.externalId,
       observedUrl: input.observedUrl,
-      platformMetrics: input.platformMetrics,
-      metadata: input.metadata,
-      observedAt: new Date(),
-      updatedAt: new Date()
+      platformMetrics: persistedPlatformMetrics,
+      metadata,
+      observedAt: persistedObservedAt,
+      updatedAt: observedAt
     })
     .onConflictDoUpdate({
       target: [contentRawItemObservations.rawItemId, contentRawItemObservations.sourceId],
@@ -141,10 +223,10 @@ async function upsertRawItemObservation(input: {
         platform: input.platform,
         externalId: input.externalId,
         observedUrl: input.observedUrl,
-        platformMetrics: input.platformMetrics,
-        metadata: input.metadata,
-        observedAt: new Date(),
-        updatedAt: new Date()
+        platformMetrics: persistedPlatformMetrics,
+        metadata,
+        observedAt: persistedObservedAt,
+        updatedAt: observedAt
       }
     })
     .returning();
@@ -263,46 +345,66 @@ export async function ingestRawItem(input: unknown) {
   const publishedAt = parseOptionalDate(input.publishedAt);
   const platformMetrics = isRecord(input.platformMetrics) ? input.platformMetrics : {};
   const metadata = isRecord(input.metadata) ? input.metadata : {};
+  const normalizedTitleHash = rawNormalizedTitleHash(title);
+  const dedupMetadata = {
+    ...metadata,
+    rawDedup: {
+      version: RAW_RELEVANCE_DEDUP_VERSION,
+      normalizedTitleHash
+    }
+  };
   const contentHash =
     optionalText(input.contentHash, "INVALID_CONTENT_HASH", 128) ??
     createHash("sha256")
       .update([canonicalUrl, externalId, title, excerpt].map((value) => value ?? "").join("\n"))
       .digest("hex");
 
-  const [duplicate] = canonicalUrl
-    ? await db
+  const sourceIdentityMatch = and(
+    eq(contentRawItems.sourceId, source),
+    or(
+      eq(contentRawItems.contentHash, contentHash),
+      ...(externalId ? [eq(contentRawItems.externalId, externalId)] : [])
+    )
+  );
+  const duplicateWhere = canonicalUrl
+    ? or(eq(contentRawItems.canonicalUrl, canonicalUrl), sourceIdentityMatch)
+    : sourceIdentityMatch;
+  const [duplicate] = await db
+    .select()
+    .from(contentRawItems)
+    .where(duplicateWhere)
+    .limit(1);
+  const titleDuplicate = !duplicate && normalizedTitleHash
+    ? (await db
         .select()
         .from(contentRawItems)
-        .where(eq(contentRawItems.canonicalUrl, canonicalUrl))
-        .limit(1)
-    : await db
-        .select()
-        .from(contentRawItems)
-        .where(
-          and(
-            eq(contentRawItems.sourceId, source),
-            or(
-              eq(contentRawItems.contentHash, contentHash),
-              ...(externalId ? [eq(contentRawItems.externalId, externalId)] : [])
-            )
+        .where(and(
+          eq(contentRawItems.sourceId, source),
+          gte(
+            contentRawItems.collectedAt,
+            new Date(Date.now() - RAW_TITLE_DEDUP_WINDOW_HOURS * 60 * 60 * 1000)
           )
-        )
-        .limit(1);
-  if (duplicate) {
+        ))
+        .orderBy(desc(contentRawItems.collectedAt))
+        .limit(120))
+        .find((item) => rawNormalizedTitleHash(item.title) === normalizedTitleHash) ?? null
+    : null;
+  const effectiveDuplicate = duplicate ?? titleDuplicate;
+  if (effectiveDuplicate) {
     await upsertRawItemObservation({
-      rawItemId: duplicate.id,
+      rawItemId: effectiveDuplicate.id,
       sourceId: source,
       platform: sourceRow.platform,
       externalId,
       observedUrl: originalUrl,
       platformMetrics,
-      metadata
+      metadata: dedupMetadata
     });
     await db
       .update(contentSources)
       .set({ lastCollectedAt: new Date(), updatedAt: new Date() })
       .where(eq(contentSources.id, source));
-    return { item: duplicate, created: false };
+    return { item: effectiveDuplicate, created: false };
   }
 
   const [inserted] = await db
@@ -320,32 +422,18 @@ export async function ingestRawItem(input: unknown) {
       contentHash,
       snapshotRef,
       platformMetrics,
-      metadata
+      metadata: dedupMetadata
     })
     .onConflictDoNothing()
     .returning();
 
   const item = inserted ?? (
-    canonicalUrl
-      ? (await db
-          .select()
-          .from(contentRawItems)
-          .where(eq(contentRawItems.canonicalUrl, canonicalUrl))
-          .limit(1))[0]
-      : (await db
-          .select()
-          .from(contentRawItems)
-          .where(
-            and(
-              eq(contentRawItems.sourceId, source),
-              or(
-                eq(contentRawItems.contentHash, contentHash),
-                ...(externalId ? [eq(contentRawItems.externalId, externalId)] : [])
-              )
-            )
-          )
-          .limit(1))[0]
-  );
+    await db
+      .select()
+      .from(contentRawItems)
+      .where(duplicateWhere)
+      .limit(1)
+  )[0];
   if (!item) throw new Error("RAW_ITEM_INSERT_CONFLICT_UNRESOLVED");
 
   await upsertRawItemObservation({
@@ -355,7 +443,7 @@ export async function ingestRawItem(input: unknown) {
     externalId,
     observedUrl: originalUrl,
     platformMetrics,
-    metadata
+    metadata: dedupMetadata
   });
   await db.update(contentSources).set({ lastCollectedAt: new Date(), updatedAt: new Date() }).where(eq(contentSources.id, source));
   return { item, created: Boolean(inserted) };
@@ -364,22 +452,51 @@ export async function ingestRawItem(input: unknown) {
 export async function runFreshScan(input: unknown) {
   if (!isRecord(input) || !Array.isArray(input.items)) throw new Error("INVALID_INPUT");
   const sourceIdInput = sourceId(input.sourceId);
+  const provenance = normalizeCollectionProvenance(input.provenance, {
+    origin: "SYSTEM",
+    collectionPurpose: "EXPANSION"
+  });
+  const provenanceMeta = provenanceMetadata(provenance);
   const items = input.items.slice(0, 200);
   const results: Array<{ id: string; created: boolean }> = [];
   const createdRawItemIds: string[] = [];
 
   for (const item of items) {
     if (!isRecord(item)) continue;
-    const result = await ingestRawItem({ ...item, sourceId: sourceIdInput });
+    const itemMetadata = isRecord(item.metadata) ? item.metadata : {};
+    const result = await ingestRawItem({
+      ...item,
+      sourceId: sourceIdInput,
+      metadata: { ...itemMetadata, ...provenanceMeta }
+    });
     results.push({ id: result.item.id, created: result.created });
     if (result.created) {
+      const metadata = isRecord(result.item.metadata) ? result.item.metadata : {};
       createdRawItemIds.push(result.item.id);
+      const resolvedEntities = Array.isArray(metadata.resolvedEntities)
+        ? metadata.resolvedEntities.filter(isRecord)
+        : [];
+      const entityIds = resolvedEntities.flatMap((entity) =>
+        typeof entity.entityId === "string" && entity.entityId.trim() ? [entity.entityId.trim()] : []
+      );
+      const eventType = typeof metadata.eventType === "string" && metadata.eventType.trim()
+        ? metadata.eventType.trim()
+        : "INDUSTRY_HOTSPOT";
+      const safeEventAt =
+        result.item.publishedAt &&
+        result.item.publishedAt.getTime() <= result.item.collectedAt.getTime() + 15 * 60 * 1000
+          ? result.item.publishedAt
+          : result.item.collectedAt;
       await createEventSeed({
         rawItemId: result.item.id,
         title: result.item.title,
-        summary: result.item.excerpt,
+        summary: result.item.excerpt ? result.item.excerpt.slice(0, 4000) : null,
         keywords: [],
-        entities: []
+        entities: entityIds,
+        eventType,
+        primaryEntityId: entityIds[0] ?? null,
+        subjectEntityId: entityIds[1] ?? null,
+        eventAt: safeEventAt.toISOString()
       });
     }
   }
@@ -432,19 +549,6 @@ export async function listRawItems(limit = 100) {
   const sources = sourceIds.length
     ? await db.select().from(contentSources).where(inArray(contentSources.id, sourceIds))
     : [];
-  const strategyLinks = sourceIds.length
-    ? await db
-        .select()
-        .from(contentCollectionStrategySources)
-        .where(inArray(contentCollectionStrategySources.sourceId, sourceIds))
-    : [];
-  const strategyIds = [...new Set(strategyLinks.map((item) => item.strategyId))];
-  const strategies = strategyIds.length
-    ? await db
-        .select()
-        .from(contentCollectionStrategies)
-        .where(inArray(contentCollectionStrategies.id, strategyIds))
-    : [];
   const eventIds = [...new Set(links.map((item) => item.eventId))];
   const events = eventIds.length
     ? await db.select().from(contentEvents).where(inArray(contentEvents.id, eventIds))
@@ -457,13 +561,6 @@ export async function listRawItems(limit = 100) {
     : [];
 
   const sourceById = new Map(sources.map((item) => [item.id, item]));
-  const strategyById = new Map(strategies.map((item) => [item.id, item]));
-  const strategyLinksBySourceId = new Map<string, typeof strategyLinks>();
-  for (const link of strategyLinks) {
-    const current = strategyLinksBySourceId.get(link.sourceId) ?? [];
-    current.push(link);
-    strategyLinksBySourceId.set(link.sourceId, current);
-  }
   const observationsByRawId = new Map<string, typeof observations>();
   for (const observation of observations) {
     const current = observationsByRawId.get(observation.rawItemId) ?? [];
@@ -480,28 +577,6 @@ export async function listRawItems(limit = 100) {
     const event = link ? eventById.get(link.eventId) : null;
     const membership = event ? membershipByEventId.get(event.id) : null;
     const itemObservations = observationsByRawId.get(item.id) ?? [];
-    const relatedSourceIds = [...new Set([item.sourceId, ...itemObservations.map((observation) => observation.sourceId)])];
-    const relatedStrategyIds = [...new Set(
-      relatedSourceIds.flatMap((relatedSourceId) =>
-        (strategyLinksBySourceId.get(relatedSourceId) ?? []).map((entry) => entry.strategyId)
-      )
-    )];
-    const collectionStrategies = relatedStrategyIds
-      .map((strategyIdValue) => strategyById.get(strategyIdValue))
-      .filter((strategy): strategy is NonNullable<typeof strategy> => Boolean(strategy))
-      .map((strategy) => {
-        const advanced = isRecord(strategy.advancedConfig) ? strategy.advancedConfig : {};
-        const languagePolicy =
-          typeof advanced.languagePolicy === "string" && ["ZH_PREFERRED", "ZH_EN", "ANY"].includes(advanced.languagePolicy)
-            ? advanced.languagePolicy
-            : "ZH_EN";
-        return {
-          id: strategy.id,
-          name: strategy.name,
-          topics: stringArray(strategy.topics, 30),
-          languagePolicy
-        };
-      });
     return {
       ...item,
       sourceName: source?.name ?? item.sourceId,
@@ -511,7 +586,6 @@ export async function listRawItems(limit = 100) {
       clusterId: membership?.clusterId ?? null,
       keywords: event?.keywords ?? [],
       entities: event?.entities ?? [],
-      collectionStrategies,
       observations: itemObservations.map((observation) => ({
         id: observation.id,
         sourceId: observation.sourceId,
@@ -569,10 +643,14 @@ export async function createEventSeed(input: unknown) {
   const rawItemId = requiredText(input.rawItemId, "INVALID_RAW_ITEM_ID", 100);
   const title = requiredText(input.title, "INVALID_EVENT_TITLE", 500);
   const summary = optionalText(input.summary, "INVALID_EVENT_SUMMARY", 4000);
+  const eventType = optionalText(input.eventType, "INVALID_EVENT_TYPE", 80) ?? "INDUSTRY_HOTSPOT";
+  const primaryEntityId = optionalText(input.primaryEntityId, "INVALID_PRIMARY_ENTITY_ID", 160);
+  const subjectEntityId = optionalText(input.subjectEntityId, "INVALID_SUBJECT_ENTITY_ID", 160);
+  const eventAt = parseOptionalDate(input.eventAt);
   const expansion = buildExpansionQueries({ keywords: input.keywords, entities: input.entities, maxQueries: 8 });
   const fingerprint =
     optionalText(input.fingerprint, "INVALID_EVENT_FINGERPRINT", 128) ??
-    eventFingerprint(title, expansion.keywords, expansion.entities);
+    eventFingerprint(title, [eventType, ...expansion.keywords], expansion.entities);
 
   const db = getDatabase();
   const [raw] = await db.select().from(contentRawItems).where(eq(contentRawItems.id, rawItemId)).limit(1);
@@ -590,6 +668,7 @@ export async function createEventSeed(input: unknown) {
       title,
       keywords: expansion.keywords,
       entities: expansion.entities,
+      eventType,
       observedAt
     });
 
@@ -602,6 +681,7 @@ export async function createEventSeed(input: unknown) {
   }
 
   if (!event) {
+    const queuedAt = new Date();
     [event] = await db
       .insert(contentEvents)
       .values({
@@ -610,9 +690,27 @@ export async function createEventSeed(input: unknown) {
         summary,
         keywords: expansion.keywords,
         entities: expansion.entities,
+        eventType,
+        primaryEntityId,
+        subjectEntityId,
+        eventAt: eventAt ?? raw.publishedAt ?? raw.collectedAt,
         discoveryStatus: "DISCOVERED",
         firstSeenAt: raw.publishedAt ?? raw.collectedAt,
-        lastSeenAt: raw.publishedAt ?? raw.collectedAt
+        lastSeenAt: raw.publishedAt ?? raw.collectedAt,
+        metadata: {
+          topicMomentumRuntime: {
+            version: "topic-momentum-runtime-v1",
+            status: "QUEUED",
+            day: 1,
+            enrolledAt: queuedAt.toISOString(),
+            nextFollowUpAt: queuedAt.toISOString(),
+            lastFollowUpAt: null,
+            followUpCount: 0,
+            lastError: null,
+            momentum: null,
+            creatorCoverage: null
+          }
+        }
       })
       .returning();
     created = true;
@@ -715,6 +813,11 @@ export async function listEvents(limit = 100) {
         : [],
       clusterWhyItMatters: clusterAnalysis?.whyItMatters ?? null
     };
+  }).filter((event) => {
+    const member = clusterMemberByEvent.get(event.id);
+    if (!member) return true;
+    const cluster = clusterById.get(member.clusterId);
+    return cluster ? clusterEligibleForIntelligence(cluster.metadata) : true;
   });
 }
 
@@ -762,6 +865,7 @@ export async function recordCandidateDecision(user: AuthUser, input: unknown) {
   if (!isRecord(input)) throw new Error("INVALID_INPUT");
   const eventId = requiredText(input.eventId, "INVALID_EVENT_ID", 100);
   const decision = normalizeCandidateDecision(input.decision);
+  const ignoreReason = decision === "IGNORE" ? normalizeIgnoreReason(input.ignoreReason) : null;
   const selectedTypes = stringArray(input.selectedTypes, 8);
   const note = optionalText(input.note, "INVALID_DECISION_NOTE", 4000);
   const db = getDatabase();
@@ -773,6 +877,7 @@ export async function recordCandidateDecision(user: AuthUser, input: unknown) {
     .values({
       eventId,
       decision,
+      ignoreReason,
       selectedTypes,
       note,
       decidedBy: user.id,
@@ -780,7 +885,7 @@ export async function recordCandidateDecision(user: AuthUser, input: unknown) {
     })
     .returning();
 
-  const discoveryStatus = decision === "ADOPT" ? "ADOPTED" : decision === "WATCH" ? "WATCHING" : "IGNORED";
+  const discoveryStatus = decision === "ADOPT" ? "ADOPTED" : decision === "WATCH" ? "SHORTLISTED" : "IGNORED";
   await db.update(contentEvents).set({ discoveryStatus, updatedAt: new Date() }).where(eq(contentEvents.id, eventId));
 
   await recordContentAudit(user, {
@@ -788,7 +893,7 @@ export async function recordCandidateDecision(user: AuthUser, input: unknown) {
     entityType: "DISCOVERY_EVENT",
     entityId: eventId,
     before: { discoveryStatus: event.discoveryStatus },
-    after: { discoveryStatus, decision, selectedTypes },
+    after: { discoveryStatus, decision, ignoreReason, selectedTypes },
     metadata: { decisionId: item.id }
   });
 

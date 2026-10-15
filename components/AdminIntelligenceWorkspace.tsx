@@ -1,0 +1,683 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+type HotTrackingMode = "FEATURED" | "ALL";
+type RadarCategory = "全部" | "模型" | "产品" | "开发者" | "行业" | "论文" | "社区" | "自媒体";
+
+type EventItem = {
+  eventId: string;
+  eventLastSeenAt?: string;
+  clusterId: string | null;
+  title: string;
+  excerpt: string | null;
+  originalUrl: string | null;
+  publishedAt: string | null;
+  collectedAt: string;
+  sourceName: string;
+  sourceCount: number;
+  publicReadableSourceCount?: number;
+  hotParticipants?: Array<{ name: string; platform: string; role: string }>;
+  practicalEvidenceLinks?: Array<{ sourceName: string; title: string | null; presentation?: { displayTitleZh?: string | null }; originalUrl: string; publishedAt: string | null; expansionType: string }>;
+  eventType: string | null;
+  category: Exclude<RadarCategory, "全部">;
+  radarState?: "LATEST" | "PRACTICING" | "UNVERIFIED";
+  verificationStatus: string;
+  discoveryStatus?: string | null;
+  factSourceCount: number;
+  signalSourceCount: number;
+  evidenceLinks: Array<{ sourceName: string; title: string; presentation?: { displayTitleZh?: string | null }; originalUrl: string | null; publishedAt: string | null }>;
+  story?: {
+    version: string;
+    authority: "DERIVED_READ_MODEL";
+    overview: string;
+    latest: { text: string; reportId: string; sourceName: string; originalUrl: string | null; publishedAt: string | null; authority: "PRIMARY" | "HIGH" | "SIGNAL" } | null;
+    latestReport: { reportId: string; title: string; titleZh: string | null; sourceName: string; sourceType: string; originalUrl: string | null; publishedAt: string | null; authority: "PRIMARY" | "HIGH" | "SIGNAL" } | null;
+    digest: { text: string; mode: "DETERMINISTIC_DERIVED"; aiGenerated: false };
+    developments: Array<{ id: string; at: string | null; title: string; sourceName: string; originalUrl: string | null; authority: "PRIMARY" | "HIGH" | "SIGNAL" }>;
+    reportTimeline: Array<{ reportId: string; title: string; titleZh: string | null; sourceName: string; sourceType: string; originalUrl: string | null; publishedAt: string | null; authority: "PRIMARY" | "HIGH" | "SIGNAL"; participant: { participantName: string | null; participantType: string | null; role: string; platform: string } }>;
+    relatedEvents: Array<{ eventId: string; title: string; reason: string; score: number }>;
+    heatSeries: { mode: "DERIVED_REPLAY"; persistedHistory: false; intervalHours: number; windowHours: number; points: Array<{ at: string; score: number; participantCount: number; editorialParticipantCount: number; signalParticipantCount: number }> };
+  };
+  presentation?: { displayTitleZh?: string | null; displaySummaryZh?: string | null; translationStatus?: string; editorialJudgmentZh?: string | null; itemType?: string | null; tags?: string[]; fullTextTranslationStatus?: string };
+  curation: {
+    curated: boolean;
+    score: number;
+    threshold: number;
+    tier: "TOP_PICK" | "FEATURED" | "QUALIFIED" | "REJECTED";
+    gatePassed: boolean;
+    featuredRank?: number | null;
+    rerankAuthority?: "PRESENTATION_ONLY";
+    components: {
+      relevance: number;
+      freshness: number;
+      evidenceQuality: number;
+      importance: number;
+      practicalValue: number;
+      independence: number;
+    };
+    reasons: string[];
+    recommendationReason?: string | null;
+  };
+  currentHot: { eligible: boolean; formalRanking: true; authority: "PRESENTATION_ONLY"; status: "RISING" | "SUSTAINED" | "OBSERVING" | "EXPIRED"; score: number };
+  topicMomentum: {
+    phase: "EARLY_OBSERVATION" | "MOMENTUM_WINDOW" | "EXPIRED_WINDOW";
+    status: "RISING" | "SUSTAINED" | "OBSERVING" | "EXPIRED";
+    eligible: boolean;
+    score: number;
+    independentSourceCount: number;
+    independentParticipantCount?: number;
+    publicReadableSourceCount?: number;
+    halfLifeHours?: number;
+    trendComparable?: boolean;
+    trend?: { direction: "UP" | "DOWN" | "FLAT"; changePercent: number; currentItemCount: number; previousItemCount: number; comparableParticipantCount: number; basis: "SAME_CONTINUOUS_PARTICIPANT_COHORT" } | null;
+    creatorCount: number;
+    activeDayCount: number;
+    platformCount: number;
+    practicalTypeCount: number;
+    criteria: { multiSource: boolean; multiCreator: boolean; multiDay: boolean; crossPlatformOrPracticalDiversity: boolean; hasEngagementEvidence: boolean };
+  };
+  evidenceScore: { value: null; status: "TRUSTED" | "UNVERIFIED"; factSourceCount: number; independentOriginCount: number };
+  opcValue: { status: "AVAILABLE" | "NOT_EVALUATED"; value: number | null; whyItMatters: string | null; suggestedContentTypes: string[] };
+  coverage: { evidenceCount: number; practicalEvidenceCount: number; actionablePracticalEvidenceCount?: number; actionablePracticalOriginCount?: number; actionablePracticalTypeCount?: number; chinesePracticalEvidenceCount?: number; actionableChinesePracticalEvidenceCount?: number; presentExpansionTypes: string[]; missingExpansionTypes: string[]; needsExpansion: boolean };
+};
+
+type SourceHealthItem = {
+  sourceId: string;
+  sourceName: string;
+  platform: string;
+  adapter: string | null;
+  acquisitionKind: string;
+  acquisitionReason: string;
+  acquisitionRuntimeOwner: string | null;
+  serverRuntimeSupported: boolean;
+  qualification: string;
+  effectiveQualification: string;
+  runtimeQualificationReason: string | null;
+  sourceRole: string;
+  portfolioGroup: string;
+  status: string;
+  detail: string | null;
+  lastSuccessAt: string | null;
+  utility: {
+    recentRunCount: number;
+    successRate: number | null;
+    aiRelevantKeepRate: number | null;
+    duplicateRate: number | null;
+    receivedTotal: number;
+    keptTotal: number;
+  };
+};
+
+type CollectionHealth = {
+  summary: {
+    runCount: number;
+    successCount: number;
+    failedCount: number;
+    configuredSourceCount: number;
+    monitoredSourceCount: number;
+    healthySourceCount: number;
+    failedSourceCount: number;
+    degradedSourceCount: number;
+    runtimeGapCount: number;
+    receivedTotal: number;
+    keptTotal: number;
+    aiRelevantKeepRate: number | null;
+  };
+  sourceGroups: Array<{
+    groupName: string;
+    sourceCount: number;
+    healthyCount: number;
+    failedCount: number;
+    runCount: number;
+    successRate: number | null;
+    receivedTotal: number;
+    keptTotal: number;
+    aiRelevantKeepRate: number | null;
+    lastSuccessAt: string | null;
+  }>;
+  optionalCapabilities: Array<{
+    key: string;
+    name: string;
+    status: string;
+    reason: string;
+  }>;
+  sourceHealth?: SourceHealthItem[];
+};
+
+const categories: RadarCategory[] = ["全部", "模型", "产品", "开发者", "行业", "论文", "社区", "自媒体"];
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+}
+
+function formatDay(value: string | null | undefined) {
+  if (!value) return "未知日期";
+  return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" }).format(new Date(value));
+}
+
+function shortSummary(item: EventItem) {
+  const value = item.presentation?.displaySummaryZh || item.excerpt || "暂无摘要";
+  return value.length > 100 ? value.slice(0, 100) + "…" : value;
+}
+
+function shortText(value: string, limit = 100) {
+  return value.length > limit ? value.slice(0, limit) + "…" : value;
+}
+
+function evidenceTimeline(item: EventItem) {
+  return [...item.evidenceLinks].sort((a, b) => {
+    const aTime = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+    const bTime = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+    return bTime - aTime;
+  });
+}
+
+function latestProgressText(item: EventItem) {
+  return item.story?.latest?.text || evidenceTimeline(item)[0]?.presentation?.displayTitleZh || evidenceTimeline(item)[0]?.title || shortSummary(item);
+}
+
+function hotTrendText(item: EventItem) {
+  if (!item.topicMomentum.trendComparable || !item.topicMomentum.trend) return "—";
+  const trend = item.topicMomentum.trend;
+  const mark = trend.direction === "UP" ? "↑" : trend.direction === "DOWN" ? "↓" : "→";
+  return mark + " " + Math.abs(trend.changePercent) + "%";
+}
+
+function practicalTypeLabel(value: string) {
+  const labels: Record<string, string> = {
+    TUTORIAL: "教程",
+    EXPERIENCE: "实测体验",
+    USE_CASE: "使用案例",
+    WORK_IMPACT: "工作影响"
+  };
+  return labels[value] ?? value;
+}
+
+function practiceActionText(item: EventItem) {
+  const link = item.practicalEvidenceLinks?.[0];
+  if (!link) return item.opcValue.whyItMatters ? shortText(item.opcValue.whyItMatters) : "查看实践证据，完成一次可复现验证。";
+  const title = link.presentation?.displayTitleZh || link.title || "实践原文";
+  const action = link.expansionType === "TUTORIAL" ? "按教程完成一次" : link.expansionType === "EXPERIENCE" ? "对照实测复现一次" : link.expansionType === "USE_CASE" ? "验证这个使用案例" : link.expansionType === "WORK_IMPACT" ? "评估它对工作流程的影响" : "完成一次实践验证";
+  return shortText(`${action}：${title}`, 100);
+}
+
+function verificationLabel(value: string) {
+  if (value === "CONFIRMED_OFFICIAL") return "官方确认";
+  if (value === "CONFIRMED_MEDIA") return "媒体确认";
+  if (value === "UNVERIFIED") return "待验证";
+  return value;
+}
+
+function sourceGroupLabel(value: string) {
+  const labels: Record<string, string> = {
+    "Official AI Updates": "官方 AI 更新",
+    "Curated Media": "精选媒体",
+    "AI_HOT": "AI HOT",
+    "AI HOT": "AI HOT",
+    "Hacker News": "Hacker News",
+    "GitHub Trending": "GitHub 热门",
+    "Product Hunt": "Product Hunt",
+    "OPML RSS": "订阅源"
+  };
+  return labels[value] ?? value;
+}
+
+function sourceStatusLabel(value: string) {
+  const labels: Record<string, string> = {
+    HEALTHY: "正常",
+    READY: "待运行",
+    FAILED: "失败",
+    DEGRADED: "降级",
+    AUTO_READY: "稳定自动",
+    CONDITIONAL: "观察中",
+    DISABLED: "已停用",
+    SUPPORTED: "可接入"
+  };
+  return labels[value] ?? value;
+}
+
+function acquisitionLabel(value: string) {
+  const labels: Record<string, string> = {
+    RSS_ATOM: "RSS / Atom",
+    PUBLIC_JSON_API: "公开 API",
+    SITEMAP: "站点地图",
+    JINA_READER: "网页读取",
+    STATIC_PAGE: "网页",
+    CUSTOM_RUNTIME: "专用采集"
+  };
+  return labels[value] ?? value;
+}
+
+function sourceRoleLabel(value: string) {
+  const labels: Record<string, string> = {
+    OFFICIAL: "官方",
+    MEDIA: "媒体",
+    RESEARCH: "研究",
+    DEVELOPER: "开发者",
+    SOCIAL: "社区 / 社交",
+    CREATOR: "创作者",
+    MANAGED_SOURCE: "托管来源"
+  };
+  return labels[value] ?? value;
+}
+
+function optionalCapabilityStatusLabel(value: string) {
+  const labels: Record<string, string> = {
+    LIVE_SELF_HOSTED_QUALIFIED: "自托管已验证",
+    DISABLED_UNSTABLE: "暂不启用",
+    CONDITIONAL: "观察中"
+  };
+  return labels[value] ?? value;
+}
+
+function optionalCapabilityReasonLabel(value: string) {
+  const labels: Record<string, string> = {
+    "Reference runtime currently returns 403 through Jina.": "参考运行链经 Jina 当前返回 403。",
+    "Requires a dedicated Feishu update-log parser before AUTO.": "进入稳定自动采集前，需要专用飞书更新日志解析器。",
+    "GitHub releases Atom recent success rate was 29%; official repository feed.xml is not reachable from the current server network path, so it is excluded from the stable baseline.": "GitHub Releases Atom 最近成功率约 29%；当前服务器网络无法访问官方仓库 feed.xml，因此暂不纳入稳定基线。"
+  };
+  return labels[value] ?? value;
+}
+
+async function readJson(url: string, init?: RequestInit) {
+  const response = await fetch(url, { cache: "no-store", ...init });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error ?? "操作失败");
+  return data;
+}
+
+export function AdminIntelligenceWorkspace() {
+  const [trackingMode, setTrackingMode] = useState<HotTrackingMode>("ALL");
+  const [categoryFilter, setCategoryFilter] = useState<RadarCategory>("全部");
+  const [sourceFilter, setSourceFilter] = useState("全部来源");
+  const [items, setItems] = useState<EventItem[]>([]);
+  const [featuredItems, setFeaturedItems] = useState<EventItem[]>([]);
+  const [currentHot, setCurrentHot] = useState<EventItem[]>([]);
+  const [showAllHot, setShowAllHot] = useState(false);
+  const [worthPracticing, setWorthPracticing] = useState<EventItem[]>([]);
+  const [query, setQuery] = useState("");
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [categoryCounts7d, setCategoryCounts7d] = useState<Partial<Record<RadarCategory, number>>>({});
+  const [collectionHealth, setCollectionHealth] = useState<CollectionHealth | null>(null);
+  const [sourceHealthLoaded, setSourceHealthLoaded] = useState(false);
+  const [sourceHealthLoading, setSourceHealthLoading] = useState(false);
+  const [busy, setBusy] = useState(true);
+  const [actingId, setActingId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [readiness, setReadiness] = useState<{
+    readyForTodayIntelligence: boolean;
+    status: string;
+    discoverySignals: {
+      recentSourceCount: number;
+      recentPlatformCount: number;
+      qualifiedRecentSourceCount: number;
+      qualifiedRecentPlatformCount: number;
+    };
+    topicMomentum: { minAgeHours: number; windowHours: number; mode: string };
+  } | null>(null);
+
+  async function loadSnapshot() {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const data = await readJson("/api/admin/content/intelligence?view=snapshot");
+      setItems((data.items ?? []) as EventItem[]);
+      setFeaturedItems((data.featured ?? []) as EventItem[]);
+      setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
+      setCategoryCounts7d((data.categoryCounts7d ?? {}) as Partial<Record<RadarCategory, number>>);
+      setCurrentHot((data.currentHot ?? []) as EventItem[]);
+      setWorthPracticing((data.worthPracticing ?? []) as EventItem[]);
+      setReadiness(data.readiness ?? null);
+      setCollectionHealth(data.collectionHealth ?? null);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "热点追踪读取失败");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadSnapshot();
+  }, []);
+
+  async function loadMoreEvents() {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const data = await readJson(`/api/admin/content/intelligence?view=timeline&limit=120&before=${encodeURIComponent(nextCursor)}`);
+      const more = (data.items ?? []) as EventItem[];
+      setItems((current) => {
+        const byEvent = new Map([...current, ...more].map((item) => [item.eventId, item]));
+        return [...byEvent.values()].sort((a, b) => new Date(b.publishedAt || b.collectedAt).getTime() - new Date(a.publishedAt || a.collectedAt).getTime());
+      });
+      setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "加载更多失败");
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  async function loadSourceHealthDetails() {
+    if (sourceHealthLoaded || sourceHealthLoading) return;
+    setSourceHealthLoading(true);
+    try {
+      const data = await readJson("/api/admin/content/intelligence?view=source-health&limit=120");
+      setCollectionHealth(data as CollectionHealth);
+      setSourceHealthLoaded(true);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "采集状态读取失败");
+    } finally {
+      setSourceHealthLoading(false);
+    }
+  }
+
+  async function decide(eventId: string, decision: "WATCH" | "IGNORE" | "ADOPT") {
+    setActingId(eventId);
+    setMessage(null);
+    try {
+      await readJson(`/api/admin/content/discovery/events/${eventId}/decision`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ decision, selectedTypes: [] })
+      });
+      setMessage(decision === "ADOPT" ? "已采用并记录意图；内容工作台尚未进入规划。" : decision === "WATCH" ? "已继续观察。" : "已忽略并退出当前热点追踪列表。");
+      await loadSnapshot();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "热点追踪操作失败");
+    } finally {
+      setActingId(null);
+    }
+  }
+
+  async function expand(eventId: string) {
+    setActingId(eventId);
+    setMessage(null);
+    try {
+      await readJson(`/api/admin/content/discovery/events/${eventId}/expansion`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({})
+      });
+      setMessage("已按 Coverage 缺口补充证据。");
+      await loadSnapshot();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "证据扩展失败");
+    } finally {
+      setActingId(null);
+    }
+  }
+
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const modeItems = trackingMode === "FEATURED" ? featuredItems : items;
+  const visibleItems = modeItems.filter((item) => {
+    if (trackingMode === "FEATURED" && !item.curation.curated) return false;
+    if (categoryFilter !== "全部" && item.category !== categoryFilter) return false;
+    if (sourceFilter !== "全部来源" && item.sourceName !== sourceFilter && !item.evidenceLinks.some((link) => link.sourceName === sourceFilter)) return false;
+    if (!normalizedQuery) return true;
+    return [
+      item.title,
+      item.excerpt ?? "",
+      item.sourceName,
+      item.eventType ?? "",
+      ...item.evidenceLinks.flatMap((link) => [link.sourceName, link.title])
+    ].join("\n").toLocaleLowerCase().includes(normalizedQuery);
+  }).sort((left, right) =>
+    trackingMode === "FEATURED"
+      ? (left.curation.featuredRank ?? Number.MAX_SAFE_INTEGER) - (right.curation.featuredRank ?? Number.MAX_SAFE_INTEGER) || right.curation.score - left.curation.score
+      : new Date(right.publishedAt || right.collectedAt).getTime() - new Date(left.publishedAt || left.collectedAt).getTime()
+  );
+  const sourceOptions = [...new Set(modeItems.flatMap((item) => [item.sourceName, ...item.evidenceLinks.map((link) => link.sourceName)]))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+  const categoryCounts = Object.fromEntries(categories.map((category) => [
+    category,
+    trackingMode === "ALL" && categoryCounts7d[category] !== undefined
+      ? categoryCounts7d[category]
+      : category === "全部" ? modeItems.length : modeItems.filter((item) => item.category === category).length
+  ])) as Record<RadarCategory, number>;
+  const dayGroups = [...visibleItems.reduce((map, item) => {
+    const day = formatDay(item.publishedAt || item.collectedAt);
+    const current = map.get(day) ?? [];
+    current.push(item);
+    map.set(day, current);
+    return map;
+  }, new Map<string, EventItem[]>()).entries()];
+
+  return (
+    <section className="intel-workspace">
+      <section className="intel-command">
+        <div className="intel-command-copy">
+          <span>HOT TRACKING</span>
+          <div><h2>值得关注</h2><small>热点看讨论活跃度 · 精选看内容价值 · 今日值得做看可执行实践</small></div>
+        </div>
+        <div className="intel-command-tools">
+          <nav className="intel-category-tabs" aria-label="情报栏目">
+            {categories.map((category) => (
+              <button type="button" key={category} className={categoryFilter === category ? "is-active" : ""} onClick={() => setCategoryFilter(category)}>
+                {category}<span>{categoryCounts[category]}</span>
+              </button>
+            ))}
+          </nav>
+          <div className="intel-command-search">
+            <select value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)} aria-label="来源筛选">
+              <option>全部来源</option>
+              {sourceOptions.map((source) => <option key={source}>{source}</option>)}
+            </select>
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索事件 / 来源" aria-label="搜索事件或来源" />
+          </div>
+        </div>
+      </section>
+
+      <section className="intel-today-grid">
+        <section className="intel-today-hot">
+          <header>
+            <div><span>NOW</span><h3>当前热点</h3></div>
+            <div><small>近 7 天正式热点榜</small>{currentHot.length > 5 ? <button type="button" onClick={() => setShowAllHot((value) => !value)}>{showAllHot ? "收起" : "完整榜单"}</button> : null}</div>
+          </header>
+          <div className={"intel-today-hot-list " + (showAllHot ? "is-expanded" : "is-compact")}>
+            {currentHot.length ? currentHot.map((item, index) => (
+              <article key={item.eventId}>
+                <b>{index + 1}</b>
+                <div>
+                  <strong>{item.presentation?.displayTitleZh || item.title}</strong>
+                  <p>{shortText(latestProgressText(item), 92)}</p>
+                </div>
+                <div className="intel-today-hot-stats">
+                  <strong>{Math.round(item.topicMomentum.score)}</strong>
+                  <span>{item.topicMomentum.independentParticipantCount ?? item.topicMomentum.independentSourceCount} 参与者</span>
+                  <span>{item.publicReadableSourceCount ?? item.evidenceLinks.length} 信源</span>
+                  <em className={item.topicMomentum.trend?.direction === "UP" ? "is-up" : item.topicMomentum.trend?.direction === "DOWN" ? "is-down" : ""}>{hotTrendText(item)}</em>
+                </div>
+              </article>
+            )) : <div className="intel-empty">当前没有达到正式热点门槛的 Event。</div>}
+          </div>
+        </section>
+
+        <div className="intel-today-side">
+          <section className="intel-today-do">
+            <header><div><span>DO TODAY</span><h3>今日值得做</h3></div><small>{worthPracticing.length ? worthPracticing.length + " 项" : "严格门槛"}</small></header>
+            <div>
+              {worthPracticing.slice(0, 4).map((item) => (
+                <article key={item.eventId}>
+                  <strong>{item.presentation?.displayTitleZh || item.title}</strong>
+                  <p>{practiceActionText(item)}</p>
+                  <span>{item.coverage.actionablePracticalEvidenceCount ?? 0} 条可执行证据 · {item.coverage.actionablePracticalOriginCount ?? 0} 独立来源 · {item.coverage.actionablePracticalTypeCount ?? 0} 类实践</span>
+                  {(item.practicalEvidenceLinks ?? []).slice(0, 1).map((link) => (
+                    <a key={link.originalUrl} href={link.originalUrl} target="_blank" rel="noreferrer">{practicalTypeLabel(link.expansionType)} · {link.sourceName} ↗</a>
+                  ))}
+                </article>
+              ))}
+              {!worthPracticing.length ? (
+                <div className="intel-do-empty">
+                  <strong>今天暂时没有达到“值得做”门槛的 Event</strong>
+                  <p>需要至少 2 条可执行实践证据、2 个独立来源、2 种实践类型；不为了填满版面降低门槛。</p>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <div className="intel-feed-head">
+        <div className="intel-feed-mode" aria-label="热点追踪视图">
+          <button type="button" className={trackingMode === "ALL" ? "is-active" : ""} onClick={() => setTrackingMode("ALL")}>全部动态</button>
+          <button type="button" className={trackingMode === "FEATURED" ? "is-active" : ""} onClick={() => setTrackingMode("FEATURED")}>只看精选</button>
+        </div>
+        <div><strong>{trackingMode === "FEATURED" ? "精选事件" : "全部动态"}</strong><span>{trackingMode === "FEATURED" ? "事实门槛通过后按精选分排序" : "近 7 天全部 AI 相关 Event · 按时间"}</span></div>
+      </div>
+
+
+
+      {readiness ? (
+        <details className="intel-readiness-compact">
+          <summary>信号状态 · {readiness.readyForTodayIntelligence ? "可用" : "仍有缺口"} · {readiness.discoverySignals.qualifiedRecentSourceCount} 个合格来源 / {readiness.discoverySignals.qualifiedRecentPlatformCount} 个平台</summary>
+          <p>近期观测 {readiness.discoverySignals.recentSourceCount} 来源 / {readiness.discoverySignals.recentPlatformCount} 平台 · 热点窗口 {readiness.topicMomentum.minAgeHours / 24}–{readiness.topicMomentum.windowHours / 24} 天。该状态只用于诊断，不改变 Event 排序。</p>
+        </details>
+      ) : null}
+      {collectionHealth ? (
+        <details
+          className="intel-source-health"
+          onToggle={(event) => {
+            if (event.currentTarget.open) void loadSourceHealthDetails();
+          }}
+        >
+          <summary>
+            <div>
+              <strong>采集状态</strong>
+              <span>
+                来源 {collectionHealth.summary.healthySourceCount}/{collectionHealth.summary.monitoredSourceCount} 正常 ·
+                今日采集 {collectionHealth.summary.receivedTotal} ·
+                入池 {collectionHealth.summary.keptTotal} ·
+                AI强相关 {collectionHealth.summary.aiRelevantKeepRate === null ? "—" : collectionHealth.summary.aiRelevantKeepRate + "%"} ·
+                失败 {collectionHealth.summary.failedSourceCount}
+              </span>
+            </div>
+            <small>只读维护信息 · 不影响 Event 排序与事实权力</small>
+          </summary>
+          <div className="intel-source-group-grid">
+            {collectionHealth.sourceGroups.map((group) => (
+              <article key={group.groupName}>
+                <div>
+                  <strong>{sourceGroupLabel(group.groupName)}</strong>
+                  <span>{group.healthyCount}/{group.sourceCount} 可用</span>
+                </div>
+                <b className={group.failedCount ? "is-warn" : "is-ok"}>
+                  {group.failedCount ? group.failedCount + " 异常" : "正常"}
+                </b>
+                <small>
+                  AI强相关 {group.aiRelevantKeepRate === null ? "—" : group.aiRelevantKeepRate + "%"} ·
+                  成功 {group.successRate === null ? "—" : group.successRate + "%"}
+                </small>
+              </article>
+            ))}
+          </div>
+          <div className="intel-advanced-sources">
+            <strong>高级 / 待资格来源</strong>
+            <div>
+              {collectionHealth.optionalCapabilities.map((item) => (
+                <span key={item.key}><b>{item.name}</b> · {optionalCapabilityStatusLabel(item.status)} · {optionalCapabilityReasonLabel(item.reason)}</span>
+              ))}
+            </div>
+          </div>
+          <div className="intel-source-health-list">
+            {sourceHealthLoading ? <div className="intel-loading">正在读取单源运行状态…</div> : null}
+            {(collectionHealth.sourceHealth ?? []).map((source) => (
+              <article key={source.sourceId}>
+                <div>
+                  <strong>{source.sourceName}</strong>
+                  <span>{sourceGroupLabel(source.portfolioGroup)} · {source.platform} · {sourceRoleLabel(source.sourceRole)}</span>
+                </div>
+                <div>
+                  <b>{acquisitionLabel(source.acquisitionKind)}</b>
+                  <span>
+                    {source.serverRuntimeSupported ? (source.acquisitionRuntimeOwner ?? source.adapter ?? source.acquisitionReason) : "Runtime 未接通"}
+                  </span>
+                </div>
+                <div>
+                  <span>AI/原始 {source.utility.aiRelevantKeepRate === null ? "—" : source.utility.aiRelevantKeepRate + "%"}</span>
+                  <span>成功 {source.utility.successRate === null ? "—" : source.utility.successRate + "%"}</span>
+                  <span>重复 {source.utility.duplicateRate === null ? "—" : source.utility.duplicateRate + "%"}</span>
+                </div>
+                <div>
+                  <b className={source.effectiveQualification === "AUTO_READY" && source.status === "HEALTHY" ? "is-ok" : source.effectiveQualification === "DISABLED" || source.status === "FAILED" ? "is-bad" : ""}>{sourceStatusLabel(source.status)}</b>
+                  <span>{source.runtimeQualificationReason || (source.lastSuccessAt ? formatDate(source.lastSuccessAt) : source.detail || "暂无成功运行")}</span>
+                </div>
+              </article>
+            ))}
+            {!sourceHealthLoading && !sourceHealthLoaded ? (
+              <div className="intel-empty">展开后按需读取 25 条单源详情，首屏不再预加载。</div>
+            ) : null}
+          </div>
+        </details>
+      ) : null}
+      {message ? <div className="intel-message">{message}</div> : null}
+      {busy ? <div className="intel-loading">正在读取 Event / Evidence / Coverage…</div> : null}
+
+      {!busy ? (
+        <>
+        <section className="intel-stream">
+          <div className="intel-stream-meta"><span>{categoryFilter}</span><span>{visibleItems.length} 条已加载</span></div>
+          <div className="intel-timeline-feed">
+            {dayGroups.length ? dayGroups.map(([day, dayItems], dayIndex) => (
+              <details className="intel-timeline-day" key={day} open={dayIndex === 0}>
+                <summary className="intel-timeline-date"><strong>{day}</strong><span>{dayItems.length} 条</span><em>展开 / 收起</em></summary>
+                <div className="intel-timeline-items">
+                  {dayItems.map((item) => (
+                    <div className="intel-timeline-item" key={item.eventId}>
+                      <time className="intel-timeline-time">{new Date(item.publishedAt || item.collectedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", hour12: false })}</time>
+                      <div className="intel-timeline-rail" aria-hidden="true"><span /></div>
+                      <article className="intel-timeline-card">
+                        <div className="intel-timeline-card-head">
+                          <div>
+                            <span className="intel-timeline-meta">{item.sourceName} · {item.category} · {verificationLabel(item.verificationStatus)}</span>
+                            <strong>{item.presentation?.displayTitleZh || item.title}</strong>
+                          </div>
+                          <div className="intel-timeline-badges">
+                            <span>热度 {Math.round(item.topicMomentum.score)}</span>
+                            {item.curation.curated ? <span className="is-featured">精选 {item.curation.score}</span> : null}
+                          </div>
+                        </div>
+                        <p>{shortSummary(item)}</p>
+                        {item.curation.curated && (item.presentation?.editorialJudgmentZh || item.curation.recommendationReason) ? <p className="intel-recommendation-reason"><b>推荐理由：</b>{item.presentation?.editorialJudgmentZh || item.curation.recommendationReason}</p> : null}
+                        <div className="intel-timeline-facts">
+                          <span>公开信源 {item.publicReadableSourceCount ?? item.evidenceLinks.length}</span>
+                          <span>参与者 {item.topicMomentum.independentParticipantCount ?? item.topicMomentum.independentSourceCount}</span>
+                          <span>{item.evidenceScore.status === "TRUSTED" ? "证据已验证" : "证据待验证"}</span>
+                          <span>{item.topicMomentum.status === "SUSTAINED" ? "持续" : item.topicMomentum.status === "RISING" ? "升温" : "观察"}</span>
+                        </div>
+                        <details className="intel-story-detail">
+                          <summary>事件详情 · 最新进展 / 综述 / 时间线 / 热度走势</summary>
+                          <div className="intel-story-overview">
+                            <div><b>事件概览</b><p>{item.story?.overview || shortSummary(item)}</p></div>
+                            <div><b>最新进展</b><p>{item.story?.latest?.text || latestProgressText(item)}</p>{item.story?.latest ? <small>{item.story.latest.sourceName} · {formatDate(item.story.latest.publishedAt)} · {item.story.latest.authority === "PRIMARY" ? "一手来源" : item.story.latest.authority === "HIGH" ? "高权威媒体" : "信号"}</small> : null}</div>
+                          </div>
+                          <div className="intel-story-digest"><b>事件综述</b><p>{item.story?.digest.text || shortSummary(item)}</p><small>{item.story ? "确定性派生 · 非 AI 新事实" : "兼容旧快照 · 正在等待新 Story 快照"}</small></div>
+                          {item.story?.latestReport ? <div className="intel-story-latest-report"><b>优先报道</b><a href={item.story.latestReport.originalUrl ?? undefined} target={item.story.latestReport.originalUrl ? "_blank" : undefined} rel={item.story.latestReport.originalUrl ? "noreferrer" : undefined}>{item.story.latestReport.sourceName} · {item.story.latestReport.titleZh || item.story.latestReport.title}</a></div> : null}
+                          {item.story?.heatSeries.points.length ? <div className="intel-story-heat"><div><b>48 小时热度走势</b><small>6 小时步长 · 派生重放，不是持久化历史</small></div><div className="intel-story-heat-bars">{item.story.heatSeries.points.map((point) => { const max = Math.max(1, ...item.story!.heatSeries.points.map((value) => value.score)); return <span key={point.at} title={`${formatDate(point.at)} · 热度 ${point.score} · ${point.participantCount} 参与者`} style={{ height: `${Math.max(8, Math.round((point.score / max) * 48))}px` }} />; })}</div></div> : null}
+                          {item.story?.developments.length ? <div className="intel-story-developments"><b>进展节点</b>{item.story.developments.slice(0, 6).map((development) => <a key={development.id} href={development.originalUrl ?? undefined} target={development.originalUrl ? "_blank" : undefined} rel={development.originalUrl ? "noreferrer" : undefined}><time>{formatDate(development.at)}</time><span>{development.title}</span></a>)}</div> : null}
+                          {item.story?.reportTimeline.length ? <div className="intel-story-timeline"><b>报道时间线</b>{item.story.reportTimeline.slice(0, 20).map((report) => <a key={report.reportId} href={report.originalUrl ?? undefined} target={report.originalUrl ? "_blank" : undefined} rel={report.originalUrl ? "noreferrer" : undefined}><time>{formatDate(report.publishedAt)}</time><strong>{report.sourceName}</strong><span>{report.titleZh || report.title}</span></a>)}</div> : null}
+                          {item.story?.relatedEvents.length ? <div className="intel-story-related"><b>相关事件</b><div>{item.story.relatedEvents.map((related) => <span key={related.eventId}>{related.title}</span>)}</div></div> : null}
+                        </details>
+                        <div className="intel-event-actions">
+                          {item.originalUrl ? <a href={item.originalUrl} target="_blank" rel="noreferrer">原文 ↗</a> : null}
+                          {item.coverage.needsExpansion ? <button disabled={actingId === item.eventId} onClick={() => void expand(item.eventId)}>补充证据</button> : null}
+                          <button disabled={actingId === item.eventId} onClick={() => void decide(item.eventId, "WATCH")}>继续观察</button>
+                          <button disabled={actingId === item.eventId} onClick={() => void decide(item.eventId, "IGNORE")}>忽略</button>
+                          <button className="is-primary" disabled={actingId === item.eventId} onClick={() => void decide(item.eventId, "ADOPT")}>采用</button>
+                        </div>
+                      </article>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )) : <div className="intel-empty">{trackingMode === "FEATURED" ? "当前没有符合精选门槛的 Event，可查看“全部动态”。" : "当前没有符合筛选条件的 Event。"}</div>}
+            {trackingMode === "ALL" && nextCursor ? <div className="intel-load-more"><button type="button" disabled={loadingMore} onClick={() => void loadMoreEvents()}>{loadingMore ? "正在加载…" : "加载更多"}</button><span>继续读取近 7 天 Event</span></div> : null}
+          </div>
+        </section>
+        </>
+      ) : null}
+    </section>
+  );
+}

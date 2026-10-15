@@ -19,10 +19,14 @@ assert(e2e.includes("HN_ALGOLIA"), "E2E_HN_SOURCE_MISSING");
 assert(e2e.includes("GITHUB_SEARCH"), "E2E_GITHUB_SOURCE_MISSING");
 assert(e2e.includes("EVENT_DISCOVERY_E2E_MODEL_CONFIG_PENDING"), "E2E_MODEL_PENDING_STATE_MISSING");
 assert(e2e.includes("EVENT_DISCOVERY_E2E_HUMAN_DECISION_PENDING"), "E2E_HUMAN_GATE_MISSING");
+assert(e2e.includes("cleanupAcceptanceData"), "E2E_TEST_DATA_CLEANUP_MISSING");
+assert(e2e.includes("EVENT_DISCOVERY_E2E_TEST_DATA_CLEANUP=PASS"), "E2E_TEST_DATA_CLEANUP_ASSERTION_MISSING");
+assert(e2e.includes("cleanupBaselineEventIds"), "E2E_CLEANUP_BASELINE_GUARD_MISSING");
 for (const forbidden of ["recordCandidateDecision(", "createAdminContentItem(", "publishContent("]) {
   assert(!e2e.includes(forbidden), "E2E_MUST_NOT_AUTO_DECIDE_OR_PUBLISH:" + forbidden);
 }
 
+console.log("EVENT_DISCOVERY_E2E_TEST_DATA_CLEANUP=PASS");
 console.log("EVENT_DISCOVERY_E2E_REAL_COLLECTION=PASS");
 console.log("EVENT_DISCOVERY_E2E_EXPANSION_CHAIN=PASS");
 console.log("EVENT_DISCOVERY_E2E_MODEL_GATE=PASS");

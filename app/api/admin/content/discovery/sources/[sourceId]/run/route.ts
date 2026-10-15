@@ -11,9 +11,8 @@ export async function POST(
   try {
     const user = await requireAdminRequest(request);
     const { sourceId } = await params;
-    const body = await request.json().catch(() => ({}));
-    const input = body && typeof body === "object" ? (body as { manualUrl?: string }) : {};
-    return NextResponse.json({ run: await runSourceCollection(user, sourceId, input) });
+    await request.json().catch(() => ({}));
+    return NextResponse.json({ run: await runSourceCollection(user, sourceId) });
   } catch (error) {
     return contentWorkbenchError(error, "COLLECTION_RUN_FAILED") ??
       NextResponse.json({ error: "COLLECTION_RUN_FAILED" }, { status: 500 });

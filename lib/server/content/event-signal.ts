@@ -40,20 +40,32 @@ function logScale(value: number, reference: number) {
   return Math.min(100, (Math.log1p(value) / Math.log1p(reference)) * 100);
 }
 
+function rankScore(value: unknown) {
+  const rank = finiteNumber(value);
+  if (!rank) return 0;
+  if (rank <= 3) return 100;
+  if (rank <= 10) return 85;
+  if (rank <= 20) return 65;
+  if (rank <= 50) return 40;
+  return 20;
+}
+
 export function normalizeHnSignal(value: unknown): NormalizedPlatformSignal {
   const metrics = record(value);
   const points = finiteNumber(metrics.points);
   const comments = finiteNumber(metrics.comments);
   const pointScore = logScale(points, 500);
   const commentScore = logScale(comments, 200);
+  const ranking = rankScore(metrics.trendRank);
 
   return {
-    score: clampScore(pointScore * 0.7 + commentScore * 0.3),
+    score: clampScore(pointScore * 0.55 + commentScore * 0.2 + ranking * 0.25),
     components: {
       points,
       comments,
       pointScore: clampScore(pointScore),
-      commentScore: clampScore(commentScore)
+      commentScore: clampScore(commentScore),
+      rankScore: ranking
     }
   };
 }
@@ -66,16 +78,59 @@ export function normalizeGithubSignal(value: unknown): NormalizedPlatformSignal 
   const starScore = logScale(stars, 10_000);
   const forkScore = logScale(forks, 2_000);
   const activityScore = logScale(openIssues, 500);
+  const ranking = rankScore(metrics.trendRank);
 
   return {
-    score: clampScore(starScore * 0.65 + forkScore * 0.25 + activityScore * 0.1),
+    score: clampScore(starScore * 0.5 + forkScore * 0.2 + activityScore * 0.1 + ranking * 0.2),
     components: {
       stars,
       forks,
       openIssues,
       starScore: clampScore(starScore),
       forkScore: clampScore(forkScore),
-      activityScore: clampScore(activityScore)
+      activityScore: clampScore(activityScore),
+      rankScore: ranking
+    }
+  };
+}
+
+export function normalizeSocialTrendSignal(value: unknown): NormalizedPlatformSignal {
+  const metrics = record(value);
+  const views = finiteNumber(metrics.views);
+  const likes = finiteNumber(metrics.likes);
+  const comments = finiteNumber(metrics.comments);
+  const favorites = finiteNumber(metrics.favorites);
+  const shares = finiteNumber(metrics.shares);
+  const heat = finiteNumber(metrics.heat);
+  const downloads = finiteNumber(metrics.downloads);
+  const points = finiteNumber(metrics.points);
+  const votes = finiteNumber(metrics.votes);
+  const ranking = rankScore(metrics.trendRank);
+  const viewScore = logScale(views || heat || downloads, 1_000_000);
+  const interactionScore = Math.max(
+    logScale(likes, 100_000),
+    logScale(comments, 20_000),
+    logScale(favorites, 50_000),
+    logScale(shares, 20_000),
+    logScale(points, 5_000),
+    logScale(votes, 5_000)
+  );
+
+  return {
+    score: clampScore(ranking * 0.45 + viewScore * 0.35 + interactionScore * 0.2),
+    components: {
+      views,
+      likes,
+      comments,
+      favorites,
+      shares,
+      heat,
+      downloads,
+      points,
+      votes,
+      rankScore: ranking,
+      viewScore: clampScore(viewScore),
+      interactionScore: clampScore(interactionScore)
     }
   };
 }
@@ -168,6 +223,24 @@ export async function calculateEventClusterSignals(eventId: string, now = new Da
     } else if (item.platform === "GITHUB") {
       adapter = "GITHUB_SEARCH";
       platformSignal = normalizeGithubSignal(item.platformMetrics);
+    } else if (
+      item.platform === "BILIBILI" ||
+      item.platform === "ZHIHU" ||
+      item.platform === "DOUYIN" ||
+      item.platform === "XIAOHONGSHU" ||
+      item.platform === "WEIBO" ||
+      item.platform === "BAIDU" ||
+      item.platform === "36KR" ||
+      item.platform === "ITHOME" ||
+      item.platform === "JUEJIN" ||
+      item.platform === "HELLOGITHUB" ||
+      item.platform === "HUGGING_FACE" ||
+      item.platform === "REDDIT" ||
+      item.platform === "YOUTUBE" ||
+      item.platform === "PRODUCT_HUNT"
+    ) {
+      adapter = "SOCIAL_TREND";
+      platformSignal = normalizeSocialTrendSignal(item.platformMetrics);
     }
 
     const engagement = platformSignal?.score ?? 0;

@@ -1,0 +1,22 @@
+[Unit]
+Description=OPC unified SYSTEM source collection (no automatic AI)
+Wants=network-online.target
+After=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/opt/opc-services/opc-collection-runtime/current
+Environment=NODE_ENV=production
+EnvironmentFile=/var/www/opc-ai/.env.local
+UnsetEnvironment=OPC_AI_ANALYSIS_BASE_URL OPC_AI_ANALYSIS_API_KEY OPC_AI_ANALYSIS_MODEL DATABASE_MIGRATION_URL
+ExecStart=/usr/bin/node --network-family-autoselection-attempt-timeout=2000 --conditions=react-server --import tsx scripts/run-server-native-automatic-cycle.ts --confirm=SERVER-NATIVE-COLLECTION-PRODUCTION
+TimeoutStartSec=30min
+KillMode=control-group
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+Nice=10
+CPUQuota=50%
+MemoryMax=512M
+

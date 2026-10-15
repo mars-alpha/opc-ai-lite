@@ -439,7 +439,7 @@ export function AdminContentStudioWorkspace({ initialSelectedId = "" }: { initia
               <strong>{item.title}</strong>
               <span>{item.category || "未分类"} · {formatDate(item.updatedAt)}</span>
             </button>
-          )) : <div className="admin-empty">还没有内容。先从“今日情报”采用一个选题。</div>}
+          )) : <div className="admin-empty">还没有内容。先从“热点追踪”采用一个选题。</div>}
         </div>
       </aside>
 

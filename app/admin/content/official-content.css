@@ -429,6 +429,106 @@
 .official-source-list a:hover,
 .official-latest-list a:hover { text-decoration: underline; }
 
+.official-topic-diagnosis {
+  display: grid;
+  gap: 12px;
+}
+.official-diagnosis-head {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #d9e5f7;
+  border-radius: 9px;
+  background: #f7faff;
+}
+.official-diagnosis-head > div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.official-diagnosis-head span,
+.official-diagnosis-head small {
+  color: var(--oc-muted);
+  font-size: 12px;
+}
+.official-diagnosis-head strong {
+  color: #245fd6;
+  font-size: 16px;
+}
+.official-diagnosis-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.official-diagnosis-grid article {
+  min-width: 0;
+  padding: 11px 12px;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  border: 1px solid var(--oc-line);
+  border-radius: 9px;
+  background: #fff;
+}
+.official-diagnosis-grid article.wide { grid-column: 1 / -1; }
+.official-diagnosis-grid span,
+.official-diagnosis-notes span,
+.official-diagnosis-empty span {
+  color: var(--oc-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.official-diagnosis-grid strong {
+  color: #344761;
+  font-size: 14px;
+}
+.official-diagnosis-grid p {
+  margin: 0;
+  color: #53647d;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.official-diagnosis-notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.official-diagnosis-notes > div {
+  padding: 11px 12px;
+  display: grid;
+  gap: 5px;
+  border-radius: 9px;
+  background: var(--oc-soft);
+}
+.official-diagnosis-notes strong {
+  color: #42536d;
+  font-size: 13px;
+}
+.official-diagnosis-notes span::before {
+  content: "·";
+  margin-right: 5px;
+}
+.official-diagnosis-empty {
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px dashed #d8e2f0;
+  border-radius: 9px;
+  background: #fafcff;
+}
+.official-diagnosis-empty > div {
+  display: grid;
+  gap: 4px;
+}
+.official-diagnosis-empty strong {
+  color: #344761;
+  font-size: 14px;
+}
+
 .official-ai-assist {
   margin: 4px 0 18px;
   padding: 14px 16px;
@@ -1904,6 +2004,64 @@
   .content-review-checks { grid-template-columns: 1fr; }
 }
 
+.official-discovery-route-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.official-discovery-route-grid button {
+  min-width: 0;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  border: 1px solid #e3e8ef;
+  border-radius: 9px;
+  background: #fbfcfe;
+  color: #65758a;
+  cursor: pointer;
+}
+.official-discovery-route-grid button strong {
+  color: #334760;
+  font-size: 12px;
+}
+.official-discovery-route-grid button span {
+  font-size: 11px;
+  line-height: 1.45;
+}
+.official-discovery-route-grid button.is-active {
+  border-color: #9dbbea;
+  background: #f1f6ff;
+  box-shadow: inset 3px 0 0 #4b82d2;
+}
+.official-topic-class-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.official-topic-class-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border: 1px solid #e3e8ef;
+  border-radius: 999px;
+  background: #fbfcfe;
+  color: #67768b;
+  font-size: 11px;
+  cursor: pointer;
+}
+.official-topic-class-grid label.is-active {
+  border-color: #a7c0e7;
+  background: #eef5ff;
+  color: #416a9e;
+}
+.official-topic-class-grid input {
+  margin: 0;
+  accent-color: #4b82d2;
+}
+
+
 @media (max-width: 1180px) {
   .official-hotspot-layout { grid-template-columns: 340px minmax(0,1fr); }
   .official-latest-list article {
@@ -1941,7 +2099,8 @@
   .official-stepbar > button { border-right: 0; border-bottom: 1px solid var(--oc-line); }
   .official-stepbar > button:last-child { border-bottom: 0; }
   .official-detail-meta,
-  .official-form-grid { grid-template-columns: 1fr; }
+  .official-form-grid,
+  .official-discovery-route-grid { grid-template-columns: 1fr; }
   .official-detail-meta > div { border-right: 0; border-bottom: 1px solid var(--oc-line); }
   .official-detail-meta > div:last-child { border-bottom: 0; }
   .official-detail-head,
@@ -1958,4 +2117,79 @@
   .official-topic-list article > div:last-child { justify-items: start; }
   .official-latest-list article { grid-template-columns: 1fr; }
   .official-latest-list article .official-tag-row { display: flex; }
+}
+.official-demand-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.official-demand-grid article {
+  min-width: 0;
+  padding: 11px 12px;
+  display: grid;
+  gap: 8px;
+  border: 1px solid #e3e8ef;
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+.official-demand-grid article header,
+.official-demand-grid article footer,
+.official-demand-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.official-demand-grid article header > div {
+  display: grid;
+  gap: 4px;
+}
+.official-demand-grid article header span,
+.official-demand-grid article footer span,
+.official-demand-grid article summary {
+  color: #8190a5;
+  font-size: 11px;
+}
+.official-demand-grid article header strong {
+  color: #31455f;
+  font-size: 13px;
+}
+.official-demand-grid article header em {
+  color: #356fd3;
+  font-size: 11px;
+  font-style: normal;
+}
+.official-demand-grid article p,
+.official-demand-grid article blockquote {
+  margin: 0;
+  color: #66758b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.official-demand-grid article blockquote {
+  margin-top: 7px;
+  padding-left: 9px;
+  border-left: 2px solid #dbe6f5;
+}
+.official-demand-empty {
+  padding: 12px 13px;
+  border: 1px dashed #dfe6ef;
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+.official-demand-empty > div {
+  display: grid;
+  gap: 4px;
+}
+.official-demand-empty strong {
+  color: #334760;
+  font-size: 13px;
+}
+.official-demand-empty span {
+  color: #8794a7;
+  font-size: 11px;
+}
+
+@media (max-width: 700px) {
+  .official-demand-grid { grid-template-columns: 1fr; }
 }

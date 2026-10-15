@@ -1,3 +1,5 @@
+import { IGNORE_REASONS, type IgnoreReason } from "../../content/intelligence-policy";
+
 export const CANDIDATE_DECISIONS = ["ADOPT", "WATCH", "IGNORE"] as const;
 export type CandidateDecision = (typeof CANDIDATE_DECISIONS)[number];
 
@@ -75,6 +77,11 @@ export function normalizeCandidateDecision(value: unknown): CandidateDecision {
     throw new Error("INVALID_CANDIDATE_DECISION");
   }
   return value as CandidateDecision;
+}
+
+export function normalizeIgnoreReason(value: unknown): IgnoreReason {
+  if (typeof value !== "string" || !IGNORE_REASONS.includes(value as IgnoreReason)) return "OTHER";
+  return value as IgnoreReason;
 }
 
 export function normalizeSignalScore(value: unknown) {

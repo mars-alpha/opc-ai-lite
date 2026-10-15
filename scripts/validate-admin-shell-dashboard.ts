@@ -10,13 +10,28 @@ const dashboard = fs.readFileSync("app/admin/page.tsx", "utf8");
 const dashboardData = fs.readFileSync("lib/server/admin/users.ts", "utf8");
 
 for (const token of [
+  'label: "平台"',
   'label: "运营总览"',
-  'label: "内容采集"',
+  'label: "内容"',
+  'label: "来源管理"',
+  'label: "热点追踪"',
+  'label: "课程"',
   'label: "课程维护"',
   'label: "学习洞察"',
+  'label: "用户"',
   'label: "用户与权益"'
 ]) {
   assert(nav.includes(token), "NAV_REQUIRED:" + token);
+}
+
+for (const [before, after] of [
+  ['label: "平台"', 'label: "内容"'],
+  ['label: "内容"', 'label: "课程"'],
+  ['label: "课程"', 'label: "用户"'],
+  ['href: "/admin/sources"', 'href: "/admin/intelligence"'],
+  ['href: "/admin/courses"', 'href: "/admin/learning"']
+]) {
+  assert(nav.indexOf(before) < nav.indexOf(after), "NAV_ORDER:" + before + ">" + after);
 }
 
 for (const token of [
@@ -25,7 +40,11 @@ for (const token of [
   'href: "/workspace"',
   'Workflow / Prompt / Skill',
   '模型与连接',
-  '系统状态与审计'
+  '系统状态与审计',
+  'label: "内部"',
+  'href: "/admin/cluster-review"',
+  'label: "Cluster 审核"',
+  'label: "人工采集"'
 ]) {
   assert(!nav.includes(token), "NAV_SUPERSEDED:" + token);
 }
@@ -53,8 +72,8 @@ assert(dashboardData.includes("CURRENT_CURRICULUM_SLUGS"), "DASHBOARD_COURSE_COU
 assert(dashboardData.includes('inArray(contentItems.status, ["DRAFT", "REVIEW"])'), "DASHBOARD_PENDING_CONTENT_MUST_MATCH_WORKBENCH");
 assert(dashboardData.includes('["OPEN", "ANALYSIS_READY", "UNDER_REVIEW"]'), "DASHBOARD_ACTIVE_INSIGHTS_MUST_USE_ACTIONABLE_STATES");
 assert(!dashboardData.includes("qualityRisks"), "DASHBOARD_LEGACY_QUALITY_RISK_SUMMARY_MUST_BE_REMOVED");
-assert(nav.includes('href: "/admin/content?view=strategy"'), "CONTENT_NAV_MUST_OPEN_STRATEGY");
-assert(dashboard.includes('href: "/admin/content?view=strategy"'), "CONTENT_SHORTCUT_MUST_OPEN_STRATEGY");
+assert(nav.includes('href: "/admin/intelligence"'), "INTELLIGENCE_NAV_REQUIRED");
+assert(dashboard.includes('href: "/admin/intelligence"'), "INTELLIGENCE_SHORTCUT_REQUIRED");
 assert(dashboard.includes('href: "/admin/content?view=workbench"'), "PENDING_CONTENT_MUST_OPEN_WORKBENCH");
 console.log("ADMIN_SHELL_NAVIGATION=PASS");
 console.log("ADMIN_DASHBOARD_REAL_DATA=PASS");

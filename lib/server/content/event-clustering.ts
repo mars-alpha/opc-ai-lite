@@ -13,7 +13,7 @@ import {
 } from "../db/schema";
 import { normalizeEventSeedTitle } from "./event-seed-clustering";
 
-export const EVENT_CLUSTER_RULE_VERSION = "event-cluster-v1";
+export const EVENT_CLUSTER_RULE_VERSION = "event-cluster-v4";
 export const EVENT_CLUSTER_TIME_WINDOW_HOURS = 72;
 export const EVENT_CLUSTER_THRESHOLD = 68;
 
@@ -28,8 +28,12 @@ const STOP_WORDS = new Set([
 type EventLike = {
   id: string;
   title: string;
+  summary?: string | null;
   keywords: unknown;
   entities: unknown;
+  eventType?: string;
+  primaryEntityId?: string | null;
+  subjectEntityId?: string | null;
   firstSeenAt: Date;
   lastSeenAt: Date;
 };
@@ -37,7 +41,7 @@ type EventLike = {
 export type EventClusterCandidateScore = {
   eventId: string;
   score: number;
-  reason: "TITLE_EXACT" | "TITLE_TOKEN_OVERLAP";
+  reason: "TITLE_EXACT" | "TITLE_TOKEN_OVERLAP" | "ACTION_ENTITY_MATCH";
   metadata: {
     titleScore: number;
     tokenOverlap: number;
@@ -46,6 +50,7 @@ export type EventClusterCandidateScore = {
     entityOverlap: number;
     sharedTokenCount: number;
     hoursApart: number;
+    actionSignature?: string | null;
     rules: string[];
   };
 };
@@ -101,6 +106,56 @@ function termOverlap(left: string[], right: string[]) {
   return overlapStats(normalizedTerms(left), normalizedTerms(right)).overlap;
 }
 
+type EventObjectSignature = "SYNTHID" | "CLAUDE_HAIKU";
+type EventActionSignature =
+  | "PRODUCT_UI_ROLLOUT"
+  | "EU_TEXT_PROVENANCE"
+  | "AI_CONTENT_DETECTOR_ROLLOUT"
+  | "MODEL_VARIANT_RELEASE";
+
+function objectSignature(event: EventLike): EventObjectSignature | null {
+  const text = [event.title, event.summary ?? ""].join(" ").normalize("NFKC").toLocaleLowerCase();
+  const entities = new Set(stringList(event.entities));
+
+  if (/\bsynthid\b/i.test(text)) return "SYNTHID";
+
+  const explicitClaudeHaiku = /claude\s+haiku|haiku\s*5(?:\.5)?/i.test(text);
+  const claudeSmallModel =
+    entities.has("model_claude") &&
+    /小模型|small model|small-model|lightweight model|轻量模型/i.test(text);
+  if (explicitClaudeHaiku || claudeSmallModel) return "CLAUDE_HAIKU";
+
+  return null;
+}
+
+function actionSignature(event: EventLike): EventActionSignature | null {
+  const text = [event.title, event.summary ?? ""].join(" ").normalize("NFKC").toLocaleLowerCase();
+  const object = objectSignature(event);
+
+  const uiObject =
+    /\bui\b|\binterface\b|user interface|interactive visual|visual experience|界面|交互式|可视化|视觉化|聊天框/.test(text);
+  const rolloutAction =
+    /launch|roll(?:ing)? out|release|introduc|new interface|free to use|推出|上线|发布|今起|免费用|全新界面|长出界面/.test(text);
+  if (uiObject && rolloutAction) return "PRODUCT_UI_ROLLOUT";
+
+  const provenanceObject = /watermark|provenance|水印|溯源/.test(text);
+  const euScope = /\beu\b|european union|欧盟/.test(text);
+  if (provenanceObject && euScope) return "EU_TEXT_PROVENANCE";
+
+  const detectorObject = /detector|detect|identify|verify|检测器|检测|识别|验证/.test(text);
+  if (object === "SYNTHID" && detectorObject && rolloutAction) return "AI_CONTENT_DETECTOR_ROLLOUT";
+
+  const explicitModelRelease =
+    event.eventType === "MODEL_RELEASE" ||
+    /new model|model release|launch|release|推出|发布|上线|新模型/.test(text);
+  const versionedClaudeHaikuTitle = /claude\s+haiku\s+\d+(?:\.\d+)?/i.test(event.title);
+  if (object === "CLAUDE_HAIKU" && (explicitModelRelease || versionedClaudeHaikuTitle)) {
+    return "MODEL_VARIANT_RELEASE";
+  }
+
+  return null;
+}
+
 function versionTokens(value: string) {
   return new Set(
     value
@@ -126,6 +181,49 @@ export function scoreEventClusterCandidate(
     Math.abs(anchor.lastSeenAt.getTime() - candidate.lastSeenAt.getTime()) /
     (60 * 60 * 1000);
   if (hoursApart > EVENT_CLUSTER_TIME_WINDOW_HOURS) return null;
+  const anchorEntities = stringList(anchor.entities);
+  const candidateEntities = stringList(candidate.entities);
+  const entityOverlap = termOverlap(anchorEntities, candidateEntities);
+  const anchorAction = actionSignature(anchor);
+  const candidateAction = actionSignature(candidate);
+  const sharedAction = anchorAction && anchorAction === candidateAction ? anchorAction : null;
+
+  if (sharedAction && entityOverlap > 0 && !hasVersionConflict(anchor.title, candidate.title)) {
+    return {
+      eventId: candidate.id,
+      score: hoursApart <= 24 ? 96 : 92,
+      reason: "ACTION_ENTITY_MATCH",
+      metadata: {
+        titleScore: 0,
+        tokenOverlap: 0,
+        jaccard: 0,
+        keywordOverlap: termOverlap(stringList(anchor.keywords), stringList(candidate.keywords)),
+        entityOverlap,
+        sharedTokenCount: 0,
+        hoursApart,
+        actionSignature: sharedAction,
+        rules: ["ACTION_SIGNATURE_MATCH", "ENTITY_OVERLAP", "TIME_WINDOW"]
+      }
+    };
+  }
+
+  if (
+    (anchor.eventType ?? "INDUSTRY_HOTSPOT") !== "INDUSTRY_HOTSPOT" &&
+    (candidate.eventType ?? "INDUSTRY_HOTSPOT") !== "INDUSTRY_HOTSPOT" &&
+    anchor.eventType !== candidate.eventType
+  ) return null;
+  if (
+    anchor.primaryEntityId &&
+    candidate.primaryEntityId &&
+    anchor.primaryEntityId !== candidate.primaryEntityId &&
+    entityOverlap === 0
+  ) return null;
+  if (
+    anchor.subjectEntityId &&
+    candidate.subjectEntityId &&
+    anchor.subjectEntityId !== candidate.subjectEntityId &&
+    ["MODEL_RELEASE", "PRODUCT_FEATURE_RELEASE", "API_PLATFORM_UPDATE", "OPEN_SOURCE"].includes(anchor.eventType ?? "")
+  ) return null;
 
   const leftTitle = normalizeEventSeedTitle(anchor.title);
   const rightTitle = normalizeEventSeedTitle(candidate.title);
@@ -144,6 +242,7 @@ export function scoreEventClusterCandidate(
         entityOverlap: termOverlap(stringList(anchor.entities), stringList(candidate.entities)),
         sharedTokenCount: titleTokens(anchor.title).size,
         hoursApart,
+        actionSignature: null,
         rules: ["TITLE_EXACT", "TIME_WINDOW"]
       }
     };
@@ -158,12 +257,11 @@ export function scoreEventClusterCandidate(
   if (titleStats.intersection < 2) return null;
 
   const keywordOverlap = termOverlap(stringList(anchor.keywords), stringList(candidate.keywords));
-  const entityOverlap = termOverlap(stringList(anchor.entities), stringList(candidate.entities));
+  if (anchorEntities.length && candidateEntities.length && entityOverlap === 0) return null;
   let titleScore = Math.round(Math.max(titleStats.jaccard * 100, titleStats.overlap * 78));
 
-  let score = titleScore;
+  let score = titleScore + Math.round(entityOverlap * 18);
   if (titleScore >= 45) {
-    score += Math.round(entityOverlap * 10);
     score += Math.round(keywordOverlap * 6);
   }
   if (titleScore >= 55 && hoursApart <= 12) score += 5;
@@ -184,7 +282,8 @@ export function scoreEventClusterCandidate(
       entityOverlap,
       sharedTokenCount: titleStats.intersection,
       hoursApart,
-      rules: ["TITLE_TOKEN_OVERLAP", "TIME_WINDOW"]
+      actionSignature: null,
+      rules: ["TITLE_TOKEN_OVERLAP", "ENTITY_COMPATIBLE", "EVENT_TYPE_COMPATIBLE", "TIME_WINDOW"]
     }
   };
 }
@@ -295,6 +394,69 @@ async function ensurePrimaryCluster(event: EventLike) {
   return refreshClusterAggregate(cluster.id);
 }
 
+async function mergeEventClusters(input: {
+  leftClusterId: string;
+  rightClusterId: string;
+  reason: EventClusterCandidateScore;
+}) {
+  const db = getDatabase();
+  if (input.leftClusterId === input.rightClusterId) {
+    const [same] = await db.select().from(contentEventClusters)
+      .where(eq(contentEventClusters.id, input.leftClusterId)).limit(1);
+    if (!same) throw new Error("EVENT_CLUSTER_NOT_FOUND");
+    return same;
+  }
+
+  const clusters = await db.select().from(contentEventClusters)
+    .where(inArray(contentEventClusters.id, [input.leftClusterId, input.rightClusterId]));
+  if (clusters.length !== 2) throw new Error("EVENT_CLUSTER_MERGE_TARGET_MISSING");
+
+  const [winner, loser] = [...clusters].sort((a, b) =>
+    a.firstSeenAt.getTime() - b.firstSeenAt.getTime() ||
+    a.createdAt.getTime() - b.createdAt.getTime() ||
+    a.id.localeCompare(b.id)
+  );
+  const loserMembers = await db.select().from(contentEventClusterMembers)
+    .where(eq(contentEventClusterMembers.clusterId, loser.id));
+
+  await db.transaction(async (tx) => {
+    for (const member of loserMembers) {
+      await tx.update(contentEventClusterMembers).set({
+        clusterId: winner.id,
+        role: member.eventId === winner.primaryEventId ? "PRIMARY" : "MEMBER",
+        clusterRuleVersion: EVENT_CLUSTER_RULE_VERSION,
+        mergeReason: input.reason.reason,
+        mergeScore: input.reason.score,
+        mergeMetadata: {
+          ...input.reason.metadata,
+          mergedFromClusterId: loser.id,
+          mergedIntoClusterId: winner.id
+        }
+      }).where(eq(contentEventClusterMembers.id, member.id));
+    }
+
+    const winnerMetadata = winner.metadata && typeof winner.metadata === "object" && !Array.isArray(winner.metadata)
+      ? winner.metadata as Record<string, unknown>
+      : {};
+    const previousMerged = Array.isArray(winnerMetadata.mergedClusterIds)
+      ? winnerMetadata.mergedClusterIds.filter((value): value is string => typeof value === "string")
+      : [];
+    await tx.update(contentEventClusters).set({
+      metadata: {
+        ...winnerMetadata,
+        mergedClusterIds: [...new Set([...previousMerged, loser.id])],
+        lastMergeRuleVersion: EVENT_CLUSTER_RULE_VERSION,
+        lastMergeReason: input.reason.reason,
+        lastMergeScore: input.reason.score
+      },
+      updatedAt: new Date()
+    }).where(eq(contentEventClusters.id, winner.id));
+    await tx.delete(contentEventClusters).where(eq(contentEventClusters.id, loser.id));
+  });
+
+  return refreshClusterAggregate(winner.id);
+}
+
 export async function runEventClustering(eventId: string) {
   const db = getDatabase();
   const [target] = await db
@@ -304,7 +466,7 @@ export async function runEventClustering(eventId: string) {
     .limit(1);
   if (!target) throw new Error("EVENT_NOT_FOUND");
 
-  const cluster = await ensurePrimaryCluster(target);
+  let cluster = await ensurePrimaryCluster(target);
   const start = new Date(target.firstSeenAt.getTime() - EVENT_CLUSTER_TIME_WINDOW_HOURS * 60 * 60 * 1000);
   const end = new Date(target.lastSeenAt.getTime() + EVENT_CLUSTER_TIME_WINDOW_HOURS * 60 * 60 * 1000);
 
@@ -338,9 +500,6 @@ export async function runEventClustering(eventId: string) {
 
     for (const candidate of candidates) {
       if (memberIds.has(candidate.id)) continue;
-      const existing = membershipByEvent.get(candidate.id);
-      if (existing && existing.clusterId !== cluster.id) continue;
-
       let best: EventClusterCandidateScore | null = null;
       for (const anchor of memberEvents) {
         const scored = scoreEventClusterCandidate(anchor, candidate);
@@ -348,6 +507,21 @@ export async function runEventClustering(eventId: string) {
         if (!best || scored.score > best.score) best = scored;
       }
       if (!best) continue;
+
+      const existing = membershipByEvent.get(candidate.id);
+      if (existing && existing.clusterId !== cluster.id) {
+        cluster = await mergeEventClusters({
+          leftClusterId: cluster.id,
+          rightClusterId: existing.clusterId,
+          reason: best
+        });
+        const merged = await getMemberEvents(cluster.id);
+        memberEvents = merged.events;
+        memberIds.clear();
+        for (const memberEvent of memberEvents) memberIds.add(memberEvent.id);
+        changed = true;
+        continue;
+      }
 
       await db.insert(contentEventClusterMembers).values({
         clusterId: cluster.id,
@@ -366,6 +540,13 @@ export async function runEventClustering(eventId: string) {
   }
 
   const refreshed = await refreshClusterAggregate(cluster.id);
+  await db.update(contentEventClusters).set({
+    clusterRuleVersion: EVENT_CLUSTER_RULE_VERSION,
+    updatedAt: new Date()
+  }).where(eq(contentEventClusters.id, refreshed.id));
+  await db.update(contentEventClusterMembers).set({
+    clusterRuleVersion: EVENT_CLUSTER_RULE_VERSION
+  }).where(eq(contentEventClusterMembers.clusterId, refreshed.id));
   return getEventClusterResearchPack(refreshed.primaryEventId);
 }
 
