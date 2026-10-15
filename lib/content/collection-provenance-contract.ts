@@ -13,21 +13,6 @@ export const COLLECTION_PURPOSES = [
 ] as const;
 export type CollectionPurpose = (typeof COLLECTION_PURPOSES)[number];
 
-export const MANUAL_COLLECTION_TASK_TYPES = ["COMPETITOR", "TEMPORARY"] as const;
-export type ManualCollectionTaskType = (typeof MANUAL_COLLECTION_TASK_TYPES)[number];
-
-export const MANUAL_COLLECTION_RUN_MODES = ["ONCE", "CONTINUOUS"] as const;
-export type ManualCollectionRunMode = (typeof MANUAL_COLLECTION_RUN_MODES)[number];
-
-export const MANUAL_COLLECTION_TASK_STATUSES = [
-  "ACTIVE",
-  "PAUSED",
-  "COMPLETED",
-  "FAILED",
-  "ARCHIVED"
-] as const;
-export type ManualCollectionTaskStatus = (typeof MANUAL_COLLECTION_TASK_STATUSES)[number];
-
 export type CollectionProvenance = {
   origin: CollectionOrigin;
   collectionPurpose: CollectionPurpose;
@@ -87,28 +72,4 @@ export function provenanceMetadata(provenance: CollectionProvenance) {
     manualTaskId: provenance.taskId ?? null,
     collectionRunKind: provenance.runKind ?? null
   } as const;
-}
-
-export function normalizeManualTaskType(value: unknown): ManualCollectionTaskType {
-  const normalized = String(value ?? "").trim().toUpperCase();
-  if (!MANUAL_COLLECTION_TASK_TYPES.includes(normalized as ManualCollectionTaskType)) {
-    throw new Error("MANUAL_COLLECTION_TASK_TYPE_INVALID");
-  }
-  return normalized as ManualCollectionTaskType;
-}
-
-export function normalizeManualRunMode(value: unknown): ManualCollectionRunMode {
-  const normalized = String(value ?? "ONCE").trim().toUpperCase();
-  if (!MANUAL_COLLECTION_RUN_MODES.includes(normalized as ManualCollectionRunMode)) {
-    throw new Error("MANUAL_COLLECTION_RUN_MODE_INVALID");
-  }
-  return normalized as ManualCollectionRunMode;
-}
-
-export function normalizeManualTaskStatus(value: unknown): ManualCollectionTaskStatus {
-  const normalized = String(value ?? "ACTIVE").trim().toUpperCase();
-  if (!MANUAL_COLLECTION_TASK_STATUSES.includes(normalized as ManualCollectionTaskStatus)) {
-    throw new Error("MANUAL_COLLECTION_TASK_STATUS_INVALID");
-  }
-  return normalized as ManualCollectionTaskStatus;
 }

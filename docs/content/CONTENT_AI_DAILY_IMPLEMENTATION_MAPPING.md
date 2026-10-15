@@ -5,7 +5,7 @@ Task: CONTENT-AI-DAILY-CONTRACT-001
 
 ## 1. Purpose
 
-把当前内容采集实现映射到目标 AI 日报五阶段合同。
+把现有内容生产兼容代码映射到 AI 日报下游阶段；采集质量反馈的入口、状态和历史隔离由采集合同及 `TASKS.md` 管理。本文件不定义热点追踪人工 Gate。
 
 本文件只做 Mapping，不授权本轮修改数据库、业务代码或 UI。
 
@@ -24,11 +24,11 @@ SYSTEM Collection Runtime
 → 热点追踪：沿用既有排版（当前热点 / 今日值得做 / 精选 / 全部动态），数据来自统一 Event / Evidence / Momentum / Curation 闭环
 
 /admin/manual-collection
-→ RETIRED：仅重定向 /admin/sources；旧 API/Core 暂为 Runner ingest compatibility
+→ RETIRED：仅保留兼容重定向 /admin/sources；旧 Manual Core 与 Runner 依赖已退出 current runtime
 
 /admin/content
-→ 现有内容工作台兼容入口仅保留现状
-→ 在 Source Management / SYSTEM Runtime / Topic Momentum / Radar / Human Acceptance 完成前，不作为 current roadmap 开发对象
+→ 现有内容工作台兼容入口仍在运行；其中旧 Event 决策控件列入 `SOURCE-QUALITY-FEEDBACK` 清理
+→ 内容选题与五阶段生产入口待后续独立规划，不消费热点追踪质量标签
 ```
 
 Current architecture 不再建立 SYSTEM / MANUAL 两套产品链。管理员操作只是在 Source Management 中建立或调整 Source/Creator/Connection；正常采集统一由 SYSTEM Runtime 执行。历史 MANUAL provenance / Task / Result 仅用于兼容与审计，不再作为未来数据 Owner。
@@ -49,8 +49,6 @@ Current architecture 不再建立 SYSTEM / MANUAL 两套产品链。管理员操
 - `lib/server/content/intelligence-read-model.ts`（PRE-026：confirmed / unverified Secondary Discovery Candidate）
 - `lib/server/content/event-ai-analysis.ts`（PRE-026：Expansion Evidence reference context + strict validated OPC Analysis）
 - `lib/server/content/comment-insight.ts`（Phase 025：Trigger-based Demand Signal only）
-- `lib/server/content/adoption.ts`
-- `lib/server/content/content-brief-enrichment.ts`
 - `lib/server/content/workbench-contract.ts`
 - `lib/server/content/workbench.ts`
 - UI owner: `AdminContentStudioWorkspace`
@@ -69,25 +67,15 @@ Source Identity
 → Triggered Comment Demand Mining（QUESTION / PAIN_POINT / REQUEST / OPINION；不取得事实权力）
 → Event Momentum v2（0–24h RISING / 24–168h SUSTAINED；PRESENTATION_ONLY；6/12/24h adaptive follow-up budget）
 → Presentation Enrichment（中文标题 / 摘要 / why-it-matters；不覆盖原始来源）
-→ Human ADOPT / WATCH / IGNORE
 → STOP：上游 Source Management / SYSTEM Runtime / Radar / Runtime Quality Gate
-→ Gate 全部通过后才重新规划 Content DRAFT / Evidence Pack / Workbench / Review / Publish
+→ Content 选题入口与 DRAFT / Evidence Pack / Workbench / Review / Publish 后续独立规划
 ```
 
 ## 3. Keep / Rewrite / Exit
 
 ### CURRENT ROADMAP GATE
 
-内容工作台相关的 Rewrite / Extend 现在全部后置。当前只允许先完成：
-
-1. Source Management / Creator Qualification / Connection / Source Onboarding。
-2. Source Acquisition Routing：Source Identity 与抓取 Route 分离，统一 Primary/Fallback/Cost/Health。
-3. SYSTEM Collection Runtime + Cheap Relevance / Layered Dedup：先低成本过滤再进入 Event/AI。
-4. 3–7 day Topic Momentum：替代 Rising，按 Event 状态自适应 follow-up budget。
-5. Presentation Enrichment：英文/GitHub/X 等内容中文化但 originalUrl/provenance 不变。
-6. Radar / Today Intelligence + Integration + Human Acceptance。
-
-上述任一 Gate 未通过，不进入 Content Workbench Planning，也不借内容工作台补 Source/Collection/Intelligence 缺口。
+内容工作台的选题入口和五阶段实现不在当前采集质量反馈任务中推进。采集侧当前事实见 `docs/CURRENT_SYSTEM_FACTS.md`，后续开发顺序只见 `TASKS.md`；本文件不复述已完成 Phase，也不把旧 Event 决策当 Human Gate。
 
 
 ### KEEP
@@ -95,14 +83,14 @@ Source Identity
 以下能力与新合同方向一致，应优先复用：
 
 - Source Policy / Source Registry 分离。
-- 通用 Acquisition Family：RSS/Atom、API/JSON、generated feed/feed bridge、bounded Reader、Platform API、Browser Runner、Search/Trend/Transcript；不继续按站点堆专用 Collector。
+- 通用 Acquisition Family 的当前能力与限制由采集合同负责；内容工作台不拥有 Collector 或新的采集生命周期。
 - REFERENCE_ONLY 媒体边界。
 - canonical URL/content hash 作为 Raw 第一级去重；Event 继续使用 title/entity-action-version/semantic 聚类。
 - Observation 多来源发现事实。
 - Event Seed / Expansion / Cluster / Signal。
-- PRE-026 Secondary Discovery：官方/媒体确认 Event 与高价值待验证 Event 都可做 bounded follow-up；confirmed/unverified 有独立配额，Expansion 不取得 Verification/Hotspot authority。
-- Human ADOPT / WATCH / IGNORE。
-- Adoption 幂等性。
+- Source-managed Expansion 只通过现有 SYSTEM 及采集合同约束运行，不取得 Verification/Hotspot authority。
+- 旧 Event 决策表仅保留历史审计；新质量标签不会驱动内容生产。
+- 既有 Adoption/Content Draft 能力仅按真实调用链保留，不作为新采集任务扩展入口。
 - DRAFT / REVIEW / PUBLISHED 基础发布能力。
 - Source / Event / Evidence 可追溯基础。
 
@@ -134,7 +122,7 @@ Source Identity
 | Target Stage | Current Input | Current Reuse | Target Addition |
 | --- | --- | --- | --- |
 | Topic Diagnosis | Event / Signal / Sources | Event Discovery, Signal | New Artifact + Adapter |
-| Evidence Pack | Adopted Event + Sources | Evidence link, Expansion | New structured Artifact |
+| Evidence Pack | 独立内容选题确认后的 Event + Sources | Evidence link, Expansion | New structured Artifact；选题入口后续规划 |
 | Outline | Evidence Pack | none as formal owner | New Artifact |
 | Draft | Outline + Evidence | Workbench draft concepts | New lineage contract |
 | Formatted Draft | Draft + Assets | Workbench presentation | New structured blocks |
@@ -286,7 +274,7 @@ Skill 名称不进入主 UI。
 
 ```text
 Event
-→ Content Gate: Adopt
+→ Content Selection（后续单独规划）
 → Diagnosis
 → Evidence
 → Outline

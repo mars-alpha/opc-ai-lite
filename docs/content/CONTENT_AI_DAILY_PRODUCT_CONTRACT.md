@@ -21,14 +21,12 @@ AI 日报内容生产继续只服务 **AI 日报**。
 
 内容工作台不再承担通用内容工厂职责，不再以公众号、小红书、知乎、视频脚本、配音、剪映草稿或多平台分发为当前产品目标。
 
-当前唯一正式内容生产链：
-
-> Current runtime gate：该链只消费 Source Management + SYSTEM Collection Runtime + Hot Tracking 形成并经人工采用的 Event / Evidence。热点追踪的 ADOPT 当前只记录 Event 采用意图，不自动跳过 Topic Diagnosis / Evidence Pack / Draft。
+内容生产的下游阶段边界如下；选题入口需在后续内容工作台任务中重新规划。热点追踪的采集质量“采用/忽略”只生成反馈样本，不能充当内容生产 Gate。兼容页旧 Event 决策仍是实施前运行代码，退役任务与状态见 `TASKS.md`。
 
 ```text
 Source / Raw Item / Event
 → Topic Diagnosis
-→ Human Gate 1: ADOPT / WATCH / IGNORE
+→ 独立内容选题确认（入口待后续规划）
 → Evidence Pack
 → Outline
 → Draft
@@ -42,7 +40,7 @@ Source / Raw Item / Event
 ### In Scope
 
 - AI 日报候选事件的选题诊断。
-- Adopt 后的证据整理。
+- 选题确认后的证据整理。
 - 基于证据生成提纲。
 - 基于证据与提纲生成正文。
 - 中文写作自然化，但不得改变受保护事实。
@@ -134,17 +132,11 @@ Formatted Draft 必须以 Draft 为内容源，优先通过结构引用和样式
 
 ## 4. Human Gates
 
-AI Daily 只保留两个正式内容 Human Gate；全局采集侧 Gate 1“Raw/Observation → Event Candidate”由 Collection Contract 持有，不在本合同重复编号。
+采集质量反馈不属于内容生产 Gate。最终审核发布 Gate 由本合同负责；内容选题确认的入口与状态待内容工作台后续规划。全局采集侧的 Raw/Observation → Event 判断由 Collection Contract 持有。
 
-### Content Gate — Event Adoption
+### Content Selection — Later Planning
 
-```text
-ADOPT
-WATCH
-IGNORE
-```
-
-只有经过 Collection Gate 1 成为正式 Event，并在这里 ADOPT，才能进入 Evidence Pack。
+进入 Evidence Pack 前必须由独立内容生产流程确认选题。旧热点追踪 `ADOPT/WATCH/IGNORE` 不再定义该入口；兼容代码退役前只作为运行事实，不得用于新增工作流。
 
 ### Final Review Gate
 
@@ -195,7 +187,7 @@ Skill 必须：
 ### Human
 
 负责：
-- 选题最终采用。
+- 独立内容选题确认（后续明确入口与状态）。
 - 必要时修改 Evidence / Outline / Draft。
 - 最终内容责任和发布确认。
 
@@ -234,12 +226,11 @@ ANIMATION
 
 ## 8. Workflow State
 
-业务状态建议保持简洁：
+下游 Artifact 阶段建议保持简洁；入口状态后续与独立内容选题流程一起确定：
 
 ```text
 CANDIDATE
 → DIAGNOSED
-→ ADOPTED
 → EVIDENCE_READY
 → OUTLINE_READY
 → DRAFT_READY
@@ -247,7 +238,7 @@ CANDIDATE
 → PUBLISHED
 ```
 
-WATCH / IGNORE 属于 Event Decision，不伪装成 Content Draft。
+热点追踪质量标签不属于 Content Draft 状态，也不能驱动上述 Artifact 阶段。
 
 各 Artifact 自身使用版本，不通过无限增加业务状态表达编辑历史。
 

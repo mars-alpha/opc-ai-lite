@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { beijingDay, dayStart, previousDay } from "../lib/content/radar-calendar";
+import { COLLECTION_QUALITY_REASON_NAMES, type CollectionQualityReason } from "../lib/content/collection-quality-feedback-contract";
+
+type QualityView = { eventLabel: string | null; sources: Array<{ sourceId: string; label: string }>; sourceOptions: Array<{ sourceId: string; name: string }> };
 
 type HotTrackingMode = "FEATURED" | "ALL";
 type RadarCategory = "全部" | "模型" | "产品" | "开发者" | "行业" | "论文" | "社区" | "自媒体";
@@ -302,6 +305,13 @@ export function AdminIntelligenceWorkspace() {
   const [trackingMode, setTrackingMode] = useState<HotTrackingMode>("ALL");
   const [categoryFilter, setCategoryFilter] = useState<RadarCategory>("全部");
   const [sourceFilter, setSourceFilter] = useState("全部来源");
+  const [qualityFilter, setQualityFilter] = useState<"ALL" | "UNREVIEWED" | "POSITIVE" | "NEGATIVE">("ALL");
+  const [qualityByEvent, setQualityByEvent] = useState<Record<string, QualityView>>({});
+  const [qualityEditingId, setQualityEditingId] = useState<string | null>(null);
+  const [qualityAction, setQualityAction] = useState<"POSITIVE" | "NEGATIVE" | "CLEAR">("NEGATIVE");
+  const [qualitySourceId, setQualitySourceId] = useState("");
+  const [qualityReason, setQualityReason] = useState<CollectionQualityReason | "">("");
+  const [qualityNote, setQualityNote] = useState("");
   const [items, setItems] = useState<EventItem[]>([]);
   const [featuredItems, setFeaturedItems] = useState<EventItem[]>([]);
   const [currentHot, setCurrentHot] = useState<EventItem[]>([]);
@@ -332,10 +342,22 @@ export function AdminIntelligenceWorkspace() {
   } | null>(null);
 
   const readEpoch = useRef(0);
+  const qualityReadEpoch = useRef(0);
   const [clockNow, setClockNow] = useState(Date.now());
   useEffect(() => { const timer = window.setInterval(() => setClockNow(Date.now()), 60000); return () => window.clearInterval(timer); }, []);
   const [snapshotStatus, setSnapshotStatus] = useState<{ generatedAt: string; freshness: { stale: boolean; reason: string } } | null>(null);
   const [snapshotReadFailed, setSnapshotReadFailed] = useState(false);
+
+  async function loadQualityFeedback(eventIds: string[]) {
+    const epoch = ++qualityReadEpoch.current;
+    const uniqueIds = [...new Set(eventIds)];
+    for (let start = 0; start < uniqueIds.length; start += 100) {
+      const group = uniqueIds.slice(start, start + 100);
+      const data = await readJson("/api/admin/content/quality-feedback?eventIds=" + group.join(","));
+      if (epoch !== qualityReadEpoch.current) return;
+      setQualityByEvent(current => ({ ...current, ...(data.events ?? {}) }));
+    }
+  }
 
   async function loadSnapshot(clearMessage = true) {
     const epoch = ++readEpoch.current;
@@ -358,6 +380,7 @@ export function AdminIntelligenceWorkspace() {
       setWorthPracticing((data.worthPracticing ?? []) as EventItem[]);
       setReadiness(data.readiness ?? null);
       setCollectionHealth(data.collectionHealth ?? null);
+      void loadQualityFeedback([...(data.items ?? []), ...(data.featured ?? []), ...(data.currentHot ?? []), ...(data.worthPracticing ?? [])].map((item: EventItem) => item.eventId)).catch(() => setMessage("评价状态读取失败，请刷新重试。"));
     } catch (error) {
       if (epoch === readEpoch.current) { setSnapshotReadFailed(true); setMessage(error instanceof Error ? error.message : "热点追踪读取失败"); }
     } finally {
@@ -382,6 +405,7 @@ export function AdminIntelligenceWorkspace() {
         const byEvent = new Map([...current, ...more].map((item) => [item.eventId, item]));
         return [...byEvent.values()].sort((a, b) => new Date(b.timelineAt || b.publishedAt || b.collectedAt).getTime() - new Date(a.timelineAt || a.publishedAt || a.collectedAt).getTime());
       });
+      void loadQualityFeedback([...items, ...more].map(item => item.eventId)).catch(() => setMessage("历史评价状态读取失败。"));
       setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "加载更多失败");
@@ -404,44 +428,23 @@ export function AdminIntelligenceWorkspace() {
     }
   }
 
-  async function decide(eventId: string, decision: "WATCH" | "IGNORE" | "ADOPT") {
+  async function saveQuality(eventId: string, label: "POSITIVE" | "NEGATIVE" | "CLEAR", sourceChoice = qualitySourceId) {
     setActingId(eventId);
     setMessage(null);
-    ++readEpoch.current;
+    ++qualityReadEpoch.current;
     try {
-      const result = await readJson(`/api/admin/content/discovery/events/${eventId}/decision`, {
+      const options = qualityByEvent[eventId]?.sourceOptions ?? [];
+      const sourceId = sourceChoice || (options.length === 1 ? options[0].sourceId : null);
+      await readJson(`/api/admin/content/discovery/events/${eventId}/quality-feedback`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ decision, selectedTypes: [] })
+        body: JSON.stringify({ label, sourceId, reason: label === "NEGATIVE" ? qualityReason || null : null, note: label === "NEGATIVE" ? qualityNote || null : null, requestId: crypto.randomUUID() })
       });
-      ++readEpoch.current;
-      const status = result.item?.discoveryStatus;
-      if (!status) throw new Error("操作已提交，请刷新确认状态");
-      const project = (current: EventItem[]) => current.filter((item) => item.eventId !== eventId || status !== "IGNORED").map((item) => item.eventId === eventId ? { ...item, discoveryStatus: status } : item);
-      setItems(project); setFeaturedItems(project); setCurrentHot(project); setWorthPracticing(project);
-      setMessage(decision === "ADOPT" ? "已采用并记录意图；内容工作台尚未进入规划。" : decision === "WATCH" ? "已继续观察。" : "已忽略并退出当前热点追踪列表。");
-      await loadSnapshot(false);
+      await loadQualityFeedback([eventId]);
+      setQualityEditingId(null);
+      setMessage(label === "CLEAR" ? "已撤销评价，历史记录保留。" : "已记录采集质量评价；自动栏目与采集不受影响。");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "热点追踪操作失败");
-      await loadSnapshot(false);
-    } finally {
-      setActingId(null);
-    }
-  }
-
-  async function expand(eventId: string) {
-    setActingId(eventId);
-    setMessage(null);
-    try {
-      await readJson(`/api/admin/content/discovery/events/${eventId}/expansion`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({})
-      });
-      setMessage("已按 Coverage 缺口补充证据。");
-      await loadSnapshot();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "证据扩展失败");
+      setMessage(error instanceof Error ? error.message : "评价保存失败");
     } finally {
       setActingId(null);
     }
@@ -453,6 +456,10 @@ export function AdminIntelligenceWorkspace() {
     if (trackingMode === "FEATURED" && !item.curation.curated) return false;
     if (categoryFilter !== "全部" && item.category !== categoryFilter) return false;
     if (sourceFilter !== "全部来源" && item.sourceName !== sourceFilter && !item.evidenceLinks.some((link) => link.sourceName === sourceFilter)) return false;
+    const feedback = qualityByEvent[item.eventId];
+    const labels = [feedback?.eventLabel, ...(feedback?.sources.map(source => source.label) ?? [])].filter(Boolean);
+    if (qualityFilter === "UNREVIEWED" && labels.length) return false;
+    if ((qualityFilter === "POSITIVE" || qualityFilter === "NEGATIVE") && !labels.includes(qualityFilter)) return false;
     if (!normalizedQuery) return true;
     return [
       item.title,
@@ -497,6 +504,9 @@ export function AdminIntelligenceWorkspace() {
             ))}
           </nav>
           <div className="intel-command-search">
+            <select value={qualityFilter} onChange={(event) => setQualityFilter(event.target.value as typeof qualityFilter)} aria-label="人工评价筛选">
+              <option value="ALL">全部评价</option><option value="UNREVIEWED">未评价</option><option value="POSITIVE">已采用</option><option value="NEGATIVE">已忽略</option>
+            </select>
             <select value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)} aria-label="来源筛选">
               <option>全部来源</option>
               {sourceOptions.map((source) => <option key={source}>{source}</option>)}
@@ -608,7 +618,7 @@ export function AdminIntelligenceWorkspace() {
           </div>
           <p>七日可见事件 {categoryCounts7d["全部"] ?? 0} 个（存量，按事件时间）；上方采集漏斗按运行开始时间统计，重复轮询不等于新增内容。重复Raw复用规范URL、外部ID、内容/标题哈希；不再新建Event。失败运行可能部分写入，未计入成功漏斗。</p>
           <p>口径说明：“过滤保留”是多次采集留下的条次，含重复；“新增Raw”是首次保存的原始文章/材料；“全部动态”统计近七日独立事件，同一事件的多篇报道会归并。因此三者不应相等，今天新增原文也不等于近七日全部事件。</p>
-          <p>可见事件排除：七日窗口外或未来日期、已归档、已忽略、非当前SYSTEM策略、非AI相关、运营用途不合格、非聚类主事件、缺少SYSTEM原始证据。此处是当前资格规则，不把这些存量原因冒充历史运行转化损失。</p>
+          <p>可见事件排除：七日窗口外或未来日期、已归档、非当前SYSTEM策略、非AI相关、运营用途不合格、非聚类主事件、缺少SYSTEM原始证据。人工采集质量评价不改变可见性。</p>
           <div className="intel-source-group-grid">
             {collectionHealth.sourceGroups.map((group) => (
               <article key={group.groupName}>
@@ -717,11 +727,18 @@ export function AdminIntelligenceWorkspace() {
                         </details>
                         <div className="intel-event-actions">
                           {item.originalUrl ? <a href={item.originalUrl} target="_blank" rel="noreferrer">原文 ↗</a> : null}
-                          {item.coverage.needsExpansion ? <button disabled={actingId === item.eventId} onClick={() => void expand(item.eventId)}>补充证据</button> : null}
-                          <button disabled={actingId === item.eventId} onClick={() => void decide(item.eventId, "WATCH")}>继续观察</button>
-                          <button disabled={actingId === item.eventId} onClick={() => void decide(item.eventId, "IGNORE")}>忽略</button>
-                          <button className="is-primary" disabled={actingId === item.eventId} onClick={() => void decide(item.eventId, "ADOPT")}>采用</button>
+                          {qualityByEvent[item.eventId]?.eventLabel || qualityByEvent[item.eventId]?.sources.length ? <span>人工评价：{qualityByEvent[item.eventId]?.eventLabel === "POSITIVE" || qualityByEvent[item.eventId]?.sources.some(source => source.label === "POSITIVE") ? "已采用" : "已忽略"}</span> : null}
+                          <button className="is-primary" disabled={actingId === item.eventId} onClick={() => void saveQuality(item.eventId, "POSITIVE", "")}>采用 · 记正向样本</button>
+                          <button disabled={actingId === item.eventId} onClick={() => { setQualityEditingId(item.eventId); setQualityAction("NEGATIVE"); setQualitySourceId(""); setQualityReason(""); setQualityNote(""); }}>忽略 · 记负向样本</button>
+                          {(qualityByEvent[item.eventId]?.sourceOptions.length ?? 0) > 1 ? <button disabled={actingId === item.eventId} onClick={() => { setQualityEditingId(item.eventId); setQualityAction("POSITIVE"); setQualitySourceId(""); }}>指定来源采用</button> : null}
+                          {qualityByEvent[item.eventId]?.eventLabel || qualityByEvent[item.eventId]?.sources.length ? <button disabled={actingId === item.eventId} onClick={() => { setQualityEditingId(item.eventId); setQualityAction("CLEAR"); setQualitySourceId(qualityByEvent[item.eventId]?.sources[0]?.sourceId ?? ""); }}>撤销评价</button> : null}
                         </div>
+                        {qualityEditingId === item.eventId ? <div className="intel-event-actions" aria-label="采集质量评价详情">
+                          {(qualityByEvent[item.eventId]?.sourceOptions.length ?? 0) > 1 ? <select value={qualitySourceId} onChange={event => setQualitySourceId(event.target.value)} aria-label="评价归属来源"><option value="">仅评价这条动态</option>{qualityByEvent[item.eventId].sourceOptions.map(source => <option key={source.sourceId} value={source.sourceId}>{source.name}</option>)}</select> : null}
+                          {qualityAction === "NEGATIVE" ? <><select value={qualityReason} onChange={event => setQualityReason(event.target.value as CollectionQualityReason | "")} aria-label="负向原因"><option value="">原因可选</option>{Object.entries(COLLECTION_QUALITY_REASON_NAMES).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select><input value={qualityNote} onChange={event => setQualityNote(event.target.value)} maxLength={500} placeholder="备注（可选，最多500字）" aria-label="评价备注" /></> : null}
+                          <button disabled={actingId === item.eventId} onClick={() => void saveQuality(item.eventId, qualityAction)}>{qualityAction === "CLEAR" ? "确认撤销" : qualityAction === "POSITIVE" ? "保存采用" : "保存忽略"}</button>
+                          <button onClick={() => setQualityEditingId(null)}>取消</button>
+                        </div> : null}
                       </article>
                     </div>
                   ))}

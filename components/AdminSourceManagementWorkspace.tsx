@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { COLLECTION_QUALITY_REASON_NAMES, type CollectionQualityReason } from "../lib/content/collection-quality-feedback-contract";
 
 type SourceItem = {
   sourceId: string;
@@ -301,6 +302,7 @@ export function AdminSourceManagementWorkspace() {
   const [routeKind, setRouteKind] = useState("ALL");
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [detail, setDetail] = useState<SourceDetailPayload | null>(null);
+  const [qualitySummary, setQualitySummary] = useState<{ evaluatedCount: number; negativeCount: number; reasons: Record<string, number>; samples: Array<{ id: number; eventId: string; reason: string | null; note: string | null; at: string; context: { title?: string } }> } | null>(null);
   const [detailBusy, setDetailBusy] = useState(false);
   const [policy, setPolicy] = useState<PolicyPayload | null>(null);
   const [policyBusy, setPolicyBusy] = useState(false);
@@ -322,8 +324,14 @@ export function AdminSourceManagementWorkspace() {
     setSelectedSourceId(sourceId);
     setDetailBusy(true);
     setDetail(null);
+    setQualitySummary(null);
     try {
-      setDetail(await loadJson<SourceDetailPayload>("?mode=detail&sourceId=" + encodeURIComponent(sourceId)));
+      const [sourceDetail, feedbackResponse] = await Promise.all([
+        loadJson<SourceDetailPayload>("?mode=detail&sourceId=" + encodeURIComponent(sourceId)),
+        fetch("/api/admin/content/quality-feedback?sourceId=" + encodeURIComponent(sourceId), { cache: "no-store" })
+      ]);
+      setDetail(sourceDetail);
+      if (feedbackResponse.ok) setQualitySummary(await feedbackResponse.json());
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "来源详情读取失败");
     } finally {
@@ -595,6 +603,10 @@ export function AdminSourceManagementWorkspace() {
         <div><span>保留率</span><strong>{Math.round(detail.utility.facts.keepRatio * 100)}%</strong></div>
         <div><span>重复率</span><strong>{Math.round(detail.utility.facts.duplicateRatio * 100)}%</strong></div>
         <div><span>独立 Event 贡献</span><strong>{detail.utility.facts.independentEventContributionCount}</strong></div>
+        <div><span>近30日人工评价</span><strong>{qualitySummary?.evaluatedCount ?? "—"} 条（仅已评价样本）</strong></div>
+        <div><span>其中负向</span><strong>{qualitySummary?.negativeCount ?? "—"} 条</strong></div>
+        {qualitySummary ? <div className="source-detail-wide"><span>主要问题</span><strong>{Object.entries(qualitySummary.reasons).sort((a,b) => b[1] - a[1]).map(([reason, count]) => `${COLLECTION_QUALITY_REASON_NAMES[reason as CollectionQualityReason] ?? reason} ${count}`).join(" · ") || "暂无负向原因"}</strong></div> : null}
+        {qualitySummary?.samples.length ? <details className="source-detail-wide"><summary>查看负向样本（最近 {qualitySummary.samples.length} 条）</summary>{qualitySummary.samples.map(sample => <div key={sample.id}><strong>{sample.context?.title || sample.eventId}</strong><span>{sample.reason ? COLLECTION_QUALITY_REASON_NAMES[sample.reason as CollectionQualityReason] ?? sample.reason : "未选择原因"} · {new Date(sample.at).toLocaleString("zh-CN")} {sample.note || ""}</span></div>)}</details> : null}
         {item.sourceId === data.aggregators.dailyHot.sourceId ? (
           <div className="source-detail-wide"><span>启用 Route</span><strong>{data.aggregators.dailyHot.keepRoutes.map((route) => route.platform).join(" · ") || "—"}</strong></div>
         ) : null}

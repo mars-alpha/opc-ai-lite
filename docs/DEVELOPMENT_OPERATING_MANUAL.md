@@ -362,9 +362,7 @@ OPC 会员固定增加：
 
 默认不增加无信息增量的重复 Human Gate。
 
-AI 日报当前固定有两次不同职责的 Gate：
-- 具体 Gate 名称、输入和职责以 `docs/content/CONTENT_AI_DAILY_PRODUCT_CONTRACT.md` 为唯一 owner；
-- 本手册只确认它们不是“审核通过后再点一次发布”的重复 Gate。
+AI 日报的内容选题入口待内容工作台后续规划；采集质量反馈不能代替内容审核或发布授权。内容 Gate 的名称、输入和职责以 `docs/content/CONTENT_AI_DAILY_PRODUCT_CONTRACT.md` 为唯一 owner，本手册只规定不得增加无信息增量的重复确认。
 
 如果：
 - 人工确认时已经看到最终内容、证据和去向；

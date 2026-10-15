@@ -73,28 +73,6 @@ export const EVENT_VERIFICATION_STATUSES = [
 ] as const;
 export type EventVerificationStatus = (typeof EVENT_VERIFICATION_STATUSES)[number];
 
-export const EVENT_DECISIONS = [
-  "DISCOVERED",
-  "SHORTLISTED",
-  "ADOPTED",
-  "IGNORED",
-  "DRAFTING",
-  "READY",
-  "PUBLISHED"
-] as const;
-
-export const IGNORE_REASONS = [
-  "NOT_AI_RELATED",
-  "DUPLICATE",
-  "LOW_SIGNIFICANCE",
-  "STALE",
-  "LOW_SOURCE_QUALITY",
-  "NO_ACTIONABLE_VALUE",
-  "OTHER"
-] as const;
-
-export type IgnoreReason = (typeof IGNORE_REASONS)[number];
-
 export type SourceContentRule = {
   contentType: CollectionContentType;
   role: IntelligenceSourceRole;
@@ -283,16 +261,6 @@ export function contentRuleFor(policy: SourcePolicy | null, contentType: Collect
 export const CHANGE_MAGNITUDES = ["MAJOR", "NORMAL", "MINOR"] as const;
 export type ChangeMagnitude = (typeof CHANGE_MAGNITUDES)[number];
 
-export const IGNORE_REASON_LABELS: Record<(typeof IGNORE_REASONS)[number], string> = {
-  NOT_AI_RELATED: "与 AI 无关",
-  DUPLICATE: "重复事件",
-  LOW_SIGNIFICANCE: "重要性低",
-  STALE: "已过时",
-  LOW_SOURCE_QUALITY: "来源质量不足",
-  NO_ACTIONABLE_VALUE: "暂无内容价值",
-  OTHER: "其他"
-};
-
 export const OFFICIAL_NEWS_POLICY = {
   version: "official-news-policy-v1",
   dimensions: ["aiRelevance", "changeMagnitude", "sourceQuality", "freshness", "opcUsefulness"] as const,
@@ -315,7 +283,6 @@ export const LABELING_GUIDE_SNAPSHOT = {
   contentLabels: ["AI_RELEVANT", "NOT_AI_RELEVANT", "LOW_VALUE", "STALE", "DUPLICATE"],
   eventLabels: ["SAME_EVENT", "NEW_EVENT", "RELATED_EVENT", "NOT_EVENT"],
   verificationLabels: EVENT_VERIFICATION_STATUSES,
-  ignoreReasons: IGNORE_REASONS,
   groundTruthRule: "Human decisions follow the Product Contract and this snapshot; reviewer identity is audit metadata, not the policy owner."
 } as const;
 

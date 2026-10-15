@@ -196,7 +196,7 @@ type OperationalItem = { eventId: string; category: string; discoveryStatus?: st
 type EventOperation = { id: string; discoveryStatus: string; archivedAt: Date | null };
 export function applyRadarOperations<T extends { items: OperationalItem[]; featured: OperationalItem[]; currentHot: OperationalItem[]; worthPracticing: OperationalItem[]; windowEventIndex?: { eventId: string; category: string }[]; categoryCounts7d: Record<string, number>; totalEventCount7d: number }>(snapshot: T, states: EventOperation[]): T {
   const current = new Map(states.map((state) => [state.id, state]));
-  const visible = (id: string) => { const state = current.get(id); return state && !state.archivedAt && state.discoveryStatus !== "IGNORED"; };
+  const visible = (id: string) => { const state = current.get(id); return state && !state.archivedAt; };
   const project = <I extends OperationalItem>(items: I[]) => items.filter((item) => visible(item.eventId)).map((item) => ({ ...item, discoveryStatus: current.get(item.eventId)!.discoveryStatus }));
   const index = (snapshot.windowEventIndex ?? [...new Map([...snapshot.items, ...snapshot.featured, ...snapshot.currentHot, ...snapshot.worthPracticing].map((item) => [item.eventId, item])).values()]).filter((item) => visible(item.eventId));
   const categoryCounts7d = Object.fromEntries(Object.keys(snapshot.categoryCounts7d).map((category) => [category, category === "全部" ? index.length : index.filter((item) => item.category === category).length]));

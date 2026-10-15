@@ -39,9 +39,12 @@ assert(mapping.includes("Legacy Manual Compatibility — RETIRED PRODUCT OWNER")
 assert(mapping.includes("Unified SYSTEM Collection Boundary"), "MAPPING_UNIFIED_SYSTEM_COLLECTION");
 
 assert(!daily.includes("Gate 1 — Topic Adoption"), "NO_OLD_AI_DAILY_TOPIC_GATE");
-assert(daily.includes("Content Gate — Event Adoption"), "AI_DAILY_CONTENT_GATE");
+assert(daily.includes("Content Selection — Later Planning") && !daily.includes("Content Gate — Event Adoption"), "AI_DAILY_SELECTION_GATE_REPLANNED");
+assert(!daily.includes("Human Gate 1: ADOPT / WATCH / IGNORE"), "NO_OLD_EVENT_DECISION_AS_CONTENT_GATE");
 assert(daily.includes("独立人工采集产品已退役"), "AI_DAILY_MANUAL_PRODUCT_RETIRED");
 assert(dailyMapping.includes("Event Momentum v2") && dailyMapping.includes("RISING") && dailyMapping.includes("SUSTAINED"), "AI_DAILY_EVENT_MOMENTUM_MAPPING");
+assert(!dailyMapping.includes("→ Human ADOPT / WATCH / IGNORE"), "NO_OLD_EVENT_DECISION_IN_MAPPING");
+assert(!owner.includes(">=2逐篇合格实践证据") && owner.includes("至少一篇原文独立满足"), "PRACTICE_RULE_SINGLE_COMPLETE_MATERIAL");
 
 assert(!facts.includes("- - 内容发现与工作台职责边界"), "NO_FACTS_DOUBLE_BULLET");
 assert(facts.includes("热点追踪") && facts.includes("/admin/intelligence"), "FACTS_HOT_TRACKING_OWNER");
@@ -67,7 +70,7 @@ assert(tasks.includes("SOURCE MANAGEMENT → HOT TRACKING PRODUCTION CLOSE"), "T
 assert(tasks.includes("Source Management 是唯一来源 Owner"), "TASKS_SYSTEM_RUNTIME_BASELINE");
 assert(tasks.includes("旧「今日情报」、旧 Rising、旧 Manual Collection"), "TASKS_OLD_PLANS_RETIRED");
 assert(owner.includes("0–24h") && owner.includes("RISING") && owner.includes("24–168h") && owner.includes("SUSTAINED"), "OWNER_EVENT_MOMENTUM_WINDOW");
-assert(tasks.includes("HUMAN ACCEPTANCE"), "HUMAN_REVIEW_GATE");
+assert(tasks.includes("SOURCE-QUALITY-FEEDBACK") && tasks.includes("USER_APPROVED"), "HUMAN_REVIEW_GATE");
 
 assert(agents.includes("不再存在独立“人工采集”产品 Owner"), "AGENTS_NO_MANUAL_PRODUCT_OWNER");
 assert(agents.includes("旧 Rising / Formal Rising 算法已退出"), "AGENTS_RISING_RETIRED");

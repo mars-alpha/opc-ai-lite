@@ -124,13 +124,6 @@ function formatDate(value: string | null) {
   return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
 
-function eventStatusLabel(value: string) {
-  if (value === "ADOPTED") return "已采用";
-  if (value === "WATCHING") return "观察中";
-  if (value === "IGNORED") return "已忽略";
-  return "待判断";
-}
-
 function uniqueTags(...groups: Array<string[] | undefined>) {
   return [...new Set(groups.flatMap((group) => group ?? []).map((item) => item.trim()).filter(Boolean))]
     .filter((item) => item !== "event-discovery-e2e" && item !== "event-expansion")
@@ -305,7 +298,7 @@ export function AdminPlatformContentWorkspace({ initialView = "WORKBENCH" }: { i
         new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime()
     );
   }, [events, todayEvents]);
-  const hotspotEvents = useMemo(() => intelligenceEvents.filter((item) => item.discoveryStatus !== "IGNORED").slice(0, 20), [intelligenceEvents]);
+  const hotspotEvents = useMemo(() => intelligenceEvents.slice(0, 20), [intelligenceEvents]);
   const visibleHotspotEvents = useMemo(() => {
     const now = Date.now();
     if (hotspotGroup === "ALL") return hotspotEvents;
@@ -400,34 +393,6 @@ export function AdminPlatformContentWorkspace({ initialView = "WORKBENCH" }: { i
     }
   }
 
-  async function decide(eventId: string, decision: "ADOPT" | "WATCH" | "IGNORE") {
-    setBusyEventId(eventId);
-    setMessage(null);
-    try {
-      const response = await fetch("/api/admin/content/discovery/events/" + encodeURIComponent(eventId) + "/decision", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ decision, selectedTypes: [] })
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error ?? "事件判断保存失败");
-      if (decision === "ADOPT" && typeof data.contentId === "string" && data.contentId) {
-        setSelectedContentId(data.contentId);
-      }
-      await loadAll();
-      if (decision === "ADOPT") {
-        setView("WORKBENCH");
-        setMessage("已采用，并已直接进入内容工作区。来源依据已自动带入。");
-      } else {
-        setMessage(decision === "WATCH" ? "已加入观察。" : "已忽略。");
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "事件判断保存失败");
-    } finally {
-      setBusyEventId("");
-    }
-  }
-
   return (
     <div className="official-content-v2">
       <nav className="official-content-nav" aria-label="内容采集">
@@ -455,8 +420,8 @@ export function AdminPlatformContentWorkspace({ initialView = "WORKBENCH" }: { i
               <div className="official-list-scroll">
                 {loading ? <div className="admin-empty">正在读取…</div> : visibleHotspotEvents.length ? visibleHotspotEvents.map((event) => (
                   <button key={event.id} type="button" className={selectedEventId === event.id ? "is-active" : ""} onClick={() => void openEvent(event.id)}>
-                    <div><strong>{event.title}</strong><em>{eventStatusLabel(event.discoveryStatus)}</em></div>
-                    <p>{event.summary || "查看来源后再判断是否采用。"}</p>
+                    <div><strong>{event.title}</strong></div>
+                    <p>{event.summary || "查看来源与事件诊断。"}</p>
                     <footer><span>{sourceCountByEventId.get(event.id) ?? event.clusterSourceCount} 个来源</span><span>{spreadLabel(event.clusterVelocityScore)}</span><span>{formatDate(event.lastSeenAt)}</span></footer>
                   </button>
                 )) : <div className="admin-empty">当前分类暂无话题，可切换“全部”查看。</div>}
@@ -468,7 +433,6 @@ export function AdminPlatformContentWorkspace({ initialView = "WORKBENCH" }: { i
                 <>
                   <header className="official-detail-head">
                     <div><span>核对信息</span><h2>{selectedEvent.title}</h2><p>{selectedEvent.summary || "先看来源，再做判断。"}</p></div>
-                    <div className="official-detail-status">{eventStatusLabel(selectedEvent.discoveryStatus)}</div>
                   </header>
 
                   <div className="official-detail-meta">
@@ -602,14 +566,6 @@ export function AdminPlatformContentWorkspace({ initialView = "WORKBENCH" }: { i
                     </div>
                   </section>
 
-                  <footer className="official-decision-bar">
-                    <div><strong>人工判断</strong><small>{topicDiagnosis ? "结合诊断与来源决定是否采用" : "完成选题诊断后再做决定"}</small></div>
-                    <div>
-                      <button type="button" className="btn btn-secondary" disabled={!topicDiagnosis || busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "WATCH")}>观察</button>
-                      <button type="button" className="btn btn-secondary" disabled={!topicDiagnosis || busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "IGNORE")}>忽略</button>
-                      <button type="button" className="btn btn-primary" disabled={!topicDiagnosis || busyEventId === selectedEvent.id} onClick={() => void decide(selectedEvent.id, "ADOPT")}>采用并进入内容工作台</button>
-                    </div>
-                  </footer>
                 </>
               )}
             </div>

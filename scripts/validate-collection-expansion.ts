@@ -47,8 +47,8 @@ for (const media of ["ARTICLE", "VIDEO", "IMAGE_TEXT", "POST", "REPO"]) {
 }
 assert(contract.includes("chinesePriorityApplied"), "CHINESE_PRIORITY_AUDIT_MISSING");
 assert(contract.includes("formalHotspotPromotion: false"), "FORMAL_HOTSPOT_GUARD_MISSING");
-assert(route.includes("export async function POST"), "EXPANSION_POST_MISSING");
-assert(route.includes("refreshSourceManagedEventExpansion") && !route.includes("runEventExpansion"), "EXPANSION_POST_SOURCE_MANAGEMENT_ONLY");
+assert(!route.includes("export async function POST"), "MANUAL_EXPANSION_POST_REMAINS");
+assert(!route.includes("refreshSourceManagedEventExpansion") && !route.includes("runEventExpansion"), "EXPANSION_API_READ_ONLY");
 assert(route.includes("SOURCE_MANAGEMENT_SYSTEM_COLLECTION_ONLY"), "EXPANSION_API_SINGLE_SOURCE_OWNER");
 assert(route.includes("listEventExpansionEvidence"), "EXPANSION_EVIDENCE_READ_MISSING");
 assert(!workspace.includes("扩展采集"), "EXPANSION_INTERNAL_ACTION_MUST_NOT_RETURN_TO_PRIMARY_UI");

@@ -6,7 +6,6 @@ import type { AuthUser } from "../auth/service";
 import { callConfiguredChatJson, getConfiguredChatModelConfig } from "../ai/configured-chat";
 import { getDatabase } from "../db";
 import {
-  contentCandidateDecisions,
   contentDemandSignals,
   contentEventClusterMembers,
   contentEventClusters,
@@ -300,12 +299,7 @@ async function resolveEventContext(eventId: string) {
         metadata: contentRawItems.metadata
       }).from(contentRawItems).where(inArray(contentRawItems.id, rawIds))
     : [];
-  const decisions = await db
-    .select()
-    .from(contentCandidateDecisions)
-    .where(inArray(contentCandidateDecisions.eventId, eventIds))
-    .orderBy(desc(contentCandidateDecisions.createdAt));
-  return { event, cluster: cluster ?? null, raws, decisions };
+  return { event, cluster: cluster ?? null, raws };
 }
 
 function rawHasPriorityCreator(raw: RawContext) {
@@ -325,7 +319,6 @@ export async function resolveCommentDemandTrigger(eventId: string, requested: Co
   const policy = record(record(context.event.metadata).eventPolicy);
   const triggerReasons: string[] = [];
   if (policy.hotspotEligible === true) triggerReasons.push("EVENT_HOTSPOT_CANDIDATE");
-  if (context.decisions.some((item) => item.decision === "ADOPT")) triggerReasons.push("EVENT_ADOPTED");
   if (context.raws.some(rawHasPriorityCreator)) triggerReasons.push("PRIORITY_CREATOR");
   if (context.raws.some(rawHasCommentGrowthAnomaly)) triggerReasons.push("COMMENT_GROWTH_ANOMALY");
   if (requested === "ADMIN_EXPLICIT") triggerReasons.push("ADMIN_EXPLICIT");

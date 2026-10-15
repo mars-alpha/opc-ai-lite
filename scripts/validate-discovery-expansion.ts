@@ -25,7 +25,7 @@ assert(expansion.includes("const DEFAULT_WINDOW_HOURS = 168"), "DISCOVERY_EXPANS
 assert(expansion.includes("refreshEventExpansionEvidenceFromRecentRaw"), "DISCOVERY_EXPANSION_REUSES_SOURCE_MANAGED_RAW");
 assert(expansion.includes("refreshSourceManagedEventExpansion") && expansion.includes("sourceManagedExpansionRuntime"), "DISCOVERY_EXPANSION_RUNTIME_STATE_PERSISTED");
 assert(model.includes("sourceManagedExpansionRuntime") && model.includes("cooldownHours"), "DISCOVERY_EXPANSION_COOLDOWN_PREVENTS_STARVATION");
-assert(expansionApi.includes("refreshSourceManagedEventExpansion") && !expansionApi.includes("runEventExpansion"), "DISCOVERY_EXPANSION_API_SOURCE_MANAGEMENT_ONLY");
+assert(!expansionApi.includes("export async function POST") && !expansionApi.includes("refreshSourceManagedEventExpansion"), "DISCOVERY_EXPANSION_API_READ_ONLY");
 assert(cycle.includes("DISCOVERY_EXPANSION") && cycle.includes("runDiscoveryExpansionCycle"), "DISCOVERY_EXPANSION_IN_AUTOMATIC_CYCLE");
 assert(analysis.includes("expansionEvidence") && analysis.includes("REFERENCE_ONLY"), "DISCOVERY_EXPANSION_AI_ANALYSIS_EXPANSION_CONTEXT");
 assert(analysis.includes("getEventAiAnalysisRefreshDecision") && analysis.includes("ANALYSIS_INPUT_CHANGED"), "DISCOVERY_EXPANSION_AI_ANALYSIS_IDEMPOTENT_REFRESH");

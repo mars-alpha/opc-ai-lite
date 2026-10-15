@@ -1,6 +1,6 @@
 # 来源管理 / 热点追踪项目状态
 
-最后更新：2026-10-15（Asia/Shanghai）。
+最后更新：2026-10-16（Asia/Shanghai）。
 
 状态：PRODUCTION_RUNNING / RADAR_V15_DEPLOYED / SOURCE_INPUT_RUNTIME_DEPLOYED / UI_TEXT_IMPLEMENTED。
 
@@ -10,7 +10,7 @@
 
 正文/材料获取经腾讯云与Deno生产实测，1篇作者说明凭证已落库并过材料Gate；B站匿名字幕、部分附件、通用正文覆盖及长期稳定性仍有缺口。材料通过不等于实际执行工作流，也不保证今日值得做非空。
 
-当前焦点：今日值得做改为单篇材料四条件，规则与生产验证进度见TASKS；继续补实操原文/字幕凭证、观察来源真实运行与请求成本，详见 [TASKS](TASKS.md)。不更改课程、Schema、评分权重或timer配置。
+当前焦点：继续补实操原文/字幕凭证、观察来源真实运行与请求成本。自动采集质量反馈已在本地实现并通过开发库验收，热点追踪与来源管理两处界面已获产品负责人明确批准；生产仍是旧运营决策行为，部署和 Git 同步待执行。任务状态见 `TASKS.md`。后续内容工作台入口与评论分析改造另行规划。不更改课程、评分权重或timer配置。
 
 规则唯一owner为 [采集架构合同](docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md)，代码定位见 [实现映射](docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md)。历史任务结果从Git追溯。
 

@@ -21,7 +21,7 @@ assert(CORE_ENTITY_SEEDS.length >= 15, "ENTITY_SEED_COUNT");
 assert(Object.keys(EVENT_POLICIES).length === 8, "EVENT_POLICY_COUNT");
 assert(OFFICIAL_NEWS_POLICY.version === "official-news-policy-v1", "OFFICIAL_NEWS_POLICY");
 assert(HOTSPOT_POLICY.minimumIndependentSignalSources === 2, "HOTSPOT_SIGNAL_MINIMUM");
-assert(LABELING_GUIDE_SNAPSHOT.ignoreReasons.includes("NOT_AI_RELATED"), "LABELING_GUIDE_IGNORE_REASON");
+assert(!("ignoreReasons" in LABELING_GUIDE_SNAPSHOT), "OLD_EVENT_IGNORE_REASONS_RETIRED");
 
 for (const source of INITIAL_SOURCE_POLICIES) {
   for (const rule of source.contentTypeRules) {

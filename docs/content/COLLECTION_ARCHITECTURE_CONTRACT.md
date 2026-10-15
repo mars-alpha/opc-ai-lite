@@ -306,9 +306,9 @@ Presentation authority = PRESENTATION_ONLY。
 Current views：
 - 今日值得做：复用 Worth Practicing，但必须存在真实可执行实践证据；Practical Evidence 的标题/摘要需包含明确教程、步骤、配置、操作、实测、工作流、使用案例或等价操作语义，并满足本合同开头逐篇四项条件，单篇完整材料即可。`suggestedContentTypes` 仅作 AI 分析建议，不是产品入场门槛。纯新闻、泛分析、仅 whyItMatters 不进入；中文证据优先，英文只做中文化交付。
 - 精选：通过事实硬门禁后按可解释编辑分排序。
-- 全部动态：通过基础 AI relevance / Event 聚类后的唯一主 Event。默认一次完整读取北京时间今天及前六个自然日，区间为首日00:00至快照asOf（半开区间）；以eventAt、缺失时firstSeenAt确定日期，排除未来、归档、忽略及不合格事件。删除120条首批规则。服务器窗口中的今天默认展开，其余日期默认折叠，默认七日空日保留。加载更多每次取得此前最近一个有合格内容的日期全天，跳过历史空日；无更早可见事件时显示“已经到底”。不得以已排除的数据库旧记录判断hasMore，不追加历史空日期行。日期游标固定asOf、按事件时间及ID稳定排序；历史不改变七日总量。
+- 全部动态：通过基础 AI relevance / Event 聚类后的唯一主 Event。默认一次完整读取北京时间今天及前六个自然日，区间为首日00:00至快照asOf（半开区间）；以eventAt、缺失时firstSeenAt确定日期，排除未来、归档及不合格事件。删除120条首批规则。服务器窗口中的今天默认展开，其余日期默认折叠，默认七日空日保留。加载更多每次取得此前最近一个有合格内容的日期全天，跳过历史空日；无更早可见事件时显示“已经到底”。不得以已排除的数据库旧记录判断hasMore，不追加历史空日期行。日期游标固定asOf、按事件时间及ID稳定排序；历史不改变七日总量。旧 `discoveryStatus=IGNORED` 过滤仍属实施前运行事实，退役状态与验收见 `TASKS.md`；新任务不得扩展其语义。
 - 统计窗口：北京时间今日、近七个自然日、最近100次SYSTEM正式运行分别标注起止时间。成功Run记录返回条次、过滤保留、后置排除、入库批量排除、Raw新增/重复、Event新建/归并及无日期历史材料；排除原因复用Run元数据。失败/进行中可能部分写入，不混入成功漏斗；旧Run未记录的阶段显示未知，不反推。七日可见Event是按事件时间计量的当前存量，与按运行时间计量的采集漏斗不是同一队列，不计算伪转化率。
-- 一致性：完整七日窗口在REPEATABLE READ只读事务中生成；items、分类总量及Event索引同源，唯一ID数=总量=分类合计=逐日合计。逐日历史请求独立读事务，asOf只固定日期上界和入库截止，不提供历史状态版本；运营忽略/归档即时生效，跨请求发生状态变化以重新读取的当前快照为准，不宣称时间旅行快照。
+- 一致性：完整七日窗口在REPEATABLE READ只读事务中生成；items、分类总量及Event索引同源，唯一ID数=总量=分类合计=逐日合计。逐日历史请求独立读事务，asOf只固定日期上界和入库截止，不提供历史状态版本；归档即时生效，跨请求发生状态变化以重新读取的当前快照为准，不宣称时间旅行快照。旧运营“忽略”当前仍影响可见性，须按 `SOURCE-QUALITY-FEEDBACK` 退役；新质量标签不改变可见性。
 - 当前热点：按 Event 而不是文章排名；同一独立账号/机构只贡献一次参与，AI HOT / DailyHot 等 Aggregator 只贡献 Discovery/Hot Signal，不能因聚合转载与直连原站重复计数。公开报道信源与热度参与者分开：公开信源只列可阅读报道；参与者可包含仅计入热度的账号/机构。同机构多渠道可合并，所以参与者数不保证大于公开信源数。
 - Event合并只收拢展示，不丢掉报道：同Event/Cluster的全部SYSTEM原文共同作为热度输入，多独立来源报道增加参与广度；同原发布者的重复轮询/聚合转载不反复增加参与者。内容测试清理只针对可证明的夹具，不以“通过验收采集”判定真实原文是假数据，不删除真实历史来制造干净统计。
 
@@ -395,14 +395,17 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 - Three output dimensions may overlap for one Event; none implies another:
   - Hotspot: existing Event Momentum RISING0–24h/SUSTAINED24–168h, independent participation/active days/cross-platform/practice/engagement and current thresholds; ranking never grants Fact Authority.
   - Curated dynamics: existing Bole Gate requires AI relevance, <=72h, confirmed official/media and MAJOR/NORMAL; FEATURED score>=66, TOP_PICK>=78 plus its independent evidence/value gate. A single-source official update may be curated without being hot or practical.
-  - Worth Practicing: 具体工具与任务主题，>=2逐篇合格实践证据、>=2独立来源、>=2实践类型；不以AI AVAILABLE状态为前置。practice-materials.ts要求与原文URL绑定的匿名服务器获取回执及完整正文/字幕、编号步骤、输入与输出，或逐篇验证工作流与operationSteps；共享安装说明不能代替逐篇操作材料。正文声明依赖工作流/模板/素材下载时，所需附件必须具有服务器公开下载回执与SHA256，否则REQUIRED_ARTIFACTS_UNVERIFIED。短摘要、未知/截断正文、登录关注材料失败关闭。intelligence-read-model返回practiceAssessment逐证据缺口和聚合数量阻断，管理员practice-diagnostics按工具+任务主题返回独立数量原因；不为历史Raw补造认证。
+  - Worth Practicing: 具体工具与任务主题，至少一篇原文独立满足本合同开头的逐篇四项条件即可；来源数、证据数和实践类型数只作解释信号，不作为入栏硬门槛。不以AI AVAILABLE状态为前置。`practice-materials.ts` 要求与原文URL绑定的匿名服务器获取回执及完整正文/字幕、实际步骤/配置或逐篇验证的工作流、输入材料与预期产出；共享安装说明不能代替逐篇操作材料。正文声明依赖工作流/模板/素材下载时，所需附件必须有服务器公开下载回执与SHA256，否则 `REQUIRED_ARTIFACTS_UNVERIFIED`。短摘要、未知/截断正文、登录关注材料失败关闭；不为历史Raw补造认证。
 - User-facing topics (REA/ComfyUI/Skills/MCP/ad creation/writing/images/animation/editing/assistants/work management) describe discovery coverage, not the three publication dimensions. Add sources only after bounded live capability check and preview. Generic news/trends cannot stand in for persistent original practical sources.
 - Production acceptance requires its own schema, runtime grants, source inventory, route probes, backfill and three-output checks. Development success is not production acceptance, and healthy results from an earlier cycle do not erase a current failure.
 
 ## 22. Operations consistency
 
-- Event决策、Event运营状态与审计在同一事务提交；同一Event决策串行锁定，返回已提交discoveryStatus。忽略保留历史Raw/Evidence，仅退出热点追踪消费。
-- Radar缓存基础榜单，每次读取用当前Event状态覆盖所有榜单；不缓存运营覆盖结果。完整窗口轻量索引负责计数，不能用首屏计数冒充全窗口。分页继续读取当前Event状态。
+- 旧 Event 决策写入与忽略后退出列表已在本地实现中退役；生产切换以 `docs/CURRENT_SYSTEM_FACTS.md` 为准。新采集质量标签只写独立样本、不改变 Event/Source/栏目状态；执行与验收见 `TASKS.md`。
+- 管理员在现有热点追踪动态上作正向“采用”或负向“忽略”，可改选与撤销；负向原因可选（不相关、重复、过时、正文缺失或截断、事实不准确、其他），备注最多500字。每次有效变化形成追加式记录；相同请求重试和无变化操作不重复计样本。新标签不触发AI、评论采集、内容草稿/发布、来源启停、采集重试，也不改变热点/精选/今日值得做资格或排序。
+- 单来源可默认归因该来源；多来源可选具体关联来源，未选则只记Event层，不能把Event层负评分摊给全部来源。写入时验证Event与Source关联，保存反馈时的原文URL、Raw/Observation、可确定的Run、自动判断与规则版本；不可确定字段为null，不推测，不保存完整原文或Secret。旧 `content_candidate_decisions` 仅用于历史审计，不导入新标签。
+- 来源管理只展示最近30日当前有效且归因该来源的已评价数、负向数、主要原因和有界样本；未评价不算负例，不把已评价样本占比称为全量采集准确率。热点追踪评价筛选只改变列表显示，不影响自动采集与栏目资格。
+- Radar基础快照和完整窗口轻量索引继续同源生成榜单与计数，不用首屏计数冒充全窗口；只读覆盖归档状态，不读取采集质量标签。
 - Snapshot generatedAt超过30分钟为STALE，非法/未来时间为异常；读取旧数据不自动全量重建。SYSTEM仍是周期刷新唯一owner；首次缺失或Schema不兼容允许一次初始化。客户端慢请求不能覆盖之后已提交的运营动作。
 - Source启停、operator归档/恢复、规则保存和资格阶段更新与其审计同事务，包含actor、reason、before/after。归档恢复保持禁用，退役路径禁止恢复；不删除历史。
 - QUALIFIED只代表真实AUTO_READY；成功探测仅PROBED，有正式Run但未合格为OBSERVING；qualificationOnly不计成熟度。来源禁用/归档时有效资格必须显示DISABLED，不复用过时AUTO_READY标签。

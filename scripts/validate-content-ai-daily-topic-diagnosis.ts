@@ -8,10 +8,6 @@ function assert(condition: unknown, code: string): asserts condition {
 
 const schema = fs.readFileSync("lib/server/db/schema.ts", "utf8");
 const workspace = fs.readFileSync("components/AdminPlatformContentWorkspace.tsx", "utf8");
-const decisionRoute = fs.readFileSync(
-  "app/api/admin/content/discovery/events/[eventId]/decision/route.ts",
-  "utf8"
-);
 const structuredContract = fs.readFileSync(
   "docs/content/CONTENT_AI_DAILY_STRUCTURED_OUTPUT_CONTRACT.md",
   "utf8"
@@ -28,7 +24,7 @@ assert(workspace.includes("对读者的价值"), "READER_VALUE_UI_MISSING");
 assert(workspace.includes("建议写作角度"), "ANGLE_UI_MISSING");
 assert(workspace.includes("证据充分度"), "EVIDENCE_READINESS_UI_MISSING");
 assert(workspace.includes("重复风险"), "DUPLICATION_RISK_UI_MISSING");
-assert(decisionRoute.includes("assertTopicDiagnosisReady"), "HUMAN_GATE_NOT_GUARDED");
+assert(!fs.existsSync("app/api/admin/content/discovery/events/[eventId]/decision/route.ts"), "OLD_EVENT_DECISION_ROUTE_REMAINS");
 
 const valid = validateTopicDiagnosisPayload(
   {

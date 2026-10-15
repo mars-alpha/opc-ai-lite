@@ -15,15 +15,14 @@ const items = [{ eventId: "a", category: "模型", discoveryStatus: "DISCOVERED"
 const base = { items, featured: items, currentHot: items, worthPracticing: items, totalEventCount7d: 2, categoryCounts7d: { 全部: 2, 模型: 1, 产品: 1 } };
 const result = overlay(base, [{ id: "a", discoveryStatus: "IGNORED", archivedAt: null }, { id: "b", discoveryStatus: "SHORTLISTED", archivedAt: null }]);
 for (const field of ["items", "featured", "currentHot", "worthPracticing"] as const) {
-  assert.deepEqual(result[field].map((x: { eventId: string }) => x.eventId), ["b"]);
-  assert.equal(result[field][0].discoveryStatus, "SHORTLISTED");
+  assert.deepEqual(result[field].map((x: { eventId: string }) => x.eventId), ["a", "b"]);
 }
 assert.equal(base.items.length, 2, "CACHE_PAYLOAD_NOT_MUTATED");
 assert.equal(overlay(base, []).items.length, 0, "DELETED_EVENT_FAILS_CLOSED");
 const full = overlay({ ...base, windowEventIndex: [...items, { eventId: "c", category: "论文" }], totalEventCount7d: 3, categoryCounts7d: { 全部: 3, 模型: 1, 产品: 1, 论文: 1 } }, [{ id: "a", discoveryStatus: "IGNORED", archivedAt: null }, { id: "b", discoveryStatus: "ADOPTED", archivedAt: null }, { id: "c", discoveryStatus: "DISCOVERED", archivedAt: null }]);
-assert.equal(full.totalEventCount7d, 2, "COUNTS_USE_FULL_WINDOW_NOT_FIRST_PAGE");
+assert.equal(full.totalEventCount7d, 3, "COUNTS_USE_FULL_WINDOW_NOT_FIRST_PAGE");
 assert.equal(full.categoryCounts7d.论文, 1);
-assert.equal(full.categoryCounts7d.模型, 0);
+assert.equal(full.categoryCounts7d.模型, 1);
 assert.equal(overlay(base, [{ id: "a", discoveryStatus: "DISCOVERED", archivedAt: new Date() }]).items.length, 0);
 const stage = Reflect.get(onboarding, "resolveOnboardingStage");
 assert.equal(typeof stage, "function", "PROBE_MUST_NOT_GRANT_QUALIFIED");

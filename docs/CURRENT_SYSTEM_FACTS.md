@@ -10,7 +10,7 @@
 - 本地受管实践搜索已在腾讯云隔离进程通过开发库实测与登记；新路由仅EVENT_EXPANSION，作者仍待审，不代表正式作者持续采集已接通。今日值得做逐篇条件已随v14生产发布，不依赖AI分析状态；开发搜索Source配置不复制到生产。开发验收记录与剩余项见TASKS。
 
 - 正式学习平台与 81 节课程保持冻结基线；本轮只治理来源管理 → 热点追踪生产链，不改变课程前端。
-- 后台内容域当前只保留三个产品 Owner：`/admin/sources` 来源管理、`/admin/intelligence` 热点追踪、Adopt 后内容工作台。旧人工采集产品、独立 Automatic Collection workbench、Rising/上升趋势产品路径均已退出 current owner。
+- 后台内容域当前只保留三个产品 Owner：`/admin/sources` 来源管理、`/admin/intelligence` 热点追踪、内容工作台兼容入口。后者的新选题入口待独立规划，不由热点追踪采集质量标签驱动。旧人工采集产品、独立 Automatic Collection workbench、Rising/上升趋势产品路径均已退出 current owner。
 - **Source Management 是唯一 Source 资产入口；SYSTEM Collection 是唯一正式采集执行基准。** 未来新增来源只能经 Discover → Check/Preview → Register → Qualify 后进入同一 SYSTEM Collection。
 - 正式生产闭环固定为：`Source Management → SYSTEM Collection → Raw/Observation → Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → Worth Practicing / Topic Momentum / Curation → Radar Snapshot → 热点追踪`。
 - Discovery Expansion证据刷新owner为 `refreshSourceManagedEventExpansion`，消费current Source已采Raw；168h bounded，成功6h cooldown、失败1h retry，不自动调用AI。生产代码支持已管理搜索Source的有界实践参考发现，详细边界见采集架构合同“实践主题与汇总内容边界”；生产来源是否可执行仍由现有资格与opt-in决定。
@@ -165,7 +165,7 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 - 生产分类修正已实现：汇总退出热点及参与者计数；今日值得做按真实实操证据的明确工具/任务归并并复算门槛，忽略父事件后重算；常驻重新读取退出，仅失败重试。受管B站/YouTube搜索有显式opt-in和限额；开发受管搜索已实测，不能据此宣称生产全主题覆盖。
 - P0已部署来源启停、operator归档/恢复、规则与资格阶段的事务审计；恢复保留实际资格且保持停用，禁用状态不冒充AUTO_READY。onboarding阶段从真实资格派生，不再固定QUALIFIED。用户已明确批准新版页面上线，已发布。
 - 当前发现以URL预览/注册及已有来源目录为基础；尚无独立候选来源待审表。主题规则召回不证明实践作者覆盖充分。
-- 热点、精选、今日值得做为三个独立维度，判定规则由采集合同负责。今日值得做依赖OPC分析及实践证据；无人触发的采集不调用AI补资格。ADOPT目前只记录采用意图，不代表内容工作台生产链已打通。
+- 热点、精选、今日值得做为三个独立维度，判定规则由采集合同负责。今日值得做按现行逐篇实践材料条件判断；无人触发的采集不调用AI补资格。旧 ADOPT/IGNORE/WATCH 仍有现役兼容代码及运营副作用，已列入 `TASKS.md` 的退役任务；新开发不得把旧 ADOPT 当作内容工作台授权或采集质量标签。
 - 证据限度：部署、迁移与单轮真实采集已验证；连续72小时稳定性、来源发现召回率、长期页面使用反馈仍需观察。本轮P0已完成本地开发库真实验收及腾讯云隔离代码包直连开发库验收（约3.6秒），同版生产统一周期已重新验收通过，不代表连续72小时稳定。
 
 ## 8. 会员与公众号

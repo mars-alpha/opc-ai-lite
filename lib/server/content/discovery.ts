@@ -6,7 +6,6 @@ import {mergePublicContentMetadata} from "./public-practice-content";
 import type { AuthUser } from "../auth/service";
 import { getDatabase } from "../db";
 import {
-  contentCandidateDecisions,
   contentCollectionRuns,
   contentEventClusterMembers,
   contentEventClusterAnalyses,
@@ -21,8 +20,6 @@ import {
 import {
   buildExpansionQueries,
   EVENT_SIGNAL_TYPES,
-  normalizeCandidateDecision,
-  normalizeIgnoreReason,
   normalizeSignalScore,
   type EventSignalType
 } from "./discovery-contract";
@@ -240,7 +237,6 @@ async function upsertRawItemObservation(input: {
     .returning();
   return item;
 }
-
 export async function listDiscoverySources() {
   return getDatabase().select().from(contentSources).orderBy(contentSources.name);
 }
@@ -279,7 +275,6 @@ export async function configureDiscoverySource(user: AuthUser, input: unknown) {
   });
   return item;
 }
-
 export async function setDiscoverySourceEnabled(user: AuthUser, sourceIdInput: string, enabled: boolean) {
   const id = sourceId(sourceIdInput);
   const db = getDatabase();
@@ -883,45 +878,4 @@ export async function recordEventSignal(input: unknown) {
           : {};
   await db.update(contentEvents).set({ ...patch, updatedAt: new Date() }).where(eq(contentEvents.id, eventId));
   return item;
-}
-
-export async function recordCandidateDecision(user: AuthUser, input: unknown) {
-  if (!isRecord(input)) throw new Error("INVALID_INPUT");
-  const eventId = requiredText(input.eventId, "INVALID_EVENT_ID", 100);
-  const decision = normalizeCandidateDecision(input.decision);
-  const ignoreReason = decision === "IGNORE" ? normalizeIgnoreReason(input.ignoreReason) : null;
-  const selectedTypes = stringArray(input.selectedTypes, 8);
-  const note = optionalText(input.note, "INVALID_DECISION_NOTE", 4000);
-  const db = getDatabase();
-  return db.transaction(async (tx) => {
-    const [event] = await tx.select().from(contentEvents).where(eq(contentEvents.id, eventId)).limit(1).for("update");
-    if (!event) throw new Error("EVENT_NOT_FOUND");
-
-    const [item] = await tx
-      .insert(contentCandidateDecisions)
-      .values({
-        eventId,
-        decision,
-        ignoreReason,
-        selectedTypes,
-        note,
-        decidedBy: user.id,
-        decidedByEmail: user.email
-      })
-      .returning();
-
-    const discoveryStatus = decision === "ADOPT" ? "ADOPTED" : decision === "WATCH" ? "SHORTLISTED" : "IGNORED";
-    await tx.update(contentEvents).set({ discoveryStatus, updatedAt: new Date() }).where(eq(contentEvents.id, eventId));
-
-    await recordContentAudit(user, {
-      action: "DISCOVERY_CANDIDATE_DECIDED",
-      entityType: "DISCOVERY_EVENT",
-      entityId: eventId,
-      before: { discoveryStatus: event.discoveryStatus },
-      after: { discoveryStatus, decision, ignoreReason, selectedTypes },
-      metadata: { decisionId: item.id, reason: note ?? ignoreReason ?? decision }
-    }, tx);
-
-    return { ...item, discoveryStatus };
-  });
 }

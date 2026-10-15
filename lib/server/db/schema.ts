@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   check,
   index,
@@ -887,6 +888,32 @@ export const contentCandidateDecisions = pgTable("content_candidate_decisions", 
   decidedByEmail: text("decided_by_email").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
+
+// Append-only human labels. IDs are logical references so removal of an Event or Source does not erase a backtest sample.
+export const contentCollectionQualityLabels = pgTable(
+  "content_collection_quality_labels",
+  {
+    id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+    eventId: uuid("event_id").notNull(),
+    sourceId: text("source_id"),
+    label: text("label").notNull(),
+    reason: text("reason"),
+    note: text("note"),
+    actorId: uuid("actor_id"),
+    actorEmail: text("actor_email").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    requestId: uuid("request_id").notNull(),
+    requestHash: text("request_hash").notNull(),
+    sampleContext: jsonb("sample_context").notNull(),
+    schemaVersion: text("schema_version").notNull().default("collection-quality-label-v1")
+  },
+  (table) => [
+    uniqueIndex("content_collection_quality_labels_request_uidx").on(table.requestId),
+    index("content_collection_quality_labels_event_source_idx").on(table.eventId, table.sourceId, table.id),
+    index("content_collection_quality_labels_source_event_idx").on(table.sourceId, table.eventId, table.id),
+    index("content_collection_quality_labels_source_created_idx").on(table.sourceId, table.createdAt)
+  ]
+);
 
 export const contentArtifacts = pgTable(
   "content_artifacts",

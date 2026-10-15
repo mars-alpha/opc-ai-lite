@@ -257,7 +257,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
   const eventTime = sql`coalesce(${contentEvents.eventAt}, ${contentEvents.firstSeenAt})`;
   const query = baseQuery.where(options.range
     ? and(sql`${eventTime} >= ${options.range.from.toISOString()}`, sql`${eventTime} < ${options.range.to.toISOString()}`, sql`${contentEvents.createdAt} < ${options.range.asOf.toISOString()}`,
-      sql`${contentEvents.archivedAt} is null`, sql`${contentEvents.discoveryStatus} <> 'IGNORED'`,
+      sql`${contentEvents.archivedAt} is null`,
       eq(contentEvents.policyVersion, INTELLIGENCE_POLICY_VERSION),
       sql`${contentEvents.metadata}->'eventPolicy'->>'version' = ${INTELLIGENCE_POLICY_VERSION}`,
       sql`${contentEvents.metadata}->'eventPolicy'->>'systemObserved' = 'true'`,
@@ -267,7 +267,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
     .orderBy(desc(contentEvents.lastSeenAt), desc(contentEvents.id));
   const policyEvents = (await (options.range ? query : query.limit(Math.min(5000, Math.max(boundedLimit * 10, boundedLimit)))))
     .filter((event) => {
-      if (event.archivedAt || event.discoveryStatus === "IGNORED") return false;
+      if (event.archivedAt) return false;
       const policy = eventPolicyMetadata(event.metadata);
       if (event.policyVersion !== INTELLIGENCE_POLICY_VERSION) return false;
       if (policy.version !== INTELLIGENCE_POLICY_VERSION) return false;

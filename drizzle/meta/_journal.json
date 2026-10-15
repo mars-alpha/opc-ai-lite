@@ -267,6 +267,20 @@
       "when": 1791793232807,
       "tag": "0037_radar_snapshot_store",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792108800000,
+      "tag": "0038_collection_quality_labels",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1792108800001,
+      "tag": "0039_collection_quality_source_event_index",
+      "breakpoints": true
     }
   ]
 }

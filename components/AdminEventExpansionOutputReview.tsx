@@ -143,36 +143,6 @@ export function AdminEventExpansionOutputReview() {
     await loadOutput(eventId);
   }
 
-  async function runExpansion() {
-    if (!selectedEventId) return;
-    setBusy("expand");
-    setMessage("");
-    setSynthesis(null);
-    try {
-      const result = await readJson(
-        "/api/admin/content/discovery/events/" + selectedEventId + "/expansion",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ windowHours: 72, resultLimit: 12, maxQueries: 3 })
-        }
-      );
-      const evidenceCount = Array.isArray(result.evidencePack) ? result.evidencePack.length : 0;
-      const totalRuns = Number(result?.summary?.total ?? 0);
-      const failedRuns = Number(result?.summary?.failed ?? 0);
-      await loadOutput(selectedEventId);
-      setMessage(
-        evidenceCount > 0
-          ? "真实 Expansion 完成：得到 " + evidenceCount + " 条高置信参考资料；运行 " + totalRuns + " 次，失败 " + failedRuns + " 次。"
-          : "真实 Expansion 完成：当前没有达到高置信门槛的参考资料。保持 0 条，不凑数。"
-      );
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "真实 Expansion 运行失败");
-    } finally {
-      setBusy(null);
-    }
-  }
-
   async function runSynthesis() {
     if (!selectedEventId || !output) return;
     setBusy("synthesis");
@@ -245,9 +215,6 @@ export function AdminEventExpansionOutputReview() {
               </div>
               <div className="output-review-actions">
                 {selected.originalUrl ? <a href={selected.originalUrl} target="_blank" rel="noreferrer">事实原文 ↗</a> : null}
-                <button type="button" disabled={Boolean(busy)} onClick={() => void runExpansion()}>
-                  {busy === "expand" ? "真实扩展中…" : "运行真实 Expansion"}
-                </button>
                 <button
                   type="button"
                   disabled={Boolean(busy) || !output}

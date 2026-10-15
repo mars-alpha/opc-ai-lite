@@ -72,6 +72,8 @@ SourceReference 必须指向 Core 已存在来源，AI 不得自行创建虚构 
 
 ## 4. Topic Diagnosis
 
+下面的 `ADOPT_RECOMMENDED` / `WATCH_RECOMMENDED` 仅是内容选题诊断的建议枚举，不是热点追踪旧 Event 决策，也不能写入新的采集质量反馈。内容选题入口仍待独立规划。
+
 ```ts
 type TopicDiagnosis = ArtifactEnvelope & {
   artifactType: "TOPIC_DIAGNOSIS"
@@ -309,7 +311,7 @@ EVENT-EXPANSION-OUTPUT-014 是 Evidence 的派生可用性视图，不是第六�
 ```text
 Event E1
 → Topic Diagnosis TD3
-→ Human ADOPT
+→ 独立内容选题确认（入口待后续规划；不使用采集质量标签）
 → Evidence Pack EP2
 → Outline O4
 → Draft D5
