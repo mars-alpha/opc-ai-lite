@@ -278,6 +278,8 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 
 Web与SYSTEM必须同版并使用当前snapshot schema；生成完整快照后再由新版Web消费。发布必须核对PM2实际exec cwd、SYSTEM current链接、唯一timer和生产items=total=唯一数/日期合计；仅收到reload成功不是目录已切换的证据。PM2配置使用JSON，Linux临时脚本固定LF。旧release保留显式回退，不作为current入口；课程文件对比保持不变。
 
+`AdminIntelligenceWorkspace.tsx`与`AdminSourceManagementWorkspace.tsx`：首读显示读取态；可见页面5分钟重读、回到页面且上次请求已过1分钟则追赶。后台重读保留管理员筛选、已加载历史和来源编辑输入；热点/AI热点练习同读一个Radar Snapshot。UI已获产品负责人体验批准。
+
 ## PUBLIC-PRACTICE-MATERIALS — 2026-10-16
 
 - Owner：本节仅记录现役实现；栏目门槛仍由既有合同负责。公开正文使用 Mozilla Readability＋静态 DOM，Deno 固定允许路由覆盖 LangChain、n8n、Comfy、AWS；Comfy 指定公开工作流下载后记录字节、SHA256、节点与获取时间，不宣称执行成功。

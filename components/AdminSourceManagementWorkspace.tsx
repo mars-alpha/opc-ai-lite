@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { COLLECTION_QUALITY_REASON_NAMES, type CollectionQualityReason } from "../lib/content/collection-quality-feedback-contract";
 
 type SourceItem = {
@@ -292,6 +292,8 @@ async function postAction(body: Record<string, unknown>) {
 }
 
 export function AdminSourceManagementWorkspace() {
+  const sourceReadEpoch = useRef(0);
+  const lastSourceRequestAt = useRef(0);
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -317,7 +319,10 @@ export function AdminSourceManagementWorkspace() {
   const [managementMode, setManagementMode] = useState<"SOURCES" | "ADD" | "POLICY">("SOURCES");
 
   async function refresh() {
-    setData(await loadJson<Payload>());
+    const epoch = ++sourceReadEpoch.current;
+    lastSourceRequestAt.current = Date.now();
+    const payload = await loadJson<Payload>();
+    if (epoch === sourceReadEpoch.current) setData(payload);
   }
 
   async function loadDetail(sourceId: string) {
@@ -438,13 +443,24 @@ export function AdminSourceManagementWorkspace() {
 
   useEffect(() => {
     const started = performance.now();
-    void loadJson<Payload>()
-      .then((payload) => {
-        setData(payload);
+    void refresh()
+      .then(() => {
         console.info("[SOURCE_MANAGEMENT_INDEX_MS]", Math.round(performance.now() - started));
       })
       .catch((error) => setMessage(error instanceof Error ? error.message : "来源管理读取失败"))
       .finally(() => setLoading(false));
+    const refreshIfVisible = () => {
+      if (document.visibilityState !== "visible" || Date.now() - lastSourceRequestAt.current < 60_000) return;
+      void refresh().catch(() => {});
+    };
+    const timer = window.setInterval(refreshIfVisible, 5 * 60_000);
+    document.addEventListener("visibilitychange", refreshIfVisible);
+    window.addEventListener("focus", refreshIfVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refreshIfVisible);
+      window.removeEventListener("focus", refreshIfVisible);
+    };
   }, []);
 
   useEffect(() => {

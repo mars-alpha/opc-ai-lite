@@ -75,7 +75,7 @@ assert(
   "TOPIC_MOMENTUM_SINGLE_SCHEDULER_OWNER"
 );
 
-assert(tasks.includes("# NOW — PRODUCTION OBSERVATION"), "TASKS_HOT_TRACKING_OWNER");
+assert(tasks.includes("# NOW — RADAR LIVE REFRESH"), "TASKS_HOT_TRACKING_OWNER");
 assert(facts.includes("热点追踪") && facts.includes("Source Management 是唯一 Source 资产入口") && facts.includes("SYSTEM Collection 是唯一正式采集执行基准"), "FACTS_HOT_TRACKING_OWNER");
 assert(owner.includes("Unified Collection — SYSTEM Runtime"), "CONTRACT_UNIFIED_SYSTEM_RUNTIME");
 assert(owner.includes("0–24h") && owner.includes("24–168h"), "CONTRACT_EVENT_MOMENTUM_WINDOWS");

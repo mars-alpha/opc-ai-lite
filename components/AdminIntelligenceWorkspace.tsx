@@ -329,6 +329,8 @@ export function AdminIntelligenceWorkspace() {
 
   const readEpoch = useRef(0);
   const qualityReadEpoch = useRef(0);
+  const lastSnapshotRequestAt = useRef(0);
+  const snapshotRequestInFlight = useRef(false);
   const [clockNow, setClockNow] = useState(Date.now());
   useEffect(() => { const timer = window.setInterval(() => setClockNow(Date.now()), 60000); return () => window.clearInterval(timer); }, []);
   const [snapshotStatus, setSnapshotStatus] = useState<{ generatedAt: string; freshness: { stale: boolean; reason: string } } | null>(null);
@@ -345,20 +347,29 @@ export function AdminIntelligenceWorkspace() {
     }
   }
 
-  async function loadSnapshot(clearMessage = true) {
+  async function loadSnapshot(clearMessage = true, background = false) {
+    if (background && snapshotRequestInFlight.current) return;
     const epoch = ++readEpoch.current;
-    setBusy(true);
+    snapshotRequestInFlight.current = true;
+    lastSnapshotRequestAt.current = Date.now();
+    if (!background) setBusy(true);
     if (clearMessage) setMessage(null);
     try {
       const data = await readJson("/api/admin/content/intelligence?view=snapshot");
       if (epoch !== readEpoch.current) return;
       setSnapshotReadFailed(false);
       setSnapshotStatus({ generatedAt: data.generatedAt, freshness: data.freshness ?? { stale: true, reason: "UNKNOWN" } });
-      setItems((data.items ?? []) as EventItem[]);
+      const nextItems = (data.items ?? []) as EventItem[];
+      const firstDay = data.timelineWindow?.firstDay as string | undefined;
+      setItems(current => background && firstDay
+        ? [...nextItems, ...current.filter(item => beijingDay(item.timelineAt || item.publishedAt || item.collectedAt) < firstDay)]
+        : nextItems);
       setTimelineWindow(data.timelineWindow ?? null);
       const days: string[] = [];
       if (data.timelineWindow) { let day = data.timelineWindow.today; for (let i = 0; i < 7; i++) { days.push(day); day = previousDay(day); } }
-      setLoadedDays(days);
+      setLoadedDays(current => background && firstDay
+        ? [...new Set([...days, ...current.filter(day => day < firstDay)])]
+        : days);
       setFeaturedItems((data.featured ?? []) as EventItem[]);
       setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
       setCategoryCounts7d((data.categoryCounts7d ?? {}) as Partial<Record<RadarCategory, number>>);
@@ -370,12 +381,27 @@ export function AdminIntelligenceWorkspace() {
     } catch (error) {
       if (epoch === readEpoch.current) { setSnapshotReadFailed(true); setMessage(error instanceof Error ? error.message : "热点追踪读取失败"); }
     } finally {
-      if (epoch === readEpoch.current) setBusy(false);
+      if (epoch === readEpoch.current) {
+        snapshotRequestInFlight.current = false;
+        if (!background) setBusy(false);
+      }
     }
   }
 
   useEffect(() => {
     void loadSnapshot();
+    const refreshIfVisible = () => {
+      if (document.visibilityState !== "visible" || Date.now() - lastSnapshotRequestAt.current < 60_000) return;
+      void loadSnapshot(false, true);
+    };
+    const timer = window.setInterval(refreshIfVisible, 5 * 60_000);
+    document.addEventListener("visibilitychange", refreshIfVisible);
+    window.addEventListener("focus", refreshIfVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refreshIfVisible);
+      window.removeEventListener("focus", refreshIfVisible);
+    };
   }, []);
 
   async function loadMoreEvents() {
@@ -485,7 +511,7 @@ export function AdminIntelligenceWorkspace() {
           <nav className="intel-category-tabs" aria-label="情报栏目">
             {categories.map((category) => (
               <button type="button" key={category} className={categoryFilter === category ? "is-active" : ""} onClick={() => setCategoryFilter(category)}>
-                {category}<span>{categoryCounts[category]}</span>
+                {category}<span>{snapshotStatus ? categoryCounts[category] : "…"}</span>
               </button>
             ))}
           </nav>
@@ -523,13 +549,13 @@ export function AdminIntelligenceWorkspace() {
                   <em className={item.topicMomentum.trend?.direction === "UP" ? "is-up" : item.topicMomentum.trend?.direction === "DOWN" ? "is-down" : ""}>{hotTrendText(item)}</em>
                 </div>
               </article>
-            )) : <div className="intel-empty">当前没有达到正式热点门槛的 Event。</div>}
+            )) : <div className="intel-empty">{snapshotStatus ? "当前没有达到正式热点门槛的 Event。" : "正在读取当前热点…"}</div>}
           </div>
         </section>
 
         <div className="intel-today-side">
           <section className="intel-hotspot-practice">
-            <header><div><span>AI HOTSPOT PRACTICE</span><h3>AI热点练习</h3></div><small>{aiHotspotPractices.length} 项 · 触发后持续展示</small></header>
+            <header><div><span>AI HOTSPOT PRACTICE</span><h3>AI热点练习</h3></div><small>{snapshotStatus ? aiHotspotPractices.length + " 项 · 触发后持续展示" : "正在读取…"}</small></header>
             <div className="intel-hotspot-practice-list" tabIndex={0} aria-label="AI热点练习，可滚动查看">
               {aiHotspotPractices.map((item) => (
                 <article key={item.eventId}>
@@ -546,7 +572,7 @@ export function AdminIntelligenceWorkspace() {
                   </details>
                 </article>
               ))}
-              {!aiHotspotPractices.length ? <div className="intel-hotspot-practice-empty"><strong>暂无触发的AI热点练习</strong><p>明确AI主题、至少两个独立发布者，并有分析或应用内容即可触发；独立于精选，触发后持续展示。</p></div> : null}
+              {!aiHotspotPractices.length ? <div className="intel-hotspot-practice-empty"><strong>{snapshotStatus ? "暂无触发的AI热点练习" : "正在读取AI热点练习…"}</strong>{snapshotStatus ? <p>明确AI主题、至少两个独立发布者，并有分析或应用内容即可触发；独立于精选，触发后持续展示。</p> : null}</div> : null}
             </div>
           </section>
         </div>
@@ -666,7 +692,7 @@ export function AdminIntelligenceWorkspace() {
       {message ? <div className="intel-message">{message}</div> : null}
       {busy ? <div className="intel-loading">正在读取 Event / Evidence / Coverage…</div> : null}
 
-      {!busy ? (
+      {!busy && snapshotStatus ? (
         <>
         <section className="intel-stream">
           <div className="intel-stream-meta"><span>{categoryFilter}</span><span>近七日 {categoryCounts7d["全部"] ?? 0} 个事件 · 当前筛选 {visibleItems.length} 条（含已加载历史）</span></div>

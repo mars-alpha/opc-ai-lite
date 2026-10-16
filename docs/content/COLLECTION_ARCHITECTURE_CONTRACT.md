@@ -10,7 +10,7 @@
 - 实践主题的定向搜索复用Event Expansion，当前仅BILIBILI_SEARCH和YOUTUBE_SEARCH（YouTube复用Relay/配额）；仅由来源管理中ACTIVE/enabled/currentPortfolio、AUTO_READY或CONDITIONAL、有明确且服务器可执行SEARCH_DISCOVERY Route、collectionConfig.practiceExpansionEnabled=true且Provider健康的Source承载。可在原逻辑Source附加搜索Route并用practiceExpansionProvider指定搜索Provider，不覆盖原采集Provider或复制Source。未知、停用或无路由失败关闭，不调用ensureExpansionSource创建隐藏来源。
 - 搜索补资料触发由AI热点练习主题与多人讨论决定；同Event搜索至少间隔六小时，每SYSTEM周期至多一个主题、一个Provider、两次查询，每次最多五条。复用既有受管搜索路由，不持续全网扫描。
 - 搜索结果沿用污染、相关性、去重与Evidence校验。新作者内容是参考候选，不自动注册长期Source、不自动授予Fact或实践资格；正文不足不声称完整实操。搜索失败不得阻断已有Raw的证据刷新；缺少可用搜索Source返回NO_READY_MANAGED_SEARCH_SOURCE。
-- 不自动调用AI。常驻重新读取按钮退出，页面初始化和操作后自动读；仅快照请求失败提供重试。页面仍需人工体验确认。
+- 不自动调用AI。常驻重新读取按钮退出；页面初始化和操作后自动读，首读完成前显示读取态，不把未加载数据显示为0。来源目录与热点快照在页面可见时每5分钟重读，切回页面且距上次请求至少1分钟时追赶；后台重读不清除已加载历史、筛选或来源编辑输入。仅快照请求失败提供重试。该界面刷新行为已获产品负责人体验批准。
 
 Status: CURRENT / APPROVED PRODUCT BASELINE
 Task: COLLECTION-ARCHITECTURE-REALIGNMENT-001 + SOURCE-QUALIFICATION-GOVERNANCE-011
