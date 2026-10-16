@@ -309,9 +309,7 @@ export async function getSourceManagementOverview() {
     .sort((left, right) => left.name.localeCompare(right.name, "zh-CN"));
   const items = [...radarItems, ...operatorItems];
 
-  const healthyCount = items.filter((item) =>
-    item.health === "HEALTHY" || item.health === "READY" || item.health === "RUNNING"
-  ).length;
+  const healthyCount = items.filter((item) => item.health === "HEALTHY").length;
   const attentionCount = items.filter((item) =>
     item.health === "FAILED" ||
     item.health === "MISSING" ||
@@ -372,7 +370,7 @@ export async function getSourceManagementIndex() {
     const health = !source ? "MISSING" :
       source.status !== "ACTIVE" || !source.enabled ? "DISABLED" :
       latestProductionStatus === "FAILED" ? "FAILED" :
-      source.lastCollectedAt || latestProductionStatus === "SUCCEEDED" ? "HEALTHY" : "READY";
+      latestProductionStatus === "SUCCEEDED" ? "HEALTHY" : "READY";
     const discoveryRouteIds = resolveDiscoveryRouteIds({
       sourceRole: resolvedSourceRole,
       sourceType: resolvedSourceType,
@@ -510,7 +508,7 @@ export async function getSourceManagementIndex() {
   return {
     summary: {
       sourceCount: items.length, radarSourceCount: RADAR_SOURCE_PORTFOLIO.length, operatorAddedSourceCount: operatorSources.length,
-      healthyCount: items.filter((item) => item.health === "HEALTHY" || item.health === "READY").length,
+      healthyCount: items.filter((item) => item.health === "HEALTHY").length,
       attentionCount: items.filter((item) => ["FAILED","MISSING","DISABLED"].includes(item.health)).length,
       autoReadyCount: items.filter((item) => item.effectiveQualification === "AUTO_READY").length,
       conditionalCount: items.filter((item) => item.effectiveQualification === "CONDITIONAL").length

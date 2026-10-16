@@ -83,14 +83,16 @@ export async function listSourceRuntimeSummary(limit = 100, asOf = new Date()) {
     const successCount = groupRuns.filter((run) => run.status === "SUCCEEDED").length;
     const healthyCount = groupSources.filter((source) => {
       const latest = latestRunBySource.get(source.id);
-      return !latest || latest.status === "SUCCEEDED";
+      return latest?.status === "SUCCEEDED";
     }).length;
-    const failedCount = groupSources.length - healthyCount;
+    const failedCount = groupSources.filter((source) => latestRunBySource.get(source.id)?.status === "FAILED").length;
+    const unverifiedCount = groupSources.length - healthyCount - failedCount;
     return {
       groupName,
       sourceCount: groupSources.length,
       healthyCount,
       failedCount,
+      unverifiedCount,
       runCount: groupRuns.length,
       successRate: groupRuns.length ? Math.round(successCount / groupRuns.length * 100) : null,
       receivedTotal,
@@ -109,6 +111,7 @@ export async function listSourceRuntimeSummary(limit = 100, asOf = new Date()) {
     return sum + numeric(filter.kept ?? filter.accepted ?? run.createdCount + run.duplicateCount);
   }, 0);
   const failedSourceCount = sources.filter((source) => latestRunBySource.get(source.id)?.status === "FAILED").length;
+  const healthySourceCount = sources.filter((source) => latestRunBySource.get(source.id)?.status === "SUCCEEDED").length;
   return {
     summary: {
       runCount: runs.length,
@@ -116,9 +119,10 @@ export async function listSourceRuntimeSummary(limit = 100, asOf = new Date()) {
       failedCount: runs.filter((run) => run.status === "FAILED").length,
       configuredSourceCount: sources.length,
       monitoredSourceCount: sources.length,
-      healthySourceCount: sources.length - failedSourceCount,
+      healthySourceCount,
       failedSourceCount,
-      degradedSourceCount: 0,
+      unverifiedSourceCount: sources.length - healthySourceCount - failedSourceCount,
+      degradedSourceCount: sources.length - healthySourceCount - failedSourceCount,
       runtimeGapCount: 0,
       receivedTotal,
       keptTotal,
@@ -281,7 +285,7 @@ export async function listSourceRuntimeOperations(limit = 120) {
     return {
       groupName,
       sourceCount: groupSources.length,
-      healthyCount: groupSources.filter((item) => item.status === "HEALTHY" || item.status === "READY").length,
+      healthyCount: groupSources.filter((item) => item.status === "HEALTHY").length,
       failedCount: groupSources.filter((item) => item.status === "FAILED" || item.status === "RUNTIME_GAP").length,
       runCount,
       successRate: runCount ? Math.round(successRunCount / runCount * 100) : null,
@@ -302,9 +306,7 @@ export async function listSourceRuntimeOperations(limit = 120) {
       failedCount: items.filter((item) => item.status === "FAILED").length,
       configuredSourceCount: sourceHealth.length,
       monitoredSourceCount: sourceHealth.length,
-      healthySourceCount: sourceHealth.filter((item) =>
-        item.status !== "FAILED" && item.status !== "RUNTIME_GAP"
-      ).length,
+      healthySourceCount: sourceHealth.filter((item) => item.status === "HEALTHY").length,
       failedSourceCount: sourceHealth.filter((item) => item.status === "FAILED").length,
       degradedSourceCount: sourceHealth.filter((item) =>
         item.effectiveQualification === "CONDITIONAL" ||

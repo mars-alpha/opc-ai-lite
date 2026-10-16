@@ -48,7 +48,7 @@ assert(core.includes("manualOperationOnly"), "MANUAL_ONLY_EXPLICIT");
 assert(core.includes("sourceQualification"), "QUALIFICATION_METADATA_NAMESPACE");
 
 assert(!schema.includes("content_source_qualifications"), "NO_SECOND_SOURCE_QUALIFICATION_TABLE");
-assert(schema.includes('pgTable(\n  "content_sources"'), "CONTENT_SOURCES_REMAINS_IDENTITY_OWNER");
+assert(/pgTable\(\s*"content_sources"/.test(schema), "CONTENT_SOURCES_REMAINS_IDENTITY_OWNER");
 assert(router.includes("CollectionBackendHealthStatus"), "RUNTIME_HEALTH_OWNER_REMAINS_ROUTER");
 assert(audit.includes("SourceCapabilityStatus"), "AUDIT_HEALTH_OWNER_REMAINS_AUDIT");
 assert(!router.includes("AUTO_READY"), "ROUTER_DOES_NOT_OWN_QUALIFICATION");

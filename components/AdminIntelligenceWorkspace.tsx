@@ -3,6 +3,7 @@ import type {AiHotspotPracticeRecord} from "../lib/server/content/ai-hotspot-pra
 
 import { useEffect, useRef, useState } from "react";
 import { beijingDay, dayStart, previousDay } from "../lib/content/radar-calendar";
+import { expandRadarSnapshotWire } from "../lib/content/radar-snapshot-wire";
 import { COLLECTION_QUALITY_REASON_NAMES, type CollectionQualityReason } from "../lib/content/collection-quality-feedback-contract";
 
 type QualityView = { eventLabel: string | null; sources: Array<{ sourceId: string; label: string }>; sourceOptions: Array<{ sourceId: string; name: string }> };
@@ -133,6 +134,7 @@ type CollectionHealth = {
     healthySourceCount: number;
     failedSourceCount: number;
     degradedSourceCount: number;
+    unverifiedSourceCount?: number;
     runtimeGapCount: number;
     receivedTotal: number;
     keptTotal: number;
@@ -143,6 +145,7 @@ type CollectionHealth = {
     sourceCount: number;
     healthyCount: number;
     failedCount: number;
+    unverifiedCount: number;
     runCount: number;
     successRate: number | null;
     receivedTotal: number;
@@ -355,11 +358,12 @@ export function AdminIntelligenceWorkspace() {
     if (!background) setBusy(true);
     if (clearMessage) setMessage(null);
     try {
-      const data = await readJson("/api/admin/content/intelligence?view=snapshot");
+      const data = await readJson("/api/admin/content/intelligence?view=snapshot&transport=compact");
       if (epoch !== readEpoch.current) return;
+      const nextItems = (data.items ?? []) as EventItem[];
+      const { featured, currentHot } = expandRadarSnapshotWire<EventItem>({ ...data, items: nextItems });
       setSnapshotReadFailed(false);
       setSnapshotStatus({ generatedAt: data.generatedAt, freshness: data.freshness ?? { stale: true, reason: "UNKNOWN" } });
-      const nextItems = (data.items ?? []) as EventItem[];
       const firstDay = data.timelineWindow?.firstDay as string | undefined;
       setItems(current => background && firstDay
         ? [...nextItems, ...current.filter(item => beijingDay(item.timelineAt || item.publishedAt || item.collectedAt) < firstDay)]
@@ -370,14 +374,14 @@ export function AdminIntelligenceWorkspace() {
       setLoadedDays(current => background && firstDay
         ? [...new Set([...days, ...current.filter(day => day < firstDay)])]
         : days);
-      setFeaturedItems((data.featured ?? []) as EventItem[]);
+      setFeaturedItems(featured);
       setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
       setCategoryCounts7d((data.categoryCounts7d ?? {}) as Partial<Record<RadarCategory, number>>);
-      setCurrentHot((data.currentHot ?? []) as EventItem[]);
+      setCurrentHot(currentHot);
       setAiHotspotPractices((data.aiHotspotPractices ?? []) as AiHotspotPracticeRecord[]);
       setReadiness(data.readiness ?? null);
       setCollectionHealth(data.collectionHealth ?? null);
-      void loadQualityFeedback([...(data.items ?? []), ...(data.featured ?? []), ...(data.currentHot ?? []), ].map((item: EventItem) => item.eventId)).catch(() => setMessage("评价状态读取失败，请刷新重试。"));
+      void loadQualityFeedback([...nextItems, ...featured, ...currentHot].map((item) => item.eventId)).catch(() => setMessage("评价状态读取失败，请刷新重试。"));
     } catch (error) {
       if (epoch === readEpoch.current) { setSnapshotReadFailed(true); setMessage(error instanceof Error ? error.message : "热点追踪读取失败"); }
     } finally {
@@ -605,11 +609,11 @@ export function AdminIntelligenceWorkspace() {
             <div>
               <strong>采集状态</strong>
               <span>
-                来源 {collectionHealth.summary.healthySourceCount}/{collectionHealth.summary.monitoredSourceCount} 正常 ·
+                来源 {collectionHealth.summary.healthySourceCount}/{collectionHealth.summary.monitoredSourceCount} 最近记录成功 ·
                 北京时间今日返回 {collectionHealth.windows?.today.received ?? "未记录"} 条次 ·
                 新增Raw {collectionHealth.windows?.today.rawCreated ?? "未记录"} ·
                 过滤保留 {collectionHealth.windows?.today.filterKept ?? "未完整记录"} ·
-                失败 {collectionHealth.summary.failedSourceCount}
+                失败 {collectionHealth.summary.failedSourceCount} · 未证实 {collectionHealth.summary.unverifiedSourceCount ?? collectionHealth.summary.degradedSourceCount}
               </span>
             </div>
             <small>只读维护信息 · 不影响 Event 排序与事实权力</small>
@@ -628,7 +632,7 @@ export function AdminIntelligenceWorkspace() {
               </article>
             ); }) : null}
           </div>
-          <p>七日可见事件 {categoryCounts7d["全部"] ?? 0} 个（存量，按事件时间）；上方采集漏斗按运行开始时间统计，重复轮询不等于新增内容。重复Raw复用规范URL、外部ID、内容/标题哈希；不再新建Event。失败运行可能部分写入，未计入成功漏斗。</p>
+          <p>七日可见事件 {categoryCounts7d["全部"] ?? 0} 个（存量，按事件时间）；上方采集漏斗按运行开始时间统计，重复轮询不等于新增内容。重复Raw复用规范URL、外部ID、内容/标题哈希；仅在缺失Event关联时续接。失败运行可能部分写入，未计入成功漏斗。</p>
           <p>口径说明：“过滤保留”是多次采集留下的条次，含重复；“新增Raw”是首次保存的原始文章/材料；“全部动态”统计近七日独立事件，同一事件的多篇报道会归并。因此三者不应相等，今天新增原文也不等于近七日全部事件。</p>
           <p>可见事件排除：七日窗口外或未来日期、已归档、非当前SYSTEM策略、非AI相关、运营用途不合格、非聚类主事件、缺少SYSTEM原始证据。人工采集质量评价不改变可见性。</p>
           <div className="intel-source-group-grid">
@@ -636,10 +640,10 @@ export function AdminIntelligenceWorkspace() {
               <article key={group.groupName}>
                 <div>
                   <strong>{sourceGroupLabel(group.groupName)}</strong>
-                  <span>{group.healthyCount}/{group.sourceCount} 可用</span>
+                  <span>{group.healthyCount}/{group.sourceCount} 最近记录成功</span>
                 </div>
-                <b className={group.failedCount ? "is-warn" : "is-ok"}>
-                  {group.failedCount ? group.failedCount + " 异常" : "正常"}
+                <b className={group.failedCount || group.unverifiedCount ? "is-warn" : "is-ok"}>
+                  {[group.failedCount ? group.failedCount + " 失败" : "", group.unverifiedCount ? group.unverifiedCount + " 未证实" : ""].filter(Boolean).join(" · ") || "最近记录成功"}
                 </b>
                 <small>
                   AI强相关 {group.aiRelevantKeepRate === null ? "—" : group.aiRelevantKeepRate + "%"} ·

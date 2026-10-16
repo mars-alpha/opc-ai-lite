@@ -221,7 +221,12 @@ export function readSessionToken(request: Request) {
     .split(";")
     .map((item) => item.trim())
     .find((item) => item.startsWith(SESSION_COOKIE + "="));
-  return pair ? decodeURIComponent(pair.slice(SESSION_COOKIE.length + 1)) : null;
+  if (!pair) return null;
+  try {
+    return decodeURIComponent(pair.slice(SESSION_COOKIE.length + 1));
+  } catch {
+    return null;
+  }
 }
 
 export async function requireSessionUser(request: Request) {

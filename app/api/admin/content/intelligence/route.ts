@@ -13,6 +13,7 @@ import {
 import { getTodayIntelligenceSignalReadiness } from "../../../../../lib/server/content/today-intelligence-readiness";
 import { listSourceRuntimeOperations } from "../../../../../lib/server/content/source-runtime-operations";
 import { getRadarSnapshot } from "../../../../../lib/server/content/radar-snapshot";
+import { compactRadarSnapshotWire } from "../../../../../lib/content/radar-snapshot-wire";
 import {listAiHotspotPractices} from "../../../../../lib/server/content/ai-hotspot-practice-store";
 import {evaluateAiHotspotPractice} from "../../../../../lib/server/content/ai-hotspot-practice";
 
@@ -33,7 +34,10 @@ export async function GET(request: Request) {
     const limit = boundedLimit(url.searchParams.get("limit"));
 
     if (view === "snapshot") {
-      return NextResponse.json({ view, ...(await getRadarSnapshot()) });
+      const snapshot = await getRadarSnapshot();
+      return NextResponse.json({ view, ...(url.searchParams.get("transport") === "compact"
+        ? compactRadarSnapshotWire(snapshot)
+        : snapshot) });
     }
     if (view === "ai-hotspot-practice-diagnostics") {
       const page = await listRadarTimelinePage({asOf:new Date()});

@@ -473,23 +473,25 @@ async function buildExpansionPack(
   });
   const selected = selectEventExpansionEvidence(classified, MAX_EVIDENCE);
 
-  await db.delete(contentEventExpansionEvidence).where(eq(contentEventExpansionEvidence.eventId, event.id));
-  if (selected.length) {
-    await db.insert(contentEventExpansionEvidence).values(selected.map((item) => ({
-      eventId: event.id,
-      rawItemId: item.rawItemId,
-      expansionRunId: item.expansionRunId,
-      expansionType: item.expansionType,
-      mediaType: item.mediaType,
-      language: item.language,
-      relevanceScore: item.relevanceScore,
-      valueScore: item.valueScore,
-      rankScore: item.rankScore,
-      shadowSignalScore: item.shadowSignalScore,
-      query: item.query,
-      metadata: item.metadata
-    })));
-  }
+  await db.transaction(async (tx) => {
+    await tx.delete(contentEventExpansionEvidence).where(eq(contentEventExpansionEvidence.eventId, event.id));
+    if (selected.length) {
+      await tx.insert(contentEventExpansionEvidence).values(selected.map((item) => ({
+        eventId: event.id,
+        rawItemId: item.rawItemId,
+        expansionRunId: item.expansionRunId,
+        expansionType: item.expansionType,
+        mediaType: item.mediaType,
+        language: item.language,
+        relevanceScore: item.relevanceScore,
+        valueScore: item.valueScore,
+        rankScore: item.rankScore,
+        shadowSignalScore: item.shadowSignalScore,
+        query: item.query,
+        metadata: item.metadata
+      })));
+    }
+  });
 
   return {
     evidence: await listEventExpansionEvidence(event.id),

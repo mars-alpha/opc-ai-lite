@@ -130,6 +130,16 @@ export function canonicalizeOriginalUrl(input: string | null) {
   }
 }
 
+type ContentTransaction = Parameters<Parameters<ReturnType<typeof getDatabase>["transaction"]>[0]>[0];
+
+async function recordRunRawLink(tx: ContentTransaction, runId: string | null, sourceId: string, rawItemId: string) {
+  if (!runId) return;
+  const [run] = await tx.update(contentCollectionRuns).set({
+    metadata: sql`jsonb_set(${contentCollectionRuns.metadata}, '{rawItemIds}', coalesce(${contentCollectionRuns.metadata}->'rawItemIds', '[]'::jsonb) || jsonb_build_array(${rawItemId}::text))`
+  }).where(and(eq(contentCollectionRuns.id, runId), eq(contentCollectionRuns.sourceId, sourceId), eq(contentCollectionRuns.status, "RUNNING"))).returning({ id: contentCollectionRuns.id });
+  if (!run) throw new Error("COLLECTION_RUN_RAW_LINK_INVALID");
+}
+
 async function upsertRawItemObservation(input: {
   rawItemId: string;
   sourceId: string;
@@ -138,8 +148,7 @@ async function upsertRawItemObservation(input: {
   observedUrl: string | null;
   platformMetrics: Record<string, unknown>;
   metadata: Record<string, unknown>;
-}) {
-  const db = getDatabase();
+}, db: ContentTransaction) {
   const observedAt = new Date();
   const [existing] = await db
     .select()
@@ -334,6 +343,7 @@ export async function archiveDiscoverySource(user: AuthUser, sourceIdInput: stri
 export async function ingestRawItem(input: unknown) {
   if (!isRecord(input)) throw new Error("INVALID_INPUT");
   const source = sourceId(input.sourceId);
+  const collectionRunId = optionalText(input.collectionRunId, "INVALID_COLLECTION_RUN_ID", 120);
   const db = getDatabase();
   const [sourceRow] = await db.select().from(contentSources).where(eq(contentSources.id, source)).limit(1);
   if (!sourceRow || !sourceRow.enabled || sourceRow.status !== "ACTIVE") throw new Error("DISCOVERY_SOURCE_INACTIVE");
@@ -362,6 +372,7 @@ export async function ingestRawItem(input: unknown) {
       .update([canonicalUrl, externalId, title, excerpt].map((value) => value ?? "").join("\n"))
       .digest("hex");
 
+  return db.transaction(async (tx) => {
   const sourceIdentityMatch = and(
     eq(contentRawItems.sourceId, source),
     or(
@@ -372,13 +383,13 @@ export async function ingestRawItem(input: unknown) {
   const duplicateWhere = canonicalUrl
     ? or(eq(contentRawItems.canonicalUrl, canonicalUrl), sourceIdentityMatch)
     : sourceIdentityMatch;
-  const [duplicate] = await db
+  const [duplicate] = await tx
     .select()
     .from(contentRawItems)
     .where(duplicateWhere)
     .limit(1);
   const titleDuplicate = !duplicate && normalizedTitleHash
-    ? (await db
+    ? (await tx
         .select()
         .from(contentRawItems)
         .where(and(
@@ -398,7 +409,7 @@ export async function ingestRawItem(input: unknown) {
     // attach a different article's body to the retained Raw identity.
     if (effectiveDuplicate.originalUrl === originalUrl && (isRecord(metadata.publicContentReceipt) || isRecord(metadata.publicContentAttempt))) {
       const patch = mergePublicContentMetadata({}, metadata);
-      if (patch.publicContentReceipt || patch.publicContentAttempt) await db.update(contentRawItems).set({
+      if (patch.publicContentReceipt || patch.publicContentAttempt) await tx.update(contentRawItems).set({
         metadata: sql`${contentRawItems.metadata} || ${JSON.stringify(patch)}::jsonb`, updatedAt:new Date()
       }).where(eq(contentRawItems.id,effectiveDuplicate.id));
     }
@@ -410,15 +421,16 @@ export async function ingestRawItem(input: unknown) {
       observedUrl: originalUrl,
       platformMetrics,
       metadata: dedupMetadata
-    });
-    await db
+    }, tx);
+    await recordRunRawLink(tx, collectionRunId, source, effectiveDuplicate.id);
+    await tx
       .update(contentSources)
       .set({ lastCollectedAt: new Date(), updatedAt: new Date() })
       .where(eq(contentSources.id, source));
     return { item: effectiveDuplicate, created: false };
   }
 
-  const [inserted] = await db
+  const [inserted] = await tx
     .insert(contentRawItems)
     .values({
       sourceId: source,
@@ -439,7 +451,7 @@ export async function ingestRawItem(input: unknown) {
     .returning();
 
   const item = inserted ?? (
-    await db
+    await tx
       .select()
       .from(contentRawItems)
       .where(duplicateWhere)
@@ -455,9 +467,11 @@ export async function ingestRawItem(input: unknown) {
     observedUrl: originalUrl,
     platformMetrics,
     metadata: dedupMetadata
-  });
-  await db.update(contentSources).set({ lastCollectedAt: new Date(), updatedAt: new Date() }).where(eq(contentSources.id, source));
+  }, tx);
+  await recordRunRawLink(tx, collectionRunId, source, item.id);
+  await tx.update(contentSources).set({ lastCollectedAt: new Date(), updatedAt: new Date() }).where(eq(contentSources.id, source));
   return { item, created: Boolean(inserted) };
+  });
 }
 
 export async function runFreshScan(input: unknown) {
@@ -469,8 +483,9 @@ export async function runFreshScan(input: unknown) {
   });
   const provenanceMeta = provenanceMetadata(provenance);
   const items = input.items.slice(0, 200);
-  const results: Array<{ id: string; created: boolean }> = [];
+  const results: Array<Awaited<ReturnType<typeof ingestRawItem>>> = [];
   const createdRawItemIds: string[] = [];
+  const recoveredRawItemIds: string[] = [];
   let eventCreated = 0;
   let eventMerged = 0;
   let historicalWithoutEvent = 0;
@@ -481,42 +496,58 @@ export async function runFreshScan(input: unknown) {
     const result = await ingestRawItem({
       ...item,
       sourceId: sourceIdInput,
+      collectionRunId: input.collectionRunId,
       metadata: { ...itemMetadata, ...provenanceMeta }
     });
-    results.push({ id: result.item.id, created: result.created });
-    if (result.created) {
-      const metadata = isRecord(result.item.metadata) ? result.item.metadata : {};
-      createdRawItemIds.push(result.item.id);
-      // Historical author materials remain searchable Raw/Observation. Collection
-      // time is not a publication time and must not manufacture a current Event.
-      if (metadata.publicationStatus === "UNKNOWN_HISTORICAL") { historicalWithoutEvent += 1; continue; }
-      const resolvedEntities = Array.isArray(metadata.resolvedEntities)
-        ? metadata.resolvedEntities.filter(isRecord)
-        : [];
-      const entityIds = resolvedEntities.flatMap((entity) =>
-        typeof entity.entityId === "string" && entity.entityId.trim() ? [entity.entityId.trim()] : []
-      );
-      const eventType = typeof metadata.eventType === "string" && metadata.eventType.trim()
-        ? metadata.eventType.trim()
-        : "INDUSTRY_HOTSPOT";
-      const safeEventAt =
-        result.item.publishedAt &&
-        result.item.publishedAt.getTime() <= result.item.collectedAt.getTime() + 15 * 60 * 1000
-          ? result.item.publishedAt
-          : result.item.collectedAt;
-      const seed = await createEventSeed({
-        rawItemId: result.item.id,
-        title: result.item.title,
-        summary: result.item.excerpt ? result.item.excerpt.slice(0, 4000) : null,
-        keywords: [],
-        entities: entityIds,
-        eventType,
-        primaryEntityId: entityIds[0] ?? null,
-        subjectEntityId: entityIds[1] ?? null,
-        eventAt: safeEventAt.toISOString()
-      });
-      if (seed.created) eventCreated += 1; else eventMerged += 1;
+    results.push(result);
+    if (result.created) createdRawItemIds.push(result.item.id);
+  }
+
+  // A prior attempt can commit Raw/Observation before Event seeding fails. A
+  // later collection of that same Raw must complete the missing link.
+  const rawIds = [...new Set(results.map(({ item }) => item.id))];
+  const existingLinks = rawIds.length
+    ? await getDatabase().select({ rawItemId: contentEventRawItems.rawItemId })
+        .from(contentEventRawItems).where(inArray(contentEventRawItems.rawItemId, rawIds))
+    : [];
+  const linkedRawIds = new Set(existingLinks.map((link) => link.rawItemId));
+  for (const result of results) {
+    if (linkedRawIds.has(result.item.id)) continue;
+    const metadata = isRecord(result.item.metadata) ? result.item.metadata : {};
+    // Historical author materials remain searchable Raw/Observation. Collection
+    // time is not a publication time and must not manufacture a current Event.
+    if (metadata.publicationStatus === "UNKNOWN_HISTORICAL") {
+      if (result.created) historicalWithoutEvent += 1;
+      continue;
     }
+    const resolvedEntities = Array.isArray(metadata.resolvedEntities)
+      ? metadata.resolvedEntities.filter(isRecord)
+      : [];
+    const entityIds = resolvedEntities.flatMap((entity) =>
+      typeof entity.entityId === "string" && entity.entityId.trim() ? [entity.entityId.trim()] : []
+    );
+    const eventType = typeof metadata.eventType === "string" && metadata.eventType.trim()
+      ? metadata.eventType.trim()
+      : "INDUSTRY_HOTSPOT";
+    const safeEventAt =
+      result.item.publishedAt &&
+      result.item.publishedAt.getTime() <= result.item.collectedAt.getTime() + 15 * 60 * 1000
+        ? result.item.publishedAt
+        : result.item.collectedAt;
+    const seed = await createEventSeed({
+      rawItemId: result.item.id,
+      title: result.item.title,
+      summary: result.item.excerpt ? result.item.excerpt.slice(0, 4000) : null,
+      keywords: [],
+      entities: entityIds,
+      eventType,
+      primaryEntityId: entityIds[0] ?? null,
+      subjectEntityId: entityIds[1] ?? null,
+      eventAt: safeEventAt.toISOString()
+    });
+    linkedRawIds.add(result.item.id);
+    if (!result.created) recoveredRawItemIds.push(result.item.id);
+    if (seed.created) eventCreated += 1; else eventMerged += 1;
   }
 
   return {
@@ -525,8 +556,9 @@ export async function runFreshScan(input: unknown) {
     stored: results.length,
     created: results.filter((item) => item.created).length,
     duplicates: results.filter((item) => !item.created).length,
-    rawItemIds: results.map((item) => item.id),
+    rawItemIds: results.map((result) => result.item.id),
     createdRawItemIds,
+    recoveredRawItemIds,
     eventCreated, eventMerged, historicalWithoutEvent
   };
 }
@@ -627,9 +659,10 @@ export async function attachRawItemToEvent(
     reason?: string | null;
     score?: number | null;
     metadata?: Record<string, unknown>;
-  }
+  },
+  transaction?: ContentTransaction
 ) {
-  const db = getDatabase();
+  const db = transaction ?? getDatabase();
   const [[event], [raw]] = await Promise.all([
     db.select({ id: contentEvents.id }).from(contentEvents).where(eq(contentEvents.id, eventId)).limit(1),
     db.select({ id: contentRawItems.id }).from(contentRawItems).where(eq(contentRawItems.id, rawItemId)).limit(1)
@@ -671,7 +704,7 @@ export async function createEventSeed(input: unknown) {
     optionalText(input.fingerprint, "INVALID_EVENT_FINGERPRINT", 128) ??
     eventFingerprint(title, [eventType, ...expansion.keywords], expansion.entities);
 
-  const db = getDatabase();
+  return getDatabase().transaction(async (db) => {
   const [raw] = await db.select().from(contentRawItems).where(eq(contentRawItems.id, rawItemId)).limit(1);
   if (!raw) throw new Error("RAW_ITEM_NOT_FOUND");
 
@@ -747,9 +780,11 @@ export async function createEventSeed(input: unknown) {
       reason: clusterReason,
       score: clusterScore,
       metadata: clusterMetadata
-    }
+    },
+    db
   );
   return { item: event, created, expansion, clusterReason, clusterScore, clusterMetadata };
+  });
 }
 
 export async function listEvents(limit = 100) {

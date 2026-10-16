@@ -93,6 +93,8 @@ Discover → Check → Preview → Register → Qualify → SYSTEM Collection
 
 不得从内容工作台、热点追踪或旧 Manual 路径直接创建第二条采集链。
 
+SYSTEM 的 Raw、Observation 与 Run 的 `metadata.rawItemIds` 归属在同一事务提交，失败收尾保留已提交归属；历史无归属记录不推断补写。正式 Source Run 重访已存在 Raw 时，仅在该 Raw 缺少 Event 关联且非无发布日期历史材料的情况下续接 Event Seed，并沿现有 Event 策略刷新；普通重复轮询不重复刷新。Event Seed 与 Raw 关联同事务提交，Event 扩展证据替换在同一事务内完成。管理员事件列表 API 只读，不提供独立 Event 写入口。
+
 ## 4. Source Identity vs Acquisition Route
 
 Source Identity 与 Acquisition Route 永久分离。

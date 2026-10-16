@@ -88,6 +88,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "SOURCE_MANAGEMENT_ACTION_INVALID" }, { status: 400 });
   } catch (error) {
     return contentWorkbenchError(error, "SOURCE_MANAGEMENT_ACTION_FAILED") ??
-      NextResponse.json({ error: error instanceof Error ? error.message : "SOURCE_MANAGEMENT_ACTION_FAILED" }, { status: 400 });
+      NextResponse.json({ error: "SOURCE_MANAGEMENT_ACTION_FAILED" }, { status: 500 });
   }
 }

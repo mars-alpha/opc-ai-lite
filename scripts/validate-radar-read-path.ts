@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { compactRadarSnapshotWire, expandRadarSnapshotWire } from "../lib/content/radar-snapshot-wire";
 
 function assert(condition: unknown, code: string) {
   if (!condition) throw new Error("RADAR_READ_PATH_FAILED:" + code);
@@ -49,5 +50,18 @@ assert(migration35.includes("content_raw_item_observations_source_observed_idx")
 assert(migration36.includes("content_collection_runs_source_started_idx"), "RADAR_RUN_INDEX_MIGRATION");
 assert(!fs.existsSync("scripts/validate-today-intelligence-closure-026.ts"), "RADAR_OLD_026_VALIDATOR_REMOVED");
 assert(!fs.existsSync("scripts/accept-today-intelligence-closure-026.ts"), "RADAR_OLD_026_ACCEPT_REMOVED");
+
+const wireItems = Array.from({ length: 40 }, (_, index) => ({ eventId: `event-${index}`, curation: { score: index, featuredRank: 0 }, story: "evidence ".repeat(100) }));
+const wireFeatured = wireItems.slice(0, 10).reverse().map((item, index) => ({ ...item, curation: { ...item.curation, featuredRank: index + 1 } }));
+const fullWire = { items: wireItems, featured: wireFeatured, currentHot: wireItems.slice(10, 15).reverse() };
+const compactWire = compactRadarSnapshotWire(fullWire);
+const expandedWire = expandRadarSnapshotWire(compactWire);
+assert(JSON.stringify(expandedWire.featured) === JSON.stringify(fullWire.featured) && JSON.stringify(expandedWire.currentHot) === JSON.stringify(fullWire.currentHot), "RADAR_COMPACT_ORDER_AND_CURATION_ROUND_TRIP");
+assert(Buffer.byteLength(JSON.stringify(compactWire)) < Buffer.byteLength(JSON.stringify(fullWire)), "RADAR_COMPACT_AVOIDS_DUPLICATE_STORIES");
+let missingReferenceRejected = false;
+try { expandRadarSnapshotWire({ ...compactWire, currentHotIds: ["missing-event"] }); }
+catch (error) { missingReferenceRejected = error instanceof Error && error.message === "RADAR_SNAPSHOT_WIRE_EVENT_MISSING"; }
+assert(missingReferenceRejected, "RADAR_COMPACT_MISSING_REFERENCE_FAILS_CLOSED");
+assert(JSON.stringify(expandRadarSnapshotWire(fullWire).featured) === JSON.stringify(fullWire.featured), "RADAR_FULL_RESPONSE_COMPATIBLE");
 
 console.log("RADAR_READ_PATH_CONTRACT=PASS");

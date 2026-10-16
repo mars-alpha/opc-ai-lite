@@ -83,6 +83,7 @@ Topic Momentum queue reconcile 与 due selection 使用同一 follow-up eligibil
 - lib/server/content/discovery.ts
 - lib/server/content/raw-relevance-dedup.ts
 - 原文不可被 Presentation 覆盖
+- `ingestRawItem` 将 Raw/Observation 和 Run 的 `metadata.rawItemIds` 写入同一事务；`collection-runner.ts` 失败收尾合并 metadata，保留部分提交归属。`runFreshScan` 在正式 Source Run 中续接缺少 Event 关联的非历史 Raw，并返回 `recoveredRawItemIds` 供同一 Event 策略刷新。`createEventSeed` 原子提交 Event 与 Raw 关联。
 
 ### Event / Evidence
 - lib/server/content/event-seed-clustering.ts
@@ -91,9 +92,11 @@ Topic Momentum queue reconcile 与 due selection 使用同一 follow-up eligibil
 - lib/server/content/event-relevance-gate.ts
 - lib/server/content/event-policy.ts
 - lib/server/content/event-signal.ts
+- `app/api/admin/content/discovery/events/route.ts` 仅保留管理员 Event 列表 GET；正式 Event Seed 写入由 SYSTEM Source Run 触发，不提供独立 POST。
 
 ### Expansion / Creator / Momentum
 - lib/server/content/collection-expansion.ts
+- Event 扩展证据删除与替换由 `collection-expansion.ts` 在同一事务中提交。
 - lib/server/content/event-expansion-budget.ts
 - lib/server/content/event-expansion-coverage-gap.ts
 - lib/server/content/creator-coverage-qualification.ts
@@ -120,9 +123,11 @@ Topic Momentum：过去 7 天 / 168h，独立账号与机构去重，72h half-li
 ### Radar
 - lib/server/content/intelligence-read-model.ts
 - lib/server/content/radar-snapshot.ts
+- 快照 schema `radar-snapshot-v16-audit-fixes` 使旧健康统计失效并重建；生产切换仍要求 Web/SYSTEM 同版，不涉及 v17 存储方案。
 - lib/server/content/today-intelligence-readiness.ts
 - app/api/admin/content/intelligence/route.ts
 - components/AdminIntelligenceWorkspace.tsx
+- lib/content/radar-snapshot-wire.ts（Radar 页面选择 compact 传输；保留原 API 完整响应；按 Event ID 还原精选排序和热点列表，缺失引用则显式报错）
 
 
 旧 Event 决策 route/writer、人工 Expansion POST、旧 `IGNORED` 可见性过滤、内容工作台兼容控件及评论挖旧决策读取已退出；`content_candidate_decisions` 和 `discoveryStatus` 仍保留历史审计。采集质量反馈由 `lib/server/content/collection-quality-feedback.ts`、独立表和 admin-only API 拥有，热点追踪与来源管理只消费标签。生产路径见 `docs/CURRENT_SYSTEM_FACTS.md`。`refreshSourceManagedEventExpansion` 在 `topic-momentum-runtime.ts` 和 SYSTEM 中的自动调用必须保留。

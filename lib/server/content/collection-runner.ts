@@ -14,7 +14,7 @@ import {
   contentRawItems,
   contentSources
 } from "../db/schema";
-import { and, eq, inArray, lt } from "drizzle-orm";
+import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import { canonicalizeOriginalUrl, ingestRawItem, runFreshScan } from "./discovery";
 import { assertCollectorReferenceOnly, COLLECTOR_MEDIA_POLICY } from "./discovery-contract";
 import { buildSearchDiscoveryUrl, collectSearchDiscovery, resolveSearchDiscoveryConfig } from "./search-discovery";
@@ -1206,14 +1206,12 @@ export async function runSourceCollection(
     // Presentation/localization must not block source collection. Raw/Observation
     // is persisted first; Chinese presentation falls back to original text until
     // presentation enrichment is available.
-    const result = await runFreshScan({ sourceId: source.id, items: policyItems, provenance });
-    // New facts always refresh their Event. Repeated observations only need an
-    // Event refresh for TREND routes where rank/engagement can change without a
-    // new Raw Item. Re-reading unchanged RSS/web items must not trigger a full
-    // cluster/policy/signal recomputation on every source run.
+    const result = await runFreshScan({ sourceId: source.id, collectionRunId: run.id, items: policyItems, provenance });
+    // New and recovered facts refresh their Event. Unchanged observations only
+    // need a refresh for TREND routes where rank/engagement can change.
     const eventRefreshRawItemIds = method === "TREND"
       ? result.rawItemIds
-      : result.createdRawItemIds;
+      : [...result.createdRawItemIds, ...result.recoveredRawItemIds];
     const affectedEventLinks = eventRefreshRawItemIds.length
       ? await db
           .select({ eventId: contentEventRawItems.eventId })
@@ -1292,6 +1290,7 @@ export async function runSourceCollection(
         storedCount: result.stored,
         rawItemIds: result.rawItemIds.slice(0, 200),
         createdRawItemIds: result.createdRawItemIds.slice(0, 200),
+        recoveredRawItemIds: result.recoveredRawItemIds.slice(0, 200),
         acquisitionRouteId: selectedAcquisitionRoute?.id ?? acquisition.primaryRoute.id,
         acquisitionRouteRole: selectedAcquisitionRoute?.role ?? acquisition.primaryRoute.role,
         acquisitionRouteCostLevel: selectedAcquisitionRoute?.costLevel ?? acquisition.primaryRoute.costLevel,
@@ -1313,10 +1312,7 @@ export async function runSourceCollection(
       errorCode: errorCode(error),
       errorMessage: errorMessage(error),
       finishedAt: new Date(),
-      metadata: {
-        ...runMetadata,
-        acquisitionRouteAttempts
-      }
+      metadata: sql`${contentCollectionRuns.metadata} || ${JSON.stringify({ ...runMetadata, acquisitionRouteAttempts })}::jsonb`
     }).where(eq(contentCollectionRuns.id, run.id));
     if (provenance.origin === "SYSTEM" && input.qualificationOnly !== true) {
       await refreshSourceRuntimeQualification(source.id).catch(() => null);
