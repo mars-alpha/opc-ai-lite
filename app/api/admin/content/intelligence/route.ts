@@ -8,13 +8,13 @@ import {
   listLatestTodayIntelligence,
   listRadarTimelinePage,
   listOfficialNewsCandidates,
-  listUnverifiedEventCandidates,
-  listWorthPracticingTodayIntelligence
+  listUnverifiedEventCandidates
 } from "../../../../../lib/server/content/intelligence-read-model";
 import { getTodayIntelligenceSignalReadiness } from "../../../../../lib/server/content/today-intelligence-readiness";
 import { listSourceRuntimeOperations } from "../../../../../lib/server/content/source-runtime-operations";
 import { getRadarSnapshot } from "../../../../../lib/server/content/radar-snapshot";
-import {buildPracticeTopics} from "../../../../../lib/server/content/practice-topics";
+import {listAiHotspotPractices} from "../../../../../lib/server/content/ai-hotspot-practice-store";
+import {evaluateAiHotspotPractice} from "../../../../../lib/server/content/ai-hotspot-practice";
 
 export const dynamic = "force-dynamic";
 
@@ -35,11 +35,10 @@ export async function GET(request: Request) {
     if (view === "snapshot") {
       return NextResponse.json({ view, ...(await getRadarSnapshot()) });
     }
-    if (view === "practice-diagnostics") {
+    if (view === "ai-hotspot-practice-diagnostics") {
       const page = await listRadarTimelinePage({asOf:new Date()});
       return NextResponse.json({view,asOf:page.asOf,
-        events:page.items.map(item=>({eventId:item.eventId,...item.practiceAssessment})),
-        topics:buildPracticeTopics(page.items,{includeRejected:true}).map(item=>({key:item.practiceTopic.key,parentEventIds:item.practiceTopic.parentEventIds,...item.practiceEligibility}))});
+        events:page.items.map(item=>({eventId:item.eventId,...evaluateAiHotspotPractice(item)}))});
     }
     if (view === "latest") {
       return NextResponse.json({ view, items: await listLatestTodayIntelligence(limit) });
@@ -62,8 +61,8 @@ export async function GET(request: Request) {
         items: await listCurrentHotTodayIntelligence(limit)
       });
     }
-    if (view === "practicing") {
-      return NextResponse.json({ view, items: await listWorthPracticingTodayIntelligence(limit) });
+    if (view === "ai-hotspot-practice") {
+      return NextResponse.json({ view, items: await listAiHotspotPractices() });
     }
 
     if (view === "expansion-candidates") {

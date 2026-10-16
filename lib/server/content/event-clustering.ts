@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, gte, inArray, lte, ne } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, lte, ne } from "drizzle-orm";
 import { getDatabase } from "../db";
 import {
   contentEventClusterMembers,
@@ -11,9 +11,9 @@ import {
   contentRawItems,
   contentSources
 } from "../db/schema";
-import { normalizeEventSeedTitle } from "./event-seed-clustering";
+import { normalizeEventSeedTitle, scoreEventSeedCandidate } from "./event-seed-clustering";
 
-export const EVENT_CLUSTER_RULE_VERSION = "event-cluster-v4";
+export const EVENT_CLUSTER_RULE_VERSION = "event-cluster-v5-recall-guarded";
 export const EVENT_CLUSTER_TIME_WINDOW_HOURS = 72;
 export const EVENT_CLUSTER_THRESHOLD = 68;
 
@@ -41,7 +41,7 @@ type EventLike = {
 export type EventClusterCandidateScore = {
   eventId: string;
   score: number;
-  reason: "TITLE_EXACT" | "TITLE_TOKEN_OVERLAP" | "ACTION_ENTITY_MATCH";
+  reason: "TITLE_EXACT" | "TITLE_TOKEN_OVERLAP" | "ACTION_ENTITY_MATCH" | "ENTITY_FACT_ANCHOR";
   metadata: {
     titleScore: number;
     tokenOverlap: number;
@@ -184,6 +184,7 @@ export function scoreEventClusterCandidate(
   const anchorEntities = stringList(anchor.entities);
   const candidateEntities = stringList(candidate.entities);
   const entityOverlap = termOverlap(anchorEntities, candidateEntities);
+  if (anchorEntities.length && candidateEntities.length && entityOverlap === 0) return null;
   const anchorAction = actionSignature(anchor);
   const candidateAction = actionSignature(candidate);
   const sharedAction = anchorAction && anchorAction === candidateAction ? anchorAction : null;
@@ -251,6 +252,29 @@ export function scoreEventClusterCandidate(
   if (hasVersionConflict(anchor.title, candidate.title)) {
     void VERSION_CONFLICT;
     return null;
+  }
+
+  const factAnchor = scoreEventSeedCandidate(
+    { title: anchor.title, keywords: stringList(anchor.keywords), entities: anchorEntities, eventType: anchor.eventType, observedAt: anchor.lastSeenAt },
+    candidate
+  );
+  if (factAnchor?.reason === "ENTITY_FACT_ANCHOR") {
+    return {
+      eventId: candidate.id,
+      score: factAnchor.score,
+      reason: "ENTITY_FACT_ANCHOR",
+      metadata: {
+        titleScore: factAnchor.metadata.titleScore,
+        tokenOverlap: factAnchor.metadata.tokenOverlap,
+        jaccard: factAnchor.metadata.jaccard,
+        keywordOverlap: factAnchor.metadata.keywordOverlap,
+        entityOverlap: factAnchor.metadata.entityOverlap,
+        sharedTokenCount: 0,
+        hoursApart,
+        actionSignature: null,
+        rules: factAnchor.metadata.rules
+      }
+    };
   }
 
   const titleStats = overlapStats(titleTokens(anchor.title), titleTokens(candidate.title));
@@ -477,10 +501,11 @@ export async function runEventClustering(eventId: string) {
       and(
         ne(contentEvents.id, target.id),
         gte(contentEvents.lastSeenAt, start),
-        lte(contentEvents.firstSeenAt, end)
+        lte(contentEvents.firstSeenAt, end),
+        isNull(contentEvents.archivedAt)
       )
     )
-    .limit(500);
+    .orderBy(desc(contentEvents.lastSeenAt), desc(contentEvents.id));
 
   const candidateIds = candidates.map((item) => item.id);
   const existingMemberships = candidateIds.length

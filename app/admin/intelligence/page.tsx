@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import "./intelligence.css";
+import "../content-typography.css";
 import { AdminIntelligenceWorkspace } from "../../../components/AdminIntelligenceWorkspace";
 import { getSessionUser, SESSION_COOKIE } from "../../../lib/server/auth/service";
 import { isAdminUser } from "../../../lib/server/admin/service";

@@ -12,9 +12,9 @@ assert.equal(freshness("2026-10-15T04:01:00.000Z", now).stale, true);
 const overlay = Reflect.get(snapshot, "applyRadarOperations");
 assert.equal(typeof overlay, "function", "PERSISTED_SNAPSHOT_MUST_OVERLAY_CURRENT_STATES");
 const items = [{ eventId: "a", category: "模型", discoveryStatus: "DISCOVERED" }, { eventId: "b", category: "产品", discoveryStatus: "DISCOVERED" }];
-const base = { items, featured: items, currentHot: items, worthPracticing: items, totalEventCount7d: 2, categoryCounts7d: { 全部: 2, 模型: 1, 产品: 1 } };
+const base = { items, featured: items, currentHot: items, aiHotspotPractices: items, totalEventCount7d: 2, categoryCounts7d: { 全部: 2, 模型: 1, 产品: 1 } };
 const result = overlay(base, [{ id: "a", discoveryStatus: "IGNORED", archivedAt: null }, { id: "b", discoveryStatus: "SHORTLISTED", archivedAt: null }]);
-for (const field of ["items", "featured", "currentHot", "worthPracticing"] as const) {
+for (const field of ["items", "featured", "currentHot", "aiHotspotPractices"] as const) {
   assert.deepEqual(result[field].map((x: { eventId: string }) => x.eventId), ["a", "b"]);
 }
 assert.equal(base.items.length, 2, "CACHE_PAYLOAD_NOT_MUTATED");

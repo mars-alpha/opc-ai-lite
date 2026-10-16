@@ -1,4 +1,5 @@
 "use client";
+import type {AiHotspotPracticeRecord} from "../lib/server/content/ai-hotspot-practice";
 
 import { useEffect, useRef, useState } from "react";
 import { beijingDay, dayStart, previousDay } from "../lib/content/radar-calendar";
@@ -24,7 +25,7 @@ type EventItem = {
   publicReadableSourceCount?: number;
   hotParticipants?: Array<{ name: string; platform: string; role: string }>;
   practicalEvidenceLinks?: Array<{ sourceName: string; title: string | null; presentation?: { displayTitleZh?: string | null }; originalUrl: string; publishedAt: string | null; expansionType: string }>;
-  practiceTopic?: { key: string; tool: string; goal: string; parentEventIds: string[] };
+
   eventType: string | null;
   category: Exclude<RadarCategory, "全部">;
   radarState?: "LATEST" | "PRACTICING" | "UNVERIFIED";
@@ -198,23 +199,9 @@ function hotTrendText(item: EventItem) {
   return mark + " " + Math.abs(trend.changePercent) + "%";
 }
 
-function practicalTypeLabel(value: string) {
-  const labels: Record<string, string> = {
-    TUTORIAL: "教程",
-    EXPERIENCE: "实测体验",
-    USE_CASE: "使用案例",
-    WORK_IMPACT: "工作影响"
-  };
-  return labels[value] ?? value;
-}
 
-function practiceActionText(item: EventItem) {
-  const link = item.practicalEvidenceLinks?.[0];
-  if (!link) return item.opcValue.whyItMatters ? shortText(item.opcValue.whyItMatters) : "查看实践证据，完成一次可复现验证。";
-  const title = link.presentation?.displayTitleZh || link.title || "实践原文";
-  const action = link.expansionType === "TUTORIAL" ? "按教程完成一次" : link.expansionType === "EXPERIENCE" ? "对照实测复现一次" : link.expansionType === "USE_CASE" ? "验证这个使用案例" : link.expansionType === "WORK_IMPACT" ? "评估它对工作流程的影响" : "完成一次实践验证";
-  return shortText(`${action}：${title}`, 100);
-}
+
+
 
 function verificationLabel(value: string) {
   if (value === "CONFIRMED_OFFICIAL") return "官方确认";
@@ -315,8 +302,7 @@ export function AdminIntelligenceWorkspace() {
   const [items, setItems] = useState<EventItem[]>([]);
   const [featuredItems, setFeaturedItems] = useState<EventItem[]>([]);
   const [currentHot, setCurrentHot] = useState<EventItem[]>([]);
-  const [showAllHot, setShowAllHot] = useState(false);
-  const [worthPracticing, setWorthPracticing] = useState<EventItem[]>([]);
+  const [aiHotspotPractices, setAiHotspotPractices] = useState<AiHotspotPracticeRecord[]>([]);
   const [query, setQuery] = useState("");
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -377,10 +363,10 @@ export function AdminIntelligenceWorkspace() {
       setNextCursor(data.hasMore && data.nextCursor ? data.nextCursor : null);
       setCategoryCounts7d((data.categoryCounts7d ?? {}) as Partial<Record<RadarCategory, number>>);
       setCurrentHot((data.currentHot ?? []) as EventItem[]);
-      setWorthPracticing((data.worthPracticing ?? []) as EventItem[]);
+      setAiHotspotPractices((data.aiHotspotPractices ?? []) as AiHotspotPracticeRecord[]);
       setReadiness(data.readiness ?? null);
       setCollectionHealth(data.collectionHealth ?? null);
-      void loadQualityFeedback([...(data.items ?? []), ...(data.featured ?? []), ...(data.currentHot ?? []), ...(data.worthPracticing ?? [])].map((item: EventItem) => item.eventId)).catch(() => setMessage("评价状态读取失败，请刷新重试。"));
+      void loadQualityFeedback([...(data.items ?? []), ...(data.featured ?? []), ...(data.currentHot ?? []), ].map((item: EventItem) => item.eventId)).catch(() => setMessage("评价状态读取失败，请刷新重试。"));
     } catch (error) {
       if (epoch === readEpoch.current) { setSnapshotReadFailed(true); setMessage(error instanceof Error ? error.message : "热点追踪读取失败"); }
     } finally {
@@ -493,7 +479,7 @@ export function AdminIntelligenceWorkspace() {
       <section className="intel-command">
         <div className="intel-command-copy">
           <span>HOT TRACKING</span>
-          <div><h2>值得关注</h2><small>热点看讨论活跃度 · 精选看内容价值 · 今日值得做看可执行实践</small></div>
+          <div><h2>值得关注</h2><small>热点看讨论活跃度 · 精选看内容价值 · AI热点练习看多人分析与运用</small></div>
         </div>
         <div className="intel-command-tools">
           <nav className="intel-category-tabs" aria-label="情报栏目">
@@ -520,9 +506,9 @@ export function AdminIntelligenceWorkspace() {
         <section className="intel-today-hot">
           <header>
             <div><span>NOW</span><h3>当前热点</h3></div>
-            <div><small>近 7 天正式热点榜</small>{currentHot.length > 5 ? <button type="button" onClick={() => setShowAllHot((value) => !value)}>{showAllHot ? "收起" : "完整榜单"}</button> : null}</div>
+            <div><small>近 7 天正式热点榜</small></div>
           </header>
-          <div className={"intel-today-hot-list " + (showAllHot ? "is-expanded" : "is-compact")}>
+          <div className="intel-today-hot-list" tabIndex={0} aria-label="当前热点，可滚动查看">
             {currentHot.length ? currentHot.map((item, index) => (
               <article key={item.eventId}>
                 <b>{index + 1}</b>
@@ -542,25 +528,25 @@ export function AdminIntelligenceWorkspace() {
         </section>
 
         <div className="intel-today-side">
-          <section className="intel-today-do">
-            <header><div><span>DO TODAY</span><h3>今日值得做</h3></div><small>{worthPracticing.length ? worthPracticing.length + " 项" : "严格门槛"}</small></header>
-            <div>
-              {worthPracticing.slice(0, 4).map((item) => (
-                <article key={item.practiceTopic?.key ?? item.eventId}>
-                  <strong>{item.presentation?.displayTitleZh || item.title}</strong>
-                  <p>{practiceActionText(item)}</p>
-                  <span>{item.coverage.actionablePracticalEvidenceCount ?? 0} 条可执行证据 · {item.coverage.actionablePracticalOriginCount ?? 0} 独立来源 · {item.coverage.actionablePracticalTypeCount ?? 0} 类实践</span>
-                  {(item.practicalEvidenceLinks ?? []).slice(0, 1).map((link) => (
-                    <a key={link.originalUrl} href={link.originalUrl} target="_blank" rel="noreferrer">{practicalTypeLabel(link.expansionType)} · {link.sourceName} ↗</a>
-                  ))}
+          <section className="intel-hotspot-practice">
+            <header><div><span>AI HOTSPOT PRACTICE</span><h3>AI热点练习</h3></div><small>{aiHotspotPractices.length} 项 · 触发后持续展示</small></header>
+            <div className="intel-hotspot-practice-list" tabIndex={0} aria-label="AI热点练习，可滚动查看">
+              {aiHotspotPractices.map((item) => (
+                <article key={item.eventId}>
+                  <strong>{item.title}</strong>
+                  <p>{item.summary || "围绕该热点查看分析、实测与运用资料。"}</p>
+                  <span>首次触发 {new Date(item.firstTriggeredAt).toLocaleDateString("zh-CN", {timeZone:"Asia/Shanghai"})} · {item.participants.length} 个独立发布者 · {item.materialStatus === "VERIFIED_MATERIAL_AVAILABLE" ? "已有验证材料" : "操作材料待补齐"}</span>
+                  <details className="intel-practice-materials">
+                    <summary>资料详情 · {item.links.filter((link) => link.originalUrl).length} 篇</summary>
+                    <ol>
+                      {item.links.map((link) => link.originalUrl ? (
+                        <li key={link.originalUrl}><a href={link.originalUrl} target="_blank" rel="noreferrer">{link.title || link.sourceName} · {link.sourceName} ↗</a></li>
+                      ) : null)}
+                    </ol>
+                  </details>
                 </article>
               ))}
-              {!worthPracticing.length ? (
-                <div className="intel-do-empty">
-                  <strong>今天暂时没有达到“值得做”门槛的 Event</strong>
-                  <p>逐篇核对：做什么、怎么做、需要什么、得到什么。单篇完整实操即可；不要求多来源或多实践类型。</p>
-                </div>
-              ) : null}
+              {!aiHotspotPractices.length ? <div className="intel-hotspot-practice-empty"><strong>暂无触发的AI热点练习</strong><p>明确AI主题、至少两个独立发布者，并有分析或应用内容即可触发；独立于精选，触发后持续展示。</p></div> : null}
             </div>
           </section>
         </div>

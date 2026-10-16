@@ -34,9 +34,9 @@ assert(route.includes('"PRESENTATION_ONLY"'), "RADAR_CURRENT_HOT_NO_AUTHORITY_PR
 assert(route.includes('view === "source-health"'), "RADAR_SOURCE_HEALTH_API");
 assert(ui.includes("当前热点"), "RADAR_CURRENT_HOT_UI");
 assert(!ui.includes("currentHot.slice("), "RADAR_CURRENT_HOT_NO_FIXED_COUNT");
-assert(ui.includes("当前热点") && ui.includes("今日值得做") && ui.includes("精选") && ui.includes("全部动态"), "HOT_TRACKING_CURRENT_LAYOUT_DATA_BINDING");
-assert(ui.includes("data.worthPracticing") && ui.includes("实践证据") && !ui.includes("todayWorthWatching"), "TODAY_WORTH_DOING_PRACTICAL_DIRECTION");
-assert(ui.includes("actionablePracticalEvidenceCount"), "TODAY_WORTH_DOING_ACTIONABLE_EVIDENCE_GATE");
+assert(ui.includes("当前热点") && ui.includes("AI热点练习") && ui.includes("精选") && ui.includes("全部动态"), "HOT_TRACKING_CURRENT_LAYOUT_DATA_BINDING");
+assert(ui.includes("data.aiHotspotPractices") && ui.includes("独立发布者") && !ui.includes("todayWorthWatching"), "TODAY_AI_HOTSPOT_PRACTICE_DIRECTION");
+assert(ui.includes("aiHotspotPractices.map(") && !ui.includes("aiHotspotPractices.slice("), "AI_HOTSPOT_PRACTICE_ALL_TRIGGERED_VISIBLE");
 assert(ui.includes("reportTimeline") && ui.includes("加载更多") && ui.includes("shortSummary") && ui.includes("intel-timeline-day"), "RADAR_SEVEN_DAY_GROUPED_PAGINATION_UI");
 assert(ui.includes("open={day === timelineWindow?.today}") && ui.includes("北京时间今天及前六日全部 AI 相关"), "RADAR_DAILY_COLLAPSE_SERVER_TODAY_ONLY");
 assert(ui.includes("reportTimeline") && ui.includes("evidenceLinks"), "RADAR_MULTI_SOURCE_STORY_UI");

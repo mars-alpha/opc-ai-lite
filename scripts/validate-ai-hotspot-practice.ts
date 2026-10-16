@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import {aiHotspotPracticePublisher,evaluateAiHotspotPractice, mergeAiHotspotPractice, type AiHotspotPracticeCandidate} from '../lib/server/content/ai-hotspot-practice';
+const now=new Date('2026-10-16T04:00:00Z');
+const base:AiHotspotPracticeCandidate={eventId:'event-a',title:'新模型 Gemini 4 分析与实际应用',excerpt:'对比模型性能，测试 agent 工作流。',originalUrl:'https://example.com/a',category:'模型',hotParticipants:[{name:'Author A'},{name:'Author B'}],topicMomentum:{independentParticipantCount:2},evidenceLinks:[{sourceName:'Author A',originalUrl:'https://example.com/a',title:'Gemini 4 实测分析'}]};
+const result=evaluateAiHotspotPractice(base,now);
+assert.equal(result.eligible,true,'MULTI_PUBLISHER_ANALYSIS_CAN_TRIGGER_WITHOUT_FULL_TUTORIAL');
+assert.equal(evaluateAiHotspotPractice({...base,curation:{curated:false,score:0}} as AiHotspotPracticeCandidate,now).eligible,true,'FEATURED_SCORE_CANNOT_BLOCK');
+assert.equal(evaluateAiHotspotPractice({...base,hotParticipants:[{name:'Author A'},{name:'author a'}]},now).eligible,false,'REPOSTS_DO_NOT_MAKE_TWO_PEOPLE');
+assert.equal(evaluateAiHotspotPractice({...base,title:'新模型 Gemini 发布',excerpt:'正式发布',evidenceLinks:[]},now).eligible,false,'RELEASE_WITHOUT_ANALYSIS_OR_USE_IS_NOT_EXERCISE');
+assert.equal(evaluateAiHotspotPractice({...base,title:'早报：Gemini 发布；Claude 上线'},now).eligible,false,'ROUNDUP_EXCLUDED');
+assert.equal(evaluateAiHotspotPractice({...base,title:'未知模型实测',hotParticipants:[]},now).eligible,false,'NO_REAL_PARTICIPANTS_FAILS_CLOSED');
+const first=mergeAiHotspotPractice(null,result.record!,now);
+const later=mergeAiHotspotPractice(first,null,new Date('2026-12-16T04:00:00Z'));
+assert.deepEqual(later,first,'TRIGGER_SURVIVES_SEVEN_DAYS_HEAT_AND_MATERIAL_GAPS');
+assert.equal(mergeAiHotspotPractice(first,result.record!,now).firstTriggeredAt,first.firstTriggeredAt,'IDEMPOTENT_TRIGGER_TIME');
+import {applyRadarOperations} from '../lib/server/content/radar-snapshot';
+const history={...first,eventId:'old-event'};
+const snapshot={items:[],featured:[],currentHot:[],aiHotspotPractices:[history],windowEventIndex:[],categoryCounts7d:{全部:0},totalEventCount7d:0};
+assert.equal(applyRadarOperations(snapshot,[{id:'old-event',discoveryStatus:'IGNORED',archivedAt:null}]).aiHotspotPractices.length,1,'OUTSIDE_WINDOW_AND_FEEDBACK_CANNOT_HIDE_TRIGGER');
+assert.equal(applyRadarOperations(snapshot,[{id:'old-event',discoveryStatus:'DISCOVERED',archivedAt:new Date()}]).aiHotspotPractices.length,0,'ARCHIVE_EXITS_DISPLAY');
+assert.equal(applyRadarOperations(snapshot,[{id:'old-event',discoveryStatus:'DISCOVERED',archivedAt:null}]).totalEventCount7d,0,'HISTORICAL_EXERCISES_CANNOT_INFLATE_NEWS_COUNT');
+
+assert.equal(evaluateAiHotspotPractice({...base,hotParticipants:[{name:'Hacker News · AI'},{name:'Product Hunt'},{name:'Author A'}]},now).eligible,false,'PLATFORM_LISTINGS_ARE_NOT_INDEPENDENT_AUTHORS');
+assert.equal(evaluateAiHotspotPractice({...base,hotParticipants:[{name:'Google AI'},{name:'Google Developers Blog(RSS)'},{name:'Google DeepMind'}]},now).eligible,false,'SAME_INSTITUTION_CHANNELS_COUNT_ONCE');
+
+import {isMultiNewsRoundup} from "../lib/server/content/content-evidence-signals";
+assert(isMultiNewsRoundup("OpenAI发布新模型；Google上线新搜索"), "TWO_UNRELATED_NEWS_EXCLUDED");
+assert(isMultiNewsRoundup("OpenAI releases model|Google launches search"), "UNSPACED_PIPE_DIGEST_EXCLUDED");
+assert(!isMultiNewsRoundup("OpenAI发布新模型；OpenAI宣布该模型价格"), "SAME_SUBJECT_UPDATE_NOT_DIGEST");
+assert(!isMultiNewsRoundup("OpenAI发布新模型；该模型上线API"), "REFERENTIAL_FOLLOWUP_NOT_DIGEST");
+assert(!isMultiNewsRoundup("如何用ComfyUI搭建工作流；上线并发布自己的应用"), "PRACTICE_STEPS_NOT_DIGEST");
+assert(isMultiNewsRoundup("腾讯上线「绿泡泡」短剧，主打免费看；特斯拉 Roadster 跑车明日发布；豆包工作支持一键导入 GPT、Claude 对话 | 极客早知道"), "ROUNDUP_EXCLUDED");
+assert(!isMultiNewsRoundup("ComfyUI教程：安装、配置与运行图生动画工作流"), "SINGLE_TUTORIAL_NOT_ROUNDUP");
+assert(!isMultiNewsRoundup("如何搭建AI早报工作流：配置来源并生成日报"), "DIGEST_BUILDING_TUTORIAL_NOT_NEWS_DIGEST");
+assert(!isMultiNewsRoundup("OpenAI发布新模型，支持代码与图像"), "SINGLE_RELEASE_NOT_ROUNDUP");
+assert.equal(evaluateAiHotspotPractice({...base,hotParticipants:[{name:'Google AI'},{name:'X:Gemini (@GeminiApp)'},{name:'Gemini API:更新日志(网页)'}]},now).eligible,false,'OFFICIAL_BRAND_HANDLES_COUNT_AS_SAME_INSTITUTION');
+assert.equal(aiHotspotPracticePublisher({title:'MCP 实测',originalUrl:'https://example.com/a',signalOnly:true,originPublisher:'Author A'}),null,'TREND_SIGNAL_CANNOT_COUNT_AS_PUBLISHER');
+assert.equal(aiHotspotPracticePublisher({title:'MCP 实测',originalUrl:'https://example.com/a',referenceOnly:true,sourceName:'DailyHot'}),null,'AGGREGATOR_WITHOUT_ORIGIN_CANNOT_COUNT');
+assert.equal(aiHotspotPracticePublisher({title:'MCP 实测',originalUrl:'https://example.com/a',referenceOnly:true,originPublisher:'Author A'}),'Author A','RESOLVED_ORIGINAL_PUBLISHER_CAN_COUNT');
+assert.equal(aiHotspotPracticePublisher({title:'MCP 实测',sourceName:'Author A'}),null,'NO_ORIGINAL_LINK_CANNOT_COUNT');
+
+console.log('AI_HOTSPOT_PRACTICE=PASS');

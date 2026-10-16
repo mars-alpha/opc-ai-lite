@@ -2,13 +2,13 @@
 
 ## 实践主题与汇总内容边界
 
+- 作者站与其视频使用同一Creator Source；视频URL规范化后复用Raw/Observation，短链、列表及分享参数不能制造副本。已发现作者参考关联creatorSourceId，不重复核验。无发布日期历史材料只入Raw/Observation，不伪造当前Event。
+
 - 已确认作者的公开材料可走固定Deno Provider：Pixaroma目录仅JSON解析、排除comingSoon；每次最多30集元数据、3个≤128KB工作流包，共享公开步骤单独标注。腾讯云只在内存校验ZIP与ComfyUI节点JSON，不解压落盘、不执行工作流。未下载/未运行/未取得字幕必须分开记录，不能声称全文或实践成功。
-- 作者站与其视频使用同一Creator Source；内容使用规范视频URL复用Raw/Observation，短链、列表及分享参数不能制造副本。已发现作者参考关联creatorSourceId，不再重复作者核验。无发布日期的历史材料只入Raw/Observation，不以采集时间生成当前Event；可供后续定向研究，不自动授予热点/精选/今日值得做资格。
 
 - 热点主体必须是单一事件。明确的早报、新闻汇总或至少两条不同主体独立发布拼接内容不进入热点（同主体补充、指代续句和搭建汇总工具教程不因此排除），其Raw也不作为独立热度参与者；保留全部动态与历史，不归档合法Source。汇总中的新闻必须取得独立原文再按既有条件评估。
-- 今日值得做主体必须是具体操作主题：明确工具、操作信息和具体任务目标同时存在，不强制标题带“教程/如何”字样；模型发布即使挂有多个教程也不因此成为实践主体。从formal actionable原文证据按明确工具身份＋操作目标归并，标题/入口取自真实教程；保留parentEventIds，不改Event事实。来源、证据和类型数量按主题重新计算，不能继承父新闻计数。无法明确工具或目标时保持候选，不猜测归并。取消多证据、独立来源及实践类型的最低数量门槛，单篇完整原文即可：做什么（明确工具与任务）、怎么做（原文步骤、实际配置或可用工作流）、需要什么（输入素材、附件、依赖及公开访问条件）、得到什么（明确预期产物）。四项必须在同一篇材料中成立，不跨篇拼凑；逐篇公开获取凭证、完整正文/字幕与必要附件校验继续保留。数量只作展示与排序，不作为资格条件；不以AI分析AVAILABLE状态作为入栏前置。精选事实门槛与评分权重保持。
 - 实践主题的定向搜索复用Event Expansion，当前仅BILIBILI_SEARCH和YOUTUBE_SEARCH（YouTube复用Relay/配额）；仅由来源管理中ACTIVE/enabled/currentPortfolio、AUTO_READY或CONDITIONAL、有明确且服务器可执行SEARCH_DISCOVERY Route、collectionConfig.practiceExpansionEnabled=true且Provider健康的Source承载。可在原逻辑Source附加搜索Route并用practiceExpansionProvider指定搜索Provider，不覆盖原采集Provider或复制Source。未知、停用或无路由失败关闭，不调用ensureExpansionSource创建隐藏来源。
-- 触发需实践主体，不以独立讨论人数作为前置；同Event搜索至少间隔六小时（失败也计入），每SYSTEM周期至多一个主题、一个Provider、两次查询，每次最多五条，七日窗口。查询复用工具/版本锚点和教程/使用案例意图，不进行持续全网关键词扫描。
+- 搜索补资料触发由AI热点练习主题与多人讨论决定；同Event搜索至少间隔六小时，每SYSTEM周期至多一个主题、一个Provider、两次查询，每次最多五条。复用既有受管搜索路由，不持续全网扫描。
 - 搜索结果沿用污染、相关性、去重与Evidence校验。新作者内容是参考候选，不自动注册长期Source、不自动授予Fact或实践资格；正文不足不声称完整实操。搜索失败不得阻断已有Raw的证据刷新；缺少可用搜索Source返回NO_READY_MANAGED_SEARCH_SOURCE。
 - 不自动调用AI。常驻重新读取按钮退出，页面初始化和操作后自动读；仅快照请求失败提供重试。页面仍需人工体验确认。
 
@@ -22,7 +22,7 @@ Rule: 本文件只描述当前架构。历史 Phase、已删除 Owner 与旧实�
 
 当前后台内容链只保留三个产品 Owner：
 
-- 热点追踪（Hot Tracking）：正式生产闭环固定为 Source Management → SYSTEM Collection → Event → Discovery Expansion（仅消费 current Source 已采 Raw）→ Practical Evidence → Worth Practicing / Topic Momentum / Curation → Radar Snapshot；页面保持既有排版和 CSS。
+- 热点追踪（Hot Tracking）：正式生产闭环固定为 Source Management → SYSTEM Collection → Event → Discovery Expansion（仅消费 current Source 已采 Raw）→ Practical Evidence → AI Hotspot Practice / Topic Momentum / Curation → Radar Snapshot；页面保持既有排版和 CSS。
 - 来源管理（Source Management）：唯一拥有 Source / Creator / Platform / Qualification / Acquisition Route。
 - 内容工作台：只消费 Adopt 后的 Event / Evidence，不修补上游采集缺口。
 
@@ -172,6 +172,7 @@ Dedup 分层：
 
 相同 canonical URL 可共享 Raw，但 Observation 必须保留“被哪些 Source 发现”。
 跨 Source 同标题但 URL 不同不得仅因标题相同合并 Raw。
+Event Seed 与后续 Event Cluster 候选均覆盖完整 72h 时间窗口并排除归档 Event，不允许无序固定条数截断；不同标题可用共享实体、明确同类事实及金额/主题锚点做确定性归并。实体冲突、不同金额或不同主题不得仅凭标题相似合并。既有热点 Momentum 门槛保持独立，历史 Event 不因规则升级自动改写。
 
 ## 8. Evidence / Fact / Signal Boundary
 
@@ -304,7 +305,6 @@ Presentation authority = PRESENTATION_ONLY。
 热点追踪只消费 Source Management → SYSTEM Collection → Raw / Observation → Dedup → Event / Evidence 的正式主线。Discovery Expansion证据刷新owner为 `refreshSourceManagedEventExpansion`：不创建隐藏 Source，在168h窗口内从已采Raw补Practical Evidence；成功Event 6h cooldown、失败Event 1h retry。SYSTEM的实践定向搜索前置条件与预算见本合同“实践主题与汇总内容边界”，其结果仍写同一Raw/Evidence主链；不维护第二套来源池。有实践证据时仅标记HUMAN_TRIGGER_REQUIRED，AI分析由管理员显式启动。热点追踪不拥有第二套采集入口。
 
 Current views：
-- 今日值得做：复用 Worth Practicing，但必须存在真实可执行实践证据；Practical Evidence 的标题/摘要需包含明确教程、步骤、配置、操作、实测、工作流、使用案例或等价操作语义，并满足本合同开头逐篇四项条件，单篇完整材料即可。`suggestedContentTypes` 仅作 AI 分析建议，不是产品入场门槛。纯新闻、泛分析、仅 whyItMatters 不进入；中文证据优先，英文只做中文化交付。
 - 精选：通过事实硬门禁后按可解释编辑分排序。
 - 全部动态：通过基础 AI relevance / Event 聚类后的唯一主 Event。默认一次完整读取北京时间今天及前六个自然日，区间为首日00:00至快照asOf（半开区间）；以eventAt、缺失时firstSeenAt确定日期，排除未来、归档及不合格事件。删除120条首批规则。服务器窗口中的今天默认展开，其余日期默认折叠，默认七日空日保留。加载更多每次取得此前最近一个有合格内容的日期全天，跳过历史空日；无更早可见事件时显示“已经到底”。不得以已排除的数据库旧记录判断hasMore，不追加历史空日期行。日期游标固定asOf、按事件时间及ID稳定排序；历史不改变七日总量。旧 `discoveryStatus=IGNORED` 不再过滤动态；新质量标签也不参与可见性判断。
 - 统计窗口：北京时间今日、近七个自然日、最近100次SYSTEM正式运行分别标注起止时间。成功Run记录返回条次、过滤保留、后置排除、入库批量排除、Raw新增/重复、Event新建/归并及无日期历史材料；排除原因复用Run元数据。失败/进行中可能部分写入，不混入成功漏斗；旧Run未记录的阶段显示未知，不反推。七日可见Event是按事件时间计量的当前存量，与按运行时间计量的采集漏斗不是同一队列，不计算伪转化率。
@@ -324,7 +324,6 @@ Current views：
 - Momentum score 只由独立来源、Creator、活跃日、跨平台/实践多样性和真实互动组成；authority=PRESENTATION_ONLY，不能提升 Fact Verification。
 - 平台 rank、点赞、评论、播放、粉丝、velocity 只能作为注意力旁证，不能绕过 Trust Gate。
 
-Radar snapshot 必须从同一 canonical Event timeline 派生 items / currentHot / worthPracticing，并叠加 source runtime operations；不得为「今日值得做」再执行第二套全量 read-model 查询。内容工作台只消费 Adopt 后内容，不承担 Source / Collection 修复。
 
 ## 17. Trigger-based Comment Collection
 
@@ -395,14 +394,12 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 - Three output dimensions may overlap for one Event; none implies another:
   - Hotspot: existing Event Momentum RISING0–24h/SUSTAINED24–168h, independent participation/active days/cross-platform/practice/engagement and current thresholds; ranking never grants Fact Authority.
   - Curated dynamics: existing Bole Gate requires AI relevance, <=72h, confirmed official/media and MAJOR/NORMAL; FEATURED score>=66, TOP_PICK>=78 plus its independent evidence/value gate. A single-source official update may be curated without being hot or practical.
-  - Worth Practicing: 具体工具与任务主题，至少一篇原文独立满足本合同开头的逐篇四项条件即可；来源数、证据数和实践类型数只作解释信号，不作为入栏硬门槛。不以AI AVAILABLE状态为前置。`practice-materials.ts` 要求与原文URL绑定的匿名服务器获取回执及完整正文/字幕、实际步骤/配置或逐篇验证的工作流、输入材料与预期产出；共享安装说明不能代替逐篇操作材料。正文声明依赖工作流/模板/素材下载时，所需附件必须有服务器公开下载回执与SHA256，否则 `REQUIRED_ARTIFACTS_UNVERIFIED`。短摘要、未知/截断正文、登录关注材料失败关闭；不为历史Raw补造认证。
 - User-facing topics (REA/ComfyUI/Skills/MCP/ad creation/writing/images/animation/editing/assistants/work management) describe discovery coverage, not the three publication dimensions. Add sources only after bounded live capability check and preview. Generic news/trends cannot stand in for persistent original practical sources.
 - Production acceptance requires its own schema, runtime grants, source inventory, route probes, backfill and three-output checks. Development success is not production acceptance, and healthy results from an earlier cycle do not erase a current failure.
 
 ## 22. Operations consistency
 
 - 旧 Event 决策写入与忽略后退出列表已退役；新采集质量标签只写独立样本、不改变 Event/Source/栏目状态。生产运行事实见 `docs/CURRENT_SYSTEM_FACTS.md`。
-- 管理员在现有热点追踪动态上作正向“采用”或负向“忽略”，可改选与撤销；负向原因可选（不相关、重复、过时、正文缺失或截断、事实不准确、其他），备注最多500字。每次有效变化形成追加式记录；相同请求重试和无变化操作不重复计样本。新标签不触发AI、评论采集、内容草稿/发布、来源启停、采集重试，也不改变热点/精选/今日值得做资格或排序。
 - 单来源可默认归因该来源；多来源可选具体关联来源，未选则只记Event层，不能把Event层负评分摊给全部来源。写入时验证Event与Source关联，保存反馈时的原文URL、Raw/Observation、可确定的Run、自动判断与规则版本；不可确定字段为null，不推测，不保存完整原文或Secret。旧 `content_candidate_decisions` 仅用于历史审计，不导入新标签。
 - 来源管理只展示最近30日当前有效且归因该来源的已评价数、负向数、主要原因和有界样本；未评价不算负例，不把已评价样本占比称为全量采集准确率。热点追踪评价筛选只改变列表显示，不影响自动采集与栏目资格。
 - Radar基础快照和完整窗口轻量索引继续同源生成榜单与计数，不用首屏计数冒充全窗口；只读覆盖归档状态，不读取采集质量标签。
@@ -424,3 +421,12 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 - 公开网络路径可运行及有样本才可注册。注册/旧登记接管与审计同事务，按canonicalUrl/providerRef再次检查重复；并发注册串行。可采性不授予Fact Authority或AUTO_READY；网站与Creator都从参考来源开始，资格按现有真实Run观察。
 - PUBLIC_SOURCE_DOCUMENT是Deno固定白名单获取能力，只允许simonwillison.net、til.simonwillison.net、blog.comfy.org及其经过逐跳验证的白名单重定向；不是通用代理。其他海外源仍需独立验证并配置受管路由，不宣称任意主页可采。无明确路径/超时/登录墙必须失败关闭。
 - 成熟依据：[WHATWG alternate订阅链接](https://html.spec.whatwg.org/dev/links.html#link-type-alternate)、[RSS Autodiscovery](https://www.rssboard.org/rss-autodiscovery)。HTML由[htmlparser2](https://github.com/fb55/htmlparser2)解析，既有RSS/Sitemap/SYSTEM主链继续复用，不引入AI判断。
+
+## 23. AI热点练习
+
+- 独立消费canonical Event及已采报道；不以精选、事实确认等级、AI分析AVAILABLE或完整操作材料作为栏目入场条件。触发不提升Fact Authority，不表示已完成练习。
+- 初次触发：明确AI模型/LLM、Skill/MCP、Agent、ComfyUI或其他AI工具主题，至少两个有原文链接的独立发布者，且该事件关联原文包含分析/评测/应用/操作内容。纯趋势/互动Signal不计发布者，聚合器无原作者不计人数，同作者跨平台/转载不重复，多新闻汇总不能触发；不要求先上热点榜Top10。
+- 首次命中后保存Event.metadata.aiHotspotPractice；保留首次触发时间、原始标题、触发依据、独立发布者和原文链接。超过七日、热度衰减、精选变化、材料失败不撤销、不截断展示。仅Event显式归档或删除退出当前展示；质量正负标签不影响栏目。
+- 正文/字幕/附件验证属于共享材料能力，可标记已有验证材料或操作材料待补齐，不阻断本栏目，不将待补材料声称完整教程。不自动生成练习、翻译或调用AI。
+- SYSTEM复用现有快照周期记录触发，读取所有已触发未归档记录；七日动态和统计仍只来自canonical七日窗口。API仅ai-hotspot-practice及ai-hotspot-practice-diagnostics，快照字段aiHotspotPractices；无旧字段或兼容入口。
+- 原位置改为AI热点练习，不受全部/精选/分类筛选控制。展示全部已触发项，无4/8项限制。页面完成后提供真实体验，未获确认前仅IMPLEMENTED/REVIEW_PENDING。

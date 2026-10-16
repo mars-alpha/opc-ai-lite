@@ -7,6 +7,7 @@ function assert(condition: unknown, code: string) {
 
 const ui = fs.readFileSync("components/AdminSourceManagementWorkspace.tsx", "utf8");
 const css = fs.readFileSync("app/admin/sources/sources.css", "utf8");
+const typography = fs.readFileSync("app/admin/content-typography.css", "utf8");
 
 assert(!ui.includes("source-tabs") && !ui.includes("setTab(") && !ui.includes("tab ==="), "NO_TAB_NAVIGATION");
 assert(ui.includes("全部采集方式") && ui.includes("acquisitionLabel") && !ui.includes("renderAcquisitionBoard"), "ACQUISITION_MAP_VISIBLE");
@@ -15,7 +16,7 @@ assert(ui.includes("来源目录") && ui.includes("source-management-column"), "
 assert(css.includes(".source-learning-queue-list") && css.includes("overflow-y: auto") && css.includes("scrollbar-gutter: stable"), "SOURCE_REGISTRY_INTERNAL_SCROLL");
 assert(ui.includes("source-add-workbench") && ui.includes("检测来源") && ui.includes("加入信息源"), "ADD_SOURCE_BOUNDED_DRAWER");
 assert(css.includes("grid-template-columns: minmax(300px,31%) minmax(0,69%)"), "LAST_COLUMN_SCROLLBAR_SAFE_ZONE");
-assert(css.includes(".source-column-head strong") && css.includes("font-size: 18px") && css.includes(".source-learning-row-top strong") && css.includes("font-size: 13px"), "READABLE_FONT_SCALE");
+assert(css.includes(".source-column-head strong") && css.includes("font-size: var(--content-font-section)") && css.includes(".source-learning-row-top strong") && css.includes("font-size: var(--content-font-title)") && typography.includes("--content-font-section: 18px") && typography.includes("--content-font-title: 16px"), "READABLE_FONT_SCALE");
 assert(ui.includes("发现渠道") && ui.includes("已有来源：") && ui.includes("source-discovery-column") && !ui.includes("<strong>平台能力</strong>"), "DISCOVERY_VISIBLE");
 assert(ui.includes("source-btn-primary") && css.includes(".source-btn-primary"), "ADD_SOURCE_ACTION_TOGGLE");
 assert(ui.includes("筛选规则") && ui.includes("source-rule-board") && ui.includes("新增词") && ui.includes("排除词"), "FILTER_RULE_VISIBLE");

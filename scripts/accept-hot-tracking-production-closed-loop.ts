@@ -4,8 +4,7 @@ import { contentSources } from "../lib/server/db/schema";
 import { assertCurrentDatabaseTarget } from "../lib/server/database-target";
 import {
   listCurrentHotTodayIntelligence,
-  listRadarTimelineWindow,
-  listWorthPracticingTodayIntelligence
+  listRadarTimelineWindow
 } from "../lib/server/content/intelligence-read-model";
 import { getRadarSnapshot } from "../lib/server/content/radar-snapshot";
 import { listCurrentSystemCollectionSourceIds } from "../lib/server/content/source-portfolio-runtime";
@@ -27,10 +26,9 @@ async function main() {
 
   console.log("AUTOMATIC_CYCLE_PRECONDITION=RUN_CONTENT_AUTOMATIC_SERVER_NATIVE_CYCLE_FIRST");
 
-  const [snapshot, timeline, worthPracticing, currentHot, sources] = await Promise.all([
+  const [snapshot, timeline, currentHot, sources] = await Promise.all([
     getRadarSnapshot(),
     listRadarTimelineWindow(7),
-    listWorthPracticingTodayIntelligence(100),
     listCurrentHotTodayIntelligence(100),
     getDatabase().select().from(contentSources)
   ]);
@@ -60,17 +58,6 @@ async function main() {
   const comparableTrendEvents = timeline.filter((item) => item.topicMomentum.trendComparable && item.topicMomentum.trend);
   const hotParticipantCounts = currentHot.map((item) => item.topicMomentum.independentParticipantCount ?? item.topicMomentum.independentSourceCount);
   const publicSourceCounts = currentHot.map((item) => item.publicReadableSourceCount ?? item.topicMomentum.publicReadableSourceCount ?? 0);
-  const worthPracticalGateMisses = timeline.filter((item) =>
-    item.opcValue.status === "AVAILABLE" &&
-    item.coverage.practicalEvidenceCount > 0 &&
-    !worthPracticing.some((candidate) => candidate.eventId === item.eventId)
-  );
-  const worthMissReasons = {
-    actionableEvidenceUnder2: worthPracticalGateMisses.filter((item) => (item.coverage.actionablePracticalEvidenceCount ?? 0) < 2).length,
-    independentPracticalOriginsUnder2: worthPracticalGateMisses.filter((item) => (item.coverage.actionablePracticalOriginCount ?? 0) < 2).length,
-    practicalTypesUnder2: worthPracticalGateMisses.filter((item) => (item.coverage.actionablePracticalTypeCount ?? 0) < 2).length
-  };
-
   console.log(JSON.stringify({
     snapshot: {
       schemaVersion: snapshot.schemaVersion,
@@ -82,13 +69,11 @@ async function main() {
       curatedCount7d: curated.length,
       featuredSnapshotCount: snapshot.featured.length,
       currentHotCount: snapshot.currentHot.length,
-      worthPracticingCount: snapshot.worthPracticing.length
     },
     readModel: {
       timelineCount: timeline.length,
       curatedCount: curated.length,
       currentHotCount: currentHot.length,
-      worthPracticingCount: worthPracticing.length
     },
     hotSignalQuality: {
       totalHotParticipantCount: hotParticipantCounts.reduce((sum, count) => sum + count, 0),
@@ -115,8 +100,6 @@ async function main() {
       freshnessBlockedCount: freshnessBlocked.length,
       materialityBlockedCount: materialityBlocked.length,
       hotNearMissCount: hotNearMiss.length,
-      worthPracticingNearMissCount: worthPracticalGateMisses.length,
-      worthPracticingMissReasons: worthMissReasons,
       topCurationNearMisses: curationNearMiss.slice(0, 10).map((item) => ({
         eventId: item.eventId,
         title: item.title,
@@ -151,13 +134,6 @@ async function main() {
   assert(snapshot.totalEventCount7d <= snapshot.items.length || snapshot.hasMore, "RADAR_SNAPSHOT_MORE_EVENTS_EXPOSE_CURSOR");
   assert(expansionScanned.length > 0, "SOURCE_MANAGED_EXPANSION_HAS_REAL_RUNS");
   assert(practicalEvidenceEvents.length > 0, "PRACTICAL_EVIDENCE_REACHED_EVENT_READ_MODEL");
-  assert(worthPracticing.every((item) =>
-    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 1
-  ), "WORTH_PRACTICING_REQUIRES_COMPLETE_EVIDENCE");
-  assert(snapshot.worthPracticing.every((item) =>
-    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 1
-  ), "RADAR_SNAPSHOT_WORTH_PRACTICING_ACTIONABLE_ONLY");
-  assert(snapshot.worthPracticing.length === worthPracticing.length || snapshot.worthPracticing.length <= 8, "WORTH_PRACTICING_SNAPSHOT_BOUND");
   assert(snapshot.currentHot.length <= 10, "CURRENT_HOT_SNAPSHOT_BOUND");
   assert(activeHiddenExpansionSources.length === 0, "NO_ACTIVE_HIDDEN_EXPANSION_SOURCES");
   assert(curated.every((item) => item.curation.gatePassed), "CURATED_HARD_GATE_PRESERVED");

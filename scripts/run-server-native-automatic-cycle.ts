@@ -161,7 +161,7 @@ async function runCycle() {
       generatedAt: radarSnapshot.generatedAt,
       itemCount: radarSnapshot.items.length,
       currentHotCount: radarSnapshot.currentHot.length,
-      worthPracticingCount: radarSnapshot.worthPracticing.length,
+      aiHotspotPracticeCount: radarSnapshot.aiHotspotPractices.length,
       curatedCount: radarSnapshot.items.filter((item) => item.curation.curated).length,
       elapsedMs: radarSnapshot.elapsedMs
     } : null,

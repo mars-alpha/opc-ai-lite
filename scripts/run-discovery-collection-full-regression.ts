@@ -6,10 +6,8 @@ const scripts = [
   "content:source-input-runtime:check",
   "scripts:current:check",
   "content:operations:check",
-  "content:practice-expansion:check",
   "content:practice-access:check",
   "content:pixaroma:check",
-  "content:practice-topics:check",
   "content:practice-materials:check",
   "content:public-practice-content:check",
   "content:discovery-collection:boundary:check",
@@ -20,7 +18,6 @@ const scripts = [
   "content:overseas-relay:check",
   "content:ai-discovery-filter:check",
   "content:expansion:anchor-specificity:check",
-  "content:practical-actionability:check",
   "content:delivery-localization:check",
   "content:understanding:check",
   "content:collection-current:check",
@@ -61,6 +58,8 @@ const scripts = [
   "content:radar-collection:check",
   "content:radar-read-path:check",
   "content:radar-calendar:check",
+  "content:practice-expansion:check",
+  "content:ai-hotspot-practice:check",
   "typecheck",
   ...(!quick ? ["build"] : [])
 ];

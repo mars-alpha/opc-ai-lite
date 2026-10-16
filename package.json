@@ -4,13 +4,10 @@
   "private": true,
   "scripts": {
     "content:practice-expansion:check": "node --conditions=react-server --import tsx scripts/validate-managed-practice-expansion.ts",
-    "content:practice-boundaries:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-practice-boundaries.ts",
     "content:public-practice-content:backfill": "node --conditions=react-server --import tsx scripts/backfill-public-practice-materials.ts",
     "content:public-practice-content:check": "node --conditions=react-server --import tsx scripts/validate-public-practice-content.ts",
     "content:public-practice-content:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-public-practice-content.ts",
     "content:practice-materials:check": "node --conditions=react-server --import tsx scripts/validate-practice-materials.ts",
-    "content:practice-topics:check": "node --conditions=react-server --import tsx scripts/validate-practice-topics.ts",
-    "content:practice-topics:accept": "node --conditions=react-server --import tsx scripts/accept-practice-topics.ts",
     "content:practice-search:live": "node --conditions=react-server --import tsx scripts/accept-managed-practice-search-live.ts",
     "content:practice-access:check": "node --conditions=react-server --import tsx scripts/validate-public-practice-access.ts",
     "content:creator-candidates:accept": "node --conditions=react-server --import tsx scripts/accept-public-creator-candidates.ts",
@@ -64,6 +61,7 @@
     "content:collection-runner:accept": "node --conditions=react-server --import tsx scripts/accept-collection-runner-mvp.ts",
     "content:collector-reference-only:check": "tsx scripts/validate-collector-reference-only.ts",
     "content:event-seed-clustering:check": "tsx scripts/validate-event-seed-clustering.ts",
+    "content:event-seed-recall:check": "node --conditions=react-server --import tsx scripts/validate-event-seed-recall.ts",
     "content:event-seed-clustering:accept": "node --conditions=react-server --import tsx scripts/accept-event-seed-clustering.ts",
     "content:expansion:check": "tsx scripts/validate-collection-expansion.ts",
     "content:expansion:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-event-expansion-mvp.ts",
@@ -204,7 +202,6 @@
     "content:understanding:check": "node --conditions=react-server --import tsx scripts/validate-content-understanding-enrichment.ts",
     "content:expansion:anchor-specificity:check": "node --conditions=react-server --import tsx scripts/validate-event-expansion-anchor-specificity.ts",
     "content:hot-tracking-ui:check": "tsx scripts/validate-hot-tracking-ui-v2.ts",
-    "content:practical-actionability:check": "node --conditions=react-server --import tsx scripts/validate-practical-actionability.ts",
     "content:selection-shadow:human-review:check": "node --conditions=react-server --import tsx scripts/validate-selection-shadow-human-review.ts",
     "content:selection-shadow:gold:summary": "node --env-file=.env.local --conditions=react-server --import tsx scripts/report-selection-shadow-gold-summary.ts",
     "content:automatic:server-native-cycle:production": "node --network-family-autoselection-attempt-timeout=2000 --conditions=react-server --import tsx scripts/run-server-native-automatic-cycle.ts --confirm=SERVER-NATIVE-COLLECTION-PRODUCTION",
@@ -232,7 +229,9 @@
     "content:radar-calendar:check": "node --conditions=react-server --import tsx scripts/validate-radar-calendar.ts",
     "content:radar-calendar:accept": "node --env-file=.env.local --conditions=react-server --import tsx scripts/accept-radar-calendar.ts",
     "content:source-input-runtime:check": "node --conditions=react-server --import tsx scripts/validate-source-input-runtime.ts",
-    "content:source-input-runtime:accept": "node --conditions=react-server --import tsx scripts/accept-source-input-runtime.ts"
+    "content:source-input-runtime:accept": "node --conditions=react-server --import tsx scripts/accept-source-input-runtime.ts",
+    "content:ai-hotspot-practice:check": "node --conditions=react-server --import tsx scripts/validate-ai-hotspot-practice.ts",
+    "content:ai-hotspot-practice:accept": "node --conditions=react-server --import tsx scripts/accept-ai-hotspot-practice.ts"
   },
   "dependencies": {
     "@mozilla/readability": "0.6.0",

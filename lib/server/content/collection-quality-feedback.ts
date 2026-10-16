@@ -70,7 +70,7 @@ export async function recordCollectionQualityFeedback(user: AuthUser, eventId: s
     const selectedObservation = sources.observations.find(row => row.sourceId === input.sourceId && row.rawItemId === selectedRaw?.id);
     const [snapshot] = await tx.select().from(contentRadarSnapshots).where(eq(contentRadarSnapshots.key, "CURRENT")).limit(1);
     const payload = object(snapshot?.payload);
-    const snapshotItem = [...[payload.items, payload.featured, payload.currentHot, payload.worthPracticing]
+    const snapshotItem = [...[payload.items, payload.featured, payload.currentHot, payload.aiHotspotPractices]
       .flatMap(value => Array.isArray(value) ? value : [])]
       .find(value => object(value).eventId === eventId);
     const current = object(snapshotItem);
@@ -85,7 +85,7 @@ export async function recordCollectionQualityFeedback(user: AuthUser, eventId: s
       automatic: {
         relevanceScore: event.relevanceScore, verificationStatus: event.verificationStatus,
         category: current.category ?? null, currentHot: current.currentHot ?? null,
-        curation: current.curation ?? null, worthPracticing: Array.isArray(payload.worthPracticing) ? payload.worthPracticing.some(row => object(row).eventId === eventId) : null,
+        curation: current.curation ?? null, aiHotspotPractices: Array.isArray(payload.aiHotspotPractices) ? payload.aiHotspotPractices.some(row => object(row).eventId === eventId) : null,
         eventPolicyVersion: event.policyVersion, snapshotVersion: payload.schemaVersion ?? null,
         snapshotAsOf: snapshot?.generatedAt.toISOString() ?? null
       }

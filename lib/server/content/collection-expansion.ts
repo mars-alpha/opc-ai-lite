@@ -48,9 +48,9 @@ import {
   resolveIndependentOrigins
 } from "./pollution-syndication-gate";
 import { listDiscoveryExpansionCandidates } from "./intelligence-read-model";
-import { isFormalPracticalEvidenceSource, shouldExpandPractice } from "./practical-evidence-actionability";
+import { isFormalPracticalEvidenceSource } from "./content-evidence-signals";
 import { resolveSourceAcquisitionPlan } from "./source-acquisition-plan";
-import { buildPracticeTopics, practiceTopicIdentity } from "./practice-topics";
+import {aiHotspotPracticeSubject,shouldExpandAiHotspotPractice,evaluateAiHotspotPractice} from "./ai-hotspot-practice";
 import {evaluatePublicPracticeAccess} from "./public-practice-access";
 
 const DEFAULT_WINDOW_HOURS = 168;
@@ -604,9 +604,9 @@ export async function runEventExpansion(
 
   let context = await resolveExpansionContext(event);
   if (managedSource && input.practiceTitle) {
-    const lead = (await listEventExpansionEvidence(eventId)).find(item => item.title === input.practiceTitle && practiceTopicIdentity(item));
+    const lead = (await listEventExpansionEvidence(eventId)).find(item => item.title === input.practiceTitle && aiHotspotPracticeSubject(item));
     if (!lead) throw new Error("PRACTICE_SEARCH_SUBJECT_NOT_IN_EVIDENCE");
-    context = { title: lead.title!, summary: lead.excerpt, keywords: [practiceTopicIdentity(lead)!.tool], entityTerms: [] };
+    context = { title: lead.title!, summary: lead.excerpt, keywords: [], entityTerms: [] };
   }
   const plan = {
     ...buildEventExpansionQueryPlan(context, 10, requestedExpansionTypes),
@@ -793,7 +793,7 @@ export async function runEventExpansion(
               ...record(item.metadata),
               collectionOrigin: "SYSTEM",
               collectionPurpose: "EVENT_EXPANSION",
-              ...(managedSource ? { referenceOnly: true, practiceDiscovery: { status: "PENDING_SOURCE_REVIEW", subjectTitle: context.title, ...practiceTopicIdentity({title:context.title}), targetEventId: event.id } } : {}),
+              ...(managedSource ? { referenceOnly: true, practiceDiscovery: { status: "PENDING_SOURCE_REVIEW", subjectTitle: context.title,  targetEventId: event.id } } : {}),
               targetEventId: event.id,
               expansionType: queryPlan.expansionType,
               expansionQueryLanguage: queryPlan.language,
@@ -953,7 +953,7 @@ export async function runDiscoveryExpansionCycle(
     (item) => item.discoveryExpansion.trigger === "UNVERIFIED_VERIFICATION_FOLLOW_UP"
   );
   const selected: typeof candidates = [];
-  const practiceCandidate = buildPracticeTopics(candidates, {eligibleOnly:false})[0] ?? candidates.find(item => shouldExpandPractice({ title: item.title, excerpt: item.excerpt, independentParticipants: item.topicMomentum.independentParticipantCount, lastAttemptAt: null }).eligible);
+  const practiceCandidate = candidates.find(item => evaluateAiHotspotPractice(item).eligible);
   if (practiceCandidate) selected.push(practiceCandidate);
   if (confirmed.length && selected.length < maxEvents && !selected.some(item => item.eventId === confirmed[0].eventId)) selected.push(confirmed[0]);
   if (unverified.length && selected.length < maxEvents && !selected.some(item => item.eventId === unverified[0].eventId)) selected.push(unverified[0]);
@@ -990,11 +990,11 @@ export async function runDiscoveryExpansionCycle(
     try {
       let searchStatus = searchSource ? "NOT_TRIGGERED" : "NO_READY_MANAGED_SEARCH_SOURCE";
       const [lastSearch] = await getDatabase().select({ startedAt: contentExpansionRuns.startedAt }).from(contentExpansionRuns).where(eq(contentExpansionRuns.eventId, candidate.eventId)).orderBy(desc(contentExpansionRuns.startedAt)).limit(1);
-      const practiceSearch = shouldExpandPractice({ title: candidate.title, excerpt: candidate.excerpt, independentParticipants: "practiceTopic" in candidate ? (candidate.coverage.actionablePracticalOriginCount ?? 0) : candidate.topicMomentum.independentParticipantCount, lastAttemptAt: lastSearch?.startedAt?.toISOString() ?? null });
+      const practiceSearch = shouldExpandAiHotspotPractice({ title: candidate.title, excerpt: candidate.excerpt, independentParticipants: evaluateAiHotspotPractice(candidate).record?.participants.length ?? 0, lastAttemptAt: lastSearch?.startedAt?.toISOString() ?? null });
       if (!searched && practiceSearch.eligible && searchSource) {
         searched = true;
         try {
-          const search = await runEventExpansion(user, candidate.eventId, { managedSourceId: searchSource.id, practiceTitle: "practiceTopic" in candidate ? candidate.title : undefined, maxQueries: 2, resultLimit: 5, windowHours: 168, expansionTypes: ["TUTORIAL", "USE_CASE"] });
+          const search = await runEventExpansion(user, candidate.eventId, { managedSourceId: searchSource.id, practiceTitle: undefined, maxQueries: 2, resultLimit: 5, windowHours: 168, expansionTypes: ["TUTORIAL", "USE_CASE"] });
           searchStatus = search.summary.failed ? "SEARCH_PARTIAL_OR_FAILED" : "SEARCH_SUCCEEDED";
         } catch (error) { searchStatus = errorCode(error); }
       }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import "./sources.css";
+import "../content-typography.css";
 import { AdminSourceManagementWorkspace } from "../../../components/AdminSourceManagementWorkspace";
 import { getSessionUser, SESSION_COOKIE } from "../../../lib/server/auth/service";
 import { isAdminUser } from "../../../lib/server/admin/service";

@@ -1,4 +1,4 @@
-import { isMultiNewsRoundup } from "./practical-evidence-actionability";
+import { isMultiNewsRoundup } from "./content-evidence-signals";
 export const TOPIC_MOMENTUM_VERSION = "topic-momentum-v7-independent-institutions-decay";
 export const TOPIC_MOMENTUM_MIN_AGE_HOURS = 24;
 export const TOPIC_MOMENTUM_MAX_AGE_HOURS = 168;

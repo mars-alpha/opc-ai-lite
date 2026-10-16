@@ -6,8 +6,7 @@ import {
   listLatestTodayIntelligence,
   listOfficialNewsCandidates,
   listPlatformHeatboards,
-  listUnverifiedEventCandidates,
-  listWorthPracticingTodayIntelligence
+  listUnverifiedEventCandidates
 } from "../lib/server/content/intelligence-read-model";
 
 function assert(condition: unknown, label: string) {
@@ -23,10 +22,9 @@ async function main() {
   const target = assertCurrentDatabaseTarget();
   assert(target.environment === "development", "DEV_DATABASE_ONLY");
 
-  const [heatboards, latest, practicing, officialNews, hotspots, unverified, overview] = await Promise.all([
+  const [heatboards, latest, officialNews, hotspots, unverified, overview] = await Promise.all([
     listPlatformHeatboards(30),
     listLatestTodayIntelligence(100),
-    listWorthPracticingTodayIntelligence(100),
     listOfficialNewsCandidates(100),
     listCurrentHotTodayIntelligence(100),
     listUnverifiedEventCandidates(100),
@@ -46,17 +44,12 @@ async function main() {
   assert(officialNews.every((item) => item.verificationStatus === "CONFIRMED_OFFICIAL"), "OFFICIAL_NEWS_POLICY_BOUNDARY");
   assert(hotspots.every((item) => item.currentHot.eligible && item.topicMomentum.eligible), "HOTSPOT_TOPIC_MOMENTUM_BOUNDARY");
   assert(unverified.every((item) => item.verificationStatus === "UNVERIFIED"), "UNVERIFIED_POLICY_BOUNDARY");
-  assert(practicing.every((item) =>
-    item.coverage.practicalEvidenceCount > 0 &&
-    (item.coverage.actionablePracticalEvidenceCount ?? 0) >= 1
-  ), "PRACTICING_COMPLETE_EVIDENCE_BOUNDARY");
-  assert([...latest, ...practicing, ...unverified].every((item) =>
+  assert([...latest, ...unverified].every((item) =>
     ["TRUSTED", "UNVERIFIED"].includes(item.evidenceScore.status) &&
     item.topicMomentum.criteria &&
     item.coverage && typeof item.coverage.needsExpansion === "boolean"
   ), "V2_FACT_STATUS_AND_COVERAGE_SHAPE");
   console.log("LATEST_ITEMS=" + latest.length);
-  console.log("PRACTICING_ITEMS=" + practicing.length);
   console.log("OFFICIAL_NEWS_ITEMS=" + officialNews.length);
   console.log("CURRENT_HOT_ITEMS=" + hotspots.length);
   console.log("UNVERIFIED_ITEMS=" + unverified.length);
@@ -65,7 +58,7 @@ async function main() {
   assert(overview.productScope === "HOT_TRACKING_V1", "OVERVIEW_PRODUCT_SCOPE");
   assert(Array.isArray(overview.latest), "OVERVIEW_LATEST");
   assert(Array.isArray(overview.currentHot), "OVERVIEW_CURRENT_HOT");
-  assert(Array.isArray(overview.worthPracticing), "OVERVIEW_WORTH_PRACTICING");
+  assert(Array.isArray(overview.aiHotspotPractices), "OVERVIEW_AI_HOTSPOT_PRACTICE");
   assert(Array.isArray(overview.unverified), "OVERVIEW_UNVERIFIED");
   console.log("INTELLIGENCE_READ_MODEL_ACCEPTANCE=PASS");
 }

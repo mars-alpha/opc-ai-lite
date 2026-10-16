@@ -44,7 +44,7 @@ assert(!daily.includes("Human Gate 1: ADOPT / WATCH / IGNORE"), "NO_OLD_EVENT_DE
 assert(daily.includes("独立人工采集产品已退役"), "AI_DAILY_MANUAL_PRODUCT_RETIRED");
 assert(dailyMapping.includes("Event Momentum v2") && dailyMapping.includes("RISING") && dailyMapping.includes("SUSTAINED"), "AI_DAILY_EVENT_MOMENTUM_MAPPING");
 assert(!dailyMapping.includes("→ Human ADOPT / WATCH / IGNORE"), "NO_OLD_EVENT_DECISION_IN_MAPPING");
-assert(!owner.includes(">=2逐篇合格实践证据") && owner.includes("至少一篇原文独立满足"), "PRACTICE_RULE_SINGLE_COMPLETE_MATERIAL");
+assert(owner.includes("## 23. AI热点练习") && owner.includes("纯趋势/互动Signal不计发布者") && owner.includes("首次命中后保存Event.metadata.aiHotspotPractice"), "AI_HOTSPOT_PRACTICE_CURRENT_OWNER");
 
 assert(!facts.includes("- - 内容发现与工作台职责边界"), "NO_FACTS_DOUBLE_BULLET");
 assert(facts.includes("热点追踪") && facts.includes("/admin/intelligence"), "FACTS_HOT_TRACKING_OWNER");
@@ -66,11 +66,11 @@ assert(
   "FACTS_TOPIC_MOMENTUM_CURRENT"
 );
 
-assert(tasks.includes("PRODUCTION OBSERVATION") && facts.includes("20261016-quality-feedback"), "TASKS_HOT_TRACKING_OWNER");
+assert(tasks.includes("# NOW — PRODUCTION OBSERVATION") && facts.includes("20261016-hotspot-practice"), "TASKS_HOT_TRACKING_OWNER");
 assert(tasks.includes("来源管理仍是唯一 Source Owner") && tasks.includes("SYSTEM 仍是唯一采集执行链"), "TASKS_SYSTEM_RUNTIME_BASELINE");
 assert(tasks.includes("旧「今日情报」、旧 Rising、旧 Manual Collection"), "TASKS_OLD_PLANS_RETIRED");
 assert(owner.includes("0–24h") && owner.includes("RISING") && owner.includes("24–168h") && owner.includes("SUSTAINED"), "OWNER_EVENT_MOMENTUM_WINDOW");
-assert(facts.includes("两处界面已获产品负责人明确批准") && tasks.includes("界面获产品负责人批准"), "HUMAN_REVIEW_GATE");
+assert(facts.includes("两处界面已获产品负责人实际体验并明确批准") && tasks.includes("界面获产品负责人批准"), "HUMAN_REVIEW_GATE");
 
 assert(agents.includes("不再存在独立“人工采集”产品 Owner"), "AGENTS_NO_MANUAL_PRODUCT_OWNER");
 assert(agents.includes("旧 Rising / Formal Rising 算法已退出"), "AGENTS_RISING_RETIRED");

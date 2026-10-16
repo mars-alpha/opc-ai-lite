@@ -1,6 +1,7 @@
 import { calendarWindow, dayStart, nextHistoryDay, selectCalendarItems } from "../../content/radar-calendar";
-import { isWorthPracticingEligible, isMultiNewsRoundup, evaluatePracticeSubject } from "./practical-evidence-actionability";
-import { buildPracticeTopics } from "./practice-topics";
+import { isMultiNewsRoundup } from "./content-evidence-signals";
+import {listAiHotspotPractices} from "./ai-hotspot-practice-store";
+import {aiHotspotPracticePublisher} from "./ai-hotspot-practice";
 import "server-only";
 
 import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
@@ -21,9 +22,9 @@ import { getTodayIntelligenceSignalReadiness } from "./today-intelligence-readin
 import { calculateTopicMomentum, canonicalHotParticipantName } from "./topic-momentum";
 import { calculateAihotHeatShadow } from "./aihot-heat-shadow";
 import { attachRelatedEventStories, buildEventStoryReadModel } from "./event-story-read-model";
-import { evaluatePracticalEvidenceActionability, isFormalPracticalEvidenceSource } from "./practical-evidence-actionability";
+import { evaluatePracticalEvidenceActionability, isFormalPracticalEvidenceSource } from "./content-evidence-signals";
 import {evaluatePracticeMaterials} from "./practice-materials";
-import {practiceTopicIdentity,directPracticeEvidenceLink} from "./practice-topics";
+
 import { evaluateEventEvidenceRelevance } from "./pollution-syndication-gate";
 import { buildContentPresentationEnrichment } from "./presentation-enrichment";
 import { evaluateBoleDailyCuration, rerankBoleDailyFeatured } from "./bole-daily-curation";
@@ -412,18 +413,6 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
     });
     const presentExpansionTypes = [...new Set(formalPracticalExpansionEvidence.map((item) => item.expansionType))];
     const practicalCoverageTypes = ["EXPERIENCE", "TUTORIAL", "USE_CASE", "WORK_IMPACT"];
-    const practicalEvidenceDiagnostics = relevantExpansionEvidence.filter(item => practicalCoverageTypes.includes(item.expansionType)).map(item => {
-      const raw = rawById.get(item.rawItemId)!;
-      const materialQuality = evaluatePracticeMaterials(raw);
-      const action = evaluatePracticalEvidenceActionability({expansionType:item.expansionType,title:raw.title,excerpt:raw.excerpt});
-      const m=record(item.metadata);
-      const relation = (Array.isArray(m.matchedTitleVersionAnchors) && m.matchedTitleVersionAnchors.length>0) ||
-        (Array.isArray(m.matchedTitleSpecificAnchors) && m.matchedTitleSpecificAnchors.length>0) ||
-        (Number(m.subjectTitleMatchCount)>0 && item.relevanceScore>=70) || (Number(m.subjectMatchCount)>=2 && item.relevanceScore>=85);
-      return {rawItemId:raw.id,originalUrl:raw.originalUrl,title:raw.title,materialQuality,reasons:[...materialQuality.reasons,
-        ...(!formalPracticalExpansionEvidence.includes(item)?["SOURCE_NOT_FORMAL_PRACTICE_ELIGIBLE"]:[]),
-        ...(!relation?["EVENT_RELATION_INSUFFICIENT"]:[]),...(!action.actionable?[action.basis]:[]),...(!practiceTopicIdentity(raw)?["TOOL_OR_TASK_IDENTITY_MISSING"]:[])]};
-    });
     const actionablePracticalEvidence = formalPracticalExpansionEvidence.filter((item) => {
       if (!practicalCoverageTypes.includes(item.expansionType)) return false;
       const raw = rawById.get(item.rawItemId);
@@ -451,12 +440,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       const key = `${sourceName.normalize("NFKC").toLocaleLowerCase()}|${raw.originalUrl}`;
       return [[key, { sourceName, originKey: sourceName.normalize("NFKC").toLocaleLowerCase(), materialQuality: evaluatePracticeMaterials(raw), title: raw.title, excerpt: raw.excerpt, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
     })).values()];
-    const directPracticeLinks = eventRaws.flatMap(raw=>{
-      const source=sourceById.get(raw.sourceId);
-      const link=source?directPracticeEvidenceLink(raw,source):null;
-      return link?[{...link,presentation:buildContentPresentationEnrichment({eventTitle:link.title,eventSummary:null,representativeRaw:{title:link.title,excerpt:raw.excerpt,originalUrl:raw.originalUrl,metadata:raw.metadata},whyItMatters:null,allowEventSummaryFallback:false})}]:[];
-    });
-    const practicalEvidenceLinks=[...new Map([...expansionPracticeLinks,...directPracticeLinks].map(link=>[link.originalUrl,link])).values()];
+    const practicalEvidenceLinks=expansionPracticeLinks;
     const actionablePracticalEvidenceCount=practicalEvidenceLinks.length;
     const actionablePracticalOriginCount=new Set(practicalEvidenceLinks.map(link=>link.originKey)).size;
     const actionablePracticalTypeCount=new Set(practicalEvidenceLinks.map(link=>link.expansionType)).size;
@@ -498,6 +482,21 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       const name = canonicalHotParticipantName(origin || author || rawSource?.name || raw.sourceId);
       const key = name.normalize("NFKC").toLocaleLowerCase();
       return [[key, { name, platform: raw.platform, role: rawSource?.sourceType ?? "UNKNOWN" }] as const];
+    })).values()];
+    const aiPracticeParticipants = [...new Map(eventRaws.flatMap((raw) => {
+      const rawSource = sourceById.get(raw.sourceId);
+      const name = aiHotspotPracticePublisher({
+        title: raw.title,
+        originalUrl: raw.originalUrl,
+        signalOnly: record(rawSource?.signalConfig).signalOnly === true,
+        referenceOnly: record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true,
+        originPublisher: originPublisher(raw),
+        author: raw.author,
+        sourceName: rawSource?.name
+      });
+      if (!name) return [];
+      const canonical = canonicalHotParticipantName(name);
+      return [[canonical.normalize("NFKC").toLocaleLowerCase(), { name: canonical, role: rawSource?.sourceType ?? "UNKNOWN" }] as const];
     })).values()];
     const topicMomentum = calculateTopicMomentum({
       firstSeenAt: event.firstSeenAt,
@@ -547,7 +546,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       return { at: at.toISOString(), score: point.score, participantCount: point.participantCount, editorialParticipantCount: point.editorialParticipantCount, signalParticipantCount: point.signalParticipantCount };
     });
     // Hotness measures discussion activity only. Verification remains visible as a separate fact-quality dimension.
-    const contentBoundary = { roundup: isMultiNewsRoundup(event.title), practice: evaluatePracticeSubject({ title: event.title, excerpt: event.summary ?? representative.excerpt }) };
+    const contentBoundary = { roundup: isMultiNewsRoundup(event.title) };
     const currentHotPresentationEligible = topicMomentum.eligible && !contentBoundary.roundup;
     const presentation = buildContentPresentationEnrichment({
       eventTitle: event.title,
@@ -637,10 +636,8 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       discoveryStatus: event.discoveryStatus,
       publicReadableSourceCount: publicReportRaws.length,
       hotParticipants,
+      aiPracticeParticipants,
       practicalEvidenceLinks,
-      practiceAssessment: { eligibleEvidenceCount: actionablePracticalEvidenceCount, diagnostics: practicalEvidenceDiagnostics,
-        reasons: [...new Set([...practicalEvidenceDiagnostics.flatMap(item => item.reasons),
-          ...(actionablePracticalEvidenceCount<1?["COMPLETE_PRACTICE_MATERIAL_MISSING"]:[])])]},
       contentBoundary,
       curation: {
         curated,
@@ -690,7 +687,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       sourceManagedExpansionRuntime: sourceManagedExpansionRuntime(event.metadata),
       coverage: {
         evidenceCount: evidence.length,
-        practicalEvidenceCount: formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType)).length + directPracticeLinks.length,
+        practicalEvidenceCount: formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType)).length,
         actionablePracticalEvidenceCount,
         actionablePracticalOriginCount,
         actionablePracticalTypeCount,
@@ -842,25 +839,6 @@ function buildDiscoveryExpansionCandidatesFromPools(
     .slice(0, bounded);
 }
 
-export function buildWorthPracticingFromPools(
-  latest: Awaited<ReturnType<typeof listPolicyEventCandidates>>,
-  hotspots: Awaited<ReturnType<typeof listPolicyEventCandidates>>,
-  unverified: Awaited<ReturnType<typeof listPolicyEventCandidates>>,
-  limit: number
-) {
-  const bounded = Math.max(1, Math.min(500, limit));
-  const byEvent = new Map([...latest, ...hotspots, ...unverified].map((item) => [item.eventId, item]));
-  return buildPracticeTopics([...byEvent.values()])
-    .filter(isWorthPracticingEligible)
-    .sort((a, b) =>
-      (b.coverage.actionablePracticalOriginCount ?? 0) - (a.coverage.actionablePracticalOriginCount ?? 0) ||
-      (b.coverage.actionablePracticalEvidenceCount ?? 0) - (a.coverage.actionablePracticalEvidenceCount ?? 0) ||
-      (b.coverage.actionablePracticalTypeCount ?? 0) - (a.coverage.actionablePracticalTypeCount ?? 0) ||
-      toTime(b.publishedAt ?? b.collectedAt) - toTime(a.publishedAt ?? a.collectedAt)
-    )
-    .slice(0, bounded);
-}
-
 // Calendar timeline never paginates by a mutable/non-unique lastSeenAt.
 export async function listRadarCalendarRange(from: Date, to: Date, asOf = new Date()) {
   return getDatabase().transaction(async tx => {
@@ -899,28 +877,11 @@ export async function listDiscoveryExpansionCandidates(limit = 100) {
   return buildDiscoveryExpansionCandidatesFromPools(latest, unverified, bounded);
 }
 
-export async function listWorthPracticingTodayIntelligence(limit = 100) {
-  const bounded = Math.max(1, Math.min(500, limit));
-  // Worth Practicing must be derived from the complete seven-day canonical Event window,
-  // not from three separately bounded candidate lists. Otherwise an actionable Event can
-  // appear in Radar Snapshot but disappear from the direct read model purely due to sampling.
-  const timeline = await listRadarTimelineWindow(7);
-  return buildPracticeTopics(timeline)
-    .filter(isWorthPracticingEligible)
-    .sort((a, b) =>
-      (b.coverage.actionablePracticalOriginCount ?? 0) - (a.coverage.actionablePracticalOriginCount ?? 0) ||
-      (b.coverage.actionablePracticalEvidenceCount ?? 0) - (a.coverage.actionablePracticalEvidenceCount ?? 0) ||
-      (b.coverage.actionablePracticalTypeCount ?? 0) - (a.coverage.actionablePracticalTypeCount ?? 0) ||
-      toTime(b.publishedAt ?? b.collectedAt) - toTime(a.publishedAt ?? a.collectedAt)
-    )
-    .slice(0, bounded);
-}
-
 export async function getTodayIntelligenceOverview() {
-  const [currentHot, latest, worthPracticing, unverified, expansionCandidates, signalReadiness] = await Promise.all([
+  const [currentHot, latest, aiHotspotPractices, unverified, expansionCandidates, signalReadiness] = await Promise.all([
     listCurrentHotTodayIntelligence(10),
     listLatestTodayIntelligence(5),
-    listWorthPracticingTodayIntelligence(5),
+    listAiHotspotPractices(),
     listUnverifiedEventCandidates(5),
     listDiscoveryExpansionCandidates(8),
     getTodayIntelligenceSignalReadiness()
@@ -929,7 +890,7 @@ export async function getTodayIntelligenceOverview() {
     generatedAt: new Date().toISOString(),
     currentHot,
     latest,
-    worthPracticing,
+    aiHotspotPractices,
     unverified,
     expansionCandidates,
     signalReadiness,

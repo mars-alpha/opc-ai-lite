@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { execFileSync } from "node:child_process";
 
 function assert(condition: unknown, code: string): asserts condition {
   if (!condition) throw new Error("EVENT_SEED_CLUSTERING_FAILED:" + code);
@@ -34,3 +35,4 @@ console.log("EVENT_SEED_CLUSTERING_SCHEMA=PASS");
 console.log("EVENT_SEED_CLUSTERING_RULES=PASS");
 console.log("EVENT_SEED_CLUSTERING_AUDIT=PASS");
 console.log("EVENT_SEED_CLUSTERING_NO_AI=PASS");
+execFileSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "scripts/validate-event-seed-recall.ts"], { stdio: "inherit" });

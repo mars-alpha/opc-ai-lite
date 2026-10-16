@@ -2,8 +2,7 @@ import { loadEnvConfig } from "@next/env";
 import { closeDatabase } from "../lib/server/db";
 import { assertCurrentDatabaseTarget } from "../lib/server/database-target";
 import {
-  listDiscoveryExpansionCandidates,
-  listWorthPracticingTodayIntelligence
+  listDiscoveryExpansionCandidates
 } from "../lib/server/content/intelligence-read-model";
 
 loadEnvConfig(process.cwd());
@@ -20,10 +19,7 @@ async function main() {
     "DISCOVERY_EXPANSION_DEV_DATABASE_ONLY"
   );
 
-  const [candidates, practicing] = await Promise.all([
-    listDiscoveryExpansionCandidates(100),
-    listWorthPracticingTodayIntelligence(100)
-  ]);
+  const candidates = await listDiscoveryExpansionCandidates(100);
 
   assert(Array.isArray(candidates), "DISCOVERY_EXPANSION_CANDIDATE_READ_MODEL");
   assert(
@@ -46,21 +42,7 @@ async function main() {
     candidates.every((item) => item.discoveryExpansion.opcValueAuthority === "CLUSTER_ANALYSIS_ONLY"),
     "DISCOVERY_EXPANSION_OPC_AUTHORITY"
   );
-  assert(
-    practicing.every((item) => item.opcValue.status === "AVAILABLE"),
-    "DISCOVERY_EXPANSION_PRACTICE_REQUIRES_REAL_ANALYSIS"
-  );
-  assert(
-    practicing.every(
-      (item) =>
-        item.verificationStatus !== "UNVERIFIED" ||
-        item.coverage.practicalEvidenceCount > 0
-    ),
-    "DISCOVERY_EXPANSION_UNVERIFIED_PRACTICE_REQUIRES_PRACTICAL_EVIDENCE"
-  );
-
   console.log("DISCOVERY_EXPANSION_CANDIDATES=" + candidates.length);
-  console.log("DISCOVERY_EXPANSION_WORTH_PRACTICING=" + practicing.length);
   console.log("DISCOVERY_EXPANSION_DB=PASS");
 }
 

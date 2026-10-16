@@ -7,10 +7,11 @@ function assert(condition: unknown, code: string) {
 
 const ui = fs.readFileSync("components/AdminSourceManagementWorkspace.tsx", "utf8");
 const css = fs.readFileSync("app/admin/sources/sources.css", "utf8");
+const typography = fs.readFileSync("app/admin/content-typography.css", "utf8");
 
 assert(ui.includes("source-governance-grid") && ui.includes("source-discovery-column") && ui.includes("source-management-column"), "LEARNING_INSIGHT_TWO_PANE_WORKBENCH");
 assert(css.includes("grid-template-columns: minmax(300px,31%) minmax(0,69%)"), "LEARNING_INSIGHT_31_69_RATIO");
-assert(css.includes(".source-column-head strong") && css.includes("font-size: 18px"), "LEARNING_INSIGHT_QUEUE_TITLE_SCALE");
+assert(css.includes(".source-column-head strong") && css.includes("font-size: var(--content-font-section)") && typography.includes("--content-font-section: 18px"), "LEARNING_INSIGHT_QUEUE_TITLE_SCALE");
 assert(css.includes(".source-summary-grid strong") && css.includes("font-size: 28px"), "LEARNING_INSIGHT_DETAIL_TITLE_SCALE");
 assert(css.includes("border-color: #bfd2f3") && css.includes("background: #f2f6fd"), "LEARNING_INSIGHT_ACTIVE_ROW_COLOR");
 assert(css.includes(".source-btn-primary") && css.includes("background: #2f67c8"), "LEARNING_INSIGHT_PRIMARY_BUTTON");

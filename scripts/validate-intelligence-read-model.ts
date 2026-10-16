@@ -26,7 +26,7 @@ assert(source.includes("calculateTopicMomentum") && source.includes("topicMoment
 assert(momentum.includes("TOPIC_MOMENTUM_MIN_AGE_HOURS = 24") && momentum.includes("TOPIC_MOMENTUM_MAX_AGE_HOURS = 168") && momentum.includes('"RISING"') && momentum.includes('"SUSTAINED"'), "TOPIC_MOMENTUM_RISING_AND_SUSTAINED_WINDOW");
 assert(momentum.includes('authority: "PRESENTATION_ONLY"'), "TOPIC_MOMENTUM_NO_FACT_AUTHORITY");
 
-assert(source.includes("listWorthPracticingTodayIntelligence"), "TODAY_WORTH_DOING_PRACTICAL_VIEW_PRESENT");
+assert(source.includes("listAiHotspotPractices"), "TODAY_AI_HOTSPOT_PRACTICE_VIEW_PRESENT");
 assert(source.includes("listCurrentHotTodayIntelligence"), "HOT_RANK_VIEW_PRESENT");
 assert(source.includes("listRadarTimeline"), "ALL_DYNAMICS_EVENT_VIEW_PRESENT");
 assert(source.includes("officialNewsEligible") && source.includes("hotspotEligible"), "EVENT_POLICY_ELIGIBILITY_BOUNDARY");
@@ -44,11 +44,11 @@ assert(!legacyWorkspace.includes('{ key: "INTELLIGENCE", label: "今日情报"')
 assert(contract.includes("Unified Collection — SYSTEM Runtime"), "UNIFIED_COLLECTION_CONTRACT");
 assert(contract.includes("Topic Momentum current rule"), "TOPIC_MOMENTUM_CONTRACT");
 
-for (const label of ["当前热点", "今日值得做", "精选", "全部动态"]) {
+for (const label of ["当前热点", "AI热点练习", "精选", "全部动态"]) {
   assert(intelligenceUi.includes(label), "HOT_TRACKING_CURRENT_VIEW_" + label);
 }
 assert(!intelligenceUi.includes("最新资讯") && !intelligenceUi.includes("值得实践"), "LEGACY_INTELLIGENCE_VIEWS_NOT_OPERATIONAL_UI");
-assert(intelligenceRoute.includes('view === "practicing"'), "WORTH_DOING_PRACTICAL_API");
+assert(intelligenceRoute.includes('view === "ai-hotspot-practice"'), "AI_HOTSPOT_PRACTICE_API");
 assert(!intelligenceRoute.includes('view === "worth-watching"') && !source.includes("listTodayWorthWatchingHotTracking"), "WORTH_WATCHING_PARALLEL_PATH_REMOVED");
 assert(intelligenceRoute.includes('view === "current-hot"'), "HOT_RANK_API");
 assert(!intelligenceRoute.includes('view === "platform"'), "PLATFORM_HEATBOARD_NOT_FORMAL_INTELLIGENCE_API");

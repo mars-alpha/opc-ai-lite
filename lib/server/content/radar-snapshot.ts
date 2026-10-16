@@ -1,6 +1,5 @@
 import { calendarWindow, beijingDay } from "../../content/radar-calendar";
-import { isWorthPracticingEligible } from "./practical-evidence-actionability";
-import { buildPracticeTopics, rebuildVisiblePracticeTopic } from "./practice-topics";
+import {recordAiHotspotPracticeTriggers,listAiHotspotPractices} from "./ai-hotspot-practice-store";
 import "server-only";
 
 import { eq, inArray } from "drizzle-orm";
@@ -12,7 +11,7 @@ import { contentEvents, contentRadarSnapshots } from "../db/schema";
 
 const RADAR_SNAPSHOT_TTL_MS = 30_000;
 const RADAR_SNAPSHOT_KEY = "CURRENT";
-export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v15-public-materials";
+export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v16-ai-hotspot-practice";
 
 type RadarSnapshot = Awaited<ReturnType<typeof buildRadarSnapshot>>;
 const globalForRadarSnapshot = globalThis as typeof globalThis & {
@@ -33,10 +32,6 @@ async function buildRadarSnapshot() {
   ]);
   const fullWindow = initialPage.items;
   const items = fullWindow;
-  // Worth Practicing is derived from the same canonical Event timeline, using the
-  // exact product eligibility rule rather than radarState (a confirmed Event may be
-  // tagged LATEST in the timeline even when it is also eligible for practice).
-  // Counts, featured and initial items share one complete calendar window.
   const featured = fullWindow
     .filter((item) => item.curation.curated)
     .sort((a, b) =>
@@ -47,15 +42,8 @@ async function buildRadarSnapshot() {
       ...item,
       curation: { ...item.curation, featuredRank: index + 1, rerankAuthority: "PRESENTATION_ONLY" as const }
     }));
-  const worthPracticing = buildPracticeTopics(fullWindow)
-    .filter(isWorthPracticingEligible)
-    .sort((a, b) =>
-      (b.coverage.actionablePracticalOriginCount ?? 0) - (a.coverage.actionablePracticalOriginCount ?? 0) ||
-      (b.coverage.actionablePracticalEvidenceCount ?? 0) - (a.coverage.actionablePracticalEvidenceCount ?? 0) ||
-      (b.coverage.actionablePracticalTypeCount ?? 0) - (a.coverage.actionablePracticalTypeCount ?? 0) ||
-      new Date(b.publishedAt ?? b.collectedAt).getTime() - new Date(a.publishedAt ?? a.collectedAt).getTime()
-    )
-    .slice(0, 8);
+  await recordAiHotspotPracticeTriggers(fullWindow.map((item) => ({ ...item, hotParticipants: item.aiPracticeParticipants })),asOf);
+  const aiHotspotPractices = await listAiHotspotPractices();
   const currentHot = fullWindow
     .filter((item) => item.currentHot.eligible)
     .sort((a, b) =>
@@ -87,7 +75,7 @@ async function buildRadarSnapshot() {
     nextCursor: initialPage.nextCursor,
     featured,
     currentHot,
-    worthPracticing,
+    aiHotspotPractices,
     readiness,
     collectionHealth
   };
@@ -112,7 +100,7 @@ async function readPersistedRadarSnapshot() {
     !Array.isArray(payload.items) ||
     !Array.isArray(payload.featured) ||
     !Array.isArray(payload.currentHot) ||
-    !Array.isArray(payload.worthPracticing) ||
+    !Array.isArray(payload.aiHotspotPractices) ||
     typeof payload.totalEventCount7d !== "number" ||
     payload.windowDays !== 7
   ) return null;
@@ -194,19 +182,19 @@ export function radarSnapshotFreshness(generatedAt: string, now = new Date()) {
 
 type OperationalItem = { eventId: string; category: string; discoveryStatus?: string | null };
 type EventOperation = { id: string; discoveryStatus: string; archivedAt: Date | null };
-export function applyRadarOperations<T extends { items: OperationalItem[]; featured: OperationalItem[]; currentHot: OperationalItem[]; worthPracticing: OperationalItem[]; windowEventIndex?: { eventId: string; category: string }[]; categoryCounts7d: Record<string, number>; totalEventCount7d: number }>(snapshot: T, states: EventOperation[]): T {
+export function applyRadarOperations<T extends { items: OperationalItem[]; featured: OperationalItem[]; currentHot: OperationalItem[]; aiHotspotPractices: {eventId:string}[]; windowEventIndex?: { eventId: string; category: string }[]; categoryCounts7d: Record<string, number>; totalEventCount7d: number }>(snapshot: T, states: EventOperation[]): T {
   const current = new Map(states.map((state) => [state.id, state]));
   const visible = (id: string) => { const state = current.get(id); return state && !state.archivedAt; };
   const project = <I extends OperationalItem>(items: I[]) => items.filter((item) => visible(item.eventId)).map((item) => ({ ...item, discoveryStatus: current.get(item.eventId)!.discoveryStatus }));
-  const index = (snapshot.windowEventIndex ?? [...new Map([...snapshot.items, ...snapshot.featured, ...snapshot.currentHot, ...snapshot.worthPracticing].map((item) => [item.eventId, item])).values()]).filter((item) => visible(item.eventId));
+  const index = (snapshot.windowEventIndex ?? [...new Map([...snapshot.items, ...snapshot.featured, ...snapshot.currentHot].map((item) => [item.eventId, item])).values()]).filter((item) => visible(item.eventId));
   const categoryCounts7d = Object.fromEntries(Object.keys(snapshot.categoryCounts7d).map((category) => [category, category === "全部" ? index.length : index.filter((item) => item.category === category).length]));
-  const worthPracticing = snapshot.worthPracticing.flatMap(item => rebuildVisiblePracticeTopic(item, id => Boolean(visible(id))));
-  return { ...snapshot, items: project(snapshot.items), featured: project(snapshot.featured), currentHot: project(snapshot.currentHot), worthPracticing: project(worthPracticing), categoryCounts7d, totalEventCount7d: index.length };
+  const aiHotspotPractices = snapshot.aiHotspotPractices.filter(item => visible(item.eventId));
+  return { ...snapshot, items: project(snapshot.items), featured: project(snapshot.featured), currentHot: project(snapshot.currentHot), aiHotspotPractices, categoryCounts7d, totalEventCount7d: index.length };
 }
 
 export async function readRadarOperations<T extends Parameters<typeof applyRadarOperations>[0]>(snapshot: T): Promise<T> {
-  const index = snapshot.windowEventIndex ?? [...snapshot.items, ...snapshot.featured, ...snapshot.currentHot, ...snapshot.worthPracticing];
-  const ids = [...new Set(index.map((item) => item.eventId))];
+  const index = snapshot.windowEventIndex ?? [...snapshot.items, ...snapshot.featured, ...snapshot.currentHot];
+  const ids = [...new Set([...index,...snapshot.aiHotspotPractices].map((item) => item.eventId))];
   const states = ids.length ? await getDatabase().select({ id: contentEvents.id, discoveryStatus: contentEvents.discoveryStatus, archivedAt: contentEvents.archivedAt }).from(contentEvents).where(inArray(contentEvents.id, ids)) : [];
   return applyRadarOperations(snapshot, states);
 }

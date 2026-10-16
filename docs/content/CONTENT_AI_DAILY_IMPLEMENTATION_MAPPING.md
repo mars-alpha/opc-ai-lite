@@ -21,7 +21,7 @@ SYSTEM Collection Runtime
 → 所有已启用来源的统一自动采集 → Raw / Observation
 
 /admin/intelligence
-→ 热点追踪：沿用既有排版（当前热点 / 今日值得做 / 精选 / 全部动态），数据来自统一 Event / Evidence / Momentum / Curation 闭环
+→ 热点追踪：沿用既有排版（当前热点 / AI热点练习 / 精选 / 全部动态），数据来自统一 Event / Evidence / Momentum / Curation 闭环
 
 /admin/manual-collection
 → RETIRED：仅保留兼容重定向 /admin/sources；旧 Manual Core 与 Runner 依赖已退出 current runtime

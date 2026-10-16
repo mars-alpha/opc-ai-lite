@@ -14,7 +14,7 @@ Task: COLLECTION-ARCHITECTURE-REALIGNMENT-001
 - lib/server/content/source-management-policy.ts / discovery-filter.ts / collection-runner.ts — 同一份后台规则进入SYSTEM cheap/full过滤，排除优先、标题新增词召回，Run记录规则版本；不追删历史。
 - scripts/validate-source-input-runtime.ts / accept-source-input-runtime.ts — 确定性反例及开发库真实Feed注册、保存、过滤、Raw验收；后者要求--confirm=SOURCE-INPUT-DEVELOPMENT，结束恢复规则，生产库拒绝执行。
 - lib/server/content/practice-materials.ts — 逐篇公开服务器获取回执、完整正文/字幕及步骤/实际配置/工作流、输入材料与产出校验；缺失原因分开返回，条件以采集合同为准。
-- scripts/validate-practice-materials.ts / scripts/accept-practice-boundaries.ts — 材料反例与真实数据库只读分类验收（生产必须显式--production-read-only）。
+- scripts/validate-practice-materials.ts — 当前公开材料反例校验；数据库分类由现役来源与采集验收覆盖。
 - lib/server/content/pixaroma-source.ts — 固定作者公开材料实采后事务注册/审计、SYSTEM onboarding与既有候选关联；保留资格观察，不授予事实权。
 - lib/server/content/public-workflow-materials.ts — Deno材料消费、ZIP/JSON内存结构校验及明确材料缺口；复用runtime adapter进入SYSTEM。
 - scripts/accept-pixaroma-public-source.ts / scripts/validate-pixaroma-route.ts — 服务器验收与确定性路由/ZIP/去重测试；生产必须显式`--confirm=PIXAROMA-PRODUCTION`，预览地址仅开发可用，实采复用SYSTEM advisory lock。
@@ -86,6 +86,7 @@ Topic Momentum queue reconcile 与 due selection 使用同一 follow-up eligibil
 
 ### Event / Evidence
 - lib/server/content/event-seed-clustering.ts
+- lib/server/content/event-clustering.ts + scripts/validate-event-seed-recall.ts — Event Seed v3 / Event Cluster v5 完整候选扫描、同新闻中英文改写与误合并反例；新规则作用于后续运行，历史回填需另行审计。
 - lib/server/content/event-clustering.ts
 - lib/server/content/event-relevance-gate.ts
 - lib/server/content/event-policy.ts
@@ -123,7 +124,6 @@ Topic Momentum：过去 7 天 / 168h，独立账号与机构去重，72h half-li
 - app/api/admin/content/intelligence/route.ts
 - components/AdminIntelligenceWorkspace.tsx
 
-内部 Read Model：Latest / Worth Practicing / Unverified / Current Hot；正式产品界面仍为既有“当前热点 + 今日值得做 + 精选 / 全部动态”排版。
 
 旧 Event 决策 route/writer、人工 Expansion POST、旧 `IGNORED` 可见性过滤、内容工作台兼容控件及评论挖旧决策读取已退出；`content_candidate_decisions` 和 `discoveryStatus` 仍保留历史审计。采集质量反馈由 `lib/server/content/collection-quality-feedback.ts`、独立表和 admin-only API 拥有，热点追踪与来源管理只消费标签。生产路径见 `docs/CURRENT_SYSTEM_FACTS.md`。`refreshSourceManagedEventExpansion` 在 `topic-momentum-runtime.ts` 和 SYSTEM 中的自动调用必须保留。
 
@@ -179,7 +179,6 @@ Current 只允许无需用户交互登录、可由服务器持续运行的 Adapt
 - 人工 AI：events/[eventId]/analysis POST 沿用管理员鉴权；content-understanding-enrichment.ts / event-ai-analysis.ts 保留后续分析与表达能力，退出定时调用链。
 - Story：event-story-read-model.ts 由 canonical Event / public Evidence 派生；overview/latest/digest/reportTimeline/relatedEvents 不拥有 Event truth。heatSeries 为 DERIVED_REPLAY，不声称持久化历史。
 - Shadow：aihot-heat-shadow.ts、selection-shadow-* 保持独立实验/人工评估用途，不参与正式采集决策；不保留已结束批次报告与一次性阈值探索脚本。
-- 既定 Hot Tracking、Worth Practicing、Curation、UI 与数据库 Schema 本轮保持。
 - 回归：run-discovery-collection-full-regression.ts 汇总全部失败，不以首个失败掩盖后续检查；validate-discovery-collection-boundary.ts 验证召回正反例、人工 AI 边界和锁生命周期。
 
 ## 6. Validation Owners
@@ -226,7 +225,7 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 ## 7. UI Boundary
 
 `/admin/sources` 保留 Fast Index + Lazy Detail：顶部四项统计 + 左约 31% 发现渠道 + 右约 69% 来源管理。左侧 7 个渠道始终展开、内部滚动，点击后筛选右侧 Source；右侧单行筛选为搜索 + 语言 + 统一状态 + 采集方式。Platform capability 与 DailyHot Route 不再作为左侧独立目录。
-`/admin/intelligence` 产品名为「热点追踪」，保持既有页面排版，只接新的 Event / Curation / Momentum 数据。当前两页均为 `HUMAN_REVIEW_PENDING`，体验通过前不新增平行 UI 或第二套热点算法。
+`/admin/intelligence` 产品名为「热点追踪」，消费 Event / Curation / Momentum 与 AI热点练习数据。当前热点追踪和来源管理两页均已获产品负责人实际体验并批准；后续视觉改动仍须重新审核。
 任何后续新的可视化能力仍必须先体验审核，再继续下一阶段。
 
 ## Reliability / Incremental Runtime
@@ -243,7 +242,6 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 
 - `collection-item-quality.ts`：字段完整性和原始发布时间窗口；不推断完整历史/原创比例。
 - `collection-runner.ts`：先筛backfill时间，再走既有Cheap Filter/Policy/Raw/Observation/Event；实体解析显式allowAi:false；Feed优先content字段；metadata记录质量/窗口缺口。
-- `practical-evidence-actionability.ts::isWorthPracticingEligible`：时间线pool、直接实践列表及radar-snapshot共享2证据/2来源/2类型门槛。
 - `source-asset-cleanup.ts`：明确退役Manual/Browser路径归档，保留历史事实。
 - `scripts/manage-collection-quality.ts`：默认只读审计；Development-only `--apply-cleanup` / `--backfill` / `--refresh-baseline` 使用原SYSTEM锁/collector串行执行，不作为定时器。
 - `content:collection:quality-window:check`：完整性、Feed内容优先、时间边界、未来窗口、禁止隐式实体AI和跨读取路径实践门槛。
@@ -265,12 +263,9 @@ Standalone DB audit / acceptance 必须关闭 DB client。
 
 ### 实践主题与汇总排除
 
-- `practical-evidence-actionability.ts`：汇总识别、发布主体排除、具体任务/操作判定、六小时搜索冷却；实践资格唯一门槛保持。
-- `practice-topics.ts`：formal actionable链接按明确tool/goal归并，复算证据/来源/类型，保留父Event并使用教程标题；未知身份或目标保持候选。
 - `intelligence-read-model.ts / radar-snapshot.ts`：直接实践列表和快照共享主题投影；汇总退出热点及参与者；模型发布不改写成实操。
 - `collection-expansion.ts`：SYSTEM每周期最多一实践主题、一个已管理健康B站/YouTube搜索来源、两查询×五结果；原文主题校验、无隐藏Source、失败隔离。无合格来源返回缺口，不能视为联网验证通过。
 - `topic-momentum.ts / topic-momentum-runtime.ts`：汇总Raw不贡献独立参与者；不改变原有热度权重。
-- `content:practice-topics:check / content:practice-expansion:check / content:practical-actionability:check`：新闻附着教程、同作者、不同任务、未知身份、资格失败关闭、发布伪教程与汇总反例。
 
 ### 逐篇正文/字幕实现
 
@@ -288,5 +283,11 @@ Web与SYSTEM必须同版并使用当前snapshot schema；生成完整快照后�
 - Owner：本节仅记录现役实现；栏目门槛仍由既有合同负责。公开正文使用 Mozilla Readability＋静态 DOM，Deno 固定允许路由覆盖 LangChain、n8n、Comfy、AWS；Comfy 指定公开工作流下载后记录字节、SHA256、节点与获取时间，不宣称执行成功。
 - SYSTEM 唯一周期在 PRACTICE_MATERIALS 阶段全局串行补最多2篇，复用原 advisory lock；不再逐 Source 另开详情预算。成功正文复用，失败指数退避，同站首次网络失败后停止本批后续请求。七日候选仅取真实发布时间，不造日期，不新增 Raw/Event/Source。
 - `lib/server/content/practice-material-backfill.ts` 为 Core；`scripts/backfill-public-practice-materials.ts` 默认为只读计划，生产 apply 需显式确认。写入仅限 Raw 材料元数据和审计，原始身份、关注配置及事实不改。
-- 生产验收：20篇选中，3篇正文成功、2篇材料检查通过；2篇请求失败、15篇同站退避；再次计划 due=0（含缓存与退避，不代表全部成功）。Comfy 工作流12063字节/10节点。七日269事件、今日值得做0；材料完整不自动授予栏目资格。字幕仍仅支持既有公开可用路由，不支持登录/关注绕过。
-- 已发布：腾讯云 Web/SYSTEM `materials-20261015`；Deno `relay-public-materials-v6` revision `f9xmezf8hd9q`。typecheck、59项快速采集回归、Linux生产 build 通过；线上200、未认证API401，SYSTEM新阶段PASS。回退为前一 Web/SYSTEM v14 与 Deno v5 revision `1bvyxc7grrw6`。
+
+## AI热点练习（生产运行，UI已批准）
+
+- `ai-hotspot-practice.ts`：原文链接/纯Signal/无归属聚合器准入、独立发布者去重、AI主题及分析/应用触发、持久状态合并；规则owner见采集合同§23。
+- `ai-hotspot-practice-store.ts`：Event JSONB单键原子更新和全历史触发记录读取，不新增表/定时器。
+- `radar-snapshot.ts`：v16快照记录触发并加载历史栏目；七日列表与精选/热点算法独立。
+- `content-evidence-signals.ts`：汇总识别及共享证据质量解释，不拥有栏目资格。
+- `content:ai-hotspot-practice:check`：多人、转载、发布消息、精选失败、持久保留与幂等；共享公开材料/字幕/搜索验证继续运行。

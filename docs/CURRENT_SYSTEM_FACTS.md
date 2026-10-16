@@ -7,21 +7,18 @@
 - Pixaroma作者站固定材料Provider已发布至Deno生产Relay（relay-source-autodiscovery-v5，revision 1bvyxc7grrw6）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面与实践分类现已同版发布。验收结果见TASKS。
 - 其他公开作者候选的核验元数据保存在Raw.creatorReview并审计；生产代码阻断需登录/关注/人工会话的路由和材料。固定Comfy正文/B站匿名字幕及ZIP逐篇说明适配器，已部署腾讯云SYSTEM与Deno生产并验证重复Raw回执持久化；通用正文/字幕覆盖缺口仍存在，不把搜索描述或共享安装步骤当全文。验收明细见TASKS。
 
-- 本地受管实践搜索已在腾讯云隔离进程通过开发库实测与登记；新路由仅EVENT_EXPANSION，作者仍待审，不代表正式作者持续采集已接通。今日值得做逐篇条件已随v14生产发布，不依赖AI分析状态；开发搜索Source配置不复制到生产。开发验收记录与剩余项见TASKS。
 
-- 正式学习平台与 81 节课程保持冻结基线；本轮只治理来源管理 → 热点追踪生产链，不改变课程前端。
+- Track 01～05 共 81 节正式课程，保持冻结基线；本轮只治理来源管理 → 热点追踪生产链，不改变课程前端。
 - 后台内容域当前只保留三个产品 Owner：`/admin/sources` 来源管理、`/admin/intelligence` 热点追踪、内容工作台兼容入口。后者的新选题入口待独立规划，不由热点追踪采集质量标签驱动。旧人工采集产品、独立 Automatic Collection workbench、Rising/上升趋势产品路径均已退出 current owner。
 - **Source Management 是唯一 Source 资产入口；SYSTEM Collection 是唯一正式采集执行基准。** 未来新增来源只能经 Discover → Check/Preview → Register → Qualify 后进入同一 SYSTEM Collection。
-- 正式生产闭环固定为：`Source Management → SYSTEM Collection → Raw/Observation → Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → Worth Practicing / Topic Momentum / Curation → Radar Snapshot → 热点追踪`。
+- 正式生产闭环固定为：`Source Management → SYSTEM Collection → Raw/Observation → Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → AI Hotspot Practice / Topic Momentum / Curation → Radar Snapshot → 热点追踪`。
 - Discovery Expansion证据刷新owner为 `refreshSourceManagedEventExpansion`，消费current Source已采Raw；168h bounded，成功6h cooldown、失败1h retry，不自动调用AI。生产代码支持已管理搜索Source的有界实践参考发现，详细边界见采集架构合同“实践主题与汇总内容边界”；生产来源是否可执行仍由现有资格与opt-in决定。
-- 「今日值得做」只使用 Worth Practicing，机械规则唯一见采集架构合同“实践主题与汇总内容边界”。生产已移除AI分析状态前置，并与SYSTEM/Web同版。AI suggestedContentTypes仅为建议，不能授予实践资格。
 - 精选 owner 为 `bole-daily-curation-v6-recall-balanced`：Hard Gate 保持 AI relevance + ≤72h + CONFIRMED_OFFICIAL/CONFIRMED_MEDIA + MAJOR/NORMAL；在不降低事实门槛的前提下，提高 Freshness / Evidence Quality / Importance 权重，降低 Practical / Independence / Corroboration 对新近单源官方更新的早期惩罚；FEATURED≥66；TOP_PICK≥78 且要求更强 value/evidence gate。
 - 当前热点 owner 为 `topic-momentum-v7-independent-institutions-decay`：榜单统计过去 7 天，同一 Event 的独立账号/机构按 `originPublisher / author / Source identity` 归一；聚合器仅转发、且没有可识别原始账号/机构时不作为独立参与者；重复采集只算一次；每个参与者按 72 小时半衰期衰减。热度衡量讨论活跃度，不是报道质量，不改变 Fact Authority。趋势只允许比较持续覆盖的同一组参与者；缺少可比历史时 `trend=null`，不展示趋势线。
 - AI HOT 当前是 Source Directory 中一个 Aggregated Discovery Source（`source_radar_ai_hot`），通过 PUBLIC_JSON_API 进入 SYSTEM Collection；`factualSource=false / signalSource=true / referenceOnly=true`。AI HOT 与直连原站共享 originPublisher 去重，不取得 Fact Authority，也不拥有独立采集入口。
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
-- 真实 Development 闭环已验证：Source-managed Expansion 可产出 EXPERIENCE / TUTORIAL / USE_CASE / WORK_IMPACT Evidence；Event AI Analysis 可复用/刷新；Radar Snapshot 持久化 currentHot / worthPracticing / items；当前实践数量按实时候选材料门槛计算，不保证非空。
-- `/admin/intelligence` 沿用已确认的日历布局：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v15-public-materials，统计/列表同源。管理员可记录采集质量正负评价、原因、来源归因并撤销；评价不改变自动栏目或采集。来源详情显示30日评价样本与问题原因。两处界面已获产品负责人明确批准，规则唯一见采集合同§16和§22。
+- `/admin/intelligence` 沿用已确认的日历布局：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v16-ai-hotspot-practice，统计/列表同源。管理员可记录采集质量正负评价、原因、来源归因并撤销；评价不改变自动栏目或采集。来源详情显示30日评价样本与问题原因；AI热点练习独立触发并持久展示。两处界面已获产品负责人实际体验并明确批准，规则唯一见采集合同§16、§22、§23。
 - 当前架构正文唯一 owner：`docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；实现映射唯一 owner：`docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。历史 Phase/Acceptance 只通过 Git 追溯，不再复制到 Current Facts。
 
 - 来源管理筛选词已接入所有SYSTEM候选的Raw前过滤；新增词扩展标题召回，排除优先，后续Run读取并记录规则版本。保存/注册与审计同事务，不追删历史。网站/主页支持标准Feed自动发现与受限Sitemap备用检测；Simon/TIL/Comfy公开路径经腾讯云+Deno实测。注册仅证明可采，不授予Fact Authority或AUTO_READY；边界唯一见采集合同。
@@ -40,9 +37,9 @@ Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
 
-采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261016-quality-feedback`（前版`20261015-materials`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
+采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261016-hotspot-practice`（前版`20261016-quality-feedback`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
 
-生产数据库迁移history为40条，新增采集质量标签表及来源/Event索引。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接；本次以本机 PostgreSQL 管理身份经仓库 Safe Gate 执行，生产即时备份位于 `/var/backups/opc-ai-db/opc_ai_prod_20261016-011547.dump`。生产Web当前为 `/opt/opc-services/opc-admin-web-quality-feedback-20261016`（前版`opc-admin-web-materials-20261015`保留回退），由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。待办唯一见TASKS。
+生产数据库迁移history为40条，本次发布无新增迁移。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接；本次发布前备份位于 `/var/backups/opc-ai-db/opc_ai_prod_pre_hotspot_20261016.dump`。生产Web当前为 `/opt/opc-services/opc-admin-web-hotspot-practice-20261016`（前版`opc-admin-web-quality-feedback-20261016`保留回退），由PM2 `opc-ai` 承载并save；来源管理、热点追踪页面/API已上线，未改课程页面。待办唯一见TASKS。
 
 正式应用入口是 `app/*`。根目录早期静态 HTML/CSS/JS 原型不属于正式 Runtime，并已退出 current tree。
 
@@ -133,7 +130,6 @@ Mobile 与未来微信/抖音小程序共享同一业务后台、用户、课程
 - 用户：用户与权益。
 
 `/admin/intelligence` 是唯一「热点追踪」产品入口；`/admin/sources` 是唯一来源配置入口。旧 `/admin/manual-collection` 只保留兼容重定向，不再拥有工作区、Task 或 Result。
-- `/admin/intelligence` 时间线与统计实现状态见§2，规则唯一见采集合同§16。旧 Latest / Worth Practicing / Unverified 仅是内部数据状态，不再是产品栏目；旧 Rising / Formal Rising 算法不恢复。
 - `/admin/sources` 统一承担 Source / Creator / Qualification / Route / Onboarding；current acquisition 不提供认证 Connection / Login Runner。
 - 新增信息源采用 capability-first：先识别 URL / Creator，再用当前已部署的 server-native 能力做 bounded live Check / Probe，必须拿到真实 Preview 样本并通过重复检查后才可入库；理论支持、浏览器能打开、账号已登录或未来可开发能力都不能代替可采证据。
 - Website / Creator 当前以 RSS / Atom / Sitemap / 公开 API 或其他 server-native Route 的 live sample 为准；没有无需用户登录且服务器可运行的 Route 时保持 UNRESOLVED。
@@ -162,10 +158,8 @@ AI 能力配置与系统域仅保留产品边界，底层能力未完成前不�
 - HTTP尚未保存ETag/Last-Modified或处理304跳过；已有cadence/治理与有限网络重试，不等同已具备按七日产出的自适应频率和完整失败退避。
 - 列表已有Feed正文优先、字段完整性和七日可获取窗口记录；没有完整的按需详情队列、全源分页积压/正文缺口诊断或可验证原创率。七日补采不保证上游完整历史。
 - Radar读取保持完整窗口计数与30分钟过期提示，客户端阻止旧响应回写。旧 Decision/Event 状态写入已退役；新采集质量标签与审计同事务、锁定 Event 行，旧决策表和字段仅留历史审计。
-- 生产分类修正已实现：汇总退出热点及参与者计数；今日值得做按真实实操证据的明确工具/任务归并并复算门槛，忽略父事件后重算；常驻重新读取退出，仅失败重试。受管B站/YouTube搜索有显式opt-in和限额；开发受管搜索已实测，不能据此宣称生产全主题覆盖。
 - P0已部署来源启停、operator归档/恢复、规则与资格阶段的事务审计；恢复保留实际资格且保持停用，禁用状态不冒充AUTO_READY。onboarding阶段从真实资格派生，不再固定QUALIFIED。用户已明确批准新版页面上线，已发布。
 - 当前发现以URL预览/注册及已有来源目录为基础；尚无独立候选来源待审表。主题规则召回不证明实践作者覆盖充分。
-- 热点、精选、今日值得做为三个独立维度，判定规则由采集合同负责。今日值得做按现行逐篇实践材料条件判断；无人触发的采集不调用AI补资格。旧 ADOPT/IGNORE/WATCH 与人工补证据入口已退役；新的采用/忽略仅保存可回测评价，不改变 Event、Source、栏目或内容生产。内容工作台兼容页旧控件与评论分析旧决策读取已清除，独立能力后续另行规划。
 - 证据限度：部署、迁移与单轮真实采集已验证；连续72小时稳定性、来源发现召回率、长期页面使用反馈仍需观察。本轮P0已完成本地开发库真实验收及腾讯云隔离代码包直连开发库验收（约3.6秒），同版生产统一周期已重新验收通过，不代表连续72小时稳定。
 
 ## 8. 会员与公众号
@@ -215,7 +209,7 @@ Task B 当前共享 owner 为 `lib/server/learning-insights/task-b.ts`。独立 
 
 ## 10A. AI Collection System Current Architecture
 
-`Source Management / Onboarding → Source Identity → Acquisition Route → Qualification → SYSTEM Collection → Relevance → Raw/Observation → Layered Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → Worth Practicing / Topic Momentum / Curation → Radar Snapshot → Hot Tracking`
+`Source Management / Onboarding → Source Identity → Acquisition Route → Qualification → SYSTEM Collection → Relevance → Raw/Observation → Layered Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → AI Hotspot Practice / Topic Momentum / Curation → Radar Snapshot → Hot Tracking`
 
 固定边界：
 - `runSourceCollection` / `runSystemSourcePortfolio` 负责正式采集；operator-added Source 与 baseline Source 走同一执行链。
@@ -251,3 +245,7 @@ Task A 真实 Provider Acceptance 已 PASS：使用一门正式课程完整 Step
 - 临时 Cluster Human Review 测试面已退出 current 产品：`/admin/cluster-review`、对应 API、AdminClusterHumanReview、Development review service 与专用 review script/package entry 已物理删除；后台不再存在「内部 / Cluster 审核」菜单。正式 Event clustering / ground-truth / calibration 核心能力保持不变，不因测试页面退出而删除。
 
 - 内容域当前能力与缺口见§7B；历史Expansion和E2E清理过程退出当前事实正文。
+
+## AI热点练习当前状态
+
+独立触发和持久展示已随v16快照上线，合同唯一见采集架构§23；界面已获产品负责人明确批准。共享材料获取及既有质量反馈继续运行。
