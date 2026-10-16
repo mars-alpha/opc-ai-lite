@@ -2,13 +2,12 @@
 
 > 只保留 NOW / NEXT / BACKLOG；历史实施与验收通过 Git 追溯。旧「今日情报」、旧 Rising、旧 Manual Collection 不作为 current roadmap。
 
-# NOW — SOURCE → HOT TRACKING AUDIT FIXES
-
-修复已确认的 Raw/Observation/Event 续接、失败 Run 归属、Evidence 原子替换、运行状态、详情重读、错误响应及独立 Event 写入口。任务基线为 `3d046e8`，在隔离工作树验收；Snapshot v17 WIP 另行处理。来源管理与热点追踪的规则和 owner 只见 [采集架构合同](docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md) 及 [实现映射](docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md)。验收要求：开发库失败路径/幂等验收、当前采集校验、typecheck/build、脚本与文档治理；界面交互需按 AGENTS §11 实际体验并明确批准。未发布前生产状态不改写；回退为同版 Web/SYSTEM 上一 release，无数据库迁移。
-
-# NEXT — COLLECTION OBSERVATION
+# NOW — COLLECTION OBSERVATION
 
 观察任务：管理员在来源管理和热点追踪查看生产采集、快照时效与人工评价样本。SYSTEM仍是唯一Workflow；Core记录运行和质量反馈，AI/Skill不自动改写业务状态，Human负责样本标注。7–14日内按真实周期核对失败率、去重、参与者、栏目数量和已标注样本；发现可复现偏差再单独调整规则。当前规则Owner为采集架构合同，部署事实Owner为CURRENT_SYSTEM_FACTS；异常按Web/SYSTEM同版旧release与生产备份回退。
+
+- 发布后24–48小时继续核对唯一timer的自然周期、失败Run归属、Raw/Observation/Event续接及快照时效；单轮通过不代表长期稳定。修复版无新增数据库迁移，回退位置只见 CURRENT_SYSTEM_FACTS。
+- Snapshot v17 与 Manual CSS 清理不属于本次发布，保留主工作区WIP；后续独立任务须重新完成开工检查和 Decision Brief。
 
 来源管理仍是唯一 Source Owner，SYSTEM 仍是唯一采集执行链。采集质量正负评价已上线且界面获产品负责人批准；按采集架构合同记录样本，不自动调整来源资格、热点/精选/AI热点练习规则。当前观察唯一生产运行事实见 [CURRENT_SYSTEM_FACTS](docs/CURRENT_SYSTEM_FACTS.md)，已完成的 Decision Brief、一次性执行计划与验收由 Git 历史追溯。
 

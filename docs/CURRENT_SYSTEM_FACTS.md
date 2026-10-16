@@ -18,7 +18,7 @@
 - AI HOT 当前是 Source Directory 中一个 Aggregated Discovery Source（`source_radar_ai_hot`），通过 PUBLIC_JSON_API 进入 SYSTEM Collection；`factualSource=false / signalSource=true / referenceOnly=true`。AI HOT 与直连原站共享 originPublisher 去重，不取得 Fact Authority，也不拥有独立采集入口。
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
-- `/admin/intelligence` 沿用已确认的日历布局：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v16-ai-hotspot-practice，统计/列表同源。管理员可记录采集质量正负评价、原因、来源归因并撤销；评价不改变自动栏目或采集。来源详情显示30日评价样本与问题原因；AI热点练习独立触发并持久展示。热点追踪与来源管理首读显示读取态，可见页面每5分钟重读、切回页面且距上次请求至少1分钟时追赶；两处界面已获产品负责人实际体验并明确批准，规则唯一见采集合同§16、§22、§23。
+- `/admin/intelligence` 沿用已确认的日历布局：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v16-audit-fixes，统计/列表同源，页面使用去重引用传输，原完整API响应保留。管理员可记录采集质量正负评价、原因、来源归因并撤销；评价不改变自动栏目或采集。来源详情显示30日评价样本与问题原因，并随索引刷新追赶；AI热点练习独立触发并持久展示。热点追踪与来源管理首读显示读取态，可见页面每5分钟重读、切回页面且距上次请求至少1分钟时追赶；本次交互已获产品负责人实际体验并明确批准，规则唯一见采集合同§16、§22、§23。
 - 生产`content_sources`有64条：当前来源管理目录为42个current Source，另22个`source_runtime_trend_*`为旧趋势记录，仍保留历史，其中10个有历史Run，最新Run停在2026-10-15；旧记录虽多数仍为ACTIVE，但不在当前SYSTEM采集组合。热点事件可能显示AI HOT聚合源带出的原发布者名称，这些名称也未必是单独注册的可管理Source。历史证据仍保留，目录/状态区分待治理；不得把原发布者名称批量复制成新逻辑Source。
 - 当前架构正文唯一 owner：`docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；实现映射唯一 owner：`docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。历史 Phase/Acceptance 只通过 Git 追溯，不再复制到 Current Facts。
 
@@ -38,9 +38,9 @@ Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
 
-采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261016-live-refresh`（前版`20261016-hotspot-practice`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。2026-10-16 13:28（北京时间）同版SYSTEM周期PASS并生成v16快照：七日392个唯一Event、当前热点1、AI热点练习1、精选48；数字只代表该时刻。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
+采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261016-audit-fixes-e61b380`（前版`20261016-live-refresh`保留回退），生产配置 `/var/www/opc-ai/.env.local`由systemd EnvironmentFile注入，SYSTEM目录不再保留多余.env.local链接；CPU50%、MemoryMax512M，不依赖本机开机。Web与SYSTEM业务版本均为Git `e61b380`，2026-10-16 16:17（北京时间）切换。16:32:45自然timer周期PASS：37个Source成功、失败0；发布后37个成功Run的294条Raw引用对应293个Raw，Raw/Observation/Event关联缺失均0。16:33:51快照402条、ID无重复、精选47、热点0、AI热点练习0；后两项发布前同为0，未改规则。快照一致性、压缩传输往返及生产日历只读验收PASS；单轮结果不代表24–48小时稳定性。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
 
-生产数据库迁移history为40条，本次发布无新增迁移。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接；最近发布前备份位于 `/var/backups/opc-ai-db/opc_ai_prod_pre_hotspot_20261016.dump`。生产Web当前为 `/opt/opc-services/opc-admin-web-live-refresh-20261016`（前版`opc-admin-web-hotspot-practice-20261016`保留回退），由PM2 `opc-ai` 承载并save；`pm2-root.service`已启用并运行，重启后从保存的PM2列表恢复Web。唯一`opc-collection.timer`同样enabled/active，不依赖本机开机。来源管理、热点追踪页面/API已上线，未改课程页面。待办唯一见TASKS。
+生产数据库迁移history为40条，本次发布无新增迁移。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接；最近发布前备份位于 `/var/backups/opc-ai-db/opc_ai_prod_pre_audit_e61b380_20261016.dump`。生产Web当前为 `/opt/opc-services/opc-admin-web-audit-fixes-20261016-e61b380`（前版`opc-admin-web-live-refresh-20261016`保留回退），由PM2 `opc-ai` 承载并save；`pm2-root.service`已启用并运行，重启后从保存的PM2列表恢复Web。唯一`opc-collection.timer`同样enabled/active，不依赖本机开机。来源管理、热点追踪页面/API已上线，未改课程页面。待办唯一见TASKS。
 
 正式应用入口是 `app/*`。根目录早期静态 HTML/CSS/JS 原型不属于正式 Runtime，并已退出 current tree。
 
