@@ -2,7 +2,7 @@
 
 最后更新：2026-10-16（Asia/Shanghai）。
 
-状态：PRODUCTION_RUNNING / RADAR_V16_DEPLOYED / LIVE_REFRESH_UI_APPROVED / DEPLOYING。
+状态：PRODUCTION_RUNNING / RADAR_V16_DEPLOYED / LIVE_REFRESH_UI_APPROVED / DEPLOYED。
 
 课程：81 LESSONS / FROZEN。
 
@@ -13,7 +13,7 @@
 
 当前焦点：观察来源真实运行与请求成本，继续补实操原文/字幕凭证。采集质量正负评价、30日来源样本统计及AI热点练习已部署到 Web/SYSTEM 同版，热点追踪与来源管理界面获产品负责人明确批准。2026-10-16 12:32（北京时间）新版SYSTEM周期PASS并生成v16快照：七日388个唯一Event，当日87条，精选48、当前热点1、AI热点练习1；数字只代表验收时刻。接下来观察真实采集周期与7–14日评价样本，不能把标注样本当成全量准确率。后续内容工作台入口与评论分析改造另行规划；课程、评分权重和timer配置未变。
 
-2026-10-16 线上页面滞后诊断：SYSTEM在12:49生成新快照（七日389 Event），已打开的生产浏览器页仍停在12:32的388 Event；服务器周期与持久化正常，Web首读后缺少自动重读，首读期间还把空状态显示成0。两页后台重读及首屏读取态已在本地实现并获产品负责人体验批准，正在发布，尚不能标为生产已上线。来源目录仅显示42个current Source，生产数据库另有22个旧`source_runtime_trend_*`记录（其中10个有历史Run，最后在10月15日），没有数据丢失；这些旧记录不再参与当前SYSTEM组合，但数据库status仍有ACTIVE，需在后续治理中明确历史展示与状态。
+2026-10-16 线上页面滞后诊断：SYSTEM在12:49生成新快照（七日389 Event），已打开的生产浏览器页仍停在12:32的388 Event；服务器周期与持久化正常，Web首读后缺少自动重读，首读期间还把空状态显示成0。两页后台重读及首屏读取态已获产品负责人体验批准并部署。13:28新版SYSTEM真实周期PASS，v16快照七日392个唯一Event、当前热点1、AI热点练习1、精选48；Web与SYSTEM同版，PM2及唯一timer已恢复，PM2的systemd开机启动缺口已补齐。来源目录仅显示42个current Source，生产数据库另有22个旧`source_runtime_trend_*`记录（其中10个有历史Run，最后在10月15日），没有数据丢失；这些旧记录不再参与当前SYSTEM组合，但数据库status仍有ACTIVE。聚合源AI HOT带出的原发布者名称也不等于单独注册的可管理Source；两类历史/来源呈现需后续治理。
 
 规则唯一owner为 [采集架构合同](docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md)，代码定位见 [实现映射](docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md)。历史任务结果从Git追溯。
 

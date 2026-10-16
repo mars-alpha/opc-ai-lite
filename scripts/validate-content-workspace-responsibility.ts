@@ -66,7 +66,7 @@ assert(
   "FACTS_TOPIC_MOMENTUM_CURRENT"
 );
 
-assert(tasks.includes("# NOW — RADAR LIVE REFRESH") && facts.includes("20261016-hotspot-practice"), "TASKS_HOT_TRACKING_OWNER");
+assert(tasks.includes("# NOW — COLLECTION OBSERVATION") && facts.includes("20261016-live-refresh"), "TASKS_HOT_TRACKING_OWNER");
 assert(tasks.includes("来源管理仍是唯一 Source Owner") && tasks.includes("SYSTEM 仍是唯一采集执行链"), "TASKS_SYSTEM_RUNTIME_BASELINE");
 assert(tasks.includes("旧「今日情报」、旧 Rising、旧 Manual Collection"), "TASKS_OLD_PLANS_RETIRED");
 assert(owner.includes("0–24h") && owner.includes("RISING") && owner.includes("24–168h") && owner.includes("SUSTAINED"), "OWNER_EVENT_MOMENTUM_WINDOW");

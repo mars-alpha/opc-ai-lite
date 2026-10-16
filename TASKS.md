@@ -2,9 +2,7 @@
 
 > 只保留 NOW / NEXT / BACKLOG；历史实施与验收通过 Git 追溯。旧「今日情报」、旧 Rising、旧 Manual Collection 不作为 current roadmap。
 
-# NOW — RADAR LIVE REFRESH
-
-Decision Brief：管理员在来源管理→热点追踪查看自动采集结果；本轮只修复已打开页面的来源索引和生产快照同步，不改变来源资格、去重、热点/精选/AI热点练习规则或已批准的布局。Core仍由唯一SYSTEM周期写快照，API读取同一快照；前端首读完成前显示读取态而非虚假的0，在可见时定期重读并在重新聚焦时追赶，保持已加载历史、人工筛选和来源编辑输入。AI/Skill不参与；Human已按界面审核Gate批准刷新行为。验证：生产采集/快照时间线、自动重读复现、typecheck/build、来源→热点回归及线上同版周期；回退Web本次前端改动，SYSTEM不变。Owner：采集合同、实现映射；运行事实见CURRENT_SYSTEM_FACTS。
+# NOW — COLLECTION OBSERVATION
 
 观察任务：管理员在来源管理和热点追踪查看生产采集、快照时效与人工评价样本。SYSTEM仍是唯一Workflow；Core记录运行和质量反馈，AI/Skill不自动改写业务状态，Human负责样本标注。7–14日内按真实周期核对失败率、去重、参与者、栏目数量和已标注样本；发现可复现偏差再单独调整规则。当前规则Owner为采集架构合同，部署事实Owner为CURRENT_SYSTEM_FACTS；异常按Web/SYSTEM同版旧release与生产备份回退。
 
@@ -15,7 +13,7 @@ Decision Brief：管理员在来源管理→热点追踪查看自动采集结果
 
 # NEXT
 
-- 旧来源目录治理：生产库的22个`source_runtime_trend_*`历史记录不属于当前42个Source目录，10个有历史Run且最后运行于2026-10-15。核对各记录是否只是旧采集路径或已由当前逻辑Source承接；保持Raw/Observation/Run审计，确定历史只读呈现及数据库状态修正，不让旧记录误称为现役来源，也不为不同Route重建重复Source。
+- 旧来源目录治理：生产库的22个`source_runtime_trend_*`历史记录不属于当前42个Source目录，10个有历史Run且最后运行于2026-10-15。核对各记录是否只是旧采集路径或已由当前逻辑Source承接；保持Raw/Observation/Run审计，确定历史只读呈现及数据库状态修正，不让旧记录误称为现役来源。AI HOT等聚合源带出的原发布者名称只作证据归属，核对可追溯性；未验证持续采集能力前不批量注册为独立Source，也不为不同Route重建重复Source。
 - 用真实7–14日已评价Event核对来源问题原因与自动判断；只对已标注样本回测，不据此推断全量召回率，规则调整另立任务。
 - 核对Feed条件请求、304、失败退避与动态频率：先测请求/字节/解析/周期成本，不承诺未测降本比例；保持唯一timer和有限并发。
 - BAIR等海外公共Feed逐项验证主/备用出口；Deno不是任意URL代理，继续补固定公开正文/字幕路由，明确不可用原因。
