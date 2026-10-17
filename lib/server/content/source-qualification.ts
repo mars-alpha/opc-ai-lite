@@ -1,12 +1,14 @@
 import "server-only";
 
-import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, lte, or, sql } from "drizzle-orm";
 import { getDatabase } from "../db";
 import { contentCollectionRuns, contentSources } from "../db/schema";
 import { resolveSourcePolicy } from "./source-policy";
 import {
   buildQualificationCheckpoint,
-  SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION
+  currentQualificationEvidencePredicate,
+  SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION,
+  SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS
 } from "./source-qualification-runtime";
 import {
   acquisitionSupportsServerRuntime,
@@ -24,7 +26,7 @@ export type SourceRuntimeQualification =
 
 export const SOURCE_QUALIFICATION_RECENT_RUN_LIMIT = 5;
 export const SOURCE_QUALIFICATION_SCAN_LIMIT = 12;
-export const SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS = 180;
+export { SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS } from "./source-qualification-runtime";
 
 export const SOURCE_ADAPTER_FAMILIES = [
   "FEED_WEB",
@@ -154,6 +156,7 @@ export function selectRecentQualificationRuns(
       const metadata = record(run.metadata);
       return (
         run.startedAt >= safetySince &&
+        run.startedAt <= now &&
         metadata.qualificationOnly !== true &&
         String(metadata.collectionOrigin ?? "") === "SYSTEM" &&
         ["SUCCEEDED", "FAILED"].includes(run.status)
@@ -166,6 +169,14 @@ export function selectRecentQualificationRuns(
     sample: eligible.slice(0, SOURCE_QUALIFICATION_RECENT_RUN_LIMIT),
     safetySince
   };
+}
+
+export function selectCurrentCheckpointQualificationRuns(runs:QualificationRunEvidenceRow[],checkpoint:string,now=new Date()){
+  const current=runs.filter(run=>{
+    const metadata=record(run.metadata);
+    return metadata.collectionRuntimeVersion===SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION && metadata.qualificationCheckpoint===checkpoint && record(metadata.staleRunRecovery).excludeFromRuntimeQualification!==true;
+  });
+  return selectRecentQualificationRuns(current,now).sample;
 }
 
 function record(value: unknown): Record<string, unknown> {
@@ -695,21 +706,16 @@ export async function listSourceQualificationSnapshots(
     ? await db.select().from(contentSources).where(inArray(contentSources.id, sourceIdsFilter))
     : await db.select().from(contentSources);
   const sourceIds = sources.map((source) => source.id);
-  const since = new Date(
-    Date.now() - SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS * 86_400_000
-  );
+  const now = new Date();
+  const checkpoints = new Map(sources.map(source => [source.id, buildQualificationCheckpoint({...source, sourceId: source.id})]));
   // Rank IDs before fetching the potentially large Run metadata. Apply the same
-  // production-evidence filters as selectRecentQualificationRuns before ranking.
+  // current-checkpoint evidence filters as the runtime health window before ranking.
   const rankedRuns = db.select({
     id: contentCollectionRuns.id,
     runRank: sql<number>`row_number() over (partition by ${contentCollectionRuns.sourceId} order by ${contentCollectionRuns.startedAt} desc, ${contentCollectionRuns.id} desc)`.as("run_rank")
-  }).from(contentCollectionRuns).where(and(
-    inArray(contentCollectionRuns.sourceId, sourceIds),
-    gte(contentCollectionRuns.startedAt, since),
-    inArray(contentCollectionRuns.status, ["SUCCEEDED", "FAILED"]),
-    sql`${contentCollectionRuns.metadata}->>'collectionOrigin' = 'SYSTEM'`,
-    sql`${contentCollectionRuns.metadata}->'qualificationOnly' is distinct from 'true'::jsonb`
-  )).as("ranked_source_runs");
+  }).from(contentCollectionRuns).where(or(...sources.map(source =>
+    currentQualificationEvidencePredicate(source.id, checkpoints.get(source.id)!.checkpoint, now)
+  ))).as("ranked_source_runs");
   const recentRuns = sourceIds.length
     ? await db
         .select({
@@ -735,17 +741,7 @@ export async function listSourceQualificationSnapshots(
   }
   return sources.map((source) => {
     const sourceRuns = runsBySource.get(source.id) ?? [];
-    const { sample } = selectRecentQualificationRuns(sourceRuns);
-    const successful = sample.filter((item) => item.status === "SUCCEEDED");
-    const checkpoint = buildQualificationCheckpoint({
-      sourceId: source.id,
-      platform: source.platform,
-      collectionMethod: source.collectionMethod,
-      canonicalUrl: source.canonicalUrl,
-      providerRef: source.providerRef,
-      collectionConfig: source.collectionConfig,
-      metadata: source.metadata
-    });
+    const checkpoint = checkpoints.get(source.id)!;
     const acquisition = resolveSourceAcquisitionPlan({
       collectionMethod: source.collectionMethod,
       platform: source.platform,
@@ -754,13 +750,9 @@ export async function listSourceQualificationSnapshots(
       collectionConfig: source.collectionConfig,
       metadata: source.metadata
     });
-    const currentRuntimeRuns = sample.filter((item) => {
-      const metadata = record(item.metadata);
-      return (
-        metadata.collectionRuntimeVersion === SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION &&
-        metadata.qualificationCheckpoint === checkpoint.checkpoint
-      );
-    });
+    const sample=selectCurrentCheckpointQualificationRuns(sourceRuns,checkpoint.checkpoint,now);
+    const successful=sample.filter(item=>item.status==="SUCCEEDED");
+    const currentRuntimeRuns=sample;
     const routeIds = successful
       .map((item) => String(record(item.metadata).acquisitionRouteId ?? ""))
       .filter(Boolean);

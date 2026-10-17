@@ -3,9 +3,10 @@ import { spawn } from "node:child_process";
 import { and, desc, gte, inArray, sql } from "drizzle-orm";
 import { assertCurrentDatabaseTarget } from "../lib/server/database-target";
 import { closeDatabase, getDatabase } from "../lib/server/db";
-import { contentCollectionRuns } from "../lib/server/db/schema";
+import { contentCollectionRuns, contentSources } from "../lib/server/db/schema";
 import { listCurrentSystemCollectionSourceIds } from "../lib/server/content/source-portfolio-runtime";
-import { listSourceQualificationSnapshots, selectRecentQualificationRuns, SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS } from "../lib/server/content/source-qualification";
+import { listSourceQualificationSnapshots, selectCurrentCheckpointQualificationRuns, SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS } from "../lib/server/content/source-qualification";
+import {buildQualificationCheckpoint} from "../lib/server/content/source-qualification-runtime";
 import { withSourceCollectionCycleLock } from "../lib/server/content/source-runtime-governance-execution";
 
 async function acceptLockLoss() {
@@ -60,22 +61,24 @@ async function main() {
   const sourceIds = await listCurrentSystemCollectionSourceIds({ serverRuntimeOnly: true });
   assert(sourceIds.length > 0, "REAL_SOURCE_DIRECTORY_NON_EMPTY");
   const now = new Date();
-  // Compare the bounded query against the previous in-memory selection using only
+  // Compare the bounded query against current-checkpoint in-memory selection using only
   // minimal provenance fields, without transferring historic full Run payloads.
   const rows = await getDatabase().select({
     sourceId: contentCollectionRuns.sourceId,
     status: contentCollectionRuns.status,
     receivedCount: contentCollectionRuns.receivedCount,
     startedAt: contentCollectionRuns.startedAt,
-    metadata: sql`jsonb_build_object('collectionOrigin', ${contentCollectionRuns.metadata}->'collectionOrigin', 'qualificationOnly', ${contentCollectionRuns.metadata}->'qualificationOnly')`
+    metadata: sql`jsonb_build_object('collectionOrigin', ${contentCollectionRuns.metadata}->'collectionOrigin', 'qualificationOnly', ${contentCollectionRuns.metadata}->'qualificationOnly', 'collectionRuntimeVersion', ${contentCollectionRuns.metadata}->'collectionRuntimeVersion', 'qualificationCheckpoint', ${contentCollectionRuns.metadata}->'qualificationCheckpoint', 'staleRunRecovery', ${contentCollectionRuns.metadata}->'staleRunRecovery')`
   }).from(contentCollectionRuns).where(and(
     inArray(contentCollectionRuns.sourceId, sourceIds),
     gte(contentCollectionRuns.startedAt, new Date(now.getTime() - SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS * 86_400_000))
   )).orderBy(desc(contentCollectionRuns.startedAt), desc(contentCollectionRuns.id));
   const startedAt = Date.now();
+  const sources=await getDatabase().select().from(contentSources).where(inArray(contentSources.id,sourceIds));
+  const checkpoints=new Map(sources.map(source=>[source.id,buildQualificationCheckpoint({...source,sourceId:source.id}).checkpoint]));
   const snapshots = await listSourceQualificationSnapshots(sourceIds);
   for (const snapshot of snapshots) {
-    const { sample } = selectRecentQualificationRuns(rows.filter((row) => row.sourceId === snapshot.sourceId), now);
+    const sample = selectCurrentCheckpointQualificationRuns(rows.filter((row) => row.sourceId === snapshot.sourceId), checkpoints.get(snapshot.sourceId)!, now);
     assert.equal(snapshot.evidence.liveRunCount, sample.length, "RECENT_RUN_COUNT_UNCHANGED:" + snapshot.sourceId);
     assert.equal(snapshot.evidence.successfulLiveRunCount, sample.filter((run) => run.status === "SUCCEEDED").length, "RECENT_SUCCESS_COUNT_UNCHANGED:" + snapshot.sourceId);
   }

@@ -45,7 +45,8 @@ async function main() {
 
   const cycle = fs.readFileSync("scripts/run-server-native-automatic-cycle.ts", "utf8");
   const expansion = fs.readFileSync("lib/server/content/collection-expansion.ts", "utf8");
-  assert(!cycle.includes("enrichRecentSystemSourcePresentation"), "AUTOMATIC_CYCLE_NO_AI_WRITING");
+  assert(!cycle.includes("enrichRecentSystemSourcePresentation") && cycle.includes("runContentUnderstandingCycle"), "AUTOMATIC_CYCLE_BOUNDED_MATERIAL_UNDERSTANDING_ONLY");
+  assert(cycle.indexOf('runSection("CONTENT_UNDERSTANDING"')>cycle.indexOf('runSection("SOURCE_PORTFOLIO"') && cycle.indexOf('runSection("CONTENT_UNDERSTANDING"')<cycle.indexOf('runSection("RADAR_SNAPSHOT"'), "MATERIAL_AI_AFTER_COLLECTION_BEFORE_SNAPSHOT");
   assert(!/runEventAiAnalysis|getConfiguredChatModelConfig/.test(expansion), "EXPANSION_NO_IMPLICIT_AI");
   assert(cycle.includes("assertCurrentDatabaseTarget"), "DATABASE_ENVIRONMENT_GUARD_RETAINED");
   assert(!cycle.includes('throw new Error("DEVELOPMENT_DATABASE_REQUIRED")'), "PRODUCTION_CYCLE_SUPPORTED");
@@ -60,7 +61,7 @@ async function main() {
   assert(manualAnalysis.includes("requireAdminRequest") && manualAnalysis.includes("export async function POST") && manualAnalysis.includes("runEventAiAnalysis"), "ADMIN_AI_ANALYSIS_PRESERVED");
   const service = fs.readFileSync("deploy/systemd/opc-collection.service", "utf8");
   const timer = fs.readFileSync("deploy/systemd/opc-collection.timer", "utf8");
-  assert(service.includes("run-server-native-automatic-cycle.ts") && service.includes("TimeoutStartSec=") && timer.includes("OnUnitInactiveSec=15min"), "SERVER_DEPLOYMENT_USES_SAME_BOUNDED_CYCLE");
+  assert(service.includes("run-server-native-automatic-cycle.ts") && service.includes("TimeoutStartSec=") && timer.includes("OnCalendar=*-*-* *:*:00"), "SERVER_DEPLOYMENT_USES_SAME_BOUNDED_CYCLE");
 
   let ran = false;
   const skipped = await runtime.withSourceCollectionCycleLock(async () => { ran = true; }, async () => null);

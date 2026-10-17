@@ -68,6 +68,16 @@ npm run governance:repository:check
 
 如果检测到 Supabase hostname，current migration 必须停止。
 
+### 本机开发隧道
+
+当前SSH登录用户为`ubuntu`，已有本机默认SSH密钥可用；不需要在聊天或仓库中传递私钥。若15432未监听，使用已知服务器地址运行：
+
+```powershell
+ssh -N -o BatchMode=yes -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -L 127.0.0.1:15432:127.0.0.1:5432 ubuntu@<server-host>
+```
+
+保持该会话运行，仅监听本机回环地址。数据库仍由DATABASE_ENVIRONMENT与数据库名校验，不能把隧道连通当作生产写入授权。
+
 ## 6. Migration
 
 只有 Dev Migration + Acceptance PASS 后才允许 Production：
@@ -83,6 +93,12 @@ npm run db:migrate -- --confirm=production --backup-confirmed
 - DB name = `opc_ai_prod`；
 - 当前 migration 已经过 Dev 验证；
 - Production 凭据只存在服务器 Secret / env。
+
+### 只读发布前核对
+
+使用运行连接执行`npm run content:collection:deployment:preflight`检查业务表/列、读写权限、管理员身份和非superuser边界。此命令只读，不执行迁移，不代表采集或模型质量验收。
+
+追加`-- --migration-plan`时，现有脚本仍使用运行连接读取Drizzle历史；若返回`MIGRATION_HISTORY_NOT_READABLE`，保留此阻断结果，不为通过检查给运行账号加权。由专用维护连接在`READ ONLY`事务中核对`current_database()`、历史hash/顺序及本地journal前缀，不能把维护凭据写进运行环境或输出。`PLAN_ONLY`且blockers/pending均空只表示当前无需DDL；正式迁移仍执行本节既有备份及确认流程。
 
 ## 7. 回滚原则
 

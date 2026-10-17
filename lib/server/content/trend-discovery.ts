@@ -1,4 +1,5 @@
 import "server-only";
+import {aihotDiscoveryMetadata} from "./aihot-discovery-metadata";
 import { collectThroughOverseasRelay, isPublicSourceRelayEnabled, isOverseasRelayConfigured } from "./overseas-collector-relay-client";
 import { readSourceAiRelevancePolicy, testSourceAiRelevance } from "./source-management-policy";
 import { reserveSourceApiQuota } from "./source-api-quota-ledger";
@@ -618,7 +619,7 @@ function parseAiHotSelected(payload: unknown): TrendDiscoveryItem[] {
       title,
       author: text(source.name),
       excerpt: text(item.summary) ?? text(item.description),
-      publishedAt: text(item.publishedAt) ?? text(item.createdAt),
+      publishedAt: text(item.publishedAt),
       platformMetrics: { trendRank: index + 1 },
       metadata: {
         collector: "trend",
@@ -626,8 +627,7 @@ function parseAiHotSelected(payload: unknown): TrendDiscoveryItem[] {
         trendSignalType: "CURATED_DISCOVERY",
         trendRank: index + 1,
         sourceMode: "PUBLIC_API",
-        sourceRole: "SECONDARY_DISCOVERY",
-        aihotUrl: text(links.aihot),
+        ...aihotDiscoveryMetadata(item),
         originalTitle: text(item.originalTitle),
         factualSource: false,
         referenceOnly: true

@@ -1,3 +1,4 @@
+import {readRadarAlgorithmPolicy,type RadarAlgorithmEnvelope} from './radar-algorithm-store';
 import "server-only";
 
 import { and, asc, eq, gte, isNull, sql } from "drizzle-orm";
@@ -109,7 +110,7 @@ async function persistState(event: typeof contentEvents.$inferSelect, state: Run
     sql`${contentEvents.metadata}->'topicMomentumRuntime' is distinct from ${encoded}::text::jsonb`));
 }
 
-async function calculateEventRuntimeEvidence(event: typeof contentEvents.$inferSelect, now: Date) {
+async function calculateEventRuntimeEvidence(event: typeof contentEvents.$inferSelect, now: Date, algorithm:RadarAlgorithmEnvelope) {
   const db = getDatabase();
   const raws = await db
     .select({
@@ -137,6 +138,7 @@ async function calculateEventRuntimeEvidence(event: typeof contentEvents.$inferS
     .where(eq(contentEventExpansionEvidence.eventId, event.id));
   const momentum = calculateTopicMomentum({
     firstSeenAt: event.firstSeenAt,
+    policy:algorithm.policy,
     raws,
     evidence,
     now
@@ -174,6 +176,7 @@ export async function runTopicMomentumRuntime(
   options: { maxEvents?: number; now?: Date } = {}
 ) {
   const now = options.now ?? new Date();
+  const algorithm=await readRadarAlgorithmPolicy();
   const maxEvents = Math.max(1, Math.min(10, Math.round(options.maxEvents ?? TOPIC_MOMENTUM_MAX_EVENTS_PER_RUN)));
   const due = await getDatabase().select().from(contentEvents)
     .where(topicMomentumDueCondition(now))
@@ -197,7 +200,7 @@ export async function runTopicMomentumRuntime(
     } catch (error) {
       lastError = error instanceof Error ? error.message.slice(0, 500) : String(error).slice(0, 500);
     }
-    const { momentum, creatorCoverage } = await calculateEventRuntimeEvidence(event, now);
+    const { momentum, creatorCoverage } = await calculateEventRuntimeEvidence(event, now,algorithm);
     const expired = momentum.phase === "EXPIRED_WINDOW";
     const day = dayFor(event.firstSeenAt, now);
     const followUpHours = resolveTopicMomentumFollowUpHours({ day, eligible: momentum.eligible });

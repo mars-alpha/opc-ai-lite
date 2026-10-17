@@ -18,13 +18,18 @@ export function evaluatePracticeMaterials(input: {originalUrl?: string | null; m
   const steps = materialRoute && Array.isArray(materials.operationSteps) ? materials.operationSteps.filter((v):v is string => typeof v==="string" && v.trim().length>10) : [];
   if (!completeText && !materialRoute) reasons.push("COMPLETE_BODY_OR_TRANSCRIPT_MISSING");
   const operationText = completeText ? text as string : steps.join("\n");
-  const numberedSteps = operationText.match(/(?:^|\n)\s*(?:\d+[.)、]|第[一二三四五六七八九十\d]+步|step\s*\d+)/gi) ?? [];
-  // Configurations need actual values and an execution instruction, not a claim
-  // that a tool is configurable. A verified workflow still needs episode help.
-  const configuration = /[a-z][\w.-]*\s*[=:]\s*["']?[\w./-]+/i.test(operationText) &&
-    /运行|执行|导入|run\b|execute\b|import\b/i.test(operationText);
-  const imperative = /(?:^|[\n.!?。；;])\s*(?:[-*]\s*)?(?:安装|配置|运行|执行|导入|选择|打开|输入|导出|install\b|configure\b|run\b|execute\b|import\b|select\b|open\b|export\b).{4,}/i.test(operationText);
-  const procedures = materialRoute ? steps.length>0 : numberedSteps.length>0 || imperative;
+  // Numbered section headings and product names (e.g. Open SWE) are not
+  // instructions. Require an operation after the step marker or a real command.
+  const action = "(?:安装|配置|运行|执行|导入|选择|打开|输入|导出|创建|设置|添加|连接|保存|install\\b|configure\\b|run\\b|execute\\b|import\\b|select\\b|export\\b|create\\b|set\\b|add\\b|connect\\b|click\\b|choose\\b|load\\b|save\\b|copy\\b|paste\\b|enable\\b|turn\\b|open\\s+(?:the|a|an|your|this|settings|terminal|file|folder|project)\\b)";
+  const numberedSteps = new RegExp("(?:^|\\n)\\s*(?:\\d+[.)、]|第[一二三四五六七八九十\\d]+步|step\\s*\\d+)\\s*[:：.-]?\\s*" + action,"im").test(operationText);
+  // Generic extension advice ("Add new surfaces") is not an executable step.
+  const standaloneAction = action.replace("|create\\b|set\\b|add\\b", "");
+  const openTool = /(?:^|\n)\s*(?:\d+[.)、]\s*)?open\s+[a-z][\w -]{0,40}\s+and\s+(?:configure|run|execute|import|export)\b/im.test(operationText);
+  const imperative = openTool || new RegExp("(?:^|[\\n.!?。；;])\\s*(?:[-*]\\s*)?" + standaloneAction + ".{4,}","im").test(operationText);
+  const executable = /(?:^|\n)[ \t]*(?:[$>]\s*)?(?:python3?|node|npx|uv|pip|npm|deepagents)\b|\.(?:a?invoke|a?stream|execute|run)\s*\(/im.test(operationText);
+  const configuredValues = /\b[a-z][\w.-]*[ \t]*(?:=[ \t]*["']?[\w./-]+|:[ \t]*(?:["'][^"'\n]+["']|https?:\/\/\S+|[\/~.][\w./-]+|\d[\w.-]*|(?:true|false|null)\b|[\w-]+\.[\w.-]+))/i.test(operationText);
+  const configuration = configuredValues && (imperative || executable);
+  const procedures = materialRoute ? steps.length>0 : numberedSteps || imperative;
   if (!procedures && !configuration) reasons.push("REPRODUCIBLE_STEPS_OR_CONFIGURATION_MISSING");
   const inputSpecified=/输入|安装|配置|依赖|参数|input|install|configur|requirement|parameter/i.test(operationText);
   const outputSpecified=/导出|输出|结果|保存|export|output|result|save|generat(?:e|ed|ing).{0,30}(?:image|video|audio)/i.test(operationText);

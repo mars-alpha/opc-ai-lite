@@ -1,6 +1,7 @@
 import "server-only";
+import {portfolioSeedRefreshAllowed} from "../../content/source-watchlist-policy";
 
-import { eq, inArray } from "drizzle-orm";
+import { and,eq,inArray,sql } from "drizzle-orm";
 import {
   RADAR_SOURCE_IDS,
   RADAR_SOURCE_PORTFOLIO,
@@ -81,6 +82,9 @@ export async function listCurrentSystemCollectionSourceIds(
   return (await listCurrentSystemCollectionSources(options)).map((source) => source.id);
 }
 
+export function portfolioSeedRefreshCondition(sourceId:string){
+ return and(eq(contentSources.id,sourceId),eq(contentSources.enabled,true),eq(contentSources.status,"ACTIVE"),sql`${contentSources.metadata}->'managementDisabled' is distinct from 'true'::jsonb`,sql`${contentSources.metadata}->'currentPortfolio' is distinct from 'false'::jsonb`);
+}
 export async function seedRadarSourcePortfolio() {
   const db = getDatabase();
   const existingSources = await db.select().from(contentSources);
@@ -139,8 +143,7 @@ export async function seedRadarSourcePortfolio() {
       .where(eq(contentSources.id, entry.sourceId))
       .limit(1);
     if (existing) {
-      const existingMetadata = record(existing.metadata);
-      const managementDisabled = existingMetadata.managementDisabled === true;
+      if(!portfolioSeedRefreshAllowed(existing)){rows.push(existing);continue;}
       const [updated] = await db
         .update(contentSources)
         .set({
@@ -148,20 +151,18 @@ export async function seedRadarSourcePortfolio() {
           sourceType: entry.sourceType,
           canonicalUrl: entry.canonicalUrl,
           providerRef: entry.providerRef,
-          status: "ACTIVE",
           platform: entry.platform,
           collectionMethod: entry.collectionMethod,
-          enabled: !managementDisabled,
           authorityScore: entry.priority,
           topics: ["AI"],
           collectionConfig,
           signalConfig: entry.signalSource ? { signalOnly: !entry.factualSource } : {},
-          metadata: { ...existingMetadata, ...metadataPatch },
+          metadata: sql`${contentSources.metadata} || ${JSON.stringify(metadataPatch)}::jsonb`,
           updatedAt: new Date()
         })
-        .where(eq(contentSources.id, entry.sourceId))
+        .where(portfolioSeedRefreshCondition(entry.sourceId))
         .returning();
-      rows.push(updated);
+      if(updated)rows.push(updated);
     } else {
       const [created] = await db.insert(contentSources).values({
         id: entry.sourceId,

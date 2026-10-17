@@ -1,0 +1,35 @@
+import assert from "node:assert/strict";
+import * as adapters from "../lib/server/content/source-acquisition-runtime-adapters";
+import {collectTrendDiscovery} from "../lib/server/content/trend-discovery";
+async function main(){
+ assert.equal(typeof (adapters as Record<string,unknown>).collectAiHotDocument,"function","API_DOCUMENT_HAS_CONDITIONAL_RECEIPT");
+ const {collectAiHotDocument}=await import("../lib/server/content/source-acquisition-runtime-adapters");
+ const url="https://aihot.virxact.com/api/public/items";
+ const payload={items:[{id:123,title:"OpenAI model release",url:"https://example.org/release",score:80,published_at:"2026-10-16T00:00:00Z"}]};
+ const page=(body:string,status=200,etag:string|null='"v1"')=>async()=>({body,status,etag,lastModified:null,finalUrl:url,contentType:"application/json"});
+ const first=await collectAiHotDocument({fetchText:page(JSON.stringify(payload))});assert.equal(first.items[0].externalId,"123","NUMERIC_UPSTREAM_ID_STAYS_STABLE");assert.equal(first.validators.etag,'"v1"');
+ const repeat=await collectAiHotDocument({fetchText:page(JSON.stringify(payload))});assert.equal(repeat.items[0].externalId,first.items[0].externalId);
+ assert.equal((await collectAiHotDocument({validators:first.validators,fetchText:page("",304,null)})).disposition,"NOT_MODIFIED");
+ await assert.rejects(collectAiHotDocument({fetchText:page("",304)}),/API_UNEXPECTED_NOT_MODIFIED/);
+ assert.equal((await collectAiHotDocument({fetchText:page('{"items":[]}')})).disposition,"NO_NEW_ITEMS");
+ const redirected=await collectAiHotDocument({fetchText:async()=>({...await page('{"items":[]}')(),finalUrl:"https://example.org/changed-api"})});assert.equal(redirected.validators.etag,null,"REDIRECT_ETAG_CANNOT_BE_BOUND_TO_API_ROUTE");
+ await assert.rejects(collectAiHotDocument({fetchText:page('{"error":"not a snapshot"}')}),/API_DOCUMENT_INVALID/);
+ const large={items:Array.from({length:121},(_,i)=>({...payload.items[0],id:i,url:`https://example.org/${i}`}))};
+ const capped=await collectAiHotDocument({fetchText:page(JSON.stringify(large))});assert.equal(capped.items.length,120);assert.equal(capped.truncated,true,"CAP_CANNOT_ADVANCE_CHECKPOINT");
+ const rich={items:[{id:"low",title:"AI evaluation tutorial",url:"https://example.org/tutorial",score:45,category:"tip",reason:"Contains reproducible evaluation steps",selected:false,created_at:"2026-10-16T00:00:00Z",source:"Original Author",permalink:"https://aihot.news/items/low"}],hasNext:true,nextCursor:"opaque"};
+ const recalled=await collectAiHotDocument({fetchText:page(JSON.stringify(rich))});
+ assert.equal(recalled.items.length,1,"UPSTREAM_LOW_SCORE_IS_NOT_A_PERMANENT_RECALL_GATE");
+ assert.equal(recalled.items[0].publishedAt,null,"DISCOVERED_DATE_IS_NOT_PUBLICATION_DATE");
+ assert.equal(recalled.items[0].metadata?.upstreamCategory,"tip");
+ assert.equal(recalled.items[0].metadata?.upstreamRecommendation,rich.items[0].reason);
+ assert.equal(recalled.items[0].metadata?.factualSource,false);
+ assert.equal(recalled.truncated,true,"HAS_NEXT_IS_NOT_A_COMPLETE_SNAPSHOT");
+ const invalid=await collectAiHotDocument({fetchText:page(JSON.stringify({items:[{...rich.items[0],score:"NaN",category:"future-category",reason:"r".repeat(1400),links:{story:"https://evil.example/story/fake"},permalink:"https://aihot.news.evil/items/low"}]}))});
+ assert.equal(invalid.items[0].metadata?.upstreamScore,null);assert.equal(invalid.items[0].metadata?.upstreamStoryUrl,null);assert.equal(invalid.items[0].metadata?.aihotUrl,null);
+ assert.equal(String(invalid.items[0].metadata?.upstreamRecommendation).length,1000);
+ assert.equal(invalid.items[0].metadata?.upstreamCategory,"future-category","UNKNOWN_CATEGORY_REMAINS_UNTRUSTED_HINT");
+ const modern=await collectTrendDiscovery({provider:"AIHOT_SELECTED",resultLimit:2,windowHours:24},async()=>({items:[{id:"modern",title:"AI engineering tutorial",createdAt:"2026-10-16T00:00:00Z",score:45,category:"tip",reason:"Reproducible steps",links:{original:"https://example.org/tutorial",aihot:"https://aihot.news/items/modern",story:"https://aihot.virxact.com/story/known-id"}}]}));
+ assert.equal(modern.items[0].publishedAt,null);assert.equal(modern.items[0].metadata?.upstreamScore,45);assert.equal(modern.items[0].metadata?.upstreamCategory,"tip");assert.equal(modern.items[0].metadata?.upstreamRecommendation,"Reproducible steps");assert.equal(modern.items[0].metadata?.upstreamStoryUrl,"https://aihot.virxact.com/story/known-id");assert.equal(modern.items[0].metadata?.factualSource,false);
+ console.log("API_CONDITIONAL_SNAPSHOT=PASS;AIHOT_BOTH_ADAPTERS=PASS;CURSOR=NOT_CONSUMED");
+}
+main().catch(error=>{console.error(error);process.exitCode=1;});

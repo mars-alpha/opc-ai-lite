@@ -22,6 +22,8 @@ const multipleReports = calculateTopicMomentum({ firstSeenAt: now, now, raws: [r
 const repeatedReport = calculateTopicMomentum({ firstSeenAt: now, now, raws: Array.from({ length: 10 }, () => ({ ...report })), evidence: [] });
 assert(multipleReports.score > singleReport.score && multipleReports.independentParticipantCount === 2, "SAME_EVENT_INDEPENDENT_REPORTS_INCREASE_HEAT");
 assert(repeatedReport.score === singleReport.score && repeatedReport.independentParticipantCount === 1, "REPEATED_SAME_REPORT_DOES_NOT_INFLATE_HEAT");
+const bylines=calculateTopicMomentum({firstSeenAt:now,now,raws:[{...report,metadata:{},author:'Alice'},{...report,metadata:{},author:'Bob'}],evidence:[]});
+assert(bylines.independentParticipantCount===1&&bylines.score===singleReport.score,'SAME_MEDIA_DIFFERENT_BYLINES_ONE_PARTICIPANT');
 const digestMomentum = calculateTopicMomentum({ firstSeenAt: now, now, raws: [{ sourceId:"digest", sourceType:"MEDIA", sourceName:"Digest", platform:"WEB", title:"AI早报：模型发布；公司融资；产品上线", collectedAt:now, publishedAt:now }], evidence:[] });
 assert(digestMomentum.independentParticipantCount === 0, "MULTI_NEWS_ROUNDUP_NOT_MOMENTUM_PARTICIPANT");
 assert(isTopicMomentumFollowUpEligible({ metadata: {} }), "UNKNOWN_POLICY_RETAINED_FOR_FOLLOW_UP");
@@ -210,3 +212,8 @@ assert(runtimeSource.includes("refreshSourceManagedEventExpansion") && !runtimeS
 assert(canonicalHotParticipantName("Claude") === "Anthropic" && canonicalHotParticipantName("Anthropic") === "Anthropic", "INSTITUTION_ALIAS_MERGE_ANTHROPIC");
 assert(canonicalHotParticipantName("ChatGPT") === "OpenAI" && canonicalHotParticipantName("OpenAI") === "OpenAI", "INSTITUTION_ALIAS_MERGE_OPENAI");
 console.log("TOPIC_MOMENTUM_CONTRACT=PASS");
+const discussionReports=Array.from({length:3},(_,index)=>({...report,sourceId:'report-'+index,sourceName:'Publisher '+index,metadata:{originPublisher:'Publisher '+index},title:'Muse Spark Open review and benchmark',discussionPublisher:'Publisher '+index}));
+const discussion=calculateTopicMomentum({firstSeenAt:new Date(now.getTime()-48*3600000),now,raws:discussionReports,evidence:[]});
+assert(discussion.eligible,'INDEPENDENT_SUBSTANTIVE_DISCUSSION_CAN_SUSTAIN_ON_ONE_WEB_PLATFORM');
+assert(!calculateTopicMomentum({firstSeenAt:new Date(now.getTime()-48*3600000),now,raws:discussionReports.map(r=>({...r,sourceId:'same',sourceName:'Same',metadata:{originPublisher:'Same'},discussionPublisher:'Same'})),evidence:[]}).eligible,'REPOSTS_CANNOT_SATISFY_DISCUSSION_PATH');
+assert(!calculateTopicMomentum({firstSeenAt:new Date(now.getTime()-48*3600000),now,raws:discussionReports.map(r=>({...r,discussionPublisher:undefined})),evidence:[]}).eligible,'UNQUALIFIED_DISCOVERY_SIGNALS_CANNOT_USE_DISCUSSION_PATH');

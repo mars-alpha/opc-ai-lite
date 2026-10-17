@@ -1,0 +1,71 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {loadEnvConfig} from '@next/env';
+import {eq,inArray,sql} from 'drizzle-orm';
+import {getDatabase,closeDatabase} from '../lib/server/db';
+import {assertCurrentDatabaseTarget} from '../lib/server/database-target';
+import {contentSources as sources,contentEvents as events,contentRawItems as raws,contentRawItemObservations as observations,contentEventRawItems as links,contentEventExpansionEvidence as expansions,contentEventClusters as clusters,contentEventClusterMembers as members} from '../lib/server/db/schema';
+import {runEventClustering,reconcileEventClusters,scoreEventClusterCandidate} from '../lib/server/content/event-clustering';
+import {listRadarTimelineWindow,listRadarCalendarRange} from '../lib/server/content/intelligence-read-model';
+import {listAiHotspotPractices,recordAiHotspotPracticeTriggers} from '../lib/server/content/ai-hotspot-practice-store';
+import {evaluateEventPolicy} from '../lib/server/content/event-policy';
+import {INTELLIGENCE_POLICY_VERSION} from '../lib/content/intelligence-policy';
+import {AI_HOTSPOT_PRACTICE_VERSION} from '../lib/server/content/ai-hotspot-practice';
+import {withSourceCollectionCycleLock} from '../lib/server/content/source-runtime-governance-execution';
+loadEnvConfig(process.cwd());
+async function main(){
+ assert(process.argv.includes('--confirm=CANONICAL-EVENT-DEVELOPMENT'));
+ const target=assertCurrentDatabaseTarget();assert.equal(target.environment,'development');assert.equal(target.databaseName,'opc_ai_dev');
+ const outcome=await withSourceCollectionCycleLock(async()=>{
+  const db=getDatabase(),token=randomUUID().replaceAll('-',''),version=Date.now()+'.1';
+  const sourceIds=['a','b','c'].map(s=>'source_canonical_'+token+s),ids:string[]=[randomUUID(),randomUUID(),randomUUID()],rawIds=[randomUUID(),randomUUID(),randomUUID()];
+  const now=new Date(),first=new Date(now.getTime()-3*3600000),later=new Date(now.getTime()-2*3600000);
+  const titles=[`Meta releases Muse Spark Open v${version} MCP Skill`,`Muse Spark Open v${version} MCP Skill Day 0 support`,`Muse Wonder v${version} new release`];
+  const policy={version:INTELLIGENCE_POLICY_VERSION,systemObserved:true,aiRelevant:true,operationalUsefulness:{eligible:true},factSourceCount:0,independentOriginCount:0};
+  const practice=(id:string,index:number)=>({version:AI_HOTSPOT_PRACTICE_VERSION,eventId:id,title:titles[index],summary:null,originalUrl:`https://canonical-${token}.invalid/${index}`,firstTriggeredAt:new Date(now.getTime()-(index+1)*3600000).toISOString(),lastMatchedAt:now.toISOString(),participants:['Fixture '+index],links:[{sourceName:'Fixture '+index,originalUrl:`https://canonical-${token}.invalid/${index}`,materialQuality:{eligible:true}}],materialStatus:'VERIFIED_MATERIAL_AVAILABLE',triggerReasons:[]});
+  try{
+   await db.insert(sources).values(sourceIds.map((id,i)=>({id,name:'Canonical fixture '+i,providerRef:token+i,platform:'WEB',sourceType:i===1?'OFFICIAL':'MEDIA',collectionMethod:'RSS',canonicalUrl:`https://canonical-${token}-${i}.invalid/`,enabled:true,metadata:{currentPortfolio:true,sourceUniverseRole:i===1?'OFFICIAL':'PROFESSIONAL_MEDIA',factualSource:i===1},signalConfig:{}})));
+   await db.insert(events).values(ids.map((id,i)=>({id,fingerprint:token+i,title:titles[i],eventType:'OPEN_SOURCE',entities:[token],keywords:['Muse Spark Open'],firstSeenAt:i===0?first:later,lastSeenAt:later,eventAt:i===0?first:later,policyVersion:INTELLIGENCE_POLICY_VERSION,metadata:{eventPolicy:policy,...(i<2?{aiHotspotPractice:practice(id,i)}:{})}})));
+   await db.insert(raws).values(rawIds.map((id,i)=>({id,sourceId:sourceIds[i],platform:'WEB',title:i===2?`Muse Spark Open v${version} deployment tutorial`:titles[i],originalUrl:`https://canonical-${token}-${i}.invalid/report`,contentHash:token+i,publishedAt:later,collectedAt:later,metadata:{contentType:i===1?'OFFICIAL_ANNOUNCEMENT':'NEWS_ARTICLE',discoveryFilter:{relationType:'DIRECT'}}})));
+   await db.insert(observations).values(rawIds.map((id,i)=>({rawItemId:id,sourceId:sourceIds[i],platform:'WEB',observedAt:later,metadata:{collectionOrigin:'SYSTEM'}})));
+   await db.insert(links).values([{eventId:ids[0],rawItemId:rawIds[0]},{eventId:ids[1],rawItemId:rawIds[1]},{eventId:ids[1],rawItemId:rawIds[0]}]);
+   await db.insert(expansions).values([0,1].map(i=>({eventId:ids[i],rawItemId:rawIds[2],expansionType:'TUTORIAL',mediaType:'ARTICLE',relevanceScore:90,valueScore:90,rankScore:90,metadata:{matchedTitleSpecificAnchors:['Muse','Spark','Open']}})));
+   await Promise.all([runEventClustering(ids[0]),runEventClustering(ids[1]),runEventClustering(ids[0])]);
+   const membership=await db.select().from(members).where(inArray(members.eventId,ids.slice(0,2)));
+   assert.equal(new Set(membership.map(m=>m.clusterId)).size,1,'concurrent clustering converges');
+   const all=await db.select().from(members).where(eq(members.clusterId,membership[0].clusterId));assert.equal(all.length,2,'only fixture same release members');
+   const read=async()=>(await listRadarTimelineWindow(7)).filter(i=>ids.includes(i.eventId));
+   let items=await read();assert.equal(items.length,1);assert.equal(items[0].eventId,ids[0]);
+   assert.equal(items[0].verificationStatus,'CONFIRMED_OFFICIAL','member fact recomputed before persisted policy refresh');
+   assert.equal(items[0].generationReadiness.dailyBrief,'READY','readiness uses the recomputed evidence');
+   assert.equal(items[0].factSourceCount,1);assert.equal(items[0].coverage.evidenceCount,1,'same expansion raw across members counted once');
+   assert.equal(items[0].story.reportTimeline.length,2,'duplicate direct raw deduped');
+   let practices=(await listAiHotspotPractices()).filter(p=>ids.includes(p.eventId));assert.equal(practices.length,1);assert.equal(practices[0].links.length,2);assert.equal(practices[0].firstTriggeredAt,practice(ids[1],1).firstTriggeredAt);
+   await runEventClustering(ids[1]);assert.equal((await read()).length,1,'idempotent');
+   await db.update(events).set({archivedAt:new Date(),verificationStatus:'ARCHIVED'}).where(eq(events.id,ids[0]));
+   items=await read();assert.equal(items.length,1);assert.equal(items[0].eventId,ids[0],'archived primary keeps canonical identity');assert.equal(items[0].factSourceCount,1);
+   practices=(await listAiHotspotPractices()).filter(p=>ids.includes(p.eventId));assert.equal(practices.length,1);assert.equal(practices[0].links.length,2,'old triggers preserved through archived primary');
+   await recordAiHotspotPracticeTriggers([{eventId:ids[0],title:titles[0]+' deployment tutorial',category:'开发者',aiPracticeParticipants:[{name:'Meta',role:'OFFICIAL'},{name:'Third Author',role:'MEDIA'}],evidenceLinks:[{sourceName:'Third Author',title:titles[0]+' deployment tutorial',originalUrl:`https://canonical-${token}.invalid/new-trigger`,materialQuality:{eligible:true}}]}]);
+   practices=(await listAiHotspotPractices()).filter(p=>ids.includes(p.eventId));assert.equal(practices[0].links.length,3,'archived primary routes new trigger to active member');
+   await evaluateEventPolicy(ids[1]);const [archived]=await db.select().from(events).where(eq(events.id,ids[0]));assert.ok(archived.archivedAt,'policy must not resurrect unrelated archived member');
+   await db.update(events).set({metadata:sql`jsonb_set(${events.metadata},'{eventPolicy}',${JSON.stringify(policy)}::jsonb,true)`}).where(eq(events.id,ids[1]));
+   const before=(await listRadarCalendarRange(new Date(first.getTime()-3600000),new Date(first.getTime()+1),now)).filter(i=>ids.includes(i.eventId));
+   assert.equal(before.length,0,'archived primary timeline excluded, active member anchors once');
+   assert.equal((await db.select().from(events).where(inArray(events.id,ids.slice(0,2)))).length,2,'original records retained');
+   // A legacy versionless bridge in a pre-existing cluster cannot pull in another version.
+   const bridgeIds=[randomUUID(),randomUUID(),randomUUID()];ids.push(...bridgeIds);
+   const bridgeEvents=bridgeIds.map((id,i)=>({id,fingerprint:token+'bridge'+i,title:'OpenAI Agent SDK '+(i===1?'':i===0?'1.0 ':'2.0 ')+'release '+token,eventType:'OPEN_SOURCE',entities:[token],keywords:['Agent SDK'],firstSeenAt:later,lastSeenAt:later,eventAt:later,summary:null}));
+   assert.ok(scoreEventClusterCandidate(bridgeEvents[1],bridgeEvents[2]),'fixture contains a tempting bridge pair');
+   assert.equal(scoreEventClusterCandidate(bridgeEvents[0],bridgeEvents[2]),null,'fixture versions conflict');
+   await db.insert(events).values(bridgeEvents);
+   const clusterIds=[randomUUID(),randomUUID()];
+   await db.insert(clusters).values(clusterIds.map((id,i)=>({id,canonicalTitle:bridgeEvents[i===0?0:2].title,primaryEventId:bridgeIds[i===0?0:2],clusterRuleVersion:'fixture-legacy',firstSeenAt:later,lastSeenAt:later})));
+   await db.insert(members).values(bridgeIds.map((eventId,i)=>({eventId,clusterId:clusterIds[i===2?1:0],role:i===1?'MEMBER':'PRIMARY',clusterRuleVersion:'fixture-legacy',mergeReason:'FIXTURE',mergeScore:90})));
+   const reconciled=await reconcileEventClusters({eventIds:[bridgeIds[2]],limit:1});assert.equal(reconciled.reconciled,1);assert.equal((await reconcileEventClusters({eventIds:[bridgeIds[2]],limit:1})).selected,0,'current version is not retried');
+   const guarded=await db.select().from(members).where(inArray(members.eventId,bridgeIds));
+   assert.equal(new Set(guarded.map(m=>m.clusterId)).size,2,'complete-link protects pre-existing cluster through PG path');
+   console.log('CANONICAL_EVENT_DEVELOPMENT=PASS;EXTERNAL_COLLECTION_REQUESTS=0;MODEL_CALLS=0');
+  }finally{await db.delete(events).where(inArray(events.id,ids));await db.delete(sources).where(inArray(sources.id,sourceIds));}
+ });assert.equal(outcome.status,'COMPLETED','SYSTEM lock unavailable');
+}
+main().catch(e=>{console.error(e);process.exitCode=1}).finally(closeDatabase);

@@ -1,0 +1,84 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {loadEnvConfig} from '@next/env';
+import {and,eq,inArray,sql} from 'drizzle-orm';
+import {getDatabase,closeDatabase} from '../lib/server/db';
+import {assertCurrentDatabaseTarget} from '../lib/server/database-target';
+import {aiRuns,contentEvents as events,contentSources as sources,contentRawItems as raws,contentRawItemObservations as observations,contentEventRawItems as links,contentEventClusters as clusters,contentEventClusterMembers as members} from '../lib/server/db/schema';
+import {withSourceCollectionCycleLock} from '../lib/server/content/source-runtime-governance-execution';
+import {runEventExpressionCycle} from '../lib/server/content/event-expression-runtime';
+import {listRadarCalendarRange} from '../lib/server/content/intelligence-read-model';
+import {listAiHotspotPractices} from '../lib/server/content/ai-hotspot-practice-store';
+import {SOURCE_ONBOARDING_VERSION} from '../lib/server/content/source-onboarding';
+import {AI_HOTSPOT_PRACTICE_VERSION} from '../lib/server/content/ai-hotspot-practice';
+import {INTELLIGENCE_POLICY_VERSION} from '../lib/content/intelligence-policy';
+loadEnvConfig(process.cwd());
+async function main(){
+ assert(process.argv.includes('--confirm=EVENT-EXPRESSION-DEVELOPMENT'));
+ const target=assertCurrentDatabaseTarget();assert.equal(target.environment,'development');assert.equal(target.databaseName,'opc_ai_dev');
+ const locked=await withSourceCollectionCycleLock(async()=>{
+  const db=getDatabase(),token=randomUUID().replaceAll('-',''),sourceId='source_expression_'+token,ids:string[]=[randomUUID(),randomUUID()],rawIds=[randomUUID(),randomUUID()],clusterId=randomUUID(),saved=process.env.OPC_COLLECTION_EVENT_EXPRESSION;
+  const date=new Date(Date.now()-60000),title='Nebula Atlas v1 MCP Skill is now available',excerpt='Open weights for local inference.';
+  const config={provider:'fixture',model:'fixture',baseUrl:'https://model.invalid',apiKey:'fixture',thinkingControl:'enable_thinking' as const};
+  let calls=0,mode='VALID';
+  const scan=()=>db.update(events).set({metadata:sql`${events.metadata} - 'eventExpressionScannedAt'`}).where(inArray(events.id,ids));
+  const invoke=async()=>{await scan();return runEventExpressionCycle({eventIds:ids},{config,fetchImpl});};
+  const edit=async(suffix:string)=>{await db.update(raws).set({excerpt:excerpt+' '+suffix}).where(eq(raws.id,rawIds[0]));};
+  const fetchImpl:typeof fetch=async(_url,init)=>{
+   calls++;const body=JSON.parse(String(init?.body));assert.equal(body.enable_thinking,false);assert.equal(body.max_tokens,2000);
+   const input=JSON.parse(body.messages[1].content),e=input.evidence[0];
+   const output={schemaVersion:'event-expression-output-v1',titleZh:'Nebula Atlas v1 已发布',summaryZh:'Nebula Atlas v1 开放权重，可用于本地推理。',whyItMatters:'可关注 Nebula Atlas v1 的本地推理用途。',evidenceIds:[e.rawId],uncertainties:[],support:Object.fromEntries(['titleZh','summaryZh','whyItMatters'].map(field=>[field,[{evidenceId:e.rawId,quote:e.text.slice(0,300)}]]))};
+   if(mode==='BAD')output.titleZh='Nebula Atlas v2 已发布';
+   if(mode==='CONCURRENT')assert.equal((await invoke()).processed,0,'active lease blocks duplicate requests');
+   if(mode==='SOURCE')await db.update(sources).set({enabled:false}).where(eq(sources.id,sourceId));
+   if(mode==='CHANGE')await edit('changed during call');
+   if(mode==='MEMBER')await db.delete(members).where(eq(members.eventId,ids[1]));
+   if(mode==='OFF')process.env.OPC_COLLECTION_EVENT_EXPRESSION='off';
+   if(mode==='NETWORK')throw new Error('mock unavailable');
+   return Response.json({choices:[{message:{content:JSON.stringify(output)}}],usage:{prompt_tokens:100,completion_tokens:50,total_tokens:150}});
+  };
+  const cards=async()=>{const asOf=new Date(Date.now()+1000);return (await listRadarCalendarRange(new Date(date.getTime()-3600000),asOf,asOf)).filter(i=>ids.includes(i.eventId));};
+  try{
+   const policy={version:INTELLIGENCE_POLICY_VERSION,systemObserved:true,aiRelevant:true,operationalUsefulness:{eligible:true}};
+   await db.insert(sources).values({id:sourceId,name:'Fixture official',sourceType:'OFFICIAL',providerRef:token,platform:'WEB',collectionMethod:'RSS',canonicalUrl:'https://fixture.invalid/'+token,enabled:true,metadata:{sourceOnboarding:{version:SOURCE_ONBOARDING_VERSION},sourceRegistry:{owner:'SOURCE_MANAGEMENT'},factualSource:true,acceptanceOnly:true}});
+   await db.insert(events).values(ids.map((id,i)=>({id,title,summary:excerpt,fingerprint:token+i,eventType:'OPEN_SOURCE',entities:[token],firstSeenAt:date,lastSeenAt:date,eventAt:date,createdAt:date,policyVersion:INTELLIGENCE_POLICY_VERSION,metadata:{eventPolicy:policy,...(i===0?{aiHotspotPractice:{version:AI_HOTSPOT_PRACTICE_VERSION,eventId:id,title,summary:excerpt,originalUrl:null,firstTriggeredAt:date.toISOString(),lastMatchedAt:date.toISOString(),participants:['fixture A','fixture B'],links:[{sourceName:'fixture A',originalUrl:'https://fixture.invalid/mcp-tutorial',materialQuality:{eligible:true}}],materialStatus:'VERIFIED_MATERIAL_AVAILABLE',triggerReasons:[]}}:{})}})));
+   await db.insert(clusters).values({id:clusterId,canonicalTitle:title,primaryEventId:ids[0],clusterRuleVersion:'fixture',firstSeenAt:date,lastSeenAt:date});
+   await db.insert(members).values(ids.map((eventId,i)=>({eventId,clusterId,role:i===0?'PRIMARY':'MEMBER',clusterRuleVersion:'fixture',mergeReason:'FIXTURE',mergeScore:99})));
+   await db.insert(raws).values(rawIds.map((id,i)=>({id,sourceId,platform:'WEB',title,excerpt,originalUrl:'https://fixture.invalid/'+token+'/'+i,contentHash:token+i,publishedAt:date,collectedAt:new Date(date.getTime()+i),metadata:{collectionOrigin:'SYSTEM',contentType:'OFFICIAL_ANNOUNCEMENT'}})));
+   await db.insert(observations).values(rawIds.map(rawItemId=>({rawItemId,sourceId,platform:'WEB',observedAt:date,metadata:{collectionOrigin:'SYSTEM'}})));
+   await db.insert(links).values(ids.map((eventId,i)=>({eventId,rawItemId:rawIds[i]})));
+   process.env.OPC_COLLECTION_EVENT_EXPRESSION='off';assert.equal((await invoke()).status,'DISABLED');assert.equal(calls,0);
+   process.env.OPC_COLLECTION_EVENT_EXPRESSION='v1';mode='CONCURRENT';assert.equal((await invoke()).enriched,1);assert.equal(calls,1);
+   let visible=await cards();assert.equal(visible.length,1);assert.equal(visible[0].presentation.displayTitleZh,'Nebula Atlas v1 已发布');assert.equal(visible[0].presentation.eventExpression.status,'GENERATED');
+   let practice=(await listAiHotspotPractices()).find(p=>p.eventId===ids[0]);assert.equal(practice?.title,'Nebula Atlas v1 已发布');assert.equal(practice?.originalTitle,title);
+   assert.equal((await invoke()).processed,0);assert.equal(calls,1,'identical reports and repeated cycle use cache');
+   await edit('Updated material.');visible=await cards();assert.equal(visible[0].presentation.eventExpression.status,'ORIGINAL_FALLBACK');
+   mode='VALID';assert.equal((await invoke()).enriched,1);assert.equal(calls,2);
+   await edit('');assert.equal((await invoke()).processed,0);assert.equal(calls,2,'A to B to A restores cache without new request');assert.equal((await cards())[0].presentation.eventExpression.status,'GENERATED');
+   await db.update(events).set({metadata:sql`${events.metadata} - 'eventExpression'`}).where(eq(events.id,ids[0]));assert.equal((await invoke()).processed,0);assert.equal((await cards())[0].presentation.eventExpression.status,'GENERATED','missing metadata restored from valid success');
+   await edit('Bad output revision.');mode='BAD';assert.equal((await invoke()).failed,1);const callCount=calls;assert.equal((await invoke()).processed,0);assert.equal(calls,callCount,'failure backoff');
+   const [failed]=await db.select().from(aiRuns).where(and(eq(aiRuns.taskType,'EVENT_EXPRESSION'),eq(aiRuns.status,'FAILED'),sql`${aiRuns.contextIds} @> ${JSON.stringify([ids[0]])}::jsonb`));assert.equal((failed.validatorResult as any).usageStatus,'REPORTED');
+   await db.update(aiRuns).set({status:'RUNNING',validatorResult:{...(failed.validatorResult as any),nextRetryAt:'2020-01-01T00:00:00Z'}}).where(eq(aiRuns.id,failed.id));mode='VALID';assert.equal((await invoke()).enriched,1);assert.equal((await db.select().from(aiRuns).where(eq(aiRuns.id,failed.id)))[0].status,'ABANDONED');
+   await edit('Source revision.');mode='SOURCE';assert.equal((await invoke()).stale,1);await db.update(sources).set({enabled:true}).where(eq(sources.id,sourceId));
+   await edit('Change revision.');mode='CHANGE';assert.equal((await invoke()).stale,1);
+   await edit('Off revision.');mode='OFF';assert.equal((await invoke()).stale,1);process.env.OPC_COLLECTION_EVENT_EXPRESSION='v1';
+   await edit('Network revision.');mode='NETWORK';assert.equal((await invoke()).failed,1);
+   const runs=await db.select().from(aiRuns).where(and(eq(aiRuns.taskType,'EVENT_EXPRESSION'),sql`${aiRuns.contextIds} @> ${JSON.stringify([ids[0]])}::jsonb`));assert(runs.some(r=>r.status==='FAILED'&&(r.validatorResult as any).usageStatus==='UNKNOWN'));
+   await edit('Member revision.');mode='MEMBER';assert.equal((await invoke()).stale,1);
+   await db.insert(members).values({eventId:ids[1],clusterId,role:'MEMBER',clusterRuleVersion:'fixture',mergeReason:'FIXTURE',mergeScore:99});
+   await edit('Archived primary.');await db.update(events).set({archivedAt:new Date()}).where(eq(events.id,ids[0]));mode='VALID';assert.equal((await invoke()).enriched,1);visible=await cards();assert.equal(visible.length,1);assert.equal(visible[0].eventId,ids[0]);assert.equal(visible[0].presentation.eventExpression.status,'GENERATED','archived canonical stores expression of active members');
+   const beforeExcluded=calls;
+   await db.update(sources).set({signalConfig:{signalOnly:true}}).where(eq(sources.id,sourceId));assert.equal((await invoke()).processed,0);assert.equal((await cards())[0].presentation.eventExpression.status,'ORIGINAL_FALLBACK');await db.update(sources).set({signalConfig:{}}).where(eq(sources.id,sourceId));
+   await db.update(observations).set({observedAt:new Date(Date.now()+86400000)}).where(eq(observations.rawItemId,rawIds[1]));assert.equal((await invoke()).processed,0);await db.update(observations).set({observedAt:date}).where(eq(observations.rawItemId,rawIds[1]));
+   await db.update(raws).set({metadata:{collectionOrigin:'SYSTEM',referenceOnly:true}}).where(eq(raws.id,rawIds[1]));assert.equal((await invoke()).processed,0);assert.equal(calls,beforeExcluded,'signal, reference and future observation do not call model');
+   await db.update(raws).set({metadata:{collectionOrigin:'MANUAL'}}).where(eq(raws.id,rawIds[1]));assert.equal((await invoke()).processed,0);assert.equal((await cards())[0].presentation.eventExpression.status,'ORIGINAL_FALLBACK');
+   const originals=await db.select().from(events).where(inArray(events.id,ids));assert(originals.every(e=>e.title===title&&e.summary===excerpt));
+   console.log('EVENT_EXPRESSION_DEVELOPMENT=PASS;PAID_CALLS=0;FIXTURES_CLEANED_IN_FINALLY');
+  }finally{
+   if(saved===undefined)delete process.env.OPC_COLLECTION_EVENT_EXPRESSION;else process.env.OPC_COLLECTION_EVENT_EXPRESSION=saved;
+   await db.delete(aiRuns).where(and(eq(aiRuns.taskType,'EVENT_EXPRESSION'),sql`${aiRuns.contextIds} @> ${JSON.stringify([ids[0]])}::jsonb`));
+   await db.delete(events).where(inArray(events.id,ids));await db.delete(clusters).where(eq(clusters.id,clusterId));await db.delete(sources).where(eq(sources.id,sourceId));
+  }
+ });assert.equal(locked.status,'COMPLETED');
+}
+main().catch(e=>{console.error(e instanceof assert.AssertionError?e:{code:'EVENT_EXPRESSION_ACCEPT_FAILED',message:/^EVENT_EXPRESSION_[A-Z_]+$/.test(e.message)?e.message:'REDACTED'});process.exitCode=1;}).finally(closeDatabase);

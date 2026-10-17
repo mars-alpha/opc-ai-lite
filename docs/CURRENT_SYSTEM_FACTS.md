@@ -4,7 +4,9 @@
 
 ## 1. 当前产品阶段
 
-- Pixaroma作者站固定材料Provider已发布至Deno生产Relay（relay-source-autodiscovery-v5，revision 1bvyxc7grrw6）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面与实践分类现已同版发布。验收结果见TASKS。
+- 2026-10-17用户明确授权生产上线与Git同步，P4确定性事件/材料链、栏目算法配置与图表、来源采集频率、同版本发布去重和Radar精简列表/按需详情已同版部署。Node/SYSTEM为p4-radar；Deno生产为`relay-radar-materials-v17`（revision `6wexxr6b40np`，预览验证`ktmnn7y62fa0`），协议仍为public-source-routes-v3 / public-practice-routes-v5。watchlist/author v1、public sources v2、机器准入on；理解/关系/表达三项AI开关off，Brave/GitHub Release新路径未启用，本轮真实付费模型调用为0。完整栏目质量仍NOT_ACCEPTED / RELEASE_NOT_READY。
+
+- Pixaroma作者站固定材料Provider已发布至Deno生产Relay（当前Relay版本见本节首段）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面与实践分类现已同版发布。验收结果见TASKS。
 - 其他公开作者候选的核验元数据保存在Raw.creatorReview并审计；生产代码阻断需登录/关注/人工会话的路由和材料。固定Comfy正文/B站匿名字幕及ZIP逐篇说明适配器，已部署腾讯云SYSTEM与Deno生产并验证重复Raw回执持久化；通用正文/字幕覆盖缺口仍存在，不把搜索描述或共享安装步骤当全文。验收明细见TASKS。
 
 
@@ -18,13 +20,15 @@
 - AI HOT 当前是 Source Directory 中一个 Aggregated Discovery Source（`source_radar_ai_hot`），通过 PUBLIC_JSON_API 进入 SYSTEM Collection；`factualSource=false / signalSource=true / referenceOnly=true`。AI HOT 与直连原站共享 originPublisher 去重，不取得 Fact Authority，也不拥有独立采集入口。
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
-- `/admin/intelligence` 沿用已确认的日历布局：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前快照为radar-snapshot-v16-ai-hotspot-practice，统计/列表同源。管理员可记录采集质量正负评价、原因、来源归因并撤销；评价不改变自动栏目或采集。来源详情显示30日评价样本与问题原因；AI热点练习独立触发并持久展示。热点追踪与来源管理首读显示读取态，可见页面每5分钟重读、切回页面且距上次请求至少1分钟时追赶；两处界面已获产品负责人实际体验并明确批准，规则唯一见采集合同§16、§22、§23。
-- 生产`content_sources`有64条：当前来源管理目录为42个current Source，另22个`source_runtime_trend_*`为旧趋势记录，仍保留历史，其中10个有历史Run，最新Run停在2026-10-15；旧记录虽多数仍为ACTIVE，但不在当前SYSTEM采集组合。热点事件可能显示AI HOT聚合源带出的原发布者名称，这些名称也未必是单独注册的可管理Source。历史证据仍保留，目录/状态区分待治理；不得把原发布者名称批量复制成新逻辑Source。
+- `/admin/intelligence` 沿用已确认的日历布局：北京时间完整七日、当天展开/其他折叠、历史每次一个有内容日期，到底明确显示；无120首批截断。当前持久化快照为radar-snapshot-v17-compact-storage，兼容现役v16-audit-fixes并保持原API展开结构，统计/列表同源。管理员可记录采集质量正负评价、原因、来源归因并撤销；评价不改变自动栏目或采集。来源详情显示30日评价样本与问题原因；AI热点练习独立触发并持久展示。热点追踪与来源管理首读显示读取态，可见页面每5分钟重读、切回页面且距上次请求至少1分钟时追赶；两处界面已获产品负责人实际体验并明确批准，规则唯一见采集合同§16、§22、§23。
+- 2026-10-16生产`content_sources`共65条，其中22个`source_runtime_trend_*`为旧趋势记录，10个有历史Run且最新停在2026-10-15，不在当前SYSTEM组合。P3真实自动准入误将Together主页登记为已有博客的第二身份；已通过Source管理Core归档误登记项，保留审计且不恢复。固定五站主页/列表/Feed身份归一已修复并经开发PG复用验收；归档冲突继续阻断。现役目录数量以运行时读取为准；聚合带出的原发布者名称不代表独立可管理Source。
 - 当前架构正文唯一 owner：`docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md`；实现映射唯一 owner：`docs/content/COLLECTION_IMPLEMENTATION_MAPPING.md`。历史 Phase/Acceptance 只通过 Git 追溯，不再复制到 Current Facts。
 
 - 来源管理筛选词已接入所有SYSTEM候选的Raw前过滤；新增词扩展标题召回，排除优先，后续Run读取并记录规则版本。保存/注册与审计同事务，不追删历史。网站/主页支持标准Feed自动发现与受限Sitemap备用检测；Simon/TIL/Comfy公开路径经腾讯云+Deno实测。注册仅证明可采，不授予Fact Authority或AUTO_READY；边界唯一见采集合同。
 
 ## 2. 技术基线
+
+仓库独立开发工具 `tools/task-manager` 已实现本机 Node 回环服务，读取 current owners 与 Git 展示任务、版本记录和治理建议；AI推进分析复用既有configured-chat与DeepSeek配置，输出经过确定性校验的优先顺序和Codex Prompt，结果与正式任务状态隔离。不接入业务前后台、数据库或生产部署。入口和验证见 [工具说明](../tools/task-manager/README.md)。
 
 ```text
 Frontend / Web        Next.js 15 App Router
@@ -38,9 +42,13 @@ Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
 
-采集部署：腾讯云唯一 `opc-collection.timer` 执行 SYSTEM 发现/采集与快照，运行目录 `/opt/opc-services/opc-collection-runtime/current` 当前指向 `releases/20261016-live-refresh`（前版`20261016-hotspot-practice`保留回退），生产配置 `/var/www/opc-ai/.env.local`；CPU50%、MemoryMax512M，不依赖本机开机。2026-10-16 13:28（北京时间）同版SYSTEM周期PASS并生成v16快照：七日392个唯一Event、当前热点1、AI热点练习1、精选48；数字只代表该时刻。Deno `mars-alpha/opc-overseas-relay` 只负责海外获取，不持有数据库、不承担调度或AI分析；目前部分海外Feed仍为直连，不能宣称海外全路由覆盖。
+采集部署：腾讯云唯一opc-collection.timer使用每分钟calendar tick，SYSTEM按Source已保存间隔及现役治理有效间隔判定到期，未到期不采；不改变资格/Route。current指向`/opt/opc-services/opc-collection-runtime/releases/20261017-p4-radar`；CPU50%、MemoryMax512M。Web为`/opt/opc-services/opc-admin-web-p4-radar-20261017`，root PM2 opc-ai运行并保存，Node堆512MB；Web/SYSTEM的821个候选源码文件SHA256一致。root600配置为`/var/www/opc-ai/.env.local`；公网健康200、匿名管理API401，timer enabled/active。Deno只做无状态海外获取。
 
-生产数据库迁移history为40条，本次发布无新增迁移。迁移连接 `/etc/opc-ai/migration.env` root600，运行服务不注入该连接；最近发布前备份位于 `/var/backups/opc-ai-db/opc_ai_prod_pre_hotspot_20261016.dump`。生产Web当前为 `/opt/opc-services/opc-admin-web-live-refresh-20261016`（前版`opc-admin-web-hotspot-practice-20261016`保留回退），由PM2 `opc-ai` 承载并save；`pm2-root.service`已启用并运行，重启后从保存的PM2列表恢复Web。唯一`opc-collection.timer`同样enabled/active，不依赖本机开机。来源管理、热点追踪页面/API已上线，未改课程页面。待办唯一见TASKS。
+数据库迁移history仍40条，本轮无新增迁移，只读预检pending=[]、运行角色非superuser。发布前备份`/var/backups/opc-ai-db/opc_ai_prod_pre_p4_radar_20261017.dump`已通过pg_restore --list校验。同版回退为旧Web `opc-admin-web-p3-gap-fix-20261016` 与SYSTEM `releases/20261016-p3-gap-fix`，受保护配置位于`/etc/opc-ai/p4-radar-rollback.config.cjs`、`p4-radar-pre-release.env.backup`与`p4-radar-pre-release.timer`；Relay前版revision为`0rmfttv53pc6`。备份和配置均不进入Git。
+
+生产实测（2026-10-17 15:14–15:16北京时间）：同版本发布定向补聚类selected30/reconciled11/alreadyCurrent19，failed/deferred=0，截图Gemini发布/渠道报道合为7篇报道主事件；教程/评测和普通评论仍独立。快照480 Event、热点6、练习0，数量仅为该次观察，不代表质量通过。认证接口compact约8.88MB/661ms，listing约2.48MB/145ms，负载减少72%；完整详情约15KB/52ms，与原story深比较通过。匿名401、非法详情400、缺失404，频率45源/统计/算法接口200。最终Linux build与86项quick/typecheck通过；首次真实SYSTEM周期15:15:46成功，后续15:16:45周期failures=[]并正常退出，无内存终止。该短期观察不替代7–14日持续质量验收。
+
+新增UI提供过实际暂存操作体验；本轮用户授权上线，不另记为USER_APPROVED。完整质量、连续发现延迟和真实AI效果仍待独立验收。
 
 正式应用入口是 `app/*`。根目录早期静态 HTML/CSS/JS 原型不属于正式 Runtime，并已退出 current tree。
 
@@ -250,3 +258,10 @@ Task A 真实 Provider Acceptance 已 PASS：使用一门正式课程完整 Step
 ## AI热点练习当前状态
 
 独立触发和持久展示已随v16快照上线，合同唯一见采集架构§23；界面已获产品负责人明确批准。共享材料获取及既有质量反馈继续运行。
+
+## 来源与栏目当前诊断边界
+
+- 大Feed此前为Relay已收到上游200、腾讯侧未压缩正文在20秒内未读完；已支持gzip及DeepMind重复正文兼容协商，保留20秒预算。预览实测OpenAI JSON约803KB→135216传输字节、Latent约918KB→251148字节；不将单次比例推广全源。宝玉旧Feed实际301至s.baoyu.io/feed.xml，已用固定映射修复，不泛化重定向。
+- 五个现役源最近Run成功不等于持续健康：Latent Space独立生产复探仍出现BODY_TIMEOUT，预览也曾超时；DeepMind预览有过HEADERS_NETWORK_FAILED。错误已分层、正常退避保留；不通过宿主机直连绕开Relay，也不把旧失败改为成功。Hamel持续资格仍待真实周期验证。
+- 练习原输入遗漏已解析AIHOT原始报道、作者实际Feed及已关联扩展报道；现按采集合同复核原始身份、URL与标题锚点后参与，Source/Fact Authority及完整材料Gate保持独立。真实Muse Wonder/Muse Spark、Learning、Google/vibe、PrismaCoder/Nemotron误关联反例已阻断，历史Evidence保留审计。8条当前练习中7条围绕同一模型发布，尚未完成P4聚类，不代表8个独立主题。
+- 23:39只读全窗口拒绝原因非互斥：练习缺多独立发布者439、缺分析/应用234、主题不明确/汇总233；热点缺多源445、多作者447、多日447、跨平台/实践多样性399、互动356。不能从这些数量推断全量漏报率；当前热点算法未改。新增只读诊断入口见实现映射；as-of只限定读取窗口，不是历史DB快照或所有内部时钟冻结。7–14日持续覆盖、72h效果及18MB响应性能仍待后续。

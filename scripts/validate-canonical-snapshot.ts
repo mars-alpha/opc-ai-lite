@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {canonicalOperationStates} from '../lib/server/content/canonical-event';
+import {applyRadarOperations} from '../lib/server/content/radar-snapshot';
+const asOf=new Date('2026-10-17T00:00:00Z'),past=new Date(asOf.getTime()-3600000);
+const event=(id:string,archivedAt:Date|null)=>({id,createdAt:past,firstSeenAt:past,lastSeenAt:past,eventAt:past,archivedAt,discoveryStatus:'REVIEWED'});
+const events=[event('primary',past),event('member',null)],members=[{eventId:'primary',clusterId:'c'},{eventId:'member',clusterId:'c'}],clusters=[{id:'c',primaryEventId:'primary'}];
+const item={eventId:'primary',category:'模型'},snapshot={items:[item],featured:[item],currentHot:[item],aiHotspotPractices:[item],windowEventIndex:[item],categoryCounts7d:{全部:1,模型:1},totalEventCount7d:1};
+const state=canonicalOperationStates(events,members,clusters,asOf);
+assert.equal(applyRadarOperations(snapshot,state).items.length,1,'snapshot keeps canonical card with valid member');
+assert.equal(applyRadarOperations(snapshot,canonicalOperationStates(events.map(e=>({...e,archivedAt:past})),members,clusters,asOf)).items.length,0);
+assert.equal(canonicalOperationStates(events.map(e=>({...e,createdAt:new Date('2027-01-01')})),members,clusters,asOf).length,0,'future member cannot preserve stale snapshot');
+console.log('CANONICAL_SNAPSHOT=PASS');

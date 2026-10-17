@@ -3,8 +3,9 @@ Description=OPC unified source collection cadence
 
 [Timer]
 OnBootSec=2min
-OnUnitInactiveSec=15min
-AccuracySec=30s
+OnCalendar=*-*-* *:*:00
+Persistent=true
+AccuracySec=1s
 Unit=opc-collection.service
 
 [Install]

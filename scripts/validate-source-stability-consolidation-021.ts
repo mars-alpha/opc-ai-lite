@@ -24,7 +24,7 @@ assert(ui.includes("source-discovery-column") && ui.includes("source-discovery-f
 assert(ui.includes("DISABLE_SOURCE") && ui.includes("ENABLE_SOURCE") && ui.includes("ARCHIVE_SOURCE"), "SOURCE_LIFECYCLE_ACTIONS");
 assert(ui.includes("全部状态") && ui.includes("稳定自动") && ui.includes("观察中"), "STABILITY_FILTERS_VISIBLE");
 assert(management.includes("managementDisabled") && management.includes("archiveOperatorSource"), "SOURCE_DISABLE_ARCHIVE_BACKEND");
-assert(runtime.includes("managementDisabled") && runtime.includes("enabled: !managementDisabled"), "BASELINE_DISABLE_PERSISTS_ACROSS_SEED");
+assert(runtime.includes("managementDisabled") && runtime.includes("portfolioSeedRefreshAllowed(existing)") && runtime.includes(".where(portfolioSeedRefreshCondition(entry.sourceId))") && !runtime.includes("enabled: !managementDisabled"), "BASELINE_DISABLE_PERSISTS_ACROSS_SEED");
 assert(qualificationRuntime.includes("listCurrentSystemCollectionSourceIds") && qualificationRuntime.includes("listSourceQualificationSnapshots(currentSourceIds)"), "QUALIFICATION_CURRENT_SOURCES_ONLY");
 assert(management.indexOf('sourceRole === "DISCOVERY_AGGREGATOR"') < management.indexOf('sourceType === "MEDIA"'), "AGGREGATOR_CATEGORY_PRECEDENCE");
 console.log("SOURCE_STABILITY_CONSOLIDATION_021=PASS");

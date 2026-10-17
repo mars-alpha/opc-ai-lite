@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, gte, inArray, isNull, lte, ne } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { getDatabase } from "../db";
 import {
   contentEventClusterMembers,
@@ -13,7 +13,7 @@ import {
 } from "../db/schema";
 import { normalizeEventSeedTitle, scoreEventSeedCandidate } from "./event-seed-clustering";
 
-export const EVENT_CLUSTER_RULE_VERSION = "event-cluster-v5-recall-guarded";
+export const EVENT_CLUSTER_RULE_VERSION = "event-cluster-v7-versioned-release";
 export const EVENT_CLUSTER_TIME_WINDOW_HOURS = 72;
 export const EVENT_CLUSTER_THRESHOLD = 68;
 
@@ -161,7 +161,7 @@ function versionTokens(value: string) {
     value
       .normalize("NFKC")
       .toLocaleLowerCase()
-      .match(/\b(?:v(?:ersion)?\s*)?\d+(?:\.\d+)+\b/gi) ?? []
+      .match(/\bv(?:ersion)?\s*\d+(?:\.\d+)*\b|\b\d+(?:\.\d+)+\b/gi)?.map(v=>v.replace(/^v(?:ersion)?\s*/i,'')) ?? []
   );
 }
 
@@ -173,10 +173,56 @@ function hasVersionConflict(left: string, right: string) {
   return true;
 }
 
+function releaseObject(title:string) {
+  const text=title.normalize('NFKC').toLowerCase();
+  // Explicit family + numeric version + optional named variant. Channel rollout
+  // is evidence of the same release, never a new identity by destination alone.
+  const models=[...text.matchAll(/(?<![a-z0-9])(?:gemini|claude|gpt|llama|qwen|deepseek)\s*[- ]?\s*\d+(?:\.\d+)*(?:\s*[- ]\s*(?:argon|opus|sonnet|haiku|pro|flash|nano|ultra|turbo|mini|max))?(?![a-z0-9])/gi)].map(m=>m[0].replace(/[\s-]+/g,''));
+  if(models.length)return new Set(models).size===1?models[0]:null;
+  const objects=[...text.matchAll(/(?<![a-z0-9])muse\s*(?:spark\s*open|wonder(?:\s*(?:full|max))?)(?:\s+(?:v\d+(?:\.\d+)*|\d+(?:\.\d+)+))?(?![a-z0-9])/gi)].map(m=>m[0].replace(/\s+/g,''));
+  return new Set(objects).size===1?objects[0]:null;
+}
+function independentReleaseAction(title:string){
+  return /\b(?:updates?|updated|adds?|added|retires?|deprecat\w*)\b|\b(?:pricing|prices?|security|breach|cve|patch)\b|\bnow\s+supports?\b|\bapi\b.*\bsupports?\b|outage|vulnerabilit|funding|acquisit|新增|更新|升级|退役|融资|事故|漏洞|安全|降价|价格|涨价|停止服务|停止支持/i.test(title);
+}
+
+function versionedModelReleaseReport(title:string) {
+  return /release|launch|roll(?:ing)?\s*out|available|\bin\s+github\s+copilot\b|\bcomes?\s+to\b|day[ -]*0|发布|上线|上架|开放|推出|首发/i.test(title)&&
+    !/\b(?:benchmark|comparison|review|tutorial|versus)\b|实测|评测|教程|对比|如何评价|性能测试/i.test(title);
+}
+
+/** Hard exclusions also apply to semantic advice; AI cannot override them. */
+export function eventRelationHardConflict(left:EventLike,right:EventLike){
+ const a=releaseObject(left.title),b=releaseObject(right.title);
+ const av=versionTokens(left.title),bv=versionTokens(right.title);
+ const versionConflict=av.size>0&&bv.size>0&&([...av].some(v=>!bv.has(v))||[...bv].some(v=>!av.has(v)));
+ return Boolean((a&&b&&a!==b)||versionConflict||independentReleaseAction(left.title)||independentReleaseAction(right.title)||
+  (left.subjectEntityId&&right.subjectEntityId&&left.subjectEntityId!==right.subjectEntityId)||
+  Math.abs(left.firstSeenAt.getTime()-right.firstSeenAt.getTime())>72*3600000);
+}
+
+/** Complete linkage prevents broad articles bridging incompatible clusters. */
+export function canCombineEventClusters(left:EventLike[],right:EventLike[]) {
+  if(!left.length||!right.length||left.length+right.length>100)return false;
+  const all=[...left,...right];
+  if(Math.max(...all.map(e=>e.firstSeenAt.getTime()))-Math.min(...all.map(e=>e.firstSeenAt.getTime()))>EVENT_CLUSTER_TIME_WINDOW_HOURS*3600000)return false;
+  return left.every(a=>right.every(b=>Boolean(scoreEventClusterCandidate(a,b))));
+}
+
 export function scoreEventClusterCandidate(
   anchor: EventLike,
   candidate: EventLike
 ): EventClusterCandidateScore | null {
+  const leftObject=releaseObject(anchor.title),rightObject=releaseObject(candidate.title);
+  if(leftObject&&rightObject){
+    // Both titles explicitly identify the same version. Legacy subject extraction
+    // can incorrectly label a release with a competitor mentioned in its body.
+    if(leftObject!==rightObject||hasVersionConflict(anchor.title,candidate.title)||independentReleaseAction(anchor.title)||independentReleaseAction(candidate.title))return null;
+    if(!leftObject.startsWith('muse')&&(!versionedModelReleaseReport(anchor.title)||!versionedModelReleaseReport(candidate.title)))return null;
+    const hoursApart=Math.abs(anchor.firstSeenAt.getTime()-candidate.firstSeenAt.getTime())/3600000;
+    if(hoursApart>EVENT_CLUSTER_TIME_WINDOW_HOURS)return null;
+    return {eventId:candidate.id,score:98,reason:'ACTION_ENTITY_MATCH',metadata:{titleScore:0,tokenOverlap:0,jaccard:0,keywordOverlap:0,entityOverlap:0,sharedTokenCount:0,hoursApart,actionSignature:leftObject,rules:['EXPLICIT_RELEASE_OBJECT','TIME_WINDOW','VERSION_CONFLICT_GUARDED']}};
+  }
   const hoursApart =
     Math.abs(anchor.lastSeenAt.getTime() - candidate.lastSeenAt.getTime()) /
     (60 * 60 * 1000);
@@ -312,8 +358,7 @@ export function scoreEventClusterCandidate(
   };
 }
 
-async function getMemberEvents(clusterId: string) {
-  const db = getDatabase();
+async function getMemberEvents(clusterId: string, db = getDatabase()) {
   const members = await db
     .select()
     .from(contentEventClusterMembers)
@@ -328,9 +373,8 @@ async function getMemberEvents(clusterId: string) {
   return { members, events };
 }
 
-async function refreshClusterAggregate(clusterId: string) {
-  const db = getDatabase();
-  const { members, events } = await getMemberEvents(clusterId);
+async function refreshClusterAggregate(clusterId: string, db = getDatabase()) {
+  const { members, events } = await getMemberEvents(clusterId, db);
   if (events.length === 0) throw new Error("EVENT_CLUSTER_EMPTY");
 
   const eventIds = events.map((event) => event.id);
@@ -375,8 +419,7 @@ async function refreshClusterAggregate(clusterId: string) {
   return updated;
 }
 
-async function ensurePrimaryCluster(event: EventLike) {
-  const db = getDatabase();
+export async function ensurePrimaryCluster(event: EventLike, db = getDatabase()) {
   const [existingMember] = await db
     .select()
     .from(contentEventClusterMembers)
@@ -415,15 +458,15 @@ async function ensurePrimaryCluster(event: EventLike) {
     mergeMetadata: {}
   });
 
-  return refreshClusterAggregate(cluster.id);
+  return refreshClusterAggregate(cluster.id, db);
 }
 
-async function mergeEventClusters(input: {
+/** Core-only: caller must hold clustering advisory lock and validate whole-group proof. */
+export async function mergeEventClusters(input: {
   leftClusterId: string;
   rightClusterId: string;
   reason: EventClusterCandidateScore;
-}) {
-  const db = getDatabase();
+}, db = getDatabase()) {
   if (input.leftClusterId === input.rightClusterId) {
     const [same] = await db.select().from(contentEventClusters)
       .where(eq(contentEventClusters.id, input.leftClusterId)).limit(1);
@@ -478,11 +521,39 @@ async function mergeEventClusters(input: {
     await tx.delete(contentEventClusters).where(eq(contentEventClusters.id, loser.id));
   });
 
-  return refreshClusterAggregate(winner.id);
+  return refreshClusterAggregate(winner.id, db);
 }
 
 export async function runEventClustering(eventId: string) {
-  const db = getDatabase();
+  return getDatabase().transaction(async tx => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext('opc-event-clustering-v6'))`);
+    return runEventClusteringLocked(eventId, tx as unknown as ReturnType<typeof getDatabase>);
+  });
+}
+/** SYSTEM maintenance of existing events; version receipts live on cluster members.
+ * No new ingestion is required. Each event uses the same lock/full-link proof as
+ * ingestion; a failed transaction remains due for a later cycle. */
+export async function reconcileEventClusters(options: {limit?:number;eventIds?:string[];timeBudgetMs?:number} = {}) {
+  const limit=Math.max(1,Math.min(100,Math.floor(options.limit??20)));
+  const started=Date.now(),now=new Date(),db=getDatabase();
+  const result={version:EVENT_CLUSTER_RULE_VERSION,selected:0,reconciled:0,alreadyCurrent:0,failed:0,deferred:0};
+  if(options.eventIds?.length===0)return result;
+  const due=await db.select({id:contentEvents.id}).from(contentEvents).where(and(
+    isNull(contentEvents.archivedAt),lte(contentEvents.createdAt,now),lte(contentEvents.firstSeenAt,now),or(isNull(contentEvents.eventAt),lte(contentEvents.eventAt,now)),
+    or(gte(contentEvents.lastSeenAt,new Date(now.getTime()-168*3600000)),sql`${contentEvents.metadata}->'aiHotspotPractice' is not null`),
+    options.eventIds?inArray(contentEvents.id,options.eventIds):undefined,
+    sql`not exists (select 1 from ${contentEventClusterMembers} m where m.event_id = ${contentEvents.id} and m.cluster_rule_version = ${EVENT_CLUSTER_RULE_VERSION})`
+  )).orderBy(sql`(${contentEvents.metadata}->'aiHotspotPractice' is not null) desc`,asc(contentEvents.firstSeenAt),asc(contentEvents.id)).limit(limit);
+  result.selected=due.length;
+  for(let index=0;index<due.length;index++){
+    if(Date.now()-started>=Math.max(1,options.timeBudgetMs??45000)){result.deferred=due.length-index;break;}
+    const [current]=await db.select({version:contentEventClusterMembers.clusterRuleVersion}).from(contentEventClusterMembers).where(eq(contentEventClusterMembers.eventId,due[index].id));
+    if(current?.version===EVENT_CLUSTER_RULE_VERSION){result.alreadyCurrent++;continue;}
+    try{await runEventClustering(due[index].id);result.reconciled++;}catch{result.failed++;}
+  }
+  return result;
+}
+async function runEventClusteringLocked(eventId: string, db:ReturnType<typeof getDatabase>) {
   const [target] = await db
     .select()
     .from(contentEvents)
@@ -490,7 +561,8 @@ export async function runEventClustering(eventId: string) {
     .limit(1);
   if (!target) throw new Error("EVENT_NOT_FOUND");
 
-  let cluster = await ensurePrimaryCluster(target);
+  if(target.archivedAt)return getEventClusterResearchPack(eventId,db);
+  let cluster = await ensurePrimaryCluster(target,db);
   const start = new Date(target.firstSeenAt.getTime() - EVENT_CLUSTER_TIME_WINDOW_HOURS * 60 * 60 * 1000);
   const end = new Date(target.lastSeenAt.getTime() + EVENT_CLUSTER_TIME_WINDOW_HOURS * 60 * 60 * 1000);
 
@@ -516,7 +588,7 @@ export async function runEventClustering(eventId: string) {
     : [];
   const membershipByEvent = new Map(existingMemberships.map((item) => [item.eventId, item]));
 
-  let { events: memberEvents } = await getMemberEvents(cluster.id);
+  let { events: memberEvents } = await getMemberEvents(cluster.id, db);
   const memberIds = new Set(memberEvents.map((item) => item.id));
   let changed = true;
 
@@ -534,13 +606,15 @@ export async function runEventClustering(eventId: string) {
       if (!best) continue;
 
       const existing = membershipByEvent.get(candidate.id);
+      const incoming=existing ? (await getMemberEvents(existing.clusterId,db)).events : [candidate];
+      if(incoming.some(e=>e.archivedAt)||!canCombineEventClusters(memberEvents,incoming))continue;
       if (existing && existing.clusterId !== cluster.id) {
         cluster = await mergeEventClusters({
           leftClusterId: cluster.id,
           rightClusterId: existing.clusterId,
           reason: best
-        });
-        const merged = await getMemberEvents(cluster.id);
+        },db);
+        const merged = await getMemberEvents(cluster.id, db);
         memberEvents = merged.events;
         memberIds.clear();
         for (const memberEvent of memberEvents) memberIds.add(memberEvent.id);
@@ -564,7 +638,7 @@ export async function runEventClustering(eventId: string) {
     }
   }
 
-  const refreshed = await refreshClusterAggregate(cluster.id);
+  const refreshed = await refreshClusterAggregate(cluster.id, db);
   await db.update(contentEventClusters).set({
     clusterRuleVersion: EVENT_CLUSTER_RULE_VERSION,
     updatedAt: new Date()
@@ -572,11 +646,10 @@ export async function runEventClustering(eventId: string) {
   await db.update(contentEventClusterMembers).set({
     clusterRuleVersion: EVENT_CLUSTER_RULE_VERSION
   }).where(eq(contentEventClusterMembers.clusterId, refreshed.id));
-  return getEventClusterResearchPack(refreshed.primaryEventId);
+  return getEventClusterResearchPack(refreshed.primaryEventId,db);
 }
 
-export async function getEventClusterResearchPack(eventId: string) {
-  const db = getDatabase();
+export async function getEventClusterResearchPack(eventId: string, db = getDatabase()) {
   const [membership] = await db
     .select()
     .from(contentEventClusterMembers)
@@ -591,7 +664,7 @@ export async function getEventClusterResearchPack(eventId: string) {
     .limit(1);
   if (!cluster) throw new Error("EVENT_CLUSTER_NOT_FOUND");
 
-  const { members, events } = await getMemberEvents(cluster.id);
+  const { members, events } = await getMemberEvents(cluster.id, db);
   const eventIds = events.map((item) => item.id);
   const links = eventIds.length
     ? await db

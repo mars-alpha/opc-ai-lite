@@ -1,0 +1,38 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import * as understanding from "../lib/server/content/content-understanding-enrichment";
+import {understandingJobDue,runContentUnderstandingCycle,CONTENT_UNDERSTANDING_JOB_VERSION} from "../lib/server/content/content-understanding-runtime";
+async function main(){
+ const moduleText=readFileSync("lib/server/content/content-understanding-enrichment.ts","utf8");
+ assert.equal(moduleText.includes("await translateFullText("),false,"AUTOMATIC_UNDERSTANDING_NEVER_REQUESTS_FULL_TRANSLATION");
+ assert.equal(typeof (understanding as Record<string,unknown>).analyzeContentUnderstandingMaterial,"function");
+ const readModel=readFileSync("lib/server/content/intelligence-read-model.ts","utf8");
+ assert(!/representativeRaw:\s*\{/.test(readModel),"READ_MODEL_MUST_PASS_COMPLETE_RAW_FOR_REVISION_CHECK");
+ const config={baseUrl:"https://model.invalid",apiKey:"fixture",model:"fixture",provider:"fixture",thinkingControl:"enable_thinking" as const};
+ const material={id:"fixture",title:"OpenAI releases a tool",excerpt:"OpenAI releases a coding tool with an API.",author:null,publishedAt:null,originalUrl:"https://example.org/tool",contentHash:"fixture",metadata:{fullText:"OpenAI releases a coding tool with an API. ".repeat(400)},sourceName:"OpenAI",sourceType:"OFFICIAL"};
+ const output={itemType:"product_launch",authorRole:"principal",tags:["产品更新","编码"],titleZh:"OpenAI 发布编码工具",summaryZh:"OpenAI 发布编码工具，提供 API。",editorialJudgment:"可了解编码工具的功能与接口。",fact:null,uncertainties:["材料未说明使用限制。"]};
+ let requests:Array<any>=[],usage:Array<any>=[];
+ const fetchImpl:typeof fetch=async(_url,init)=>{requests.push(JSON.parse(String(init?.body)));return Response.json({choices:[{message:{content:JSON.stringify(output)}}],usage:{prompt_tokens:100,completion_tokens:50,total_tokens:150}});};
+ const result=await understanding.analyzeContentUnderstandingMaterial(material,{config,fetchImpl,onUsage:async u=>{usage.push(u);}});
+ assert.equal(requests.length,1,"ONE_UNDERSTANDING_CALL_WITHOUT_TRANSLATION");assert.equal(requests[0].enable_thinking,false);assert.equal(requests[0].max_tokens,1800);
+ assert.equal(requests[0].messages[0].content.includes("不要全文翻译"),true);assert.equal(JSON.parse(requests[0].messages[1].content).materialQuality,"FULL_TEXT_PARTIAL");
+ assert.equal(result.fullTextZh,null);assert.equal(result.fullTextTranslationStatus,"NOT_REQUESTED");assert.equal(usage[0].totalTokens,150);
+ const readMaterial={...material,metadata:{...material.metadata,contentUnderstanding:result}};
+ assert(understanding.readContentUnderstanding(readMaterial.metadata,readMaterial));assert.equal(understanding.readContentUnderstanding(readMaterial.metadata,{...readMaterial,title:"Changed material"}),null,"STALE_PRESENTATION_FALLS_BACK");
+ assert.equal(understanding.prepareContentUnderstanding(material,{...config,apiKey:"rotated"}).inputHash,result.inputHash,"SECRET_ROTATION_DOES_NOT_REANALYZE");
+ assert.notEqual(understanding.prepareContentUnderstanding({...material,excerpt:"changed"},config).inputHash,result.inputHash);
+ assert.notEqual(understanding.prepareContentUnderstanding(material,{...config,model:"other"}).inputHash,result.inputHash);
+ const job={version:CONTENT_UNDERSTANDING_JOB_VERSION,inputHash:result.inputHash,status:"SUCCEEDED"};
+ assert.equal(understandingJobDue(job,result.inputHash),false);
+ assert.equal(understandingJobDue({...job,status:"RUNNING",nextRetryAt:new Date(Date.now()+60000).toISOString()},result.inputHash),false);
+ assert.equal(understandingJobDue({...job,status:"FAILED",nextRetryAt:new Date(Date.now()-1000).toISOString()},result.inputHash),true);
+ assert.equal(understandingJobDue({...job,status:"FAILED",nextRetryAt:"invalid"},result.inputHash),false);
+ assert.equal((await runContentUnderstandingCycle({budgetMs:0},{config})).status,"DEFERRED_TIME_SLICE");
+ assert.equal((await runContentUnderstandingCycle({},{config:null})).status,"DEFERRED_MODEL_UNCONFIGURED");
+ let repairs=0;usage=[];
+ const repaired=await understanding.analyzeContentUnderstandingMaterial(material,{config,onUsage:async u=>{usage.push(u);},fetchImpl:async()=>{repairs++;return Response.json({choices:[{message:{content:JSON.stringify(repairs===1?{...output,summaryZh:"OpenAI 工具提升 90%。"}:output)}}],usage:{total_tokens:80}});}});
+ assert.equal(repairs,2,"ONE_BOUNDED_REPAIR");assert.equal(usage.length,2);assert.equal(repaired.titleZh,output.titleZh);
+ let expiredCalls=0;await assert.rejects(understanding.analyzeContentUnderstandingMaterial(material,{config,deadline:Date.now()-1,fetchImpl:async()=>{expiredCalls++;throw new Error("MUST_NOT_CALL");}}),/CONTENT_UNDERSTANDING_TIME_SLICE/);assert.equal(expiredCalls,0);
+ console.log("ASYNC_CONTENT_UNDERSTANDING=PASS");
+}
+main().catch(error=>{console.error(error);process.exitCode=1;});

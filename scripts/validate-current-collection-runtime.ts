@@ -108,7 +108,7 @@ assert(!runner.includes("collectManualUrl"), "RUNNER_NO_MANUAL_COLLECTOR");
 assert(!runner.includes("manualResultOnly"), "RUNNER_NO_MANUAL_RESULT_BRANCH");
 assert(!runner.includes('provenance.origin === "MANUAL"'), "RUNNER_NO_MANUAL_RUNTIME_BRANCH");
 assert(!runner.includes("localizeCollectedItemsForChineseReview"), "PRESENTATION_LOCALIZATION_NOT_IN_COLLECTION_CRITICAL_PATH");
-assert(runner.includes("runFreshScan({ sourceId: source.id, items: policyItems, provenance })"), "RAW_OBSERVATION_PERSISTS_BEFORE_PRESENTATION");
+assert(runner.includes("runFreshScan({ sourceId: source.id, collectionRunId: run.id, items: policyItems, provenance })"), "RAW_OBSERVATION_PERSISTS_BEFORE_PRESENTATION");
 assert(runner.includes("evaluateEventRelevance(eventId, { allowAi: false })"), "EVENT_AI_RELEVANCE_NOT_IN_COLLECTION_CRITICAL_PATH");
 assert(runner.includes('method === "TREND"') && runner.includes("result.createdRawItemIds"), "NON_TREND_DUPLICATES_DO_NOT_REFRESH_EVENTS");
 assert(cycle.includes("listDueSourceIdsForAutomaticCycle"), "FIXED_TICK_DUE_SELECTION");
@@ -131,7 +131,10 @@ assert(!manualApi.includes("createManualCollectionTask"), "MANUAL_API_NO_CREATE"
 
 assert(architecture.includes("Unified Collection — SYSTEM Runtime"), "ARCHITECTURE_SINGLE_SYSTEM_RUNTIME");
 assert(architecture.includes("Current Owner Map"), "ARCHITECTURE_OWNER_MAP");
-assert(mapping.includes("Retired Physical Owners"), "MAPPING_RETIREMENT_GUARD");
+assert(
+  !mapping.includes("Retired Physical Owners") && mapping.includes("历史 Phase 与已删除文件由 Git 追溯"),
+  "MAPPING_HISTORY_ONLY_IN_GIT"
+);
 assert(
   !architecture.includes("COLLECTION-ADAPTER-QUALIFICATION-022-B 当前事实") &&
   !architecture.includes("COLLECTION-POLLUTION-SYNDICATION-022-C 当前事实") &&

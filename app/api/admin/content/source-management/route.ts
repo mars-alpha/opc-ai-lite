@@ -1,4 +1,7 @@
+import {listSourceCollectionSchedules,saveSourceCollectionSchedules} from "../../../../../lib/server/content/source-collection-schedule-store";
 import { NextResponse } from "next/server";
+import {readRadarAlgorithmPolicy,saveRadarAlgorithmPolicy} from '../../../../../lib/server/content/radar-algorithm-store';
+import {readSourceCollectionAnalytics} from '../../../../../lib/server/content/source-collection-analytics';
 import {
   contentWorkbenchError,
   requireAdminRequest
@@ -29,6 +32,9 @@ export async function GET(request: Request) {
     await requireAdminRequest(request);
     const url = new URL(request.url);
     const mode = url.searchParams.get("mode") ?? "index";
+    if(mode==='frequency')return NextResponse.json(await listSourceCollectionSchedules());
+    if(mode==='algorithm')return NextResponse.json(await readRadarAlgorithmPolicy());
+    if(mode==='analytics')return NextResponse.json(await readSourceCollectionAnalytics(url.searchParams.get('days')??7,url.searchParams.get('sourceId')));
     if (mode === "detail") {
       const sourceId = url.searchParams.get("sourceId");
       if (!sourceId) throw new Error("SOURCE_ID_REQUIRED");
@@ -49,6 +55,18 @@ export async function POST(request: Request) {
     const user = await requireAdminRequest(request);
     const body = await request.json().catch(() => ({})) as Record<string, unknown>;
     const action = String(body.action ?? "").toUpperCase();
+    if(action==='SAVE_RADAR_ALGORITHM'||action==='SAVE_SOURCE_FREQUENCY'){
+      const origin=request.headers.get('origin');
+      if(origin){
+        // Next's internal request URL may use localhost behind the reverse proxy.
+        // The browser's target Host remains the same-origin authority.
+        let sameOriginHost=false;
+        try{const parsed=new URL(origin);sameOriginHost=['http:','https:'].includes(parsed.protocol)&&parsed.origin===origin&&parsed.host===request.headers.get('host');}catch{}
+        if(!sameOriginHost)return NextResponse.json({error:'FORBIDDEN'},{status:403});
+      }
+      if(action==='SAVE_SOURCE_FREQUENCY')return NextResponse.json(await saveSourceCollectionSchedules(body.changes,user));
+      return NextResponse.json(await saveRadarAlgorithmPolicy(body.policy,body.expectedRevision,user));
+    }
     if (action === "DISCOVER" || action === "CHECK") {
       return NextResponse.json(await discoverSource({ url: body.url, kind: body.kind, name: body.name }));
     }
@@ -88,6 +106,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "SOURCE_MANAGEMENT_ACTION_INVALID" }, { status: 400 });
   } catch (error) {
     return contentWorkbenchError(error, "SOURCE_MANAGEMENT_ACTION_FAILED") ??
-      NextResponse.json({ error: error instanceof Error ? error.message : "SOURCE_MANAGEMENT_ACTION_FAILED" }, { status: 400 });
+      NextResponse.json({ error: "SOURCE_MANAGEMENT_ACTION_FAILED" }, { status: 500 });
   }
 }

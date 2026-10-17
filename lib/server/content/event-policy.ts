@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import {
   EVENT_POLICIES,
   HOTSPOT_POLICY,
@@ -20,6 +20,8 @@ import {
   contentSources
 } from "../db/schema";
 import { inferCollectionContentType, sourceContentRule } from "./source-policy";
+import { scoreEventClusterCandidate } from './event-clustering';
+import { normalizeEventSeedTitle } from './event-seed-clustering';
 import {
   evaluateEventEvidenceRelevance,
   resolveIndependentOrigins
@@ -156,7 +158,12 @@ export function assessOperationalUsefulness(input: {
 }
 
 export async function evaluateEventPolicy(eventId: string, now = new Date()) {
-  const db = getDatabase();
+ return getDatabase().transaction(async tx=>{
+  await tx.execute(sql`select pg_advisory_xact_lock(hashtext('opc-event-clustering-v6'))`);
+  return evaluateEventPolicyLocked(eventId,now,tx as unknown as ReturnType<typeof getDatabase>);
+ });
+}
+async function evaluateEventPolicyLocked(eventId:string,now:Date,db:ReturnType<typeof getDatabase>) {
   const [event] = await db.select().from(contentEvents).where(eq(contentEvents.id, eventId)).limit(1);
   if (!event) throw new Error("EVENT_NOT_FOUND");
 
@@ -165,15 +172,17 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
   const clusterMembers = clusterId
     ? await db.select().from(contentEventClusterMembers).where(eq(contentEventClusterMembers.clusterId, clusterId))
     : [];
-  const eventIds = [...new Set([event.id, ...clusterMembers.map((item) => item.eventId)])];
-  const clusterEvents = eventIds.length
-    ? await db.select().from(contentEvents).where(inArray(contentEvents.id, eventIds))
-    : [event];
+  const allMemberIds = [...new Set([event.id, ...clusterMembers.map((item) => item.eventId)])];
+  const clusterEvents = (allMemberIds.length
+    ? await db.select().from(contentEvents).where(inArray(contentEvents.id, allMemberIds)).for("update")
+    : [event]).filter(member=>!member.archivedAt||(member.id===event.id&&member.verificationStatus==="ARCHIVED_UNVERIFIED"));
+  const eventIds=clusterEvents.map(member=>member.id);
+  if(!eventIds.length)throw Error("EVENT_CLUSTER_NO_ACTIVE_MEMBERS");
   const [cluster] = clusterId
     ? await db.select().from(contentEventClusters).where(eq(contentEventClusters.id, clusterId)).limit(1)
     : [];
   const canonicalEvent = cluster
-    ? clusterEvents.find((item) => item.id === cluster.primaryEventId) ?? event
+    ? clusterEvents.find((item) => item.id === cluster.primaryEventId) ?? [...clusterEvents].sort((a,b)=>a.firstSeenAt.getTime()-b.firstSeenAt.getTime()||a.id.localeCompare(b.id))[0]
     : event;
   const links = eventIds.length
     ? await db.select().from(contentEventRawItems).where(inArray(contentEventRawItems.eventId, eventIds))
@@ -194,19 +203,64 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
     : [];
   const sourceById = new Map(sources.map((source) => [source.id, source]));
 
+  const projected=projectEventPolicy({canonicalEvent,clusterId,clusterMetadata:cluster?.metadata??{},eventIds,raws,observations,sources,now});
+  const {verificationStatus,generationReadiness,archivedAt,resurrectedAt,aiRelevant,metadata:eventPolicyMetadata,evidence:independentEvidence,factSourceCount,signalSourceCount,officialNewsEligible,hotspotEligible,operationalUsefulness,changeMagnitude,leadTimeToConfirmationHours,previousStatus}=projected;
+
+  const updates = await db.update(contentEvents).set({
+    verificationStatus,
+    generationReadiness,
+    archivedAt,
+    resurrectedAt: sql`coalesce(${contentEvents.resurrectedAt}, ${resurrectedAt})`,
+    relevanceScore: aiRelevant ? 100 : 0,
+    policyVersion: INTELLIGENCE_POLICY_VERSION,
+    updatedAt: now
+  }).where(inArray(contentEvents.id, eventIds)).returning();
+  for (const memberEvent of clusterEvents) {
+    await db.update(contentEvents).set({
+      metadata: sql`jsonb_set(${contentEvents.metadata}, '{eventPolicy}', ${JSON.stringify(eventPolicyMetadata)}::jsonb, true)`
+    }).where(eq(contentEvents.id, memberEvent.id));
+  }
+  const updated = updates.find((item) => item.id === event.id) ?? event;
+
+  return {
+    event: updated,
+    evidence: independentEvidence,
+    factSourceCount,
+    signalSourceCount,
+    confirmedOfficial: verificationStatus === "CONFIRMED_OFFICIAL",
+    confirmedMedia: verificationStatus === "CONFIRMED_MEDIA",
+    officialNewsEligible,
+    hotspotEligible,
+    operationalUsefulness,
+    changeMagnitude,
+    leadTimeToConfirmationHours,
+    resurrected: previousStatus === "ARCHIVED_UNVERIFIED" && updated.resurrectedAt !== null
+  };
+}
+
+/** Shared deterministic projection: read paths never reuse a primary member's stale counts. */
+export function projectEventPolicy(input:{canonicalEvent:typeof contentEvents.$inferSelect;clusterId:string|null;clusterMetadata:unknown;eventIds:string[];raws:(typeof contentRawItems.$inferSelect)[];observations:(typeof contentRawItemObservations.$inferSelect)[];sources:(typeof contentSources.$inferSelect)[];now:Date}) {
+ const {canonicalEvent,clusterId,clusterMetadata,eventIds,raws,observations,sources,now}=input;
+ const sourceById=new Map(sources.map(s=>[s.id,s]));
+ const relevantRawIds=new Set(raws.filter(raw=>raw.collectedAt<=now&&(!raw.publishedAt||raw.publishedAt<=now)&&canonicalEvidenceRelevance({eventTitle:canonicalEvent.title,eventKeywords:canonicalEvent.keywords,eventEntities:canonicalEvent.entities,candidateTitle:raw.title,candidateExcerpt:raw.excerpt},canonicalEvent,raw.publishedAt??raw.collectedAt).pass).map(raw=>raw.id));
+ const sourceIds=[...new Set([...raws.map(r=>r.sourceId),...observations.map(o=>o.sourceId)])];
   const evidence = sourceIds.flatMap((sourceId) => {
     const source = sourceById.get(sourceId);
     if (!source) return [];
-    const sourceRaws = raws.filter((raw) =>
+    const sourceRaws = raws.filter((raw) => relevantRawIds.has(raw.id) && (
       raw.sourceId === sourceId || observations.some((observation) => observation.rawItemId === raw.id && observation.sourceId === sourceId)
-    );
-    const contentTypes = [...new Set(sourceRaws.map((raw) => inferCollectionContentType({
+    ));
+    if(!sourceRaws.length)return [];
+    const sourceObservations=observations.filter(o=>o.sourceId===sourceId&&o.observedAt<=now&&sourceRaws.some(r=>r.id===o.rawItemId));
+    const factRaws=sourceRaws.filter(raw=>record(raw.metadata).referenceOnly!==true&&sourceObservations.some(o=>o.rawItemId===raw.id&&isSystemObservation(o.metadata)));
+    const contentTypes = [...new Set(factRaws.map((raw) => inferCollectionContentType({
       metadata: record(raw.metadata),
       originalUrl: raw.originalUrl,
       collectionMethod: source.collectionMethod,
       platform: source.platform,
       source
     })))];
+    const factAllowed = factRaws.length>0 && record(source.metadata).referenceOnly !== true && record(source.signalConfig).signalOnly !== true;
     const rules = contentTypes.map((contentType) => sourceContentRule(source, contentType));
     const strongest = rules.sort((a, b) => scopeRank(b.confirmationScope) - scopeRank(a.confirmationScope))[0]
       ?? sourceContentRule(source, inferCollectionContentType({
@@ -214,20 +268,20 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
         platform: source.platform,
         source
       }));
-    const sourceObservations = observations.filter((observation) => observation.sourceId === sourceId);
     const firstObservedAt = sourceObservations.map((observation) => observation.observedAt).sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
     const firstPublishedAt = sourceRaws.map((raw) => raw.publishedAt ?? raw.collectedAt).sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
     return [{
       sourceId,
       sourceName: source.name,
       sourceType: source.sourceType,
-      role: strongest.role,
-      confirmationScope: strongest.confirmationScope,
-      confirmationAuthority: strongest.confirmationAuthority,
+      role: factAllowed ? strongest.role : "SIGNAL",
+      confirmationScope: factAllowed ? strongest.confirmationScope : "NONE",
+      confirmationAuthority: factAllowed ? strongest.confirmationAuthority : "NONE",
       canContributeHotness: strongest.canContributeHotness,
       firstObservedAt,
       firstPublishedAt,
-      hasSystemObservation: sourceObservations.some((observation) => isSystemObservation(observation.metadata))
+      hasSystemObservation: sourceObservations.some((observation) => isSystemObservation(observation.metadata)),
+      factHasSystemObservation: sourceObservations.some(o=>isSystemObservation(o.metadata)&&factRaws.some(r=>r.id===o.rawItemId))
     }];
   });
 
@@ -235,11 +289,11 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
       const source = sourceById.get(item.sourceId)!;
       const sourceRaws = raws
         .filter((raw) =>
-          raw.sourceId === item.sourceId ||
+          relevantRawIds.has(raw.id) && (raw.sourceId === item.sourceId ||
           observations.some((observation) =>
             observation.rawItemId === raw.id &&
             observation.sourceId === item.sourceId
-          )
+          ))
         )
         .sort((a, b) =>
           (a.publishedAt ?? a.collectedAt).getTime() -
@@ -263,13 +317,13 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
   const relevanceBySource = new Map(
     originCandidates.map((candidate) => [
       candidate.sourceId,
-      evaluateEventEvidenceRelevance({
+      canonicalEvidenceRelevance({
         eventTitle: canonicalEvent.title,
         eventKeywords: canonicalEvent.keywords,
         eventEntities: canonicalEvent.entities,
         candidateTitle: candidate.title,
         candidateExcerpt: candidate.excerpt
-      })
+      },canonicalEvent,candidate.publishedAt instanceof Date ? candidate.publishedAt : canonicalEvent.firstSeenAt)
     ])
   );
   const originResolution = resolveIndependentOrigins(
@@ -302,8 +356,7 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
 
   const primaryFact = independentEvidence.find((item) =>
     item.relevance.pass &&
-    item.contributesEvidenceCount &&
-    item.hasSystemObservation &&
+    item.factHasSystemObservation &&
     item.role !== "SIGNAL" &&
     item.confirmationAuthority === "PRIMARY" &&
     scopeRank(item.confirmationScope) >= scopeRank("SPECIFICATION")
@@ -311,8 +364,7 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
   const highFactSources = new Set(
     independentEvidence.filter((item) =>
       item.relevance.pass &&
-      item.contributesEvidenceCount &&
-      item.hasSystemObservation &&
+        item.factHasSystemObservation &&
       item.role !== "SIGNAL" &&
       item.confirmationAuthority === "HIGH" &&
       scopeRank(item.confirmationScope) >= scopeRank("EXISTENCE")
@@ -320,16 +372,15 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
   );
   const factSources = independentEvidence.filter(
     (item) =>
+      item.factHasSystemObservation &&
       item.relevance.pass &&
-      item.contributesEvidenceCount &&
-      item.role !== "SIGNAL" &&
+        item.role !== "SIGNAL" &&
       item.confirmationScope !== "NONE"
   );
   const signalSources = independentEvidence.filter(
     (item) =>
       item.relevance.pass &&
-      item.contributesEvidenceCount &&
-      item.canContributeHotness
+        item.canContributeHotness
   );
   const systemObserved = independentEvidence.some(
     (item) => item.hasSystemObservation
@@ -346,7 +397,7 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
   const anchor = canonicalEvent.eventAt ?? canonicalEvent.firstSeenAt;
   const ageHours = Math.max(0, (now.getTime() - anchor.getTime()) / 3_600_000);
   const eventFresh = ageHours <= policy.eventFreshnessHours;
-  const relevanceGate = record(record(cluster?.metadata).relevanceGate);
+  const relevanceGate = record(record(clusterMetadata).relevanceGate);
   let archivedAt = canonicalEvent.archivedAt;
   let resurrectedAt = canonicalEvent.resurrectedAt;
 
@@ -485,37 +536,14 @@ export async function evaluateEventPolicy(eventId: string, now = new Date()) {
       memberEventIds: eventIds
   };
 
-  const updates = await db.update(contentEvents).set({
-    verificationStatus,
-    generationReadiness,
-    archivedAt,
-    resurrectedAt,
-    relevanceScore: aiRelevant ? 100 : 0,
-    policyVersion: INTELLIGENCE_POLICY_VERSION,
-    updatedAt: now
-  }).where(inArray(contentEvents.id, eventIds)).returning();
-  for (const memberEvent of clusterEvents) {
-    await db.update(contentEvents).set({
-      metadata: {
-        ...record(memberEvent.metadata),
-        eventPolicy: eventPolicyMetadata
-      }
-    }).where(eq(contentEvents.id, memberEvent.id));
-  }
-  const updated = updates.find((item) => item.id === event.id) ?? event;
 
-  return {
-    event: updated,
-    evidence: independentEvidence,
-    factSourceCount,
-    signalSourceCount,
-    confirmedOfficial: verificationStatus === "CONFIRMED_OFFICIAL",
-    confirmedMedia: verificationStatus === "CONFIRMED_MEDIA",
-    officialNewsEligible,
-    hotspotEligible,
-    operationalUsefulness,
-    changeMagnitude,
-    leadTimeToConfirmationHours,
-    resurrected: previousStatus === "ARCHIVED_UNVERIFIED" && updated.resurrectedAt !== null
-  };
+ return {verificationStatus,generationReadiness,archivedAt,resurrectedAt,metadata:eventPolicyMetadata,evidence:independentEvidence,relevantRawIds:[...relevantRawIds],factSourceCount,signalSourceCount,confirmedOfficial:verificationStatus==='CONFIRMED_OFFICIAL',confirmedMedia:verificationStatus==='CONFIRMED_MEDIA',officialNewsEligible,hotspotEligible,operationalUsefulness,changeMagnitude,leadTimeToConfirmationHours,aiRelevant,previousStatus};
+}
+
+function canonicalEvidenceRelevance(input:Parameters<typeof evaluateEventEvidenceRelevance>[0],event:typeof contentEvents.$inferSelect,publishedAt:Date) {
+ const evaluated=evaluateEventEvidenceRelevance(input);
+ const exact=Boolean(input.candidateTitle.trim())&&normalizeEventSeedTitle(input.eventTitle)===normalizeEventSeedTitle(input.candidateTitle);
+ const match=scoreEventClusterCandidate(event,{...event,id:'evidence',title:input.candidateTitle,firstSeenAt:publishedAt,lastSeenAt:publishedAt});
+ const explicit=match?.metadata.rules.includes('EXPLICIT_RELEASE_OBJECT')===true;
+ return exact||explicit?{...evaluated,pass:true,reason:'CANONICAL_OBJECT_EVIDENCE_PASS'}:evaluated;
 }

@@ -1,0 +1,74 @@
+{
+  "version": "current-tool-evidence-v1",
+  "asOf": "2026-10-17T05:24:40Z",
+  "labelAuthority": "EXPLORATORY_ANALYST_NOT_BLINDED_HUMAN_GOLD",
+  "qualityStatus": "NOT_ACCEPTED",
+  "releaseStatus": "RELEASE_NOT_READY",
+  "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+  "selection": "First-party dated publications, independent original tests and original discussion; selected before runtime score lookup. Not an exhaustive discovery denominator.",
+  "topics": [
+    {
+      "id": "tiny-little-office",
+      "subject": "Tiny Little Office 的 Agent / Skill 文档生成工作流",
+      "publications": [
+        {"publisherKey": "aboard", "author": "Paul Ford / Aboard", "role": "ORIGINAL_PROJECT_AUTHOR", "url": "https://aboard.com/introducing-tinylittleoffice-com/", "publishedAt": "2026-10-14T16:21:30Z", "precision": "NATIVE_FEED_ONE_OFF_RESEARCH_NOT_SYSTEM", "relation": "PROJECT_INTRODUCTION"},
+        {"publisherKey": "simon-willison", "author": "Simon Willison", "role": "INDEPENDENT_ORIGINAL_USE", "url": "https://simonwillison.net/2026/Oct/15/latex/", "publishedAt": "2026-10-15T02:07:28.000Z", "precision": "EXISTING_FEED_TIMESTAMP", "relation": "TLO_USE_PARAGRAPH_ONLY_SEPARATE_FROM_DERIVED_LATEX_TOOL"}
+      ],
+      "discussion": {"url": "https://news.ycombinator.com/item?id=50096142", "apiUrl": "https://hacker-news.firebaseio.com/v0/item/50096142.json", "publishedAt": "2026-10-14T22:10:08Z", "observedAt": "2026-10-17T05:16:43.530493Z", "score": 692, "comments": 204, "sha256": "65a1ffbddfebbe002cf0423d0d26d71b3a3881ca13fdbbab7409bff871c3f065", "role": "DISCUSSION_SIGNAL_ONLY", "independentFactPublishersAdded": 0},
+      "sameAuthorComment": {"url": "https://news.ycombinator.com/item?id=50096438", "publishedAt": "2026-10-14T22:34:07Z", "publisherKey": "simon-willison", "independentPublishersAdded": 0},
+      "nativeFeedCandidate": {"url": "https://aboard.com/feed/", "status": 200, "items": 10, "sha256": "f683c428c4fc03e21bc0d2f1bffb383e38b00fed1da526a3ce7c67774029a90b", "observedAt": "2026-10-17T05:24:24.674200Z", "systemQualification": "NOT_GRANTED_RESEARCH_ONLY"},
+      "fixedMaterial": {"repository": "https://github.com/aboard-io/tinylittleoffice", "commit": "faf8c5f9409bc332f60630e56a553d3d47220f5b", "method": "ONE_OFF_RESEARCH_GITHUB_CONTENTS_API_NOT_SYSTEM", "files": [
+        {"path": "skill/tinyoffice/SKILL.md", "sha256": "df17b69ce827ed290d36c89831b13b0f60de8c5ec7b964252a14fe9e89ad7990"},
+        {"path": "public/llms.txt", "sha256": "b2f67d371449970c7ec1d7d181419de9a5b269167224a1fb633b557de6b32d84"},
+        {"path": "skill/tinyoffice/references/deck.md", "sha256": "4d4f4b2c02bb0589902ab71f4764b55b5b4beef66179f6caf8701ca5fcef4112"}
+      ], "executed": false, "systemRouteQualified": false},
+      "runtimeMaterial": {"url": "https://simonwillison.net/2026/Oct/15/latex/", "method": "EXISTING_DENO_FIXED_ROUTE", "complete": true, "sha256": "33d6437f9a6ad7f3086bce081c484e1c5f2191f4b86a233a8920c144ddab1f8b", "sharedMaterialEligible": false, "reasons": ["REPRODUCIBLE_STEPS_OR_CONFIGURATION_MISSING", "REQUIRED_INPUTS_MISSING", "EXPECTED_OUTPUT_MISSING"]},
+      "labels": {
+        "featured": {"label": "POSITIVE", "reason": "当期原创工具变化和有成品/会话入口的独立Agent使用记录；探索性编辑价值判断。"},
+        "hot": {"label": "POSITIVE", "reason": "两个不同原创发布身份、当期实质使用记录和已核绝对时间的真实讨论；未用被测热度分数生成标签。该标签不直接授予生产栏目资格。"},
+        "practice": {"label": "UNKNOWN", "reason": "独立发布者口径包含官方，无需额外两位外部作者；但现役共享材料校验不通过，固定仓库研究材料不能伪装SYSTEM材料回执。"}
+      },
+      "runtimeGaps": ["Official Aboard source/route not qualified", "Production has Simon LaTeX Raw and one direct Event; TLO supporting paragraph is not a second TLO event", "Verified TLO-specific practice material missing"]
+    },
+    {
+      "id": "alissonerdx-character-swap-v1",
+      "subject": "Alissonerdx Character Swap LoRA v1.0 的 ComfyUI 工作流",
+      "publications": [
+        {"publisherKey": "alissonerdx-self-declared", "author": "u/Round_Awareness5490 / Alissonerdx", "role": "SELF_DECLARED_PROJECT_AUTHOR_WITH_REPOSITORY_LINK", "url": "https://www.reddit.com/r/StableDiffusion/comments/1x4jh3c/character_swap_minimax_h3_bfs_collection/", "publishedAt": null, "precision": "ABSOLUTE_TIME_UNVERIFIED"},
+        {"publisherKey": "rouage-ai-lab", "author": "Rouage AI Lab", "role": "INDEPENDENT_ORIGINAL_TEST", "url": "https://note.com/rouageailab/n/n547122352046", "publishedDate": "2026-10-13", "precision": "DISPLAYED_19_51_TIMEZONE_NOT_VERIFIED", "testedObject": "Alissonerdx v1.0; exact LoRA filename and node chain stated; independent 9-combination results with a failure; not Akatz LoRA"}
+      ],
+      "materialUrl": "https://huggingface.co/Alissonerdx/Minimax-H3-ComfyUI",
+      "candidateRevision": "5fd1b0e563bb51e8abf2782b43ef82b16d504bff",
+      "runtimeMaterial": {"sharedMaterialEligible": null, "validationStatus": "NOT_EVALUATED", "status": "NO_DECLARED_FIXED_NOTE_OR_HF_REPOSITORY_MATERIAL_ROUTE", "serverResearchFixedDocument": "UNAVAILABLE", "executed": false},
+      "labels": {
+        "featured": {"label": "UNKNOWN", "reason": "有当期独立实测，原始发布精确时间及跨账号身份尚需核实。"},
+        "hot": {"label": "UNKNOWN", "reason": "讨论原帖可读，但服务器原帖JSON失败，尚未核绝对时间与完整发布归属。"},
+        "practice": {"label": "UNKNOWN", "reason": "强正例候选；当前未通过真实材料路由/附件资格，不以研究网页可读冒充共享材料eligible。"}
+      }
+    }
+  ],
+  "negativeRelations": [
+    {"left": "tiny-little-office", "right": "Simon LaTeX renderer", "relation": "INSPIRED_BY_DIFFERENT_TOOL_NOT_SAME_RELEASE"},
+    {"left": "Alissonerdx Character Swap v1.0", "right": "Akatz Character Swap", "relation": "SAME_NAME_DIFFERENT_AUTHOR_AND_IMPLEMENTATION"},
+    {"left": "n8nknowledge", "right": "DevAIToolkit", "relation": "SAME_FLIPFACTORY_PUBLISHER_NOT_INDEPENDENT_TESTS", "citations": ["https://n8nknowledge.com/blog/is-gemini-4-argon-the-best-llm-for-n8n-workflows/", "https://devaitoolkit.com/blog/is-gemini-4-argon-worth-it-for-dev-tooling/"]}
+  ],
+  "continuity": {
+    "sourceId": "source_radar_opml_simon_willison",
+    "checkpoint": "ef4403586f2c6be84baf3aa95c601c88a3ec556a969c025cc574e2ae76ff6506",
+    "qualificationRead": "AUTO_READY",
+    "qualificationEvidence": "MATURE_5_OF_5_SUCCEEDED",
+    "observationMethod": "PRODUCTION_READ_ONLY_NO_TRIGGERED_RUN",
+    "firstReadAt": "2026-10-17T05:15:16.337Z",
+    "firstReadLatestRunId": "15a388e9-3e64-4a98-bf53-9a8f20603dbd",
+    "secondReadAt": "2026-10-17T05:20:49.159Z",
+    "secondReadLatestRunId": "5791cca9-df00-46af-9665-7370ab1732bf",
+    "secondReadLatestRunStartedAt": "2026-10-17T05:16:14.605937Z",
+    "selectedSixHourRuns": 22,
+    "selectedRunsSucceeded": 22,
+    "sourceObservationCountAtFirstRead": 17,
+    "trackedFirstSystemReceiptsAtFirstRead": 0,
+    "selectedArticleFirstSystemReceiptsAtSecondRead": 0,
+    "discoveryDelayHours": null,
+    "reason": "FIRST_SYSTEM_RECEIPT_NOT_DEPLOYED_NO_HISTORICAL_BACKFILL; natural runtime continuity does not establish immutable first discovery"
+  }
+}

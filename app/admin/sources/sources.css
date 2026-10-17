@@ -739,3 +739,63 @@ button.source-discovery-flow-row.is-active strong {
   }
 }
 
+.source-algorithm-panel { padding: 16px; color: #294468; min-height: 0; overflow-y: auto; box-sizing: border-box; }
+.source-algorithm-intro p,.source-algorithm-help,.source-algorithm-hard,.source-chart-note,.source-chart-card p { font-size: 12px; line-height: 1.7; color: #687e9e; }
+.source-algorithm-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+.source-algorithm-tabs button,.source-chart-filters button { border: 1px solid #d8e3f2; background: #fff; color: #46658c; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+.source-algorithm-tabs button[aria-selected="true"] { color: #2463eb; background: #eef4ff; border-color: #a9c5ff; }
+.source-algorithm-state { display: flex; gap: 8px 16px; flex-wrap: wrap; font-size: 11px; color: #7285a1; margin: 10px 0 16px; }
+.source-algorithm-fields { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.source-algorithm-fields label { display: grid; grid-template-columns: 1fr auto; gap: 5px; font-size: 12px; }
+.source-algorithm-fields label span { grid-column: 1/-1; }
+.source-algorithm-fields input,.source-algorithm-terms textarea,.source-chart-filters select { min-width: 0; width: 100%; border: 1px solid #d8e3f2; border-radius: 6px; padding: 8px; color: #294468; background: #fff; box-sizing: border-box; }
+.source-algorithm-fields small { align-self: center; color: #8a9bb2; font-size: 10px; }
+.source-algorithm-weights { border: 1px solid #e0e8f3; border-radius: 8px; margin: 16px 0; padding: 12px; font-size: 12px; }
+.source-algorithm-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+.source-algorithm-terms label { display: grid; gap: 8px; font-size: 12px; }
+.source-algorithm-terms textarea { min-height: 110px; resize: vertical; font: inherit; }
+.source-algorithm-hard { padding: 12px; background: #f5f8fc; border-radius: 8px; margin-bottom: 16px; }
+.source-algorithm-hard ul { padding-left: 20px; margin: 5px 0; }
+.source-algorithm-hard summary,.source-chart-card summary { cursor: pointer; }
+.source-collection-charts { margin-top: 18px; background: #fff; border: 1px solid #d8e3f2; border-radius: 10px; overflow: hidden; }
+.source-chart-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.source-chart-filters select { width: auto; max-width: 230px; font-size: 12px; }
+.source-chart-note { margin: 14px 16px; }
+.source-chart-metrics { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 10px; margin: 16px; }
+.source-chart-metrics article { padding: 14px; border: 1px solid #e1e9f4; border-radius: 8px; background: #fbfcff; }
+.source-chart-metrics span { font-size: 12px; color: #7185a3; }
+.source-chart-metrics strong { display: block; font-size: 24px; color: #316bd8; margin-top: 7px; overflow-wrap: anywhere; }
+.source-chart-metrics small { font-size: 11px; font-weight: normal; margin-left: 5px; }
+.source-chart-grid { display: grid; grid-template-columns: minmax(0,2fr) minmax(240px,1fr); gap: 14px; margin: 16px; }
+.source-chart-card { padding: 16px; border: 1px solid #e1e9f4; border-radius: 8px; min-width: 0; }
+.source-collection-charts > details { margin: 16px; }
+.source-chart-card h3 { margin: 0 0 14px; font-size: 14px; color: #294468; }
+.source-chart-card svg { width: 100%; height: auto; min-height: 150px; }
+.source-chart-card svg text { fill: #7185a3; font-size: 12px; }
+.source-chart-legend { display: flex; gap: 16px; font-size: 11px; }
+.source-chart-legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; background: currentColor; border-radius: 50%; margin-right: 5px; }
+.source-chart-legend .received { color: #7296ce; }.source-chart-legend .created { color: #21a68a; }.source-chart-legend .duplicates { color: #dca33a; }
+.source-trend-received { stroke: #7296ce; }.source-trend-created { stroke: #21a68a; }.source-trend-duplicates { stroke: #dca33a; }
+.source-status-bar { display: grid; grid-template-columns: 70px 1fr 45px; gap: 8px; align-items: center; font-size: 12px; margin: 16px 0; }
+.source-status-bar > i { height: 7px; background: #f0f4fa; border-radius: 4px; overflow: hidden; }
+.source-status-bar b { display: block; height: 100%; }
+.source-status-bar strong { text-align: right; }
+.source-chart-table { overflow: auto; max-height: 390px; }
+.source-chart-table table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; white-space: nowrap; }
+.source-chart-table th,.source-chart-table td { padding: 9px 8px; border-bottom: 1px solid #edf1f7; font-weight: normal; }
+.source-chart-table thead th { color: #7185a3; position: sticky; top: 0; background: #fff; }
+.source-contribution-bar { height: 3px; margin-top: 6px; background: #eff4fb; }.source-contribution-bar i { display: block; height: 100%; background: #7296ce; }
+@media(max-width:1100px) { .source-algorithm-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }.source-chart-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media(max-width:700px) { .source-chart-grid,.source-algorithm-terms { grid-template-columns: 1fr; }.source-chart-filters select { max-width: 170px; }.source-chart-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }.source-collection-charts > .source-column-head { align-items: flex-start; gap: 12px; flex-direction: column; } }
+
+.source-frequency-panel{padding:24px;overflow-y:auto;min-height:0;box-sizing:border-box;color:#25446c;font-size:13px;line-height:1.7}
+.source-frequency-panel>strong{font-size:16px;color:#183759}
+.source-frequency-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin:18px 0}
+.source-frequency-form label{display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px}
+.source-frequency-form input,.source-frequency-form select{width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #d8e2ef;border-radius:7px;background:white;color:#25446c}
+.source-frequency-table{overflow:auto;margin:18px 0;border:1px solid #e4ebf4;border-radius:8px}
+.source-frequency-table table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:12px}
+.source-frequency-table th,.source-frequency-table td{text-align:left;padding:10px 12px;border-bottom:1px solid #e8eef6}
+.source-frequency-table thead{background:#f7f9fd;color:#68809e}
+.source-frequency-table button{border:1px solid #d8e2ef;border-radius:5px;background:white;color:#2563eb;padding:4px 8px;cursor:pointer}
+@media(max-width:720px){.source-frequency-panel{padding:16px}.source-frequency-form{align-items:stretch}.source-frequency-form label{min-width:100%}.source-mode-switch{flex-wrap:wrap}}

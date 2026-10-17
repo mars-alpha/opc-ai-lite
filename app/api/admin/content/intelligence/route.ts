@@ -13,7 +13,9 @@ import {
 import { getTodayIntelligenceSignalReadiness } from "../../../../../lib/server/content/today-intelligence-readiness";
 import { listSourceRuntimeOperations } from "../../../../../lib/server/content/source-runtime-operations";
 import { getRadarSnapshot } from "../../../../../lib/server/content/radar-snapshot";
+import { compactRadarSnapshotWire, radarListingItem } from "../../../../../lib/content/radar-snapshot-wire";
 import {listAiHotspotPractices} from "../../../../../lib/server/content/ai-hotspot-practice-store";
+import {readRadarAlgorithmPolicy} from "../../../../../lib/server/content/radar-algorithm-store";
 import {evaluateAiHotspotPractice} from "../../../../../lib/server/content/ai-hotspot-practice";
 
 export const dynamic = "force-dynamic";
@@ -33,12 +35,32 @@ export async function GET(request: Request) {
     const limit = boundedLimit(url.searchParams.get("limit"));
 
     if (view === "snapshot") {
-      return NextResponse.json({ view, ...(await getRadarSnapshot()) });
+      const snapshot = await getRadarSnapshot();
+      return NextResponse.json({ view, ...(["compact","listing"].includes(url.searchParams.get("transport")??'')
+        ? compactRadarSnapshotWire(snapshot,url.searchParams.get('transport')==='listing')
+        : snapshot) });
+    }
+    if(view==='event-detail') {
+      const eventId=url.searchParams.get('eventId');
+      if(!eventId||!/^[a-zA-Z0-9_-]{1,100}$/.test(eventId)) return NextResponse.json({error:'INVALID_EVENT_ID'},{status:400});
+      const snapshot=await getRadarSnapshot();
+      let item=snapshot.items.find(item=>item.eventId===eventId);
+      const day=url.searchParams.get('day'),asOfRaw=url.searchParams.get('asOf');
+      if(!item&&day&&asOfRaw){
+        const asOf=new Date(asOfRaw);
+        try{dayStart(day);}catch{return NextResponse.json({error:'INVALID_RADAR_DAY'},{status:400});}
+        if(!Number.isFinite(asOf.getTime())||asOf.getTime()>Date.now()+60000||day>=calendarWindow(asOf).firstDay) return NextResponse.json({error:'HISTORY_DAY_REQUIRED'},{status:400});
+        item=(await listRadarTimelinePage({day,asOf})).items.find(row=>row.eventId===eventId);
+      }
+      if(!item)return NextResponse.json({error:'EVENT_DETAIL_NOT_FOUND'},{status:404});
+      const compact=compactRadarSnapshotWire({items:[item],featured:[],currentHot:[]});
+      return NextResponse.json({view,item:compact.items[0]});
     }
     if (view === "ai-hotspot-practice-diagnostics") {
-      const page = await listRadarTimelinePage({asOf:new Date()});
+      const algorithm=await readRadarAlgorithmPolicy();
+      const page = await listRadarTimelinePage({asOf:new Date(),algorithm});
       return NextResponse.json({view,asOf:page.asOf,
-        events:page.items.map(item=>({eventId:item.eventId,...evaluateAiHotspotPractice(item)}))});
+        algorithmRevision:algorithm.revision,events:page.items.map(item=>({eventId:item.eventId,...evaluateAiHotspotPractice(item,new Date(page.asOf),algorithm.policy)}))});
     }
     if (view === "latest") {
       return NextResponse.json({ view, items: await listLatestTodayIntelligence(limit) });
@@ -51,7 +73,7 @@ export async function GET(request: Request) {
       try { dayStart(day); } catch { return NextResponse.json({ error: "INVALID_RADAR_DAY" }, { status: 400 }); }
       if (day >= calendarWindow(asOf).firstDay) return NextResponse.json({ error: "HISTORY_DAY_REQUIRED" }, { status: 400 });
       const page = await listRadarTimelinePage({ day, asOf });
-      return NextResponse.json({ view, ...page });
+      return NextResponse.json({ view, ...page,items:url.searchParams.get('transport')==='listing'?page.items.map(radarListingItem):page.items });
     }
     if (view === "current-hot") {
       return NextResponse.json({

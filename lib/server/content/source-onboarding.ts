@@ -4,13 +4,18 @@ import { createHash } from "node:crypto";
 import { eq, or, sql } from "drizzle-orm";
 import type { AuthUser } from "../auth/service";
 import { getDatabase } from "../db";
-import { contentSources } from "../db/schema";
+import { contentSources,contentRawItems } from "../db/schema";
 import { collectRss, collectSitemap, fetchPublicText, parseFeedDocument, runSourceCollection } from "./collection-runner";
 import { resolveSourceAcquisitionPlan } from "./source-acquisition-plan";
 import { listSourceQualificationSnapshots, type SourceQualificationSnapshot } from "./source-qualification";
 import {discoverPublicFeed} from "./public-feed-discovery";
 import { resolveSourceTarget } from "./source-target";
+import {canonicalizeOriginalUrl} from "./discovery";
 import { recordContentAudit } from "./workbench";
+import {automaticSourceProbeDecision,admissionRecord,SOURCE_AUTO_ADMISSION_VERSION} from "./source-auto-admission-policy";
+import {isPublicFeedRelayUrl,isPublicSourceRelayEnabled} from "./overseas-collector-relay-client";
+import {publicSourceHomepageAlias} from "../../../services/overseas-collector-relay/public-source-routes";
+import {publicPublisherIdentity} from "./source-publisher-identity";
 
 export const SOURCE_ONBOARDING_VERSION = "source-onboarding-v2";
 
@@ -57,8 +62,8 @@ function fingerprint(value: string) {
   return createHash("sha256").update(value).digest("hex").slice(0, 20);
 }
 
-async function discoverFeed(canonicalUrl: string, signal:AbortSignal) {
-  return discoverPublicFeed(canonicalUrl,{fetchPage:url=>fetchPublicText(url,undefined,signal),parseFeed:parseFeedDocument,collectFeed:url=>collectRss(url,signal)});
+async function discoverFeed(canonicalUrl: string, signal:AbortSignal,automatic=false) {
+  return discoverPublicFeed(canonicalUrl,{fetchPage:url=>fetchPublicText(url,undefined,signal),parseFeed:parseFeedDocument,collectFeed:url=>collectRss(url,signal),...(automatic?{allowedUrl:isPublicFeedRelayUrl}:{})});
 }
 
 async function discoverSitemap(canonicalUrl: string, signal:AbortSignal) {
@@ -99,9 +104,10 @@ async function discoverSitemap(canonicalUrl: string, signal:AbortSignal) {
   return null;
 }
 
-export async function discoverSource(input: { url?: unknown; kind?: unknown; name?: unknown }): Promise<Candidate> {
-  const signal=AbortSignal.timeout(30000);
+export async function discoverSource(input: { url?: unknown; kind?: unknown; name?: unknown },options:{automatic?:boolean;signal?:AbortSignal}={}): Promise<Candidate> {
+  const signal=options.signal ? AbortSignal.any([options.signal,AbortSignal.timeout(30000)]) : AbortSignal.timeout(30000);
   const target = resolveSourceTarget(input.url);
+  if(options.automatic && (!isPublicSourceRelayEnabled() || !isPublicFeedRelayUrl(target.canonicalUrl)))throw new Error("AUTOMATIC_RELAY_ROUTE_UNAVAILABLE");
   if (!target.longTermEligible) throw new Error("SOURCE_ONBOARDING_REQUIRES_SITE_OR_HOMEPAGE");
   const requestedKind = String(input.kind ?? "").toUpperCase();
   const kind: "WEBSITE" | "CREATOR" =
@@ -112,7 +118,7 @@ export async function discoverSource(input: { url?: unknown; kind?: unknown; nam
   const name = suppliedName ?? target.displayName;
 
   if (kind === "WEBSITE" || kind === "CREATOR") {
-    const feed = await discoverFeed(target.canonicalUrl,AbortSignal.any([signal,AbortSignal.timeout(20000)]));
+    const feed = await discoverFeed(target.canonicalUrl,AbortSignal.any([signal,AbortSignal.timeout(20000)]),options.automatic);
     if (feed) {
       return {
         inputUrl: String(input.url),
@@ -130,7 +136,7 @@ export async function discoverSource(input: { url?: unknown; kind?: unknown; nam
         samples: feed.samples
       };
     }
-    const sitemap = await discoverSitemap(target.canonicalUrl,signal);
+    const sitemap = options.automatic ? null : await discoverSitemap(target.canonicalUrl,signal);
     if (sitemap) {
       return {
         inputUrl: String(input.url),
@@ -181,17 +187,45 @@ export async function previewSourceOnboarding(input: { url?: unknown; kind?: unk
   };
 }
 
-export async function registerOnboardedSource(user: AuthUser, input: { url?: unknown; kind?: unknown; name?: unknown }) {
-  const preview = await previewSourceOnboarding(input);
-  const candidate = preview.candidate;
+export type AutomaticSourceDiscovery={rawItemId:string;jobId:string;pageUrl:string;homepageUrl:string;observedAt:string};
+export async function registerOnboardedSource(user: AuthUser, input: { url?: unknown; kind?: unknown; name?: unknown },options:{automaticDiscovery?:AutomaticSourceDiscovery;signal?:AbortSignal}={}) {
+  if(user.role!=="ADMIN")throw new Error("FORBIDDEN");
+  const automatic=options.automaticDiscovery;
+  const candidate = automatic ? await discoverSource(input,{automatic:true,signal:options.signal}) : (await previewSourceOnboarding(input)).candidate;
+  if(automatic){
+    if(automatic.homepageUrl!==candidate.canonicalUrl)throw new Error("AUTOMATIC_DISCOVERY_IDENTITY_MISMATCH");
+    const decision=automaticSourceProbeDecision(candidate);if(!decision.eligible)throw new Error(decision.reason);
+  }
   if (!candidate.check.passed || candidate.check.sampleCount < 1) throw new Error(candidate.check.reason);
   return getDatabase().transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext('source-onboarding-register'))`);
-    const [superseded] = await tx.select().from(contentSources).where(or(eq(contentSources.canonicalUrl,candidate.canonicalUrl),eq(contentSources.providerRef,candidate.providerRef))).limit(1);
+    if(automatic){
+      const [raw]=await tx.select().from(contentRawItems).where(eq(contentRawItems.id,automatic.rawItemId)).for("update");
+      const job=admissionRecord(admissionRecord(raw?.metadata).sourceAdmission);
+      const lease=Date.parse(String(job.nextRetryAt));
+      if(!raw || job.jobId!==automatic.jobId || raw.originalUrl!==automatic.pageUrl || admissionRecord(raw.metadata).collectionOrigin!=="SYSTEM" || job.version!==SOURCE_AUTO_ADMISSION_VERSION || job.status!=="RUNNING" || job.homepageUrl!==candidate.canonicalUrl || job.contentHash!==raw.contentHash || job.originalUrl!==raw.originalUrl || !Number.isFinite(lease) || lease<=Date.now())throw new Error("AUTOMATIC_DISCOVERY_PROVENANCE_REQUIRED");
+      const [parent]=await tx.select().from(contentSources).where(eq(contentSources.id,raw.sourceId)).for("share");
+      if(!parent?.enabled || parent.status!=="ACTIVE")throw new Error("AUTOMATIC_DISCOVERY_PARENT_INACTIVE");
+    }
+    const matches=automatic ? (await tx.select().from(contentSources)).filter(source=>{
+      const canonical=canonicalizeOriginalUrl(source.canonicalUrl);
+      if((publicSourceHomepageAlias(canonical??"")??canonical)===candidate.canonicalUrl || source.providerRef===candidate.providerRef)return true;
+      const publisher=publicPublisherIdentity(canonical??"");
+      if(publisher && publisher===publicPublisherIdentity(candidate.canonicalUrl))return true;
+      const acquisition=resolveSourceAcquisitionPlan(source);
+      return acquisition.routes.some(route=>canonicalizeOriginalUrl(route.targetUrl??null)===canonicalizeOriginalUrl(candidate.acquisitionUrl));
+    }) : await tx.select().from(contentSources).where(or(eq(contentSources.canonicalUrl,candidate.canonicalUrl),eq(contentSources.providerRef,candidate.providerRef))).limit(1);
+    if(automatic && matches.some(source=>!source.enabled || source.status!=="ACTIVE" || isSupersededSourceRegistration(source) || !(record(source.metadata).currentPortfolio===true || record(record(source.metadata).sourceOnboarding).version===SOURCE_ONBOARDING_VERSION)))throw new Error("AUTOMATIC_SOURCE_OPERATOR_INTENT_PROTECTED");
+    if(automatic && matches.length>1)throw new Error("AUTOMATIC_SOURCE_IDENTITY_AMBIGUOUS");
+    const superseded=matches[0];
+    if(automatic && superseded){
+      await recordContentAudit(user,{action:"SOURCE_AUTOMATIC_DISCOVERY_REUSED",entityType:"CONTENT_SOURCE",entityId:superseded.id,metadata:{origin:"SYSTEM",discovery:automatic}},tx);
+      return superseded;
+    }
     if (superseded && !isSupersededSourceRegistration(superseded)) {
       throw new Error("SOURCE_ONBOARDING_DUPLICATE");
     }
-    const sourceId = "source_operator_" + fingerprint(candidate.providerRef);
+    const sourceId = (automatic ? "source_discovered_" : "source_operator_") + fingerprint(candidate.providerRef);
     const primaryRoute = {
       id: "primary",
       role: "PRIMARY" as const,
@@ -210,11 +244,13 @@ export async function registerOnboardedSource(user: AuthUser, input: { url?: unk
     };
     const onboardingMetadata = {
       systemManaged: false,
+      ...(automatic ? {currentPortfolio:true,automaticDiscovery:automatic,sourceQualification:{qualification:"CONDITIONAL"}} : {}),
       sourceRegistry: {
         managed: true,
         usageMode: "SYSTEM",
         sourceRoles: [candidate.kind === "CREATOR" ? "CREATOR" : "GENERAL"],
-        owner: "SOURCE_MANAGEMENT"
+        owner: "SOURCE_MANAGEMENT",
+        ...(automatic ? {admissionMode:"AUTOMATIC"} : {})
       },
       sourceOnboarding: {
         version: SOURCE_ONBOARDING_VERSION,
@@ -284,7 +320,7 @@ export async function registerOnboardedSource(user: AuthUser, input: { url?: unk
       signalConfig: candidate.kind === "CREATOR" ? { signalOnly: true } : {},
       metadata: onboardingMetadata
     }).returning();
-    await recordContentAudit(user, { action: "SOURCE_ONBOARDING_REGISTERED", entityType: "CONTENT_SOURCE", entityId: created.id, after: created }, tx);
+    await recordContentAudit(user, { action: automatic ? "SOURCE_AUTOMATIC_DISCOVERY_REGISTERED" : "SOURCE_ONBOARDING_REGISTERED", entityType: "CONTENT_SOURCE", entityId: created.id, after: created,metadata:automatic?{origin:"SYSTEM",discovery:automatic}:{} }, tx);
     return created;
   });
 }

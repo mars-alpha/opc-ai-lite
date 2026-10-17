@@ -9,23 +9,25 @@ import { recordContentAudit } from "./workbench";
 import { ingestRawItem } from "./discovery";
 import {evaluatePublicPracticeAccess} from "./public-practice-access";
 
-export async function registerManagedPracticeSearch(user:AuthUser, provider:"YOUTUBE_SEARCH"|"BILIBILI_SEARCH") {
+export async function registerManagedPracticeSearch(user:AuthUser, provider:"YOUTUBE_SEARCH"|"BILIBILI_SEARCH"|"BRAVE_SEARCH") {
   if (user.role !== "ADMIN") throw new Error("FORBIDDEN");
-  if (!["YOUTUBE_SEARCH","BILIBILI_SEARCH"].includes(provider)) throw new Error("MANAGED_SEARCH_PROVIDER_INVALID");
-  const platform = provider === "YOUTUBE_SEARCH" ? "YOUTUBE" : "BILIBILI";
-  const query = platform === "YOUTUBE" ? "ComfyUI image to video tutorial workflow" : "ComfyUI 图生视频 教程 工作流";
+  if (!["YOUTUBE_SEARCH","BILIBILI_SEARCH","BRAVE_SEARCH"].includes(provider)) throw new Error("MANAGED_SEARCH_PROVIDER_INVALID");
+  const platform = provider === "BRAVE_SEARCH" ? "WEB" : provider === "YOUTUBE_SEARCH" ? "YOUTUBE" : "BILIBILI";
+  const query = platform !== "BILIBILI" ? "ComfyUI image to video tutorial workflow" : "ComfyUI 图生视频 教程 工作流";
+  const id = "source_operator_practice_" + (provider==="BRAVE_SEARCH"?"brave":platform.toLowerCase());
+  const db = getDatabase();
+  const [prior]=await db.select().from(contentSources).where(eq(contentSources.id,id)).limit(1);
+  if(prior && (!prior.enabled || prior.status!=="ACTIVE"))throw new Error("MANAGED_SEARCH_REQUIRES_OPERATOR_RESTORE");
   // Registration requires a fresh server-side sample; configuration alone grants no readiness.
   const probe = await collectEventExpansionSearch(provider,query,168,5,{fetchJson:fetchPublicJson});
   if (!probe.items.length) throw new Error("MANAGED_SEARCH_PROBE_EMPTY");
-  const id = "source_operator_practice_" + platform.toLowerCase();
-  const db = getDatabase();
   const source = await db.transaction(async tx => {
     const [existing] = await tx.select().from(contentSources).where(eq(contentSources.id,id)).for("update");
     if (existing && (!existing.enabled || existing.status !== "ACTIVE")) throw new Error("MANAGED_SEARCH_REQUIRES_OPERATOR_RESTORE");
     if (existing) return existing;
     const values = {
       id,name:platform + " · 实践定向搜索",platform,providerRef:provider,
-      canonicalUrl:platform === "YOUTUBE" ? "https://www.youtube.com/results" : "https://search.bilibili.com/all",
+      canonicalUrl:provider==="BRAVE_SEARCH"?"https://search.brave.com/":platform === "YOUTUBE" ? "https://www.youtube.com/results" : "https://search.bilibili.com/all",
       sourceType:"MANAGED_SOURCE",collectionMethod:"SEARCH",enabled:true,status:"ACTIVE" as const,
       topics:["ComfyUI","Skill","MCP"],authorityScore:0,
       collectionConfig:{provider,practiceExpansionProvider:provider,practiceExpansionEnabled:true,

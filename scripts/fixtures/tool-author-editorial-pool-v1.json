@@ -1,0 +1,349 @@
+{
+  "version": "tool-author-editorial-pool-v1",
+  "capturedAt": "2026-10-17T05:05:40.955Z",
+  "asOf": "2026-10-17T05:05:40.955Z",
+  "scope": "PRESELECTED_RESEARCH_POOL_NOT_RUNTIME_AUTHORITY",
+  "selection": "Merge first-party official material, independent author projects and search results; deduplicate URL and author before runtime scoring.",
+  "labelAuthority": "EXPLORATORY_ANALYST_NOT_BLINDED_HUMAN_GOLD",
+  "limitations": [
+    "No hot/practice positive gold established; discussion and current time evidence remain insufficient.",
+    "Web-readable does not prove server route readiness or workflow execution.",
+    "Different implementations sharing n8n/MCP are related tools, not automatically the same release event.",
+    "Hostinger candidate returned 410; excluded, not counted as available."
+  ],
+  "samples": [
+    {
+      "id": "simon-stateless",
+      "url": "https://simonwillison.net/2026/Jul/31/stateless-mcp/",
+      "title": "Stateless MCP has recaptured my interest",
+      "author": "Simon Willison",
+      "publishedAt": "2026-07-31",
+      "toolKeys": [
+        "MCP",
+        "mcp-explorer",
+        "datasette-mcp",
+        "llm-mcp-client"
+      ],
+      "publisherHome": "https://simonwillison.net/",
+      "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+      "observation": {
+        "method": "EXISTING_DENO_FIXED_ROUTE",
+        "status": "FETCHED",
+        "sha256": "321def780d28a413542e5a761767bb9779e94c7946b5d55a81142ff8fd66063e",
+        "characters": 7828
+      },
+      "judgements": {
+        "featured": {
+          "label": "NEGATIVE",
+          "reason": "历史资料超出当前新闻/热点窗口；可操作材料不证明当前讨论。",
+          "citations": [
+            "https://simonwillison.net/2026/Jul/31/stateless-mcp/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "hot": {
+          "label": "NEGATIVE",
+          "reason": "历史资料超出当前新闻/热点窗口；可操作材料不证明当前讨论。",
+          "citations": [
+            "https://simonwillison.net/2026/Jul/31/stateless-mcp/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "practice": {
+          "label": "NEGATIVE",
+          "reason": "历史资料超出当前新闻/热点窗口；可操作材料不证明当前讨论。",
+          "citations": [
+            "https://simonwillison.net/2026/Jul/31/stateless-mcp/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        }
+      }
+    },
+    {
+      "id": "simon-client",
+      "url": "https://simonwillison.net/2026/Jul/31/llm-mcp-client/",
+      "title": "Release llm-mcp-client 0.1a0",
+      "author": "Simon Willison",
+      "publishedAt": "2026-07-31",
+      "toolKeys": [
+        "MCP",
+        "llm-mcp-client"
+      ],
+      "publisherHome": "https://simonwillison.net/",
+      "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+      "observation": {
+        "method": "RESEARCH_WEB_READ",
+        "runtime": "PUBLIC_ARTICLE_INCOMPLETE_OR_TOO_LARGE"
+      },
+      "judgements": {
+        "featured": {
+          "label": "NEGATIVE",
+          "reason": "历史资料；与同作者长文不能算两个独立发布者。",
+          "citations": [
+            "https://simonwillison.net/2026/Jul/31/llm-mcp-client/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "hot": {
+          "label": "NEGATIVE",
+          "reason": "历史资料；与同作者长文不能算两个独立发布者。",
+          "citations": [
+            "https://simonwillison.net/2026/Jul/31/llm-mcp-client/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "practice": {
+          "label": "NEGATIVE",
+          "reason": "历史资料；与同作者长文不能算两个独立发布者。",
+          "citations": [
+            "https://simonwillison.net/2026/Jul/31/llm-mcp-client/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        }
+      }
+    },
+    {
+      "id": "eugene-news",
+      "url": "https://eugeneyan.com/writing/news-agents/",
+      "title": "Building News Agents for Daily News Recaps with MCP Q and tmux",
+      "author": "Eugene Yan",
+      "publishedAt": "2025-05-04",
+      "toolKeys": [
+        "MCP",
+        "news-agents",
+        "Amazon Q"
+      ],
+      "publisherHome": "https://eugeneyan.com/",
+      "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+      "observation": {
+        "method": "EXISTING_DENO_FIXED_ROUTE_NORMAL_AUTHOR_FLAG",
+        "status": "FETCHED",
+        "sha256": "b7f78352b330abba61b092a4d697dc14b295762895deb9adcc39212df1b606d3",
+        "characters": 10574
+      },
+      "judgements": {
+        "featured": {
+          "label": "NEGATIVE",
+          "reason": "历史资料；不同news-agents实现不是llm-mcp-client同一事件。",
+          "citations": [
+            "https://eugeneyan.com/writing/news-agents/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "hot": {
+          "label": "NEGATIVE",
+          "reason": "历史资料；不同news-agents实现不是llm-mcp-client同一事件。",
+          "citations": [
+            "https://eugeneyan.com/writing/news-agents/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "practice": {
+          "label": "NEGATIVE",
+          "reason": "历史资料；不同news-agents实现不是llm-mcp-client同一事件。",
+          "citations": [
+            "https://eugeneyan.com/writing/news-agents/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        }
+      }
+    },
+    {
+      "id": "n8n-official",
+      "url": "https://blog.n8n.io/n8n-mcp-server/",
+      "title": "Build and Update Workflows with n8n MCP Server",
+      "author": "Ophir Prusak / n8n",
+      "publishedAt": "2026-04-29",
+      "toolKeys": [
+        "n8n",
+        "MCP"
+      ],
+      "publisherHome": "https://blog.n8n.io/",
+      "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+      "observation": {
+        "method": "EXISTING_DENO_FIXED_ROUTE",
+        "status": "FETCHED",
+        "sha256": "ac80f2481a9f15c20ea2a54ba993de388573cf02b3da87f5a7bd752613470628",
+        "characters": 9186
+      },
+      "judgements": {
+        "featured": {
+          "label": "NEGATIVE",
+          "reason": "历史官方产品资料；非当前事件，不代替独立实测与材料执行验证。",
+          "citations": [
+            "https://blog.n8n.io/n8n-mcp-server/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "hot": {
+          "label": "NEGATIVE",
+          "reason": "历史官方产品资料；非当前事件，不代替独立实测与材料执行验证。",
+          "citations": [
+            "https://blog.n8n.io/n8n-mcp-server/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "practice": {
+          "label": "NEGATIVE",
+          "reason": "历史官方产品资料；非当前事件，不代替独立实测与材料执行验证。",
+          "citations": [
+            "https://blog.n8n.io/n8n-mcp-server/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        }
+      }
+    },
+    {
+      "id": "indus-n8n",
+      "url": "https://indushomelab.net/projects/build-custom-mcp-server-to-connect-geminicli-with-n8n/",
+      "title": "Building a Custom MCP Server to Connect Gemini CLI with n8n",
+      "author": "Indunil Sandaruwan Thembuwana",
+      "publishedAt": "2026-01-16",
+      "toolKeys": [
+        "n8n",
+        "MCP",
+        "Gemini CLI",
+        "n8n-mcp-python"
+      ],
+      "publisherHome": "https://indushomelab.net/",
+      "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+      "observation": {
+        "method": "RESEARCH_WEB_READ",
+        "runtime": "NOT_QUALIFIED_NO_ROUTE_ADDED"
+      },
+      "judgements": {
+        "featured": {
+          "label": "NEGATIVE",
+          "reason": "作者公开步骤/版本与代码是历史独立实测候选；不是2026年4月n8n官方新增能力事件。",
+          "citations": [
+            "https://indushomelab.net/projects/build-custom-mcp-server-to-connect-geminicli-with-n8n/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "hot": {
+          "label": "NEGATIVE",
+          "reason": "作者公开步骤/版本与代码是历史独立实测候选；不是2026年4月n8n官方新增能力事件。",
+          "citations": [
+            "https://indushomelab.net/projects/build-custom-mcp-server-to-connect-geminicli-with-n8n/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "practice": {
+          "label": "NEGATIVE",
+          "reason": "作者公开步骤/版本与代码是历史独立实测候选；不是2026年4月n8n官方新增能力事件。",
+          "citations": [
+            "https://indushomelab.net/projects/build-custom-mcp-server-to-connect-geminicli-with-n8n/"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        }
+      }
+    },
+    {
+      "id": "penumbra-n8n",
+      "url": "https://dev.to/penumbra_ghost/i-built-an-n8n-mcp-server-so-claude-can-list-run-and-monitor-my-workflows-in-plain-english-3g1h",
+      "title": "I built an n8n MCP Server",
+      "author": "Penumbra Ghost",
+      "publishedAt": null,
+      "toolKeys": [
+        "n8n",
+        "MCP"
+      ],
+      "publisherHome": "https://dev.to/",
+      "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+      "observation": {
+        "method": "RESEARCH_WEB_READ",
+        "runtime": "NOT_QUALIFIED_NO_ROUTE_ADDED",
+        "accessFinding": "REQUIRED_WORKFLOW_JSON_TARGET_NOT_VERIFIED"
+      },
+      "judgements": {
+        "featured": {
+          "label": "UNKNOWN",
+          "reason": "不足以证明当前栏目资格；未使用被测评分器反推标签。",
+          "citations": [
+            "https://dev.to/penumbra_ghost/i-built-an-n8n-mcp-server-so-claude-can-list-run-and-monitor-my-workflows-in-plain-english-3g1h"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "hot": {
+          "label": "UNKNOWN",
+          "reason": "不足以证明当前栏目资格；未使用被测评分器反推标签。",
+          "citations": [
+            "https://dev.to/penumbra_ghost/i-built-an-n8n-mcp-server-so-claude-can-list-run-and-monitor-my-workflows-in-plain-english-3g1h"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "practice": {
+          "label": "UNKNOWN",
+          "reason": "不足以证明当前栏目资格；未使用被测评分器反推标签。",
+          "citations": [
+            "https://dev.to/penumbra_ghost/i-built-an-n8n-mcp-server-so-claude-can-list-run-and-monitor-my-workflows-in-plain-english-3g1h"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        }
+      }
+    },
+    {
+      "id": "rosalind-academic",
+      "url": "https://openai.com/index/introducing-the-rosalind-academic-plan",
+      "title": "Bringing GPT-Rosalind to academic research labs",
+      "author": "OpenAI",
+      "publishedAt": "2026-10-15",
+      "toolKeys": [
+        "GPT-Rosalind"
+      ],
+      "publisherHome": "https://openai.com/",
+      "sourceWrite": "NONE_REUSE_EXISTING_IDENTITY_AFTER_RESOLUTION",
+      "observation": {
+        "method": "RESEARCH_WEB_READ",
+        "runtime": "EXISTING_OFFICIAL_FEED_REFERENCE"
+      },
+      "judgements": {
+        "featured": {
+          "label": "POSITIVE",
+          "reason": "官方可核对的新增科研访问计划，明确目标用户/新增权益/申请方式，72小时内有实际产品变化；为独立编辑价值判断，不取被测分数。",
+          "citations": [
+            "https://openai.com/index/introducing-the-rosalind-academic-plan"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "hot": {
+          "label": "UNKNOWN",
+          "reason": "不足以证明当前栏目资格；未使用被测评分器反推标签。",
+          "citations": [
+            "https://openai.com/index/introducing-the-rosalind-academic-plan"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        },
+        "practice": {
+          "label": "NEGATIVE",
+          "reason": "需要可信访问审批，且是专用模型/计划发布，不是已验证可立即执行的Skill/MCP/Agent工具教程。",
+          "citations": [
+            "https://openai.com/index/introducing-the-rosalind-academic-plan"
+          ],
+          "basis": "SOURCE_BASED_ANALYST_EXPLORATORY_NOT_BLINDED_HUMAN_GOLD"
+        }
+      }
+    }
+  ],
+  "relations": [
+    {
+      "left": "simon-stateless",
+      "right": "simon-client",
+      "relation": "SAME_AUTHOR_SUPPORTING_MATERIAL",
+      "independentPublishers": 1,
+      "rationale": "同一作者长文明确链接同一插件release，不能按URL数算独立作者。"
+    },
+    {
+      "left": "simon-stateless",
+      "right": "eugene-news",
+      "relation": "RELATED_PROTOCOL_DIFFERENT_PROJECT",
+      "rationale": "共享MCP协议，分别是mcp-explorer/llm-mcp-client与news-agents，不合并成同一发布事件。"
+    },
+    {
+      "left": "n8n-official",
+      "right": "indus-n8n",
+      "relation": "SAME_TOOL_DIFFERENT_IMPLEMENTATION_AND_DATE",
+      "rationale": "自建Python桥接与官方内置工作流创建能力不是同一事件；保留资料关联候选，不能用旧教程补当前讨论。"
+    }
+  ]
+}

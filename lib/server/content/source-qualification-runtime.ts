@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { getDatabase } from "../db";
 import { contentCollectionRuns, contentSources } from "../db/schema";
 import { resolveSourceAcquisitionPlan } from "./source-acquisition-plan";
@@ -10,6 +10,22 @@ export const SOURCE_QUALIFICATION_RUNTIME_VERSION = "source-qualification-runtim
 export const SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION = "system-collection-runtime-v2";
 export const QUALIFICATION_RUNTIME_CONDITIONAL_FAILURES = 3;
 export const QUALIFICATION_RUNTIME_DISABLED_FAILURES = 6;
+export const SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS = 180;
+
+// Filter evidence BEFORE ranking/limiting; audit or old routes never consume slots.
+export function currentQualificationEvidencePredicate(sourceId: string, checkpoint: string, now = new Date()) {
+  return and(
+    eq(contentCollectionRuns.sourceId, sourceId),
+    gte(contentCollectionRuns.startedAt, new Date(now.getTime() - SOURCE_QUALIFICATION_SAFETY_LOOKBACK_DAYS * 86_400_000)),
+    lte(contentCollectionRuns.startedAt, now),
+    inArray(contentCollectionRuns.status, ["SUCCEEDED", "FAILED"]),
+    sql`${contentCollectionRuns.metadata}->>'collectionOrigin' = 'SYSTEM'`,
+    sql`${contentCollectionRuns.metadata}->'qualificationOnly' is distinct from 'true'::jsonb`,
+    sql`${contentCollectionRuns.metadata}->>'collectionRuntimeVersion' = ${SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION}`,
+    sql`${contentCollectionRuns.metadata}->>'qualificationCheckpoint' = ${checkpoint}`,
+    sql`${contentCollectionRuns.metadata}->'staleRunRecovery'->'excludeFromRuntimeQualification' is distinct from 'true'::jsonb`
+  );
+}
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -230,17 +246,21 @@ export async function refreshSourceRuntimeQualification(
   const db = getDatabase();
   const [source] = await db.select().from(contentSources).where(eq(contentSources.id, sourceId)).limit(1);
   if (!source) throw new Error("SOURCE_NOT_FOUND");
+  const checkpoint = buildQualificationCheckpoint({sourceId:source.id,platform:source.platform,collectionMethod:source.collectionMethod,canonicalUrl:source.canonicalUrl,providerRef:source.providerRef,collectionConfig:source.collectionConfig,metadata:source.metadata});
   const runs = await db
     .select({ status: contentCollectionRuns.status, metadata: contentCollectionRuns.metadata })
     .from(contentCollectionRuns)
-    .where(eq(contentCollectionRuns.sourceId, sourceId))
-    .orderBy(desc(contentCollectionRuns.startedAt))
-    .limit(12);
+    .where(currentQualificationEvidencePredicate(sourceId, checkpoint.checkpoint))
+    .orderBy(desc(contentCollectionRuns.startedAt), desc(contentCollectionRuns.id))
+    .limit(QUALIFICATION_RUNTIME_DISABLED_FAILURES);
   const productionStatuses = runs
     .filter((run) => {
       const metadata = record(run.metadata);
       const staleRecovery = record(metadata.staleRunRecovery);
       return metadata.qualificationOnly !== true &&
+        metadata.collectionOrigin === "SYSTEM" &&
+        metadata.collectionRuntimeVersion === SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION &&
+        metadata.qualificationCheckpoint === checkpoint.checkpoint &&
         staleRecovery.excludeFromRuntimeQualification !== true &&
         ["SUCCEEDED", "FAILED"].includes(run.status);
     })
@@ -253,15 +273,6 @@ export async function refreshSourceRuntimeQualification(
     baselineQualification ??
     (String(priorQualification.qualification ?? "CONDITIONAL") as
       "AUTO_READY" | "CONDITIONAL" | "MANUAL_ONLY" | "DISABLED");
-  const checkpoint = buildQualificationCheckpoint({
-    sourceId: source.id,
-    platform: source.platform,
-    collectionMethod: source.collectionMethod,
-    canonicalUrl: source.canonicalUrl,
-    providerRef: source.providerRef,
-    collectionConfig: source.collectionConfig,
-    metadata: source.metadata
-  });
   const decision = evaluateRuntimeQualificationWindow({
     baselineQualification: baseline,
     statuses: productionStatuses,

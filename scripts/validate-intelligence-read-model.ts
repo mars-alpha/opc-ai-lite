@@ -31,7 +31,7 @@ assert(source.includes("listCurrentHotTodayIntelligence"), "HOT_RANK_VIEW_PRESEN
 assert(source.includes("listRadarTimeline"), "ALL_DYNAMICS_EVENT_VIEW_PRESENT");
 assert(source.includes("officialNewsEligible") && source.includes("hotspotEligible"), "EVENT_POLICY_ELIGIBILITY_BOUNDARY");
 assert(source.includes("INTELLIGENCE_POLICY_VERSION"), "FORMAL_EVENT_FEED_POLICY_VERSION_REQUIRED");
-assert(source.includes("primaryEventByCluster") && source.includes("memberEventIdsByPrimary"), "FORMAL_EVENT_FEED_CANONICAL_CLUSTER_REQUIRED");
+assert(source.includes("selectCanonicalEventGroups") && source.includes("memberEventIdsByPrimary") && source.includes("projectEventPolicy"), "FORMAL_EVENT_FEED_CANONICAL_CLUSTER_REQUIRED");
 assert(source.includes("isSystemIntelligenceObservationMetadata"), "INTELLIGENCE_SYSTEM_ORIGIN_FILTER_PRESENT");
 assert(source.includes("hasSystemCollectionHistory"), "EVENT_FEED_REQUIRES_SYSTEM_COLLECTION_HISTORY");
 

@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import {selectCurrentCheckpointQualificationRuns} from "../lib/server/content/source-qualification";
+const now=new Date("2026-10-16T10:00:00Z");
+const run=(index:number,metadata:Record<string,unknown>={},status="SUCCEEDED",startedAt=new Date(now.getTime()-index*60000))=>({sourceId:"fixture",status,startedAt,receivedCount:1,metadata:{collectionOrigin:"SYSTEM",collectionRuntimeVersion:"system-collection-runtime-v2",qualificationCheckpoint:"current",...metadata}});
+const good=Array.from({length:5},(_,i)=>run(30+i));
+const noise=[...Array.from({length:13},(_,i)=>run(i,{qualificationCheckpoint:"old"})),run(14,{collectionRuntimeVersion:"old"}),run(15,{qualificationOnly:true}),run(16,{collectionOrigin:"ADMIN"}),run(17,{staleRunRecovery:{excludeFromRuntimeQualification:true}}),run(18,{},"RUNNING"),run(19,{},"SUCCEEDED",new Date(now.getTime()+60000)),run(20,{},"SUCCEEDED",new Date(now.getTime()-181*86400000))];
+assert.equal(selectCurrentCheckpointQualificationRuns([...noise,...good],"current",now).length,5,"FILTER_CURRENT_EVIDENCE_BEFORE_SAMPLE_LIMIT");
+assert.equal(selectCurrentCheckpointQualificationRuns([...noise,good[0]],"current",now).length,1,"NO_OLD_CHECKPOINT_BORROWING");
+assert.equal(selectCurrentCheckpointQualificationRuns(noise,"current",now).length,0,"ALL_NOISE_EXCLUDED");
+const shuffled=[...good].reverse();
+assert.deepEqual(selectCurrentCheckpointQualificationRuns(shuffled,"current",now),good,"LATEST_FIRST");
+assert.equal(selectCurrentCheckpointQualificationRuns([...good,...Array.from({length:20},(_,i)=>run(50+i))],"current",now).length,5,"SAMPLE_REMAINS_FIVE");
+console.log("CURRENT_QUALIFICATION_EVIDENCE_WINDOW=PASS");

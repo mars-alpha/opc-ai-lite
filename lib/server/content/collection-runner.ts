@@ -1,6 +1,10 @@
 import "server-only";
+import {publicSourceArticleAlias} from "../../../services/overseas-collector-relay/public-source-routes";
 import {readSourceAiRelevancePolicy} from "./source-management-policy";
 import { isPublicFeedRelayUrl, collectPublicSourceDocumentThroughRelay, isPublicSourceRelayEnabled, collectDeepMindFeedThroughRelay } from "./overseas-collector-relay-client";
+import {readHttpValidators,documentHttpValidators} from "../../../services/overseas-collector-relay/conditional-http";
+import {fixedWatchlistFeedUrl} from "../../../services/overseas-collector-relay/watchlist-feeds";
+import {collectWatchlistFeedThroughRelay,collectGithubReleasePageThroughRelay} from "./overseas-collector-relay-client";
 import { assessCollectionItemQuality, selectBackfillWindow } from "./collection-item-quality";
 
 import { createHash } from "node:crypto";
@@ -14,7 +18,7 @@ import {
   contentRawItems,
   contentSources
 } from "../db/schema";
-import { and, eq, inArray, lt } from "drizzle-orm";
+import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import { canonicalizeOriginalUrl, ingestRawItem, runFreshScan } from "./discovery";
 import { assertCollectorReferenceOnly, COLLECTOR_MEDIA_POLICY } from "./discovery-contract";
 import { buildSearchDiscoveryUrl, collectSearchDiscovery, resolveSearchDiscoveryConfig } from "./search-discovery";
@@ -61,6 +65,9 @@ import {
 } from "./source-acquisition-plan";
 import {
   collectSourceRuntimeAdapter,
+  collectAiHotDocument,
+  collectGithubReleaseDocument,
+  AIHOT_SNAPSHOT_URL,
   hasSourceRuntimeAdapter
 } from "./source-acquisition-runtime-adapters";
 
@@ -360,7 +367,10 @@ function transientFetchErrorCode(error: unknown) {
   return null;
 }
 
-async function fetchWithTransientRetry(current: URL, accept: string, signal?: AbortSignal) {
+export type FeedValidators = { etag?: string | null; lastModified?: string | null };
+type PublicTextDocument = { finalUrl: string; contentType: string; body: string; status: number; etag?: string | null; lastModified?: string | null };
+
+async function fetchWithTransientRetry(current: URL, accept: string, signal?: AbortSignal, validators?: FeedValidators) {
   for (let attempt = 0; attempt <= TRANSIENT_FETCH_RETRY_DELAYS_MS.length; attempt += 1) {
     signal?.throwIfAborted();
     try {
@@ -368,7 +378,9 @@ async function fetchWithTransientRetry(current: URL, accept: string, signal?: Ab
         redirect: "manual",
         headers: {
           "user-agent": USER_AGENT,
-          accept
+          accept,
+          ...(validators?.etag ? { "if-none-match": validators.etag } : {}),
+          ...(validators?.lastModified ? { "if-modified-since": validators.lastModified } : {})
         },
         signal: signal ? AbortSignal.any([signal,AbortSignal.timeout(FETCH_TIMEOUT_MS)]) : AbortSignal.timeout(FETCH_TIMEOUT_MS)
       });
@@ -385,13 +397,19 @@ async function fetchWithTransientRetry(current: URL, accept: string, signal?: Ab
   throw new Error("COLLECTION_NETWORK_UNREACHABLE");
 }
 
-export async function fetchPublicText(input: string, accept = "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9, */*;q=0.5", signal?: AbortSignal) {
+export async function fetchPublicText(input: string, accept = "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9, */*;q=0.5", signal?: AbortSignal, validators?: FeedValidators): Promise<PublicTextDocument> {
   signal?.throwIfAborted();
-  if (isPublicFeedRelayUrl(input)) return collectPublicSourceDocumentThroughRelay(input,signal);
-  if (input === "https://deepmind.google/blog/rss.xml" && isPublicSourceRelayEnabled()) return collectDeepMindFeedThroughRelay();
+  if(fixedWatchlistFeedUrl(input))return collectWatchlistFeedThroughRelay(input,signal,validators);
+  if (isPublicFeedRelayUrl(input)) return collectPublicSourceDocumentThroughRelay(input,signal,validators);
+  if (input === "https://deepmind.google/blog/rss.xml" && isPublicSourceRelayEnabled()) return collectDeepMindFeedThroughRelay(signal,validators);
   let current = await assertPublicHttpUrl(input);
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount += 1) {
-    const response = await fetchWithTransientRetry(current, accept, signal);
+    const response = await fetchWithTransientRetry(current, accept, signal, redirectCount === 0 ? validators : undefined);
+
+    if(response.status===304 && (redirectCount!==0 || !validators || !validators.etag && !validators.lastModified))throw new Error("COLLECTION_UNEXPECTED_NOT_MODIFIED");
+    if (response.status === 304) {
+      return { finalUrl: current.toString(), contentType: response.headers.get("content-type") ?? "", body: "", status: 304, etag: response.headers.get("etag"), lastModified: response.headers.get("last-modified") };
+    }
 
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
@@ -409,7 +427,9 @@ export async function fetchPublicText(input: string, accept = "application/rss+x
       finalUrl: current.toString(),
       contentType: response.headers.get("content-type") ?? "",
       body: await readLimitedBody(response),
-      status: response.status
+      status: response.status,
+      etag: response.headers.get("etag"),
+      lastModified: response.headers.get("last-modified")
     };
   }
   throw new Error("COLLECTION_REDIRECT_LIMIT");
@@ -478,16 +498,27 @@ function normalizeDate(value: string) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+function feedStructure(body: string) {
+  return body.replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->|<\?[\s\S]*?\?>/g, value => " ".repeat(value.length));
+}
+
 export function parseFeedDocument(body: string, feedUrl: string): NormalizedCollectedItem[] {
-  const rssItems = [...body.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)].map((match) => match[1]);
-  const atomEntries = [...body.matchAll(/<entry\b[^>]*>([\s\S]*?)<\/entry>/gi)].map((match) => match[1]);
+  // Locate real element boundaries in masked XML, then recover original content.
+  const structure = feedStructure(body);
+  const blocksFor = (pattern: RegExp) => [...structure.matchAll(pattern)].map(match => {
+    const start = match.index! + match[0].indexOf(">") + 1;
+    return body.slice(start, match.index! + match[0].lastIndexOf("</"));
+  });
+  const rssItems = blocksFor(/<item\b[^>]*>[\s\S]*?<\/item>/gi);
+  const atomEntries = blocksFor(/<entry\b[^>]*>[\s\S]*?<\/entry>/gi);
   const blocks = rssItems.length > 0 ? rssItems : atomEntries;
 
   return blocks.slice(0, 100).flatMap((block) => {
     const title = tagValue(block, ["title"]);
     if (!title) return [];
     const rssLink = tagValue(block, ["link"]);
-    const link = resolveUrl(rssLink || atomLink(block), feedUrl);
+    const resolvedLink = resolveUrl(rssLink || atomLink(block), feedUrl);
+    const link = resolvedLink ? publicSourceArticleAlias(resolvedLink)??resolvedLink : null;
     const externalId = tagValue(block, ["guid", "id"]) || link;
     const author = tagValue(block, ["dc:creator", "author", "name"]) || null;
     const publishedAt = normalizeDate(tagValue(block, ["pubDate", "published", "updated", "dc:date"]));
@@ -643,15 +674,32 @@ export function parseHtmlDocument(html: string, finalUrl: string, metadata: Reco
   }];
 }
 
-export async function collectRss(url: string, signal?: AbortSignal) {
+export async function collectRssDocument(url: string, options: { signal?: AbortSignal; validators?: FeedValidators; fetchText?: (url: string, validators?: FeedValidators) => Promise<PublicTextDocument> } = {}) {
   const viaRelay = url === "https://deepmind.google/blog/rss.xml" && isPublicSourceRelayEnabled();
-  const fetched = viaRelay ? await collectDeepMindFeedThroughRelay() : await fetchPublicText(url,undefined,signal);
+  const fetched: PublicTextDocument = options.fetchText ? await options.fetchText(url, options.validators) : await fetchPublicText(url,undefined,options.signal,options.validators);
+  const validators=documentHttpValidators(fetched,url,options.validators);
+  if (fetched.status === 304) {
+    if (!options.validators?.etag && !options.validators?.lastModified) throw new Error("RSS_UNEXPECTED_NOT_MODIFIED");
+    return { items: [] as NormalizedCollectedItem[], validators, disposition: "NOT_MODIFIED" as const };
+  }
+  // Inspect XML structure only. CDATA article examples and inert publisher PIs
+  // are never executed, expanded or counted as feed items/declarations.
+  const structure=feedStructure(fetched.body);
+  if (/<!\[CDATA\[|\]\]>|<!--|<\?|<!DOCTYPE|<!ENTITY/i.test(structure) || !/^\s*<(?:rss|feed|rdf:RDF)\b/i.test(structure) || !/(?:<\/(?:rss|feed|rdf:RDF)>|<feed\b[^>]*\/>)\s*$/i.test(structure)) throw new Error("RSS_DOCUMENT_INVALID");
   const items = parseFeedDocument(fetched.body, fetched.finalUrl);
-  if (items.length === 0) throw new Error("RSS_NO_ITEMS");
-  return items.map((item) => ({
+  // An empty valid feed is a successful poll, not a reason to invoke fallback.
+  const blockCount = [...structure.matchAll(/<(?:item|entry)\b/gi)].length;
+  const closedBlockCount = [...structure.matchAll(/<\/(?:item|entry)\s*>/gi)].length;
+  if(blockCount !== closedBlockCount) throw new Error("RSS_DOCUMENT_INVALID");
+  if (blockCount > 0 && items.length === 0) throw new Error("RSS_DOCUMENT_INVALID");
+  return { validators, truncated: blockCount > 100 || items.length < Math.min(blockCount,100), disposition: items.length ? "FETCHED" as const : "NO_NEW_ITEMS" as const, items: items.map((item) => ({
     ...item,
-    metadata: { ...(item.metadata ?? {}), contentType: fetched.contentType, statusCode: fetched.status, acquisitionTransport: viaRelay || isPublicFeedRelayUrl(url) ? "DENO_RELAY" : "DIRECT" }
-  }));
+    metadata: { ...(item.metadata ?? {}), contentType: fetched.contentType, statusCode: fetched.status, acquisitionTransport: viaRelay || isPublicFeedRelayUrl(url) || fixedWatchlistFeedUrl(url) ? "DENO_RELAY" : "DIRECT" }
+  })) };
+}
+
+export async function collectRss(url: string, signal?: AbortSignal) {
+  return (await collectRssDocument(url, { signal })).items;
 }
 
 export async function collectHttpPage(url: string) {
@@ -818,6 +866,8 @@ export async function runSourceCollection(
       : { platform: source.platform };
   const runMetadata = {
     ...baseRunMetadata,
+    ...(input.qualificationOnly === true ? { qualificationOnly: true } : {}),
+    ...(input.backfillWindow ? { backfillWindow: { ...input.backfillWindow } } : {}),
     collectionRuntimeVersion: SOURCE_COLLECTION_RUNTIME_CONTRACT_VERSION,
     qualificationCheckpoint: buildQualificationCheckpoint({
       sourceId: source.id,
@@ -853,6 +903,17 @@ export async function runSourceCollection(
     errorCode: string | null;
   }> = [];
   let selectedAcquisitionRoute: SourceAcquisitionRoute | null = null;
+  type IncrementalReceipt={key:string;url:string;validators:FeedValidators;disposition:string;truncated:boolean;checkpointOwner?:"githubReleaseCheckpoints";checkpoint?:{version:string;nextPage:number};pagination?:Record<string,unknown>};
+  let feedReceipt: IncrementalReceipt | null = null;
+  let apiReceipt: IncrementalReceipt | null = null;
+  const routeCheckpoint=(owner:"feedCheckpoints"|"apiCheckpoints"|"githubReleaseCheckpoints",routeId:string,url:string)=>{
+    const key=createHash("sha256").update(routeId+"|"+url).digest("hex").slice(0,24);
+    const metadata=source.metadata as Record<string,unknown>;
+    const checkpoints=metadata?.[owner] as Record<string,unknown>|undefined;
+    const checkpoint=checkpoints?.[key] as Record<string,unknown>|undefined;
+    const current=!input.backfillWindow && !input.qualificationOnly && checkpoint?.url===url;
+    return {key,validators:current?readHttpValidators(checkpoint):undefined,checkpoint:current?checkpoint:undefined};
+  };
 
   const [run] = await db.insert(contentCollectionRuns).values({
     sourceId: source.id,
@@ -918,13 +979,28 @@ export async function runSourceCollection(
           });
         }
         try {
-          if (route.runtimeOwner && hasSourceRuntimeAdapter(route.runtimeOwner)) {
+          if (route.runtimeOwner?.toUpperCase() === "GITHUB_RELEASES") {
+            if(route.kind!=="PUBLIC_JSON_API")throw new Error("GITHUB_RELEASE_ROUTE_NOT_ALLOWED");
+            const {key,checkpoint}=routeCheckpoint("githubReleaseCheckpoints",route.id,routeUrl);
+            const document=await collectGithubReleaseDocument({url:routeUrl,checkpoint,fetchPage:collectGithubReleasePageThroughRelay});
+            collected=document.items;
+            apiReceipt={key,url:routeUrl,validators:{},disposition:document.disposition,truncated:false,checkpointOwner:"githubReleaseCheckpoints",checkpoint:document.checkpoint,pagination:document.pagination};
+          } else if (route.runtimeOwner?.toUpperCase() === "RADAR_AI_HOT") {
+            if(routeUrl!==AIHOT_SNAPSHOT_URL)throw new Error("API_SNAPSHOT_ROUTE_MISMATCH");
+            const {key,validators}=routeCheckpoint("apiCheckpoints",route.id,routeUrl);
+            const document=await collectAiHotDocument({validators,fetchText:(url,conditions)=>fetchPublicText(url,"application/json",undefined,conditions)});
+            collected=document.items;
+            apiReceipt={key,url:routeUrl,validators:document.validators,disposition:document.disposition,truncated:document.truncated};
+          } else if (route.runtimeOwner && hasSourceRuntimeAdapter(route.runtimeOwner)) {
             collected = await collectSourceRuntimeAdapter({
               runtimeOwner: route.runtimeOwner,
               fetchJson: fetchPublicJson
             });
           } else if (route.kind === "RSS_ATOM") {
-            collected = await collectRss(routeUrl);
+            const {key,validators}=routeCheckpoint("feedCheckpoints",route.id,routeUrl);
+            const feed = await collectRssDocument(routeUrl, { validators });
+            collected = feed.items;
+            feedReceipt = { key, url: routeUrl, validators: feed.validators, disposition: feed.disposition, truncated: feed.truncated === true };
           } else if (route.kind === "SITEMAP") {
             collected = await collectSitemap(routeUrl, source.canonicalUrl);
           } else if (route.kind === "STATIC_PAGE") {
@@ -1206,14 +1282,12 @@ export async function runSourceCollection(
     // Presentation/localization must not block source collection. Raw/Observation
     // is persisted first; Chinese presentation falls back to original text until
     // presentation enrichment is available.
-    const result = await runFreshScan({ sourceId: source.id, items: policyItems, provenance });
-    // New facts always refresh their Event. Repeated observations only need an
-    // Event refresh for TREND routes where rank/engagement can change without a
-    // new Raw Item. Re-reading unchanged RSS/web items must not trigger a full
-    // cluster/policy/signal recomputation on every source run.
+    const result = await runFreshScan({ sourceId: source.id, collectionRunId: run.id, items: policyItems, provenance });
+    // New and recovered facts refresh their Event. Unchanged observations only
+    // need a refresh for TREND routes where rank/engagement can change.
     const eventRefreshRawItemIds = method === "TREND"
       ? result.rawItemIds
-      : result.createdRawItemIds;
+      : [...result.createdRawItemIds, ...result.recoveredRawItemIds];
     const affectedEventLinks = eventRefreshRawItemIds.length
       ? await db
           .select({ eventId: contentEventRawItems.eventId })
@@ -1243,7 +1317,11 @@ export async function runSourceCollection(
         });
       }
     }
-    const [completed] = await db.update(contentCollectionRuns).set({
+    const incrementalReceipt=feedReceipt??apiReceipt;
+    const checkpointOwner=incrementalReceipt?.checkpointOwner??(apiReceipt?"apiCheckpoints":"feedCheckpoints");
+    const checkpointCommitted=Boolean(incrementalReceipt && !input.backfillWindow && !incrementalReceipt.truncated && result.received>=policyItems.length);
+    const completed = await db.transaction(async tx=>{
+    const [finished] = await tx.update(contentCollectionRuns).set({
       status: "SUCCEEDED",
       receivedCount: items.length,
       createdCount: result.created,
@@ -1251,6 +1329,7 @@ export async function runSourceCollection(
       finishedAt: new Date(),
       metadata: {
         ...runMetadata,
+        ...(incrementalReceipt ? { [apiReceipt?"apiIncremental":"feedIncremental"]: { disposition: incrementalReceipt.disposition, truncated: incrementalReceipt.truncated, checkpointCommitted,...(incrementalReceipt.pagination?{coverage:"BOUNDED_PAGES_NO_ARCHIVE_GUARANTEE",pagination:incrementalReceipt.pagination}:apiReceipt?{coverage:"BOUNDED_SNAPSHOT_NO_CURSOR"}:{}) } } : {}),
         mediaPolicy: COLLECTOR_MEDIA_POLICY,
         discoveryFilter: {
           version: "ai-discovery-filter-v2",
@@ -1292,6 +1371,7 @@ export async function runSourceCollection(
         storedCount: result.stored,
         rawItemIds: result.rawItemIds.slice(0, 200),
         createdRawItemIds: result.createdRawItemIds.slice(0, 200),
+        recoveredRawItemIds: result.recoveredRawItemIds.slice(0, 200),
         acquisitionRouteId: selectedAcquisitionRoute?.id ?? acquisition.primaryRoute.id,
         acquisitionRouteRole: selectedAcquisitionRoute?.role ?? acquisition.primaryRoute.role,
         acquisitionRouteCostLevel: selectedAcquisitionRoute?.costLevel ?? acquisition.primaryRoute.costLevel,
@@ -1299,10 +1379,15 @@ export async function runSourceCollection(
         acquisitionFallbackReason
       }
     }).where(eq(contentCollectionRuns.id, run.id)).returning();
-    await db.update(contentSources).set({
-      lastCollectedAt: completed.finishedAt ?? new Date(),
+    await tx.update(contentSources).set({
+      lastCollectedAt: finished.finishedAt ?? new Date(),
+      ...(incrementalReceipt && checkpointCommitted ? {
+        metadata: sql`${contentSources.metadata} || jsonb_build_object(${checkpointOwner}::text, coalesce(${contentSources.metadata}->${checkpointOwner}::text, '{}'::jsonb) || ${JSON.stringify({ [incrementalReceipt.key]: { url: incrementalReceipt.url, ...incrementalReceipt.validators,...incrementalReceipt.checkpoint, committedAt: new Date().toISOString() } })}::jsonb)`
+      } : {}),
       updatedAt: new Date()
     }).where(eq(contentSources.id, source.id));
+    return finished;
+    });
     if (provenance.origin === "SYSTEM") {
       await refreshSourceRuntimeQualification(source.id).catch(() => null);
     }
@@ -1313,10 +1398,7 @@ export async function runSourceCollection(
       errorCode: errorCode(error),
       errorMessage: errorMessage(error),
       finishedAt: new Date(),
-      metadata: {
-        ...runMetadata,
-        acquisitionRouteAttempts
-      }
+      metadata: sql`${contentCollectionRuns.metadata} || ${JSON.stringify({ ...runMetadata, acquisitionRouteAttempts })}::jsonb`
     }).where(eq(contentCollectionRuns.id, run.id));
     if (provenance.origin === "SYSTEM" && input.qualificationOnly !== true) {
       await refreshSourceRuntimeQualification(source.id).catch(() => null);

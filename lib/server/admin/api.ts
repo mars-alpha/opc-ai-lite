@@ -24,6 +24,8 @@ export function contentWorkbenchError(error: unknown, fallback: string) {
   if (code.endsWith("_NOT_FOUND")) return NextResponse.json({ error: code }, { status: 404 });
   if (
     code.startsWith("INVALID_") ||
+    code === "RADAR_ALGORITHM_POLICY_INVALID" ||
+    code === "RADAR_ALGORITHM_REVISION_REQUIRED" ||
     code === "CONTENT_EVIDENCE_REQUIRED" ||
     code === "CONTENT_VERIFIED_EVIDENCE_REQUIRED"
   ) {
@@ -60,6 +62,8 @@ export function contentWorkbenchError(error: unknown, fallback: string) {
   if (
     code === "CONTENT_NOT_REVIEW_READY" ||
     code === "CONTENT_APPROVAL_REQUIRED" ||
+    code === "RADAR_ALGORITHM_POLICY_CONFLICT" ||
+    code === "SOURCE_SCHEDULE_CONFLICT" ||
     code === "CONTENT_REVIEW_STALE" ||
     code === "CONTENT_ALREADY_PUBLISHED" ||
     code === "CONTENT_PUBLISHED_IMMUTABLE" ||

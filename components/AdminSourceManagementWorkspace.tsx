@@ -1,5 +1,7 @@
 "use client";
 
+import {SourceCollectionFrequency} from "./SourceCollectionFrequency";
+import {SourceAlgorithmPanel,SourceCollectionCharts} from "./SourceAlgorithmControls";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COLLECTION_QUALITY_REASON_NAMES, type CollectionQualityReason } from "../lib/content/collection-quality-feedback-contract";
 
@@ -293,6 +295,9 @@ async function postAction(body: Record<string, unknown>) {
 
 export function AdminSourceManagementWorkspace() {
   const sourceReadEpoch = useRef(0);
+  const detailReadEpoch = useRef(0);
+  const detailBusyRef = useRef(false);
+  const selectedSourceIdRef = useRef<string | null>(null);
   const lastSourceRequestAt = useRef(0);
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -316,32 +321,54 @@ export function AdminSourceManagementWorkspace() {
   const [duplicate, setDuplicate] = useState<Record<string, unknown> | null>(null);
   const [registeredSourceId, setRegisteredSourceId] = useState<string | null>(null);
   const [onboardingBusy, setOnboardingBusy] = useState(false);
-  const [managementMode, setManagementMode] = useState<"SOURCES" | "ADD" | "POLICY">("SOURCES");
+  const [managementMode, setManagementMode] = useState<"SOURCES" | "ADD" | "POLICY" | "ALGORITHM" | "FREQUENCY">("SOURCES");
 
   async function refresh() {
     const epoch = ++sourceReadEpoch.current;
     lastSourceRequestAt.current = Date.now();
     const payload = await loadJson<Payload>();
-    if (epoch === sourceReadEpoch.current) setData(payload);
+    if (epoch === sourceReadEpoch.current) {
+      setData(payload);
+      const selectedId = selectedSourceIdRef.current;
+      if (selectedId) void readDetail(selectedId, false);
+    }
   }
 
-  async function loadDetail(sourceId: string) {
-    setSelectedSourceId(sourceId);
-    setDetailBusy(true);
-    setDetail(null);
-    setQualitySummary(null);
+  async function readDetail(sourceId: string, foreground: boolean) {
+    if (!foreground && detailBusyRef.current) return;
+    const epoch = ++detailReadEpoch.current;
+    if (foreground) {
+      detailBusyRef.current = true;
+      setDetailBusy(true);
+      setDetail(null);
+      setQualitySummary(null);
+    }
     try {
       const [sourceDetail, feedbackResponse] = await Promise.all([
         loadJson<SourceDetailPayload>("?mode=detail&sourceId=" + encodeURIComponent(sourceId)),
         fetch("/api/admin/content/quality-feedback?sourceId=" + encodeURIComponent(sourceId), { cache: "no-store" })
       ]);
-      setDetail(sourceDetail);
-      if (feedbackResponse.ok) setQualitySummary(await feedbackResponse.json());
+      const feedback = feedbackResponse.ok ? await feedbackResponse.json() : null;
+      if (epoch === detailReadEpoch.current && selectedSourceIdRef.current === sourceId) {
+        setDetail(sourceDetail);
+        if (feedback) setQualitySummary(feedback);
+      }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "来源详情读取失败");
+      if (foreground && epoch === detailReadEpoch.current) {
+        setMessage(error instanceof Error ? error.message : "来源详情读取失败");
+      }
     } finally {
-      setDetailBusy(false);
+      if (foreground && epoch === detailReadEpoch.current) {
+        detailBusyRef.current = false;
+        setDetailBusy(false);
+      }
     }
+  }
+
+  async function loadDetail(sourceId: string) {
+    selectedSourceIdRef.current = sourceId;
+    setSelectedSourceId(sourceId);
+    await readDetail(sourceId, true);
   }
 
   async function ensurePolicy() {
@@ -427,6 +454,10 @@ export function AdminSourceManagementWorkspace() {
     setMessage(null);
     try {
       await postAction({ action, sourceId: source.sourceId });
+      selectedSourceIdRef.current = null;
+      ++detailReadEpoch.current;
+      detailBusyRef.current = false;
+      setDetailBusy(false);
       setSelectedSourceId(null);
       setDetail(null);
       setMessage(
@@ -542,7 +573,7 @@ export function AdminSourceManagementWorkspace() {
           <div>
             <span>来源管理</span>
             <div className="source-management-title-row">
-              <strong>{managementMode === "SOURCES" ? "来源目录" : managementMode === "ADD" ? "新增来源" : "筛选规则"}</strong>
+              <strong>{managementMode === "SOURCES" ? "来源目录" : managementMode === "ADD" ? "新增来源" : managementMode === "POLICY" ? "筛选规则" : managementMode === "ALGORITHM" ? "栏目算法" : "采集频率"}</strong>
               {managementMode === "SOURCES" ? <small>{visible.length} / {data.summary.sourceCount}</small> : null}
             </div>
           </div>
@@ -551,6 +582,8 @@ export function AdminSourceManagementWorkspace() {
               <button type="button" className={managementMode === "SOURCES" ? "is-active" : ""} onClick={() => setManagementMode("SOURCES")}>来源目录</button>
               <button type="button" className={managementMode === "ADD" ? "is-active" : ""} onClick={() => setManagementMode("ADD")}>新增来源</button>
               <button type="button" className={managementMode === "POLICY" ? "is-active" : ""} onClick={() => setManagementMode("POLICY")}>筛选规则</button>
+              <button type="button" className={managementMode === "ALGORITHM" ? "is-active" : ""} onClick={() => setManagementMode("ALGORITHM")}>栏目算法</button>
+              <button type="button" className={managementMode === "FREQUENCY" ? "is-active" : ""} onClick={() => setManagementMode("FREQUENCY")}>采集频率</button>
             </div>
           </div>
         </header>
@@ -595,7 +628,7 @@ export function AdminSourceManagementWorkspace() {
             </div>
           ) : (
             <div className="source-tool-workspace">
-              {managementMode === "ADD" ? renderAddSource() : renderPolicy()}
+              {managementMode === "ADD" ? renderAddSource() : managementMode === "ALGORITHM" ? <SourceAlgorithmPanel /> : managementMode === "FREQUENCY" ? <SourceCollectionFrequency /> : renderPolicy()}
             </div>
           )}
         </div>
@@ -725,6 +758,7 @@ export function AdminSourceManagementWorkspace() {
         {renderDiscoveryPanel()}
         {renderSources()}
       </div>
+      <SourceCollectionCharts sources={data.items.filter(s=>s.status==='ACTIVE').map(s=>({sourceId:s.sourceId,name:s.name}))} />
     </section>
   );
 }

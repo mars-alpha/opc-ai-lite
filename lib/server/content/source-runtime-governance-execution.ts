@@ -1,4 +1,6 @@
 import "server-only";
+import {readSourceSchedule,isSourceCadenceRun,MIN_SOURCE_INTERVAL_MINUTES,MAX_SOURCE_INTERVAL_MINUTES} from "../../content/source-collection-schedule";
+export {MIN_SOURCE_INTERVAL_MINUTES,MAX_SOURCE_INTERVAL_MINUTES} from "../../content/source-collection-schedule";
 
 import { and, desc, gte, inArray } from "drizzle-orm";
 import postgres from "postgres";
@@ -11,8 +13,6 @@ import { readSourceApiQuota } from "./source-api-quota-ledger";
 
 export const SOURCE_RUNTIME_GOVERNANCE_EXECUTION_VERSION = "source-runtime-governance-execution-v1";
 export const DEFAULT_SOURCE_BASE_INTERVAL_MINUTES = 15;
-export const MIN_SOURCE_INTERVAL_MINUTES = 5;
-export const MAX_SOURCE_INTERVAL_MINUTES = 1440;
 
 async function acquireSourceCollectionCycleLock(onLost: () => void) {
   // A private connection must never silently reconnect and let the collector
@@ -128,6 +128,8 @@ export function resolveSourceBaseIntervalMinutes(source: {
   collectionConfig?: unknown;
   metadata?: unknown;
 }) {
+  const configured=readSourceSchedule(source.metadata);
+  if(configured)return configured.intervalMinutes;
   const collectionConfig = record(source.collectionConfig);
   const metadata = record(source.metadata);
   const automaticCollection = record(
@@ -147,6 +149,7 @@ export function buildSourceGovernanceExecutionPlan(input: {
   recommendedIntervalMultiplier: 1 | 2 | 4 | null;
   qualificationKnown: boolean;
   coverageCritical: boolean;
+  automaticAdmission?: boolean;
   baseIntervalMinutes?: number;
   lastRunAt?: Date | string | null;
   now?: Date;
@@ -175,6 +178,12 @@ export function buildSourceGovernanceExecutionPlan(input: {
     input.governancePlan === "PAUSE_AUTO_REVIEW" ||
     input.governancePlan === "DISABLE_REVIEW_REQUIRED"
   ) {
+    if(input.automaticAdmission){
+      const interval=Math.min(MAX_SOURCE_INTERVAL_MINUTES,baseIntervalMinutes*(input.coverageCritical?1:input.governancePlan==="DISABLE_REVIEW_REQUIRED"?16:input.recommendedIntervalMultiplier??4));
+      const at=input.lastRunAt?new Date(input.lastRunAt).getTime():NaN;
+      const next=Number.isFinite(at)?at+interval*60000:now.getTime(),due=next<=now.getTime();
+      return {version:SOURCE_RUNTIME_GOVERNANCE_EXECUTION_VERSION,sourceId:input.sourceId,action:due?"RUN_WHEN_DUE" as const:"WAIT_UNTIL_DUE" as const,executable:true,requiresHumanReview:false,reason:"AUTOMATIC_ADMISSION_BOUNDED_OBSERVATION",baseIntervalMinutes,effectiveIntervalMinutes:interval,nextDueAt:new Date(next).toISOString(),due};
+    }
     const lastRunAt = input.lastRunAt ? new Date(input.lastRunAt) : null;
     const nextDue =
       lastRunAt && Number.isFinite(lastRunAt.getTime())
@@ -300,7 +309,8 @@ export async function auditSourceGovernanceExecution(options: {
   const latestProductionRunBySource = new Map<string, Date>();
   for (const run of runs) {
     if (!run.sourceId || latestProductionRunBySource.has(run.sourceId)) continue;
-    if (record(run.metadata).qualificationOnly === true) continue;
+    if (!isSourceCadenceRun(run.metadata)) continue;
+    if (run.startedAt.getTime()>now.getTime()) continue;
     latestProductionRunBySource.set(run.sourceId, run.startedAt);
   }
 
@@ -327,6 +337,7 @@ export async function auditSourceGovernanceExecution(options: {
       recommendedIntervalMultiplier: item.governance.recommendedIntervalMultiplier,
       qualificationKnown: item.qualificationKnown,
       coverageCritical: item.governance.coverageCritical,
+      automaticAdmission:record(record(source.metadata).sourceRegistry).admissionMode==="AUTOMATIC",
       baseIntervalMinutes,
       lastRunAt,
       now: options.now
@@ -370,6 +381,7 @@ export async function auditSourceGovernanceExecution(options: {
         : execution;
     return {
       ...item,
+      lastRunAt:lastRunAt?.toISOString()??null,
       execution: quotaManagedExecution
     };
   });

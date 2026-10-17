@@ -1,5 +1,6 @@
+import {DEFAULT_RADAR_ALGORITHM_POLICY,columnTextDecision,type RadarAlgorithmPolicy} from '../../content/radar-algorithm-policy';
 import { isMultiNewsRoundup } from "./content-evidence-signals";
-export const TOPIC_MOMENTUM_VERSION = "topic-momentum-v7-independent-institutions-decay";
+export const TOPIC_MOMENTUM_VERSION = "topic-momentum-v8-linked-discussion";
 export const TOPIC_MOMENTUM_MIN_AGE_HOURS = 24;
 export const TOPIC_MOMENTUM_MAX_AGE_HOURS = 168;
 export const TOPIC_MOMENTUM_HALF_LIFE_HOURS = 72;
@@ -13,6 +14,9 @@ export function resolveTopicMomentumFollowUpHours(input: { day: number; eligible
 
 export type TopicMomentumRaw = {
   title?: string | null;
+  excerpt?:string|null;
+  /** Assigned only by the qualified, original-URL reporting projection. */
+  discussionPublisher?:string|null;
   sourceId: string;
   sourceType: string;
   sourceName: string;
@@ -72,8 +76,13 @@ function participantName(raw: TopicMomentumRaw) {
   const origin = typeof metadata.originPublisher === "string" ? metadata.originPublisher.trim() : "";
   const author = raw.author?.trim() ?? "";
   if (raw.referenceOnly === true && !origin && !author) return null;
-  return canonicalHotParticipantName(origin || author || raw.sourceName || raw.sourceId);
+  // A media byline is not another independent institution. Creator accounts
+  // remain independent; declared original publishers deduplicate aggregators.
+  const institutional = ['OFFICIAL','MEDIA','RESEARCH'].includes(raw.sourceType.toUpperCase());
+  return canonicalHotParticipantName(origin || (institutional ? raw.sourceName : author) || raw.sourceName || raw.sourceId);
 }
+
+export function hotParticipantName(raw: TopicMomentumRaw) { return participantName(raw); }
 
 function normalizedParticipantKey(raw: TopicMomentumRaw) {
   const name = participantName(raw);
@@ -104,10 +113,10 @@ function clampMomentumScore(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-function momentumDecayFactor(ageHours: number) {
+function momentumDecayFactor(ageHours: number, halfLifeHours=TOPIC_MOMENTUM_HALF_LIFE_HOURS) {
   if (ageHours < 0) return 1;
   if (ageHours > TOPIC_MOMENTUM_MAX_AGE_HOURS) return 0;
-  return Math.pow(0.5, ageHours / TOPIC_MOMENTUM_HALF_LIFE_HOURS);
+  return Math.pow(0.5, ageHours / halfLifeHours);
 }
 
 export function calculateTopicMomentum(input: {
@@ -115,7 +124,9 @@ export function calculateTopicMomentum(input: {
   raws: TopicMomentumRaw[];
   evidence: TopicMomentumEvidence[];
   now?: Date;
+  policy?: RadarAlgorithmPolicy;
 }) {
+  const config=(input.policy??DEFAULT_RADAR_ALGORITHM_POLICY).hot;
   const now = input.now ?? new Date();
   const nowMs = now.getTime();
   const firstSeenMs = timeOf(input.firstSeenAt);
@@ -127,6 +138,7 @@ export function calculateTopicMomentum(input: {
     const time = timeOf(raw.publishedAt) || timeOf(raw.collectedAt);
     return time >= windowStart && time <= nowMs;
   });
+  const textRule=columnTextDecision(recentRaws.map(r=>`${r.title??''} ${r.excerpt??''}`).join('\n'),config);
   const participantRaws = recentRaws.filter((raw) => normalizedParticipantKey(raw) !== null);
   const creatorRaws = participantRaws.filter(isCreatorLike);
   const creatorKeys = new Set(creatorRaws.flatMap((raw) => {
@@ -146,7 +158,7 @@ export function calculateTopicMomentum(input: {
   }
   const participantActivity = [...latestParticipantActivity.values()].reduce((sum, time) => {
     const participantAgeHours = Math.max(0, (nowMs - time) / 3_600_000);
-    return sum + momentumDecayFactor(participantAgeHours);
+    return sum + momentumDecayFactor(participantAgeHours,config.halfLifeHours);
   }, 0);
   const currentTrendStart = nowMs - 72 * 3_600_000;
   const previousTrendStart = nowMs - 144 * 3_600_000;
@@ -204,30 +216,35 @@ export function calculateTopicMomentum(input: {
     "EXPIRED_WINDOW" as const;
 
   const diversitySupport =
-    Math.min(15, activeDays.size * 5) +
-    Math.min(10, creatorKeys.size * 4) +
-    Math.min(10, Math.max(platforms.size, practicalTypes.size) * 3) +
-    (engagedCreatorItems > 0 ? 5 : 0);
-  const decayFactor = momentumDecayFactor(ageHours);
-  const baseScore = clampMomentumScore(Math.min(60, participantActivity * 18) + diversitySupport);
+    Math.min(config.activeDayCap, activeDays.size * config.activeDayWeight) +
+    Math.min(config.creatorCap, creatorKeys.size * config.creatorWeight) +
+    Math.min(config.diversityCap, Math.max(platforms.size, practicalTypes.size) * config.diversityWeight) +
+    (engagedCreatorItems > 0 ? config.engagementBonus : 0);
+  const decayFactor = momentumDecayFactor(ageHours,config.halfLifeHours);
+  const baseScore = clampMomentumScore(Math.min(config.participantCap, participantActivity * config.participantWeight) + diversitySupport);
   // Participant activity decays independently at 72h. Diversity support uses the same
   // event-level half-life so old breadth cannot keep an inactive Event artificially hot.
-  const score = clampMomentumScore(Math.min(60, participantActivity * 18) + diversitySupport * decayFactor);
+  const score = clampMomentumScore(Math.min(config.participantCap, participantActivity * config.participantWeight) + diversitySupport * decayFactor);
+  const discussionParticipants=new Set(recentRaws.flatMap(raw=>raw.discussionPublisher?[canonicalHotParticipantName(raw.discussionPublisher).toLowerCase()]:[]));
+  const hasSubstantiveDiscussion=recentRaws.some(raw=>raw.discussionPublisher&&/分析|解读|实测|评测|对比|实践|教程|工作流|analysis|review|benchmark|compar(?:e|ison)|evaluat|hands[- ]?on|tutorial|how to|use case|workflows?|deploy|configur/i.test(`${raw.title??''} ${raw.excerpt??''}`));
+  const discussionSignal=discussionParticipants.size>=config.minSustainedPublishers&&hasSubstantiveDiscussion&&score>=config.discussionThreshold;
   const earlySignal =
     phase === "EARLY_OBSERVATION" &&
-    score >= 30 &&
+    score >= config.risingThreshold &&
     (participantKeys.size >= 2 || creatorKeys.size >= 2 || practicalTypes.size >= 1);
   const sustained =
     phase === "MOMENTUM_WINDOW" &&
-    participantKeys.size >= 2 &&
-    activeDays.size >= 2 &&
+    participantKeys.size >= config.minSustainedPublishers &&
+    activeDays.size >= config.minActiveDays &&
     (creatorKeys.size >= 2 || platforms.size >= 2 || practicalTypes.size >= 1) &&
-    score >= 42;
-  const eligible = earlySignal || sustained;
+    score >= config.sustainedThreshold;
+  const discussionRising=phase==='EARLY_OBSERVATION'&&discussionSignal;
+  const discussionSustained=phase==='MOMENTUM_WINDOW'&&discussionSignal;
+  const eligible = textRule.eligible && (earlySignal || sustained || discussionRising || discussionSustained);
   const status =
     phase === "EXPIRED_WINDOW" ? "EXPIRED" as const :
-    sustained ? "SUSTAINED" as const :
-    earlySignal ? "RISING" as const :
+    textRule.eligible && (sustained || discussionSustained) ? "SUSTAINED" as const :
+    textRule.eligible && (earlySignal || discussionRising) ? "RISING" as const :
     "OBSERVING" as const;
 
   return {
@@ -249,7 +266,8 @@ export function calculateTopicMomentum(input: {
       return key ? [key] : [];
     })).size,
     participantActivity: Math.round(participantActivity * 100) / 100,
-    halfLifeHours: TOPIC_MOMENTUM_HALF_LIFE_HOURS,
+    halfLifeHours: config.halfLifeHours,
+    textRule,
     trend,
     trendComparable,
     creatorCount: creatorKeys.size,
@@ -259,6 +277,8 @@ export function calculateTopicMomentum(input: {
     practicalTypeCount: practicalTypes.size,
     practicalTypes: [...practicalTypes].sort(),
     engagedCreatorItemCount: engagedCreatorItems,
+    discussionParticipantCount:discussionParticipants.size,
+    hasSubstantiveDiscussion,
     criteria: {
       multiSource: participantKeys.size >= 2,
       multiCreator: creatorKeys.size >= 2,

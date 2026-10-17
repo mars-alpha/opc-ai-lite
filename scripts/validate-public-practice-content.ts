@@ -3,11 +3,21 @@ import {collectPublicPracticeContent,normalizePublicTranscript,mergePublicConten
 import {handleRelayRequest} from "../services/overseas-collector-relay/deno";
 import {extractPublicPracticeArticle} from "../lib/server/content/public-article-extraction";
 import {publicPracticeRoute} from "../services/overseas-collector-relay/public-practice-routes";
-import {selectDuePracticeMaterialRows} from "../lib/server/content/practice-material-backfill";
+import {isPracticeMaterialCandidateTitle,selectDuePracticeMaterialRows,scanDuePracticeMaterialRows} from "../lib/server/content/practice-material-backfill";
 async function main(){
+ for(const title of ['Create a Skill for document processing','Agent configuration walkthrough','n8n execution guide','Dify application setup','LangGraph quickstart','LangChain integration guide','ComfyUI 工作流实操'])assert.equal(isPracticeMaterialCandidateTitle(title),true,title);
+ for(const title of ['Shareholder growth report','building permits','agency financial results'])assert.equal(isPracticeMaterialCandidateTitle(title),false,title);
  const now=Date.now(),failed={raw:{originalUrl:"https://aws.amazon.com/blogs/machine-learning/one/",metadata:{publicContentAttempt:{version:"public-practice-content-v3",status:"UNAVAILABLE",reason:"PUBLIC_CONTENT_TIMEOUT",nextRetryAt:new Date(now+3600000).toISOString()}}}};
  assert.equal(selectDuePracticeMaterialRows([failed,{raw:{originalUrl:"https://aws.amazon.com/blogs/machine-learning/two/",metadata:{}}},{raw:{originalUrl:"https://www.langchain.com/blog/tutorial",metadata:{}}}],20,now).length,1,"ORIGIN_FAILURE_BACKS_OFF_OTHER_ARTICLES_WITHOUT_BLOCKING_OTHER_HOSTS");
  const articleUrl="https://blog.n8n.io/build-an-assistant/";
+ const waiting=(url:string,hours:number)=>({raw:{originalUrl:url,metadata:{},collectedAt:new Date(now-hours*3600000)}});
+ const old=waiting("https://aws.amazon.com/blogs/machine-learning/old/",48),sameHost=waiting("https://aws.amazon.com/blogs/machine-learning/second/",47),otherHost=waiting("https://blog.n8n.io/build-an-assistant/",1);
+ assert.deepEqual(selectDuePracticeMaterialRows([otherHost,sameHost,old],2,now),[old,otherHost],"OLDEST_FIRST_WITH_ORIGIN_ROUND_ROBIN");
+ let pages=0;
+ const unsupported=Array.from({length:500},()=>waiting("https://unsupported.example/tutorial",72));
+ const paged=await scanDuePracticeMaterialRows(async offset=>{pages++;return offset===0?unsupported:[old,otherHost];},2,now);
+ assert.equal(pages,2,"INELIGIBLE_FIRST_PAGE_DOES_NOT_HIDE_DUE_MATERIAL");
+ assert.deepEqual(paged,[old,otherHost]);
  const articleHtml='<html><head><title>Build an n8n assistant</title></head><body><nav>Site navigation</nav><article><h1>Build an n8n assistant</h1><p>Required input: your documents and an n8n instance. No special assets are required.</p><h2>Configure the assistant</h2><p>Install n8n and configure the input documents. Connect the agent node and run the workflow. Export the output as an organized report.</p><pre>input_file=notes.txt\noutput_file=report.md</pre><p>'+"This walkthrough explains how the assistant organizes your documents into a report. ".repeat(10)+'</p></article><footer>Unrelated footer</footer></body></html>';
  const parsed=extractPublicPracticeArticle(articleHtml,articleUrl);
  assert(parsed.text.includes("input_file=notes.txt"));assert(!parsed.text.includes("Unrelated footer"));

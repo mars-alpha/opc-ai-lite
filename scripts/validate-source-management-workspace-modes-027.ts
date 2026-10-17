@@ -8,15 +8,15 @@ function assert(condition: unknown, code: string) {
 const ui = fs.readFileSync("components/AdminSourceManagementWorkspace.tsx", "utf8");
 const css = fs.readFileSync("app/admin/sources/sources.css", "utf8");
 
-assert(ui.includes('useState<"SOURCES" | "ADD" | "POLICY">("SOURCES")'), "SOURCE_DIRECTORY_DEFAULT_MODE");
-assert(ui.includes('setManagementMode("SOURCES")') && ui.includes('setManagementMode("ADD")') && ui.includes('setManagementMode("POLICY")'), "THREE_MANAGEMENT_MODES");
+assert(ui.includes('useState<"SOURCES" | "ADD" | "POLICY" | "ALGORITHM" | "FREQUENCY">("SOURCES")'), "SOURCE_DIRECTORY_DEFAULT_MODE");
+assert(ui.includes('setManagementMode("SOURCES")') && ui.includes('setManagementMode("ADD")') && ui.includes('setManagementMode("POLICY")'), "EXISTING_MANAGEMENT_MODES_PRESERVED");
 assert(ui.includes("source-mode-switch") && css.includes(".source-mode-switch button.is-active"), "MODE_SWITCH_VISIBLE");
 assert(!ui.includes("source-management-tools"), "PERMANENT_BOTTOM_TOOL_AREA_RETIRED");
 assert(ui.includes("source-source-directory") && css.includes("grid-template-rows: auto minmax(0,1fr)"), "SOURCE_DIRECTORY_FULL_HEIGHT_DEFAULT");
 assert(ui.includes("source-filter-toolbar") && !ui.includes("source-more-filters"), "FILTERS_COMPACTED");
 assert(css.includes("grid-template-columns: minmax(0,3fr) repeat(3,minmax(0,2fr))") && !css.includes(".source-filter-toolbar > input"), "PRIMARY_FILTERS_SINGLE_ROW_RATIO");
 assert(ui.indexOf("全部语言") < ui.indexOf("全部状态") && ui.indexOf("全部状态") < ui.indexOf("全部采集方式") && !ui.includes("全部资格") && !ui.includes("全部分类") && !ui.includes("全部平台") && !ui.includes("全部内容价值"), "DIRECTORY_FILTERS_MINIMAL");
-assert(ui.includes("source-tool-workspace") && ui.includes('managementMode === "ADD" ? renderAddSource() : renderPolicy()'), "TOOLS_RENDER_ON_DEMAND");
+assert(ui.includes("source-tool-workspace") && ui.includes('managementMode === "ALGORITHM" ? <SourceAlgorithmPanel /> : managementMode === "FREQUENCY" ? <SourceCollectionFrequency /> : renderPolicy()'), "TOOLS_RENDER_ON_DEMAND");
 assert(ui.includes("source-discovery-flow") && !ui.includes("source-discovery-section"), "DISCOVERY_CONTINUOUS_FLOW");
 assert(ui.includes("发现覆盖") && ui.includes("发现渠道") && !ui.includes("<strong>平台能力</strong>") && !ui.includes("<strong>DailyHot Route</strong>"), "DISCOVERY_SINGLE_CHANNEL_GROUP");
 assert(!ui.includes("<details className=\"source-discovery-group\"") && ui.includes("button") && ui.includes("setDiscoveryRoute"), "DISCOVERY_CHANNELS_ALWAYS_VISIBLE");
@@ -32,3 +32,8 @@ assert(ui.includes("renderOverview()"), "TOP_SUMMARY_PRESERVED");
 assert(!ui.includes("<span>03</span>") && !ui.includes("<span>04</span>"), "LEGACY_NUMBERING_ABSENT");
 
 console.log("SOURCE_MANAGEMENT_WORKSPACE_MODES_027=PASS");
+
+assert(ui.indexOf('>筛选规则</button>') < ui.indexOf('>栏目算法</button>'), "ALGORITHM_TAB_AFTER_FILTER_POLICY");
+assert(ui.includes("<SourceCollectionCharts") && ui.indexOf("<SourceCollectionCharts")>ui.lastIndexOf("{renderSources()}"), "ANALYTICS_BELOW_EXISTING_COLUMNS");
+
+assert(ui.indexOf('>栏目算法</button>') < ui.indexOf('>采集频率</button>'), "FREQUENCY_AFTER_ALGORITHM");

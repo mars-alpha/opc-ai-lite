@@ -32,6 +32,7 @@ import {
 import {
   collectSearchDiscovery,
   SEARCH_DISCOVERY_PROVIDERS,
+  type SearchDiscoveryItem,
   type SearchDiscoveryProvider
 } from "./search-discovery";
 import { collectTrendDiscovery } from "./trend-discovery";
@@ -50,8 +51,12 @@ import {
 import { listDiscoveryExpansionCandidates } from "./intelligence-read-model";
 import { isFormalPracticalEvidenceSource } from "./content-evidence-signals";
 import { resolveSourceAcquisitionPlan } from "./source-acquisition-plan";
-import {aiHotspotPracticeSubject,shouldExpandAiHotspotPractice,evaluateAiHotspotPractice} from "./ai-hotspot-practice";
+import {aiHotspotPracticeSubject} from "./ai-hotspot-practice";
+import { PRACTICE_DISCOVERY_PURPOSE, PRACTICE_DISCOVERY_VERSION, isSourceManagedRefreshDue, practiceDiscoveryDecision, selectDiscoveryExpansionCycleCandidates, type PracticeDiscoveryCheckpoint } from "./practice-discovery-policy";
+import {managedPracticePlanKey,managedPracticeSearchGeneration,managedPracticeQueryDecision,MANAGED_PRACTICE_QUERY_VERSION,runManagedSearchWithFallback} from "./managed-practice-query-policy";
 import {evaluatePublicPracticeAccess} from "./public-practice-access";
+import {collectThroughOverseasRelay,isBraveSearchRelayEnabled} from "./overseas-collector-relay-client";
+import {BRAVE_SEARCH_PROTOCOL,BRAVE_SEARCH_ENDPOINT,parseBraveSearchResults} from "../../../services/overseas-collector-relay/brave-search";
 
 const DEFAULT_WINDOW_HOURS = 168;
 const DEFAULT_RESULT_LIMIT = 20;
@@ -62,6 +67,7 @@ export const SOURCE_MANAGED_EXPANSION_SUCCESS_COOLDOWN_HOURS = 6;
 export const SOURCE_MANAGED_EXPANSION_FAILURE_COOLDOWN_HOURS = 1;
 
 type ExpansionInput = {
+  purpose?: typeof PRACTICE_DISCOVERY_PURPOSE;
   managedSourceId?: string;
   practiceTitle?: string;
   providers?: unknown;
@@ -79,7 +85,8 @@ type ExpansionDependencies = {
 const EVENT_EXPANSION_SEARCH_PROVIDERS = [
   ...SEARCH_DISCOVERY_PROVIDERS,
   "BILIBILI_SEARCH",
-  "YOUTUBE_SEARCH"
+  "YOUTUBE_SEARCH",
+  "BRAVE_SEARCH"
 ] as const;
 type EventExpansionSearchProvider = (typeof EVENT_EXPANSION_SEARCH_PROVIDERS)[number];
 export const DEFAULT_EVENT_EXPANSION_SEARCH_PROVIDERS: EventExpansionSearchProvider[] =
@@ -137,9 +144,34 @@ export function isManagedPracticeSearchReady(source: Pick<typeof contentSources.
   const plan = resolveSourceAcquisitionPlan(source);
   return source.enabled && source.status === "ACTIVE" && record(source.metadata).currentPortfolio === true &&
     config.practiceExpansionEnabled === true &&
-    ["BILIBILI_SEARCH", "YOUTUBE_SEARCH"].includes(String(config.practiceExpansionProvider ?? config.provider ?? source.providerRef)) &&
+    ["BILIBILI_SEARCH", "YOUTUBE_SEARCH", "BRAVE_SEARCH"].includes(String(config.practiceExpansionProvider ?? config.provider ?? source.providerRef)) &&
+    (String(config.practiceExpansionProvider ?? config.provider ?? source.providerRef)!=="BRAVE_SEARCH" || isBraveSearchRelayEnabled()) &&
     ["AUTO_READY", "CONDITIONAL"].includes(String(record(record(source.metadata).runtimeQualification).effectiveQualification)) &&
     plan.routes.some(route => route.kind === "SEARCH_DISCOVERY" && route.enabled && route.explicit && route.serverRuntimeSupported);
+}
+
+export function selectManagedPracticeSearchSources<T extends Parameters<typeof isManagedPracticeSearchReady>[0] & {id:string}>(sources:T[],availableProviders:EventExpansionSearchProvider[]){
+ const provider=(source:T)=>String(record(source.collectionConfig).practiceExpansionProvider??record(source.collectionConfig).provider??source.providerRef);
+ const ready=sources.filter(source=>isManagedPracticeSearchReady(source) && availableProviders.includes(provider(source) as EventExpansionSearchProvider));
+ // Registered general-web search leads; platform-only search remains a distinct fallback.
+ ready.sort((a,b)=>Number(provider(b)==="BRAVE_SEARCH")-Number(provider(a)==="BRAVE_SEARCH") || a.id.localeCompare(b.id));
+ return ready.filter((source,index,all)=>all.findIndex(other=>provider(other)===provider(source))===index).slice(0,2);
+}
+
+/** Serialize budget/lease checks and insertion; no network call occurs inside this transaction. */
+export async function claimManagedPracticeQueryRun(values:typeof contentExpansionRuns.$inferInsert,planKey:string){
+ const db=getDatabase();
+ return db.transaction(async tx=>{
+  const [event]=await tx.select().from(contentEvents).where(eq(contentEvents.id,values.eventId)).for("update");
+  if(!event || event.archivedAt || (event.eventAt??event.firstSeenAt).getTime()>Date.now() || (event.eventAt??event.firstSeenAt).getTime()<Date.now()-168*3600000)return {run:null,reason:"EVENT_NOT_AVAILABLE"};
+  const [source]=values.sourceId?await tx.select().from(contentSources).where(eq(contentSources.id,values.sourceId)).for("share"):[];
+  if(!source || !isManagedPracticeSearchReady(source) || String(record(source.collectionConfig).practiceExpansionProvider ?? record(source.collectionConfig).provider ?? source.providerRef)!==values.provider)return {run:null,reason:"MANAGED_SEARCH_SOURCE_NOT_READY"};
+  const history=await tx.select().from(contentExpansionRuns).where(and(eq(contentExpansionRuns.eventId,event.id),sql`${contentExpansionRuns.metadata}->>'purpose' = ${PRACTICE_DISCOVERY_PURPOSE}`,sql`(${contentExpansionRuns.startedAt} >= ${new Date(Date.now()-24*3600000).toISOString()} or (${contentExpansionRuns.metadata}->'managedSearch'->>'planKey' = ${planKey} and ${contentExpansionRuns.status}='SUCCEEDED'))`)).orderBy(desc(contentExpansionRuns.startedAt)).limit(100);
+  const decision=managedPracticeQueryDecision({planKey,provider:values.provider,query:values.query,now:Date.now()},history);
+  if(!decision.allowed)return {run:null,reason:decision.reason};
+  const [run]=await tx.insert(contentExpansionRuns).values({...values,status:"RUNNING",startedAt:new Date(),metadata:{...record(values.metadata),purpose:PRACTICE_DISCOVERY_PURPOSE,managedSearch:{version:MANAGED_PRACTICE_QUERY_VERSION,planKey}}}).returning();
+  return {run,reason:"QUERY_CLAIMED"};
+ });
 }
 
 function stringList(value: unknown, limit = 30) {
@@ -184,6 +216,7 @@ function expansionSourceDefinition(provider: EventExpansionSearchProvider) {
 }
 
 export async function ensureExpansionSource(provider: EventExpansionSearchProvider) {
+  if(provider==="BRAVE_SEARCH")throw new Error("BRAVE_SEARCH_MANAGED_SOURCE_REQUIRED");
   const db = getDatabase();
   const definition = expansionSourceDefinition(provider);
   const [existing] = await db.select().from(contentSources).where(eq(contentSources.id, definition.id)).limit(1);
@@ -260,12 +293,19 @@ export async function collectEventExpansionSearch(
   windowHours: number,
   resultLimit: number,
   dependencies: Required<Pick<ExpansionDependencies, "fetchJson">> & Pick<ExpansionDependencies, "fetchImpl">
-) {
+):Promise<{requestUrl:string;items:SearchDiscoveryItem[]}> {
+  if(provider==="BRAVE_SEARCH"){
+    if(!isBraveSearchRelayEnabled())throw new Error("BRAVE_SEARCH_RELAY_UNAVAILABLE");
+    const payload=await collectThroughOverseasRelay({provider,searchQuery:query,windowHours,resultLimit:Math.min(5,resultLimit),minStars:0},dependencies.fetchImpl);
+    if(payload.provider!==provider || payload.protocol!==BRAVE_SEARCH_PROTOCOL)throw new Error("BRAVE_SEARCH_RESPONSE_INVALID");
+    return {requestUrl:BRAVE_SEARCH_ENDPOINT,items:parseBraveSearchResults(payload,resultLimit)};
+  }
   if (provider === "BILIBILI_SEARCH") {
     const url = new URL("https://api.bilibili.com/x/web-interface/search/all/v2");
     url.searchParams.set("keyword", query);
     url.searchParams.set("page", "1");
     const payload = await dependencies.fetchJson(url.toString());
+    if(record(payload).code!==0 || !Array.isArray(record(record(payload).data).result))throw new Error("BILIBILI_SEARCH_RESPONSE_INVALID");
     const cutoff = Date.now() - windowHours * 60 * 60 * 1000;
     const items = parseBilibiliSearch(payload)
       .filter((item) => !item.publishedAt || new Date(item.publishedAt).getTime() >= cutoff)
@@ -303,6 +343,11 @@ export function providerQueryPlan(
   plan: EventExpansionQueryPlanLike,
   maxQueries: number
 ) {
+  if(provider==="BRAVE_SEARCH") {
+    const all=plan.creatorQueries ?? plan.queries ?? [], zh=all.filter(q=>q.language==="ZH"), en=all.filter(q=>q.language==="EN");
+    // Round-robin the existing ranked intent lists; no new relevance weights.
+    return Array.from({length:Math.max(zh.length,en.length)},(_,i)=>[zh[i],en[i]].filter(Boolean)).flat().slice(0,maxQueries);
+  }
   if (provider === "YOUTUBE_SEARCH") {
     return (plan.overseasCreatorQueries ?? plan.overseasQueries ?? []).slice(0, maxQueries);
   }
@@ -473,23 +518,25 @@ async function buildExpansionPack(
   });
   const selected = selectEventExpansionEvidence(classified, MAX_EVIDENCE);
 
-  await db.delete(contentEventExpansionEvidence).where(eq(contentEventExpansionEvidence.eventId, event.id));
-  if (selected.length) {
-    await db.insert(contentEventExpansionEvidence).values(selected.map((item) => ({
-      eventId: event.id,
-      rawItemId: item.rawItemId,
-      expansionRunId: item.expansionRunId,
-      expansionType: item.expansionType,
-      mediaType: item.mediaType,
-      language: item.language,
-      relevanceScore: item.relevanceScore,
-      valueScore: item.valueScore,
-      rankScore: item.rankScore,
-      shadowSignalScore: item.shadowSignalScore,
-      query: item.query,
-      metadata: item.metadata
-    })));
-  }
+  await db.transaction(async (tx) => {
+    await tx.delete(contentEventExpansionEvidence).where(eq(contentEventExpansionEvidence.eventId, event.id));
+    if (selected.length) {
+      await tx.insert(contentEventExpansionEvidence).values(selected.map((item) => ({
+        eventId: event.id,
+        rawItemId: item.rawItemId,
+        expansionRunId: item.expansionRunId,
+        expansionType: item.expansionType,
+        mediaType: item.mediaType,
+        language: item.language,
+        relevanceScore: item.relevanceScore,
+        valueScore: item.valueScore,
+        rankScore: item.rankScore,
+        shadowSignalScore: item.shadowSignalScore,
+        query: item.query,
+        metadata: item.metadata
+      })));
+    }
+  });
 
   return {
     evidence: await listEventExpansionEvidence(event.id),
@@ -597,6 +644,7 @@ export async function runEventExpansion(
   const resultLimit = boundedInteger(input.resultLimit, DEFAULT_RESULT_LIMIT, 1, 50);
   const maxQueries = boundedInteger(input.maxQueries, MAX_QUERIES, 1, MAX_QUERIES);
   const requestedExpansionTypes = resolveRequestedExpansionTypes(input.expansionTypes);
+  const purposeMetadata = input.purpose || input.managedSourceId ? { purpose: input.purpose ?? PRACTICE_DISCOVERY_PURPOSE } : {};
   const managedSource = input.managedSourceId ? (await db.select().from(contentSources).where(eq(contentSources.id, input.managedSourceId)).limit(1))[0] : null;
   if (input.managedSourceId && (!managedSource || !isManagedPracticeSearchReady(managedSource))) throw new Error("MANAGED_SEARCH_SOURCE_NOT_READY");
   const providers = await resolveProviders(managedSource ? [record(managedSource.collectionConfig).practiceExpansionProvider ?? record(managedSource.collectionConfig).provider ?? managedSource.providerRef] : input.providers);
@@ -615,6 +663,8 @@ export async function runEventExpansion(
 
   const fetchJson = dependencies.fetchJson ?? fetchPublicJson;
   const completed = [];
+  const managedPlanKey=managedPracticePlanKey({context,requestedExpansionTypes,generation:managedPracticeSearchGeneration(),windowHours});
+  let managedStopReason:string|null=null;
   const observedIntent = new Map<string, { query: string; expansionRunId: string }>();
   let budgetLimit = Math.min(
     DEFAULT_INITIAL_BUDGET,
@@ -637,32 +687,17 @@ export async function runEventExpansion(
   providerLoop:
   for (const provider of providers) {
     const source = managedSource ?? await ensureExpansionSource(provider);
-    const providerQueries = providerQueryPlan(provider, plan, maxQueries);
+    const providerQueries = providerQueryPlan(provider, plan, managedSource ? MAX_QUERIES : maxQueries);
     if (providerQueries.length === 0) continue;
 
     for (const queryPlan of providerQueries) {
-      if (adaptiveStop) break providerLoop;
+      if (adaptiveStop || managedSource && completed.length>=Math.min(3,maxQueries)) break providerLoop;
       const query = queryPlan.query;
-      const [run] = await db
-        .insert(contentExpansionRuns)
-        .values({
-          eventId,
-          sourceId: source.id,
-          query,
-          provider,
-          windowHours,
-          resultLimit,
-          status: "RUNNING",
-          triggeredByEmail: user.email,
-          metadata: {
-            eventTitle: event.title,
-            expansionType: queryPlan.expansionType,
-            queryLanguage: queryPlan.language,
-            requestedExpansionTypes: requestedExpansionTypes ?? "ALL",
-            formalHotspotPromotion: false
-          }
-        })
-        .returning();
+      const runValues={eventId,sourceId:source.id,query,provider,windowHours,resultLimit:managedSource?Math.min(5,resultLimit):resultLimit,status:"RUNNING",triggeredByEmail:user.email,metadata:{...purposeMetadata,eventTitle:event.title,expansionType:queryPlan.expansionType,queryLanguage:queryPlan.language,requestedExpansionTypes:requestedExpansionTypes??"ALL",formalHotspotPromotion:false}};
+      const claimed=managedSource?await claimManagedPracticeQueryRun(runValues,managedPlanKey):{run:(await db.insert(contentExpansionRuns).values(runValues).returning())[0],reason:"QUERY_CLAIMED"};
+      if(!claimed.run){managedStopReason=claimed.reason;if(claimed.reason==="QUERY_ALREADY_COMPLETED")continue;break providerLoop;}
+      const run=claimed.run;
+      const queryAudit=managedSource?{managedSearch:{version:MANAGED_PRACTICE_QUERY_VERSION,planKey:managedPlanKey}}:{};
 
       let queryBudgetRecorded = false;
       try {
@@ -670,7 +705,7 @@ export async function runEventExpansion(
           provider,
           query,
           windowHours,
-          resultLimit,
+          managedSource?Math.min(5,resultLimit):resultLimit,
           { fetchJson, fetchImpl: dependencies.fetchImpl }
         );
         const preEvidenceRejectedReasons = new Map<string, number>();
@@ -819,6 +854,8 @@ export async function runEventExpansion(
             duplicateCount: duplicates,
             finishedAt: new Date(),
             metadata: {
+              ...purposeMetadata,
+              ...queryAudit,
               eventTitle: event.title,
               requestUrl: search.requestUrl,
               expansionType: queryPlan.expansionType,
@@ -875,6 +912,8 @@ export async function runEventExpansion(
             errorCode: errorCode(error),
             errorMessage: errorMessage(error),
             metadata: {
+              ...purposeMetadata,
+              ...queryAudit,
               eventTitle: event.title,
               expansionType: queryPlan.expansionType,
               queryLanguage: queryPlan.language,
@@ -894,6 +933,7 @@ export async function runEventExpansion(
           .where(eq(contentExpansionRuns.id, run.id))
           .returning();
         completed.push(failed);
+        if(managedSource)break providerLoop;
       }
     }
   }
@@ -905,6 +945,7 @@ export async function runEventExpansion(
   return {
     eventId,
     queryPlan: plan,
+    managedSearch:managedSource?{planKey:managedPlanKey,stopReason:managedStopReason}:null,
     requestedExpansionTypes: requestedExpansionTypes ?? "ALL",
     queries: completed.map((run) => run.query),
     providers,
@@ -945,23 +986,14 @@ export async function runDiscoveryExpansionCycle(
   options: { maxEvents?: number } = {}
 ) {
   const maxEvents = boundedInteger(options.maxEvents, 3, 1, 6);
-  const candidates = await listDiscoveryExpansionCandidates(Math.max(maxEvents * 4, 12));
-  const confirmed = candidates.filter(
-    (item) => item.discoveryExpansion.trigger === "CONFIRMED_EVENT_FOLLOW_UP"
-  );
-  const unverified = candidates.filter(
-    (item) => item.discoveryExpansion.trigger === "UNVERIFIED_VERIFICATION_FOLLOW_UP"
-  );
-  const selected: typeof candidates = [];
-  const practiceCandidate = candidates.find(item => evaluateAiHotspotPractice(item).eligible);
-  if (practiceCandidate) selected.push(practiceCandidate);
-  if (confirmed.length && selected.length < maxEvents && !selected.some(item => item.eventId === confirmed[0].eventId)) selected.push(confirmed[0]);
-  if (unverified.length && selected.length < maxEvents && !selected.some(item => item.eventId === unverified[0].eventId)) selected.push(unverified[0]);
-  for (const candidate of candidates) {
-    if (selected.length >= maxEvents) break;
-    if (selected.some((item) => item.eventId === candidate.eventId)) continue;
-    selected.push(candidate);
-  }
+  const managedSearchSources = await getDatabase().select().from(contentSources).where(and(eq(contentSources.enabled, true), eq(contentSources.status, "ACTIVE")));
+  const healthyProviders:EventExpansionSearchProvider[] = managedSearchSources.some(source => record(source.collectionConfig).practiceExpansionEnabled === true) ? await resolveProviders(undefined).catch(() => []) : [];
+  // Local configuration permits an attempt, never claims remote health; live failures enter the P3A ledger/backoff.
+  if(isBraveSearchRelayEnabled())healthyProviders.push("BRAVE_SEARCH");
+  const searchSources=selectManagedPracticeSearchSources(managedSearchSources,healthyProviders);
+  const searchSource=process.env.OPC_COLLECTION_MANAGED_SEARCH==="off"?undefined:searchSources[0];
+  const candidates = await listDiscoveryExpansionCandidates(Math.max(maxEvents * 4, 12),{searchReady:Boolean(searchSource)});
+  const selected = selectDiscoveryExpansionCycleCandidates(candidates,{searchReady:Boolean(searchSource),maxEvents});
   const results: Array<{
     eventId: string;
     trigger: string;
@@ -977,41 +1009,50 @@ export async function runDiscoveryExpansionCycle(
     practiceSearch?: string;
   }> = [];
 
-  // One managed search route, one Event, two queries at most per SYSTEM cycle.
+  // One Event, one primary and one configured fallback, three shared query attempts.
   // Source opt-in is required: never resurrect the legacy hidden provider pool.
-  const managedSearchSources = await getDatabase().select().from(contentSources).where(and(eq(contentSources.enabled, true), eq(contentSources.status, "ACTIVE")));
-  const healthyProviders = managedSearchSources.some(source => record(source.collectionConfig).practiceExpansionEnabled === true) ? await resolveProviders(undefined).catch(() => []) : [];
-  const searchSource = managedSearchSources.find(source =>
-    isManagedPracticeSearchReady(source) &&
-    healthyProviders.includes((record(source.collectionConfig).practiceExpansionProvider ?? record(source.collectionConfig).provider ?? source.providerRef) as EventExpansionSearchProvider));
   let searched = false;
 
   for (const candidate of selected) {
     try {
+      let searchAttempted = false;
+      let searchFailed = false;
       let searchStatus = searchSource ? "NOT_TRIGGERED" : "NO_READY_MANAGED_SEARCH_SOURCE";
-      const [lastSearch] = await getDatabase().select({ startedAt: contentExpansionRuns.startedAt }).from(contentExpansionRuns).where(eq(contentExpansionRuns.eventId, candidate.eventId)).orderBy(desc(contentExpansionRuns.startedAt)).limit(1);
-      const practiceSearch = shouldExpandAiHotspotPractice({ title: candidate.title, excerpt: candidate.excerpt, independentParticipants: evaluateAiHotspotPractice(candidate).record?.participants.length ?? 0, lastAttemptAt: lastSearch?.startedAt?.toISOString() ?? null });
+      const practiceSearch = practiceDiscoveryDecision(candidate, candidate.practiceDiscovery);
+      if (searchSource && !practiceSearch.eligible) searchStatus = practiceSearch.reason;
+      if (searchSource && practiceSearch.eligible && searched) searchStatus = "SEARCH_CYCLE_BUDGET_DEFERRED";
       if (!searched && practiceSearch.eligible && searchSource) {
         searched = true;
+        searchAttempted = true;
+        const attemptAt = new Date().toISOString();
+        const persistSearch = async (status: PracticeDiscoveryCheckpoint["status"], reason: string) => {
+          await getDatabase().update(contentEvents).set({ metadata: sql`jsonb_set(${contentEvents.metadata}, '{practiceDiscovery}', ${JSON.stringify({ version: PRACTICE_DISCOVERY_VERSION, purpose: PRACTICE_DISCOVERY_PURPOSE, sourceId: searchSource.id, status, lastAttemptAt: attemptAt, reason })}::jsonb, true)` }).where(eq(contentEvents.id, candidate.eventId));
+        };
+        await persistSearch("RUNNING", "SEARCH_STARTED");
         try {
-          const search = await runEventExpansion(user, candidate.eventId, { managedSourceId: searchSource.id, practiceTitle: undefined, maxQueries: 2, resultLimit: 5, windowHours: 168, expansionTypes: ["TUTORIAL", "USE_CASE"] });
-          searchStatus = search.summary.failed ? "SEARCH_PARTIAL_OR_FAILED" : "SEARCH_SUCCEEDED";
-        } catch (error) { searchStatus = errorCode(error); }
+          const search=await runManagedSearchWithFallback(searchSources,(source,remaining)=>runEventExpansion(user,candidate.eventId,{purpose:PRACTICE_DISCOVERY_PURPOSE,managedSourceId:source.id,maxQueries:remaining,resultLimit:5,windowHours:168,expansionTypes:["EXPERIENCE","TUTORIAL","USE_CASE"]}));
+          searchFailed=search.failed;
+          searchStatus=search.requestCount===0?search.attempts[0]?.result?.managedSearch?.stopReason??"SEARCH_NO_QUERY_EXECUTED":searchFailed?"SEARCH_PARTIAL_OR_FAILED":"SEARCH_SUCCEEDED";
+          await persistSearch(searchFailed ? "FAILED" : "SUCCEEDED", searchStatus);
+        } catch (error) { searchFailed = true; searchStatus = errorCode(error); await persistSearch("FAILED", searchStatus); }
       }
       // Production expansion consumes only Raw items already collected by Source Management
       // through SYSTEM Collection. It never creates a hidden expansion-only Source.
-      const expansion = await refreshSourceManagedEventExpansion(candidate.eventId, 168);
+      const expansion = searchAttempted || isSourceManagedRefreshDue(candidate.sourceManagedExpansionRuntime)
+        ? await refreshSourceManagedEventExpansion(candidate.eventId, 168)
+        : null;
       results.push({
         eventId: candidate.eventId,
         trigger: candidate.discoveryExpansion.trigger,
         priority: candidate.discoveryExpansion.priority,
-        status: "SUCCEEDED",
-        evidenceCount: expansion.evidenceCount,
-        chineseEvidenceCount: expansion.chineseEvidenceCount,
-        practicalEvidenceCount: expansion.practicalEvidenceCount,
-        shadowExpansionSignal: expansion.shadowExpansionSignal,
-        analysisStatus: expansion.analysisStatus,
-        analysisReason: expansion.analysisReason,
+        status: searchFailed ? "FAILED" : "SUCCEEDED",
+        ...(searchFailed ? { error: searchStatus } : {}),
+        evidenceCount: expansion?.evidenceCount,
+        chineseEvidenceCount: expansion?.chineseEvidenceCount,
+        practicalEvidenceCount: expansion?.practicalEvidenceCount,
+        shadowExpansionSignal: expansion?.shadowExpansionSignal,
+        analysisStatus: expansion?.analysisStatus,
+        analysisReason: expansion?.analysisReason,
         practiceSearch: searchStatus
       });
     } catch (error) {
@@ -1027,7 +1068,7 @@ export async function runDiscoveryExpansionCycle(
   }
 
   return {
-    version: "discovery-expansion-source-managed-v3" as const,
+    version: "discovery-expansion-source-managed-v4-query-ledger" as const,
     candidateCount: candidates.length,
     selectedCount: selected.length,
     succeeded: results.filter((item) => item.status === "SUCCEEDED").length,

@@ -1,5 +1,10 @@
-import {publicPracticeRoute} from "./public-practice-routes.js";
-const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS", "PUBLIC_PRACTICE_DOCUMENT", "PUBLIC_SOURCE_DOCUMENT"]);
+import {publicPracticeRoute,PUBLIC_PRACTICE_ROUTE_PROTOCOL} from "./public-practice-routes.js";
+import {publicSourceRoute,PUBLIC_SOURCE_ROUTE_PROTOCOL} from "./public-source-routes.js";
+import {CONDITIONAL_HTTP_PROTOCOL,readHttpValidators,conditionalRequestHeaders} from "./conditional-http.js";
+import {fixedWatchlistFeedUrl,watchlistFeedFetchUrl,WATCHLIST_FEED_POLICY_VERSION} from "./watchlist-feeds.js";
+import {githubReleasePage,GITHUB_RELEASE_POLICY_VERSION} from "./github-releases.js";
+import {BRAVE_SEARCH_ENDPOINT,BRAVE_SEARCH_PROTOCOL,parseBraveSearchResults} from "./brave-search.js";
+const ALLOWED_PROVIDERS = new Set(["YOUTUBE_AI_TREND", "GOOGLE_TRENDS", "DEEPMIND_FEED", "GITHUB_TREND_PROXY", "PIXAROMA_WORKFLOWS", "PUBLIC_PRACTICE_DOCUMENT", "PUBLIC_SOURCE_DOCUMENT", "WATCHLIST_FEED", "GITHUB_RELEASES", "BRAVE_SEARCH"]);
 
 async function collectPracticeDocument(request: ReturnType<typeof parseRequest>, deadline:number) {
   const route=publicPracticeRoute(request.searchQuery);
@@ -16,7 +21,7 @@ async function collectPracticeDocument(request: ReturnType<typeof parseRequest>,
     const bytes=await boundedPixaromaFetch(url,deadline,1_500_000);
     const html=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
     if(!/<(?:!doctype|html|article)\b/i.test(html))throw new SyntaxError("article document invalid");
-    return {provider:"PUBLIC_PRACTICE_DOCUMENT",url,fetchedUrl:url,status:200,html,observedAt:new Date().toISOString()};
+    return {provider:"PUBLIC_PRACTICE_DOCUMENT",publicSourceRouteProtocol:PUBLIC_SOURCE_ROUTE_PROTOCOL,url,fetchedUrl:url,status:200,html,observedAt:new Date().toISOString()};
   }
   const bytes=await boundedPixaromaFetch(url+".md",deadline,250000);
   const text=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
@@ -102,7 +107,7 @@ type Env = Record<string, string | undefined>;
 // Keep one bounded request comfortably inside the caller's 20s deadline.
 const RELAY_TOTAL_BUDGET_MS = 16_000;
 function safeRelayError(error: unknown) {
-  if (error instanceof Error && /^(RELAY_UPSTREAM_HTTP_[1-5][0-9]{2}|RELAY_UPSTREAM_TOO_LARGE|RELAY_PROVIDER_NOT_ALLOWED|RELAY_YOUTUBE_KEY_REQUIRED|RELAY_GOOGLE_TRENDS_GEO_INVALID)$/.test(error.message)) return error.message;
+  if (error instanceof Error && /^(RELAY_UPSTREAM_HTTP_[1-5][0-9]{2}|RELAY_UPSTREAM_TOO_LARGE|RELAY_PROVIDER_NOT_ALLOWED|RELAY_YOUTUBE_KEY_REQUIRED|RELAY_BRAVE_KEY_REQUIRED|RELAY_GOOGLE_TRENDS_GEO_INVALID)$/.test(error.message)) return error.message;
   if (error instanceof Error && ["TimeoutError", "AbortError"].includes(error.name)) return "RELAY_UPSTREAM_TIMEOUT";
   if (error instanceof SyntaxError) return "RELAY_UPSTREAM_PAYLOAD_INVALID";
   return "RELAY_UPSTREAM_NETWORK_FAILED";
@@ -138,6 +143,19 @@ function json(body: unknown, status = 200) {
   });
 }
 
+function collectionJson(body: unknown, acceptEncoding: string | null) {
+  const text = JSON.stringify(body);
+  const gzip = (acceptEncoding ?? "").split(",").some(entry => {
+    const [encoding, ...parameters] = entry.trim().toLowerCase().split(";");
+    const quality = parameters.find(p => /^\s*q\s*=/.test(p));
+    return encoding === "gzip" && (!quality || Number(quality.split("=")[1]) > 0);
+  });
+  const compressed = gzip && text.length >= 16_384;
+  return new Response(compressed ? new Blob([text]).stream().pipeThrough(new CompressionStream("gzip")) : text, {
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", vary: "Accept-Encoding", ...(compressed ? { "content-encoding": "gzip" } : {}) }
+  });
+}
+
 function parseRequest(value: unknown) {
   const input = value && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -147,7 +165,8 @@ function parseRequest(value: unknown) {
   const searchQuery = typeof input.searchQuery === "string" ? input.searchQuery.trim().slice(0, 500) : "";
   const windowHours = Math.max(1, Math.min(168, Math.round(Number(input.windowHours) || 72)));
   const resultLimit = Math.max(1, Math.min(30, Math.round(Number(input.resultLimit) || 20)));
-  return { provider, searchQuery, windowHours, resultLimit, minStars: Math.max(0, Math.min(1000000, Math.round(Number(input.minStars) || 0))) };
+  const validators=["DEEPMIND_FEED","PUBLIC_SOURCE_DOCUMENT","WATCHLIST_FEED"].includes(provider)?readHttpValidators(input.validators):{};
+  return { provider, searchQuery, windowHours, resultLimit, validators, minStars: Math.max(0, Math.min(1000000, Math.round(Number(input.minStars) || 0))) };
 }
 
 async function checkedJson(response: Response) {
@@ -228,7 +247,7 @@ async function collectGithub(request: ReturnType<typeof parseRequest>, deadline:
 export async function handleRelayRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   if (request.method === "GET" && url.pathname === "/health") {
-    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-public-materials-v6", capabilities: [...ALLOWED_PROVIDERS] });
+    return json({ ok: true, service: "opc-overseas-collector-relay", runtime: "deno-deploy", version: "relay-radar-materials-v17", responseCompression:"gzip-v1", conditionalProtocol:CONDITIONAL_HTTP_PROTOCOL, watchlistFeedVersion:WATCHLIST_FEED_POLICY_VERSION, githubReleaseVersion:GITHUB_RELEASE_POLICY_VERSION, braveSearchProtocol:BRAVE_SEARCH_PROTOCOL, publicPracticeRouteProtocol:PUBLIC_PRACTICE_ROUTE_PROTOCOL, publicSourceRouteProtocol:PUBLIC_SOURCE_ROUTE_PROTOCOL, capabilities: [...ALLOWED_PROVIDERS] });
   }
   if (request.method !== "POST" || url.pathname !== "/v1/collect") return json({ error: "NOT_FOUND" }, 404);
 
@@ -249,22 +268,50 @@ export async function handleRelayRequest(request: Request, env: Env) {
     const parsed = parseRequest(JSON.parse(body || "{}"));
     const started = Date.now();
     const deadline = started + RELAY_TOTAL_BUDGET_MS;
-    const result = parsed.provider === "PUBLIC_SOURCE_DOCUMENT" ? await collectSourceDocument(parsed,deadline)
+    const result = parsed.provider === "BRAVE_SEARCH" ? await collectBraveSearch(parsed,env,deadline)
+      : parsed.provider === "GITHUB_RELEASES" ? await collectGithubReleasePage(parsed,deadline)
+      : parsed.provider === "WATCHLIST_FEED" ? await collectWatchlistFeed(parsed,deadline)
+      : parsed.provider === "PUBLIC_SOURCE_DOCUMENT" ? await collectSourceDocument(parsed,deadline)
       : parsed.provider === "PUBLIC_PRACTICE_DOCUMENT" ? await collectPracticeDocument(parsed,deadline)
       : parsed.provider === "PIXAROMA_WORKFLOWS" ? await collectPixaroma(parsed,deadline)
       : parsed.provider === "DEEPMIND_FEED"
-      ? { provider: parsed.provider, rssText: await checkedText(await fetch("https://deepmind.google/blog/rss.xml", { redirect: "error", signal: upstreamSignal(deadline, 12000) })) }
+      ? await collectDeepMindDocument(parsed,deadline)
       : parsed.provider === "GITHUB_TREND_PROXY" ? await collectGithub(parsed, deadline)
       : parsed.provider === "YOUTUBE_AI_TREND"
       ? await collectYouTube(parsed, env, deadline)
       : await collectGoogleTrends(parsed, env, deadline);
     console.log(JSON.stringify({ provider: parsed.provider, status: "SUCCEEDED", durationMs: Date.now() - started }));
-    return json(result);
+    const payload = result as Record<string, unknown>;
+    if(request.headers.get("x-opc-relay-compact")==="feed-v1" && typeof payload.text==="string" && payload.rssText===payload.text){
+      const {rssText: _alias,...compact}=payload;
+      return collectionJson({...compact,feedTextAlias:"text"},request.headers.get("accept-encoding"));
+    }
+    return collectionJson(result, request.headers.get("accept-encoding"));
   } catch (error) {
     const code = safeRelayError(error);
     console.error(JSON.stringify({ status: "FAILED", error: code }));
     return json({ error: code }, code.includes("NOT_ALLOWED") ? 400 : code.includes("REQUIRED") ? 503 : 502);
   }
+}
+
+async function collectBraveSearch(request:ReturnType<typeof parseRequest>,env:Env,deadline:number){
+ const key=env.BRAVE_SEARCH_API_KEY?.trim();if(!key)throw new Error("RELAY_BRAVE_KEY_REQUIRED");
+ if(!request.searchQuery)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+ const url=new URL(BRAVE_SEARCH_ENDPOINT);
+ url.searchParams.set("q",request.searchQuery);url.searchParams.set("count",String(Math.min(5,request.resultLimit)));
+ url.searchParams.set("offset","0");url.searchParams.set("freshness","pw");
+ const response=await fetch(url,{redirect:"error",headers:{accept:"application/json","x-subscription-token":key},signal:upstreamSignal(deadline,12000)});
+ if(response.status!==200)throw new Error("RELAY_UPSTREAM_HTTP_"+response.status);
+ if(Number(response.headers.get("content-length")||0)>250000)throw new Error("RELAY_UPSTREAM_TOO_LARGE");
+ const reader=response.body?.getReader();if(!reader)throw new SyntaxError("missing search body");
+ let size=0;const chunks:Uint8Array[]=[];
+ try{while(true){const next=await reader.read();if(next.done)break;size+=next.value.length;if(size>250000)throw new Error("RELAY_UPSTREAM_TOO_LARGE");chunks.push(next.value);}}
+ finally{await reader.cancel().catch(()=>undefined);}
+ const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
+ const payload=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes));
+ let items;try{items=parseBraveSearchResults(payload,request.resultLimit);}catch{throw new SyntaxError("search response invalid");}
+ // Return only validated public snippets; discard all other upstream fields.
+ return {provider:"BRAVE_SEARCH",protocol:BRAVE_SEARCH_PROTOCOL,web:{results:items.map(item=>({url:item.originalUrl,title:item.title,description:item.excerpt??""}))}};
 }
 
 type DenoRuntime = {
@@ -279,21 +326,53 @@ if (deno) {
 }
 
 function allowedSourceDocument(value:string) {
- const url=new URL(value);
- if(url.protocol!=="https:" || url.port || url.username || url.password || !["simonwillison.net","til.simonwillison.net","blog.comfy.org"].includes(url.hostname)) throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
- return url.href;
+ const route=publicSourceRoute(value);
+ if(!route)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+ return route.url;
 }
 async function collectSourceDocument(request:ReturnType<typeof parseRequest>,deadline:number) {
  let url=allowedSourceDocument(request.searchQuery);
  for(let redirects=0;redirects<=3;redirects++){
-  const response=await fetch(url,{redirect:"manual",headers:{accept:"text/html, application/rss+xml, application/atom+xml, application/xml;q=0.9"},signal:upstreamSignal(deadline,10000)});
+  const validators=redirects===0 && url===new URL(request.searchQuery).href?request.validators:{};
+  const response=await fetch(url,{redirect:"manual",headers:{accept:"text/html, application/rss+xml, application/atom+xml, application/xml;q=0.9",...conditionalRequestHeaders(validators)},signal:upstreamSignal(deadline,10000)});
+  if(response.status===304)return {provider:"PUBLIC_SOURCE_DOCUMENT",publicSourceRouteProtocol:PUBLIC_SOURCE_ROUTE_PROTOCOL,...await conditionalDocument(response,url,validators)};
   if(response.status>=300 && response.status<400){
    const location=response.headers.get("location");
    if(!location || redirects===3)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
-   url=allowedSourceDocument(new URL(location,url).href);continue;
+   const next=allowedSourceDocument(new URL(location,url).href);
+   const original=publicSourceRoute(request.searchQuery),nextRoute=publicSourceRoute(next);
+   if((original?.authorFeed || nextRoute?.authorFeed) && new URL(next).origin!==new URL(request.searchQuery).origin)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+   url=next;continue;
   }
-  const text=await checkedText(response);
-  return {provider:"PUBLIC_SOURCE_DOCUMENT",url,text,status:200,contentType:response.headers.get("content-type")??"text/plain",observedAt:new Date().toISOString()};
+  return {provider:"PUBLIC_SOURCE_DOCUMENT",publicSourceRouteProtocol:PUBLIC_SOURCE_ROUTE_PROTOCOL,...await conditionalDocument(response,url,validators)};
  }
  throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+}
+
+async function conditionalDocument(response:Response,url:string,validators:ReturnType<typeof readHttpValidators>){
+ if(response.status===304 && !validators.etag && !validators.lastModified)throw new SyntaxError("unexpected not modified");
+ if(![200,304].includes(response.status))throw new Error("RELAY_UPSTREAM_HTTP_"+response.status);
+ const headers=readHttpValidators({etag:response.headers.get("etag"),lastModified:response.headers.get("last-modified")});
+ return {url,text:response.status===304?"":await checkedText(response),status:response.status,contentType:response.headers.get("content-type")??"text/plain",...headers,conditionalProtocol:CONDITIONAL_HTTP_PROTOCOL,observedAt:new Date().toISOString()};
+}
+async function collectDeepMindDocument(request:ReturnType<typeof parseRequest>,deadline:number){
+ const url="https://deepmind.google/blog/rss.xml";
+ const response=await fetch(url,{redirect:"error",headers:conditionalRequestHeaders(request.validators),signal:upstreamSignal(deadline,12000)});
+ const document=await conditionalDocument(response,url,request.validators);
+ return {provider:request.provider,...document,rssText:document.text};
+}
+async function collectWatchlistFeed(request:ReturnType<typeof parseRequest>,deadline:number){
+ const requestedUrl=fixedWatchlistFeedUrl(request.searchQuery),url=watchlistFeedFetchUrl(request.searchQuery);
+ if(!requestedUrl || !url)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+ const validators=url===requestedUrl?request.validators:{};
+ const response=await fetch(url,{redirect:"error",headers:{accept:"application/rss+xml,application/atom+xml,application/xml,text/xml",...conditionalRequestHeaders(validators)},signal:upstreamSignal(deadline,12000)});
+ return {provider:request.provider,requestedUrl,watchlistFeedVersion:WATCHLIST_FEED_POLICY_VERSION,...await conditionalDocument(response,url,validators)};
+}
+
+async function collectGithubReleasePage(request:ReturnType<typeof parseRequest>,deadline:number){
+ const page=githubReleasePage(request.searchQuery);if(!page)throw new Error("RELAY_PROVIDER_NOT_ALLOWED");
+ const response=await fetch(page.url,{redirect:"error",headers:{accept:"application/vnd.github+json","x-github-api-version":"2022-11-28","user-agent":"opc-collection-relay"},signal:upstreamSignal(deadline,12000)});
+ if(response.status!==200)throw new Error("RELAY_UPSTREAM_HTTP_"+response.status);
+ const link=response.headers.get("link");if(link && link.length>4096)throw new SyntaxError("link too large");
+ return {provider:"GITHUB_RELEASES",url:page.url,status:200,body:await checkedText(response),link,paginationProtocol:GITHUB_RELEASE_POLICY_VERSION};
 }

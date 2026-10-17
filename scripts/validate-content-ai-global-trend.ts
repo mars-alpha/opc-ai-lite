@@ -82,6 +82,7 @@ async function main() {
         title: "OpenAI 发布新的 Agent 能力",
         originalTitle: "OpenAI ships new agent capabilities",
         summary: "AIHOT 发现层摘要",
+        category:"tip",score:45,reason:"可复现的测试步骤",selected:false,
         publishedAt: "2026-10-03T08:00:00Z",
         source: { name: "Example Media" },
         links: { original: "https://example.com/openai-agent", aihot: "https://aihot.news/stories/story-1" }
@@ -91,6 +92,9 @@ async function main() {
   assert(aihot.items[0]?.originalUrl === "https://example.com/openai-agent", "AIHOT_ORIGINAL_URL");
   assert(aihot.items[0]?.metadata?.sourceRole === "SECONDARY_DISCOVERY", "AIHOT_SECONDARY_ROLE");
   assert(aihot.items[0]?.metadata?.factualSource === false, "AIHOT_NOT_FACT_SOURCE");
+  assert(aihot.items[0]?.metadata?.upstreamCategory === "tip", "AIHOT_CATEGORY_HINT");
+  assert(aihot.items[0]?.metadata?.upstreamScore === 45, "AIHOT_LOW_SCORE_RETAINED");
+  assert(aihot.items[0]?.metadata?.upstreamRecommendation === "可复现的测试步骤", "AIHOT_REASON_HINT");
 
   const previousDailyHotBase = process.env.DAILYHOT_API_BASE_URL;
   process.env.DAILYHOT_API_BASE_URL = "https://dailyhot.internal";

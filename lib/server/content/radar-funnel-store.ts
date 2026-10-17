@@ -1,0 +1,76 @@
+import {readRadarAlgorithmPolicy} from './radar-algorithm-store';
+import 'server-only';
+import {firstSystemDiscoveryAt,firstSystemDiscoveryAcrossSources} from './system-discovery-receipt';
+import {and,eq,gte,inArray,lte,or,sql} from 'drizzle-orm';
+import {getDatabase} from '../db';
+import {contentSources as sources,contentRawItems as raws,contentRawItemObservations as observations,contentEventRawItems as links,contentEventExpansionEvidence as expansions,contentEvents as events,contentEventClusterMembers as members,contentEventClusters as clusters,contentCollectionRuns as runs,contentRadarSnapshots as snapshots} from '../db/schema';
+import {isCurrentSystemCollectionSource} from './source-portfolio-runtime';
+import {INTELLIGENCE_POLICY_VERSION} from '../../content/intelligence-policy';
+import {listRadarCalendarRange} from './intelligence-read-model';
+import {evaluateAiHotspotPractice} from './ai-hotspot-practice';
+import {diagnoseRadarReference,summarizeRadarFunnel,validateRadarReference,type RadarReference,type RadarTrace} from './radar-funnel';
+const obj=(v:unknown):Record<string,any>=>v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,any>:{};
+const list=(v:unknown):any[]=>Array.isArray(v)?v:[];
+const system=(v:unknown)=>{const m=obj(v);return m.collectionOrigin==='SYSTEM'||list(m.collectionContexts).some(c=>obj(c).origin==='SYSTEM');};
+const iso=(d:Date|null|undefined)=>d?.toISOString()??null;
+export async function inspectRadarFunnel(references:RadarReference[],asOf=new Date()){
+ if(!references.length||references.length>500||!Number.isFinite(asOf.getTime())||asOf.getTime()>Date.now()+60000)throw Error('RADAR_FUNNEL_INPUT_BOUNDS');
+ references.forEach(validateRadarReference);
+ if(new Set(references.map(r=>r.id)).size!==references.length||new Set(references.map(r=>new URL(r.url).href)).size!==references.length)throw Error('RADAR_DUPLICATE_REFERENCE');
+ const earliest=new Date(Math.min(...references.map(r=>Date.parse(r.publishedAt)),asOf.getTime()));
+ if(asOf.getTime()-earliest.getTime()>31*86400000)throw Error('RADAR_FUNNEL_WINDOW_MAX_31_DAYS');
+ return getDatabase().transaction(async tx=>{
+  await tx.execute(sql`set local statement_timeout = '45s'`);
+  const algorithm=await readRadarAlgorithmPolicy(tx as unknown as ReturnType<typeof getDatabase>);
+  const urls=[...new Set(references.map(r=>r.url))],rawIds=references.filter(r=>r.basis==='OBSERVED_ONLY'&&/^[a-f0-9-]{36}$/i.test(r.id)).map(r=>r.id);
+  const rawRows=await tx.select().from(raws).where(or(inArray(raws.originalUrl,urls),inArray(raws.canonicalUrl,urls),rawIds.length?inArray(raws.id,rawIds):undefined)).limit(10001);
+  if(rawRows.length>10000)throw Error('RADAR_FUNNEL_RAW_SCAN_TRUNCATED');
+  const ids=rawRows.map(r=>r.id),observed=ids.length?await tx.select().from(observations).where(inArray(observations.rawItemId,ids)):[];
+  const linked=ids.length?await tx.select().from(links).where(inArray(links.rawItemId,ids)):[];
+  const expanded=ids.length?await tx.select().from(expansions).where(and(inArray(expansions.rawItemId,ids),lte(expansions.createdAt,asOf))):[];
+  const associations=[...linked,...expanded];
+  const linkedIds=[...new Set(associations.map(l=>l.eventId))];
+  const membership=linkedIds.length?await tx.select().from(members).where(inArray(members.eventId,linkedIds)):[];
+  const clusterIds=[...new Set(membership.map(m=>m.clusterId))];
+  const clusterRows=clusterIds.length?await tx.select().from(clusters).where(inArray(clusters.id,clusterIds)):[];
+  const allMembers=clusterIds.length?await tx.select().from(members).where(inArray(members.clusterId,clusterIds)):[];
+  const eventIds=[...new Set([...linkedIds,...allMembers.map(m=>m.eventId),...clusterRows.map(c=>c.primaryEventId)])];
+  const eventRows=eventIds.length?await tx.select().from(events).where(inArray(events.id,eventIds)):[];
+  const sourceIds=[...new Set([...references.map(r=>r.sourceId),...rawRows.map(r=>r.sourceId),...observed.map(o=>o.sourceId)])];
+  const sourceRows=await tx.select().from(sources).where(inArray(sources.id,sourceIds));
+  const runRows=await tx.select().from(runs).where(and(inArray(runs.sourceId,sourceIds),gte(runs.startedAt,new Date(earliest.getTime()-86400000)),lte(runs.startedAt,asOf))).limit(10001);
+  if(runRows.length>10000)throw Error('RADAR_FUNNEL_RUN_SCAN_TRUNCATED');
+  const [snapshotRow]=await tx.select().from(snapshots).where(eq(snapshots.key,'CURRENT'));
+  const payload=obj(snapshotRow?.payload),generated=snapshotRow?.generatedAt;
+  const snapshotStatus: 'FRESH'|'STALE'|'UNKNOWN'=!generated||generated>asOf||!['radar-snapshot-v17-compact-storage','radar-snapshot-v16-audit-fixes'].includes(payload.schemaVersion)?'UNKNOWN':asOf.getTime()-generated.getTime()>30*60000?'STALE':'FRESH';
+  const snapshotIds=(v:unknown)=>list(v).flatMap(row=>typeof row==='string'?[row]:typeof obj(row).eventId==='string'?[obj(row).eventId]:[]);
+  const snapshot:RadarTrace['snapshot']={status:snapshotStatus,generatedAt:iso(generated)??'',items:snapshotIds(payload.items),featured:snapshotIds(payload.featured),hot:snapshotIds(payload.currentHot),practice:snapshotIds(payload.aiHotspotPractices)};
+  const visible=await listRadarCalendarRange(new Date(earliest.getTime()-7*86400000),new Date(asOf.getTime()+1),asOf,{executor:tx as unknown as ReturnType<typeof getDatabase>,includeEvidenceLineage:true,algorithm});
+  const canonicalByEvent=new Map(allMembers.map(m=>[m.eventId,clusterRows.find(c=>c.id===m.clusterId)?.primaryEventId??m.eventId]));
+  const sourceById=new Map(sourceRows.map(s=>[s.id,s]));
+  const diagnoses=references.map(ref=>{
+   const matched=rawRows.filter(r=>(r.originalUrl===ref.url||r.canonicalUrl===ref.url||(ref.basis==='OBSERVED_ONLY'&&r.id===ref.id&&r.sourceId===ref.sourceId))&&r.collectedAt<=asOf&&(!r.publishedAt||r.publishedAt<=asOf));
+   const relatedIds=associations.filter(l=>matched.some(r=>r.id===l.rawItemId)).map(l=>l.eventId);
+   const relatedEvents=eventRows.filter(e=>relatedIds.includes(e.id)&&e.createdAt<=asOf&&e.firstSeenAt<=asOf&&(!e.eventAt||e.eventAt<=asOf));
+   const canonicalIds=[...new Set(relatedEvents.map(e=>canonicalByEvent.get(e.id)??e.id))];
+   const canonicalItems=visible.filter(item=>canonicalIds.includes(item.eventId));
+   const items=canonicalItems.filter(item=>matched.some(r=>item.evidenceLineage?.directRawIds.includes(r.id)||item.evidenceLineage?.expansionRawIds.includes(r.id)));
+   const rawObserved=matched.flatMap(r=>observed.filter(o=>o.rawItemId===r.id).flatMap(o=>{
+    const discovered=firstSystemDiscoveryAt(obj(o.metadata).systemDiscoveryReceipt,asOf.getTime());
+    if(!discovered && (o.observedAt>asOf||!system(o.metadata)))return [];
+    return [{raw:r,at:discovered?new Date(discovered):o.observedAt,discovered}];
+   })).sort((a,b)=>(a.discovered?Date.parse(a.discovered):Infinity)-(b.discovered?Date.parse(b.discovered):Infinity));
+   const first=rawObserved[0],source=sourceById.get(ref.sourceId);
+   const rejection=runRows.flatMap(run=>run.finishedAt&&run.finishedAt<=asOf&&system(run.metadata)?list(obj(obj(run.metadata).rejectedSampleCapture).samples):[]).find(s=>obj(s).originalUrl===ref.url);
+   const reasons=[...(canonicalItems.length&&!items.length?['EVIDENCE_ASSOCIATION_REJECTED']:[]),...new Set(relatedEvents.flatMap(e=>{
+    const p=obj(obj(e.metadata).eventPolicy);
+    return [...(e.archivedAt?['ARCHIVED_MEMBER']:[]),...(e.policyVersion!==INTELLIGENCE_POLICY_VERSION||p.version!==INTELLIGENCE_POLICY_VERSION?['POLICY_VERSION_MISSING']:[]),...(p.systemObserved!==true?['SYSTEM_OBSERVATION_GATE']:[]),...(p.aiRelevant!==true?['AI_RELEVANCE_GATE']:[]),...(obj(p.operationalUsefulness).eligible===false?['OPERATIONAL_GATE:'+String(obj(p.operationalUsefulness).reason??'UNKNOWN')]:[])];
+   }))];
+   const practices=items.map(item=>evaluateAiHotspotPractice(item,asOf,algorithm.policy));
+   const trace:RadarTrace={source:!source?'MISSING':isCurrentSystemCollectionSource(source)?'CURRENT':'INACTIVE',rawIds:matched.map(r=>r.id),rawCollectedAt:iso(first?.raw.collectedAt??matched[0]?.collectedAt),systemObservedAt:iso(first?.at),systemDiscoveredAt:matched.every(r=>observed.some(o=>o.rawItemId===r.id))?firstSystemDiscoveryAcrossSources(observed.filter(o=>matched.some(r=>r.id===o.rawItemId)).map(o=>obj(o.metadata).systemDiscoveryReceipt),asOf.getTime()):null,eventIds:relatedEvents.map(e=>e.id),canonicalIds,visible:items.length>0,exclusionReasons:reasons,...(rejection?{rejected:{stage:String(obj(rejection).stage),reason:String(obj(rejection).reason)}}:{}),columns:{featured:{selected:items.some(i=>i.curation.curated),reasons:[...new Set(items.filter(i=>!i.curation.curated).flatMap(i=>i.curation.reasons))]},hot:{selected:items.some(i=>i.currentHot.eligible),reasons:[...new Set(items.flatMap(i=>Object.entries(i.currentHot.criteria).filter(([,pass])=>!pass).map(([key])=>key)))]},practice:{selected:practices.some(p=>p.eligible),reasons:[...new Set(practices.flatMap(p=>p.reasons))]}},snapshot};
+   return diagnoseRadarReference(ref,trace,asOf.toISOString());
+  });
+  const sourceHealth=sourceRows.map(s=>({sourceId:s.id,current:isCurrentSystemCollectionSource(s),runs:runRows.filter(r=>r.sourceId===s.id).length,failed:runRows.filter(r=>r.sourceId===s.id&&r.status==='FAILED').length,latestRunAt:iso(runRows.filter(r=>r.sourceId===s.id).sort((a,b)=>b.startedAt.getTime()-a.startedAt.getTime())[0]?.startedAt)}));
+  return {asOf:asOf.toISOString(),scope:'READ_ONLY_NO_AI_NO_NETWORK',comparisonAuthority:'CURRENT_CODE_PROJECTION_VS_STORED_SNAPSHOT_NOT_A_DEPLOYMENT_PROOF',summary:summarizeRadarFunnel(diagnoses),snapshot:{status:snapshotStatus,generatedAt:iso(generated),hotPresentationLimit:10,absenceAuthority:'MISSING_MAY_BE_RANK_OR_REFRESH_NOT_AUTOMATIC_FALSE_NEGATIVE'},sourceHealth,diagnoses,limitations:['参考单位为冻结报道URL，canonical事件数量另列；非独立全网发现分母。','缺Raw且无拒绝回执时获取原因UNKNOWN；Run成功或条数不证明某条文章已获取。','当前配置/policy/归档状态无法还原历史asOf时刻；旧快照与当前代码差异不归因于单一修复。','精确ID/URL匹配不猜测重定向或标题身份；诊断不注册/恢复Source。','持久练习与当前触发资格分开；新快照前缺失可能是排序、容量或刷新。']};
+ },{accessMode:'read only',isolationLevel:'repeatable read'});
+}

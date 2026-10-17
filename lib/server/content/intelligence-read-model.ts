@@ -1,7 +1,12 @@
+import {readRadarAlgorithmPolicy,type RadarAlgorithmEnvelope} from './radar-algorithm-store';
+import {columnTextDecision} from '../../content/radar-algorithm-policy';
+import {selectCanonicalEventGroups} from './canonical-event';
+import {projectEventPolicy} from './event-policy';
 import { calendarWindow, dayStart, nextHistoryDay, selectCalendarItems } from "../../content/radar-calendar";
 import { isMultiNewsRoundup } from "./content-evidence-signals";
 import {listAiHotspotPractices} from "./ai-hotspot-practice-store";
-import {aiHotspotPracticePublisher} from "./ai-hotspot-practice";
+import {buildAiHotspotPracticeReports} from "./ai-hotspot-practice";
+import { isSourceManagedRefreshDue, practiceDiscoveryDecision, rankPracticeDiscoveryCandidates, readPracticeDiscoveryCheckpoint, selectDiscoveryExpansionCycleCandidates } from "./practice-discovery-policy";
 import "server-only";
 
 import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
@@ -19,14 +24,15 @@ import {
 } from "../db/schema";
 import { INTELLIGENCE_POLICY_VERSION } from "../../content/intelligence-policy";
 import { getTodayIntelligenceSignalReadiness } from "./today-intelligence-readiness";
-import { calculateTopicMomentum, canonicalHotParticipantName } from "./topic-momentum";
+import { calculateTopicMomentum, canonicalHotParticipantName, hotParticipantName } from "./topic-momentum";
 import { calculateAihotHeatShadow } from "./aihot-heat-shadow";
 import { attachRelatedEventStories, buildEventStoryReadModel } from "./event-story-read-model";
 import { evaluatePracticalEvidenceActionability, isFormalPracticalEvidenceSource } from "./content-evidence-signals";
 import {evaluatePracticeMaterials} from "./practice-materials";
 
 import { evaluateEventEvidenceRelevance } from "./pollution-syndication-gate";
-import { buildContentPresentationEnrichment } from "./presentation-enrichment";
+import { buildContentPresentationEnrichment,applyEventExpressionPresentation } from "./presentation-enrichment";
+import {prepareExpressionContext} from './event-expression-context';
 import { evaluateBoleDailyCuration, rerankBoleDailyFeatured } from "./bole-daily-curation";
 
 function record(value: unknown): Record<string, unknown> {
@@ -251,8 +257,9 @@ function eventPolicyMetadata(metadata: unknown) {
   return record(record(metadata).eventPolicy);
 }
 
-async function listPolicyEventCandidatePool(limit = 100, options: { before?: Date | null; range?: { from: Date; to: Date; asOf: Date }; executor?: ReturnType<typeof getDatabase> } = {}) {
+async function listPolicyEventCandidatePool(limit = 100, options: { before?: Date | null; range?: { from: Date; to: Date; asOf: Date }; executor?: ReturnType<typeof getDatabase>;includeEvidenceLineage?:boolean;algorithm?:RadarAlgorithmEnvelope } = {}) {
   const db = options.executor ?? getDatabase();
+  const algorithm=options.algorithm??await readRadarAlgorithmPolicy(db);
   const boundedLimit = Math.max(1, Math.min(1000, limit));
   const baseQuery = db.select().from(contentEvents);
   const eventTime = sql`coalesce(${contentEvents.eventAt}, ${contentEvents.firstSeenAt})`;
@@ -286,53 +293,26 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
   const policyClusters = policyClusterIds.length
     ? await db.select().from(contentEventClusters).where(inArray(contentEventClusters.id, policyClusterIds))
     : [];
-  const primaryEventByCluster = new Map(policyClusters.map((item) => [item.id, item.primaryEventId]));
-  const membershipByEvent = new Map(policyMemberships.map((item) => [item.eventId, item]));
-  const events = policyEvents
-    .filter((event) => {
-      const membership = membershipByEvent.get(event.id);
-      if (!membership) return true;
-      return primaryEventByCluster.get(membership.clusterId) === event.id;
-    })
-    .slice(0, options.range ? undefined : boundedLimit);
-  if (!events.length) return [];
-
-  const selectedClusterIds = [...new Set(events.flatMap((event) => {
-    const membership = membershipByEvent.get(event.id);
-    return membership ? [membership.clusterId] : [];
-  }))];
-  const [selectedMemberships, analyses, expansionEvidence] = await Promise.all([
-    selectedClusterIds.length
-      ? db.select().from(contentEventClusterMembers)
-          .where(inArray(contentEventClusterMembers.clusterId, selectedClusterIds))
-      : Promise.resolve([]),
-    selectedClusterIds.length
-      ? db.select().from(contentEventClusterAnalyses)
-          .where(inArray(contentEventClusterAnalyses.clusterId, selectedClusterIds))
-      : Promise.resolve([]),
-    db.select().from(contentEventExpansionEvidence)
-      .where(inArray(contentEventExpansionEvidence.eventId, events.map((event) => event.id)))
+  const selectedMemberships=policyClusterIds.length ? await db.select().from(contentEventClusterMembers).where(inArray(contentEventClusterMembers.clusterId,policyClusterIds)):[];
+  const allMemberIds=[...new Set([...policyEventIds,...selectedMemberships.map(m=>m.eventId)])];
+  const memberEvents=allMemberIds.length ? await db.select().from(contentEvents).where(inArray(contentEvents.id,allMemberIds)):policyEvents;
+  const asOf=options.range?.asOf??new Date();
+  const groups=selectCanonicalEventGroups(memberEvents,selectedMemberships,policyClusters,event=>{
+    const policy=eventPolicyMetadata(event.metadata);
+    return event.policyVersion===INTELLIGENCE_POLICY_VERSION && policy.version===INTELLIGENCE_POLICY_VERSION && policy.systemObserved===true && policy.aiRelevant===true && record(policy.operationalUsefulness).eligible!==false;
+  },asOf,168).filter(group=>!options.range||(group.timelineAt>=options.range.from&&group.timelineAt<options.range.to))
+    .sort((a,b)=>b.lastSeenAt.getTime()-a.lastSeenAt.getTime()||a.canonicalEventId.localeCompare(b.canonicalEventId))
+    .slice(0,options.range?undefined:boundedLimit);
+  const events=groups.map(group=>({...group.representative,id:group.canonicalEventId,firstSeenAt:group.firstSeenAt,lastSeenAt:group.lastSeenAt,eventAt:group.timelineAt}));
+  if(!events.length)return [];
+  const memberEventIdsByPrimary=new Map(groups.map(group=>[group.canonicalEventId,group.members.map(e=>e.id)]));
+  const clusterByEvent=new Map(groups.flatMap(group=>group.clusterId?[[group.canonicalEventId,group.clusterId] as const]:[]));
+  const selectedClusterIds=[...new Set(clusterByEvent.values())];
+  const evidenceEventIds=[...new Set([...memberEventIdsByPrimary.values()].flat())];
+  const [analyses,expansionEvidence]=await Promise.all([
+    selectedClusterIds.length?db.select().from(contentEventClusterAnalyses).where(inArray(contentEventClusterAnalyses.clusterId,selectedClusterIds)):Promise.resolve([]),
+    db.select().from(contentEventExpansionEvidence).where(inArray(contentEventExpansionEvidence.eventId,evidenceEventIds))
   ]);
-  const memberIdsByCluster = new Map<string, string[]>();
-  for (const item of selectedMemberships) {
-    const current = memberIdsByCluster.get(item.clusterId) ?? [];
-    current.push(item.eventId);
-    memberIdsByCluster.set(item.clusterId, current);
-  }
-  const memberEventIdsByPrimary = new Map<string, string[]>();
-  for (const event of events) {
-    const membership = membershipByEvent.get(event.id);
-    if (!membership) {
-      memberEventIdsByPrimary.set(event.id, [event.id]);
-      continue;
-    }
-    memberEventIdsByPrimary.set(
-      event.id,
-      memberIdsByCluster.get(membership.clusterId) ?? [event.id]
-    );
-  }
-  const evidenceEventIds = [...new Set([...memberEventIdsByPrimary.values()].flat())];
-
   const links = await db.select().from(contentEventRawItems)
     .where(inArray(contentEventRawItems.eventId, evidenceEventIds));
   const directRawIds = [...new Set(links.map((link) => link.rawItemId))];
@@ -345,9 +325,9 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       ])
     : [[], []];
   const systemRawIds = new Set(
-    observations.filter((item) => hasSystemCollectionHistory(item.metadata)).map((item) => item.rawItemId)
+    observations.filter((item) => item.observedAt <= asOf && hasSystemCollectionHistory(item.metadata)).map((item) => item.rawItemId)
   );
-  const sourceIds = [...new Set(raws.map((raw) => raw.sourceId))];
+  const sourceIds = [...new Set([...raws.map((raw) => raw.sourceId),...observations.map(o=>o.sourceId)])];
   const sources = sourceIds.length
     ? await db.select().from(contentSources).where(inArray(contentSources.id, sourceIds))
     : [];
@@ -356,12 +336,11 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
   const rawsByEvent = new Map<string, typeof raws>();
   for (const link of links) {
     const raw = rawById.get(link.rawItemId);
-    if (!raw || !systemRawIds.has(raw.id)) continue;
+    if (!raw || !systemRawIds.has(raw.id) || raw.collectedAt>asOf || (raw.publishedAt && raw.publishedAt>asOf)) continue;
     const current = rawsByEvent.get(link.eventId) ?? [];
     current.push(raw);
     rawsByEvent.set(link.eventId, current);
   }
-  const clusterByEvent = new Map(policyMemberships.map((item) => [item.eventId, item.clusterId]));
   const analysisByCluster = new Map(analyses.map((item) => [item.clusterId, item]));
   const expansionByEvent = new Map<string, typeof expansionEvidence>();
   for (const item of expansionEvidence) {
@@ -372,7 +351,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
 
   const items = events.flatMap((event) => {
     const evidenceEventIdsForEvent = memberEventIdsByPrimary.get(event.id) ?? [event.id];
-    const eventRaws = evidenceEventIdsForEvent.flatMap((memberEventId) => rawsByEvent.get(memberEventId) ?? []);
+    const eventRaws = [...new Map(evidenceEventIdsForEvent.flatMap((memberEventId) => rawsByEvent.get(memberEventId) ?? []).map(raw=>[raw.id,raw])).values()];
     if (!eventRaws.length) return [];
     const representative = [...eventRaws].sort((a, b) => {
       const sa = sourceById.get(a.sourceId);
@@ -384,13 +363,16 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       return Number(aReferenceOnly) - Number(bReferenceOnly) || pa - pb || toTime(b.publishedAt ?? b.collectedAt) - toTime(a.publishedAt ?? a.collectedAt);
     })[0];
     const source = sourceById.get(representative.sourceId);
-    const policy = eventPolicyMetadata(event.metadata);
     const clusterId = clusterByEvent.get(event.id) ?? null;
+    const clusterMetadata=record(policyClusters.find(c=>c.id===clusterId)?.metadata);
+    const projectedPolicy=projectEventPolicy({canonicalEvent:event,clusterId,clusterMetadata:{...clusterMetadata,relevanceGate:{...record(clusterMetadata.relevanceGate),aiRelevant:true}},eventIds:evidenceEventIdsForEvent,raws:eventRaws,observations:observations.filter(o=>eventRaws.some(r=>r.id===o.rawItemId)&&o.observedAt<=asOf),sources,now:asOf});
+    const policy = projectedPolicy.metadata;
+    const verificationStatus=projectedPolicy.verificationStatus;
     const analysis = clusterId ? analysisByCluster.get(clusterId) : null;
-    const evidence = expansionByEvent.get(event.id) ?? [];
+    const evidence = [...new Map(evidenceEventIdsForEvent.flatMap(id=>expansionByEvent.get(id)??[]).filter(e=>e.createdAt<=asOf).map(e=>[e.rawItemId+"|"+e.expansionType,e])).values()];
     const relevantExpansionEvidence = evidence.filter((item) => {
       const raw = rawById.get(item.rawItemId);
-      if (!raw || !systemRawIds.has(raw.id)) return false;
+      if (!raw || !systemRawIds.has(raw.id) || raw.collectedAt>asOf || (raw.publishedAt && raw.publishedAt>asOf)) return false;
       return evaluateEventEvidenceRelevance({
         eventTitle: event.title,
         candidateTitle: raw.title,
@@ -438,7 +420,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       const rawSource = sourceById.get(raw.sourceId);
       const sourceName = originPublisher(raw) ?? rawSource?.name ?? raw.sourceId;
       const key = `${sourceName.normalize("NFKC").toLocaleLowerCase()}|${raw.originalUrl}`;
-      return [[key, { sourceName, originKey: sourceName.normalize("NFKC").toLocaleLowerCase(), materialQuality: evaluatePracticeMaterials(raw), title: raw.title, excerpt: raw.excerpt, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
+      return [[key, { sourceName, originKey: sourceName.normalize("NFKC").toLocaleLowerCase(), materialQuality: evaluatePracticeMaterials(raw), title: raw.title, excerpt: raw.excerpt, presentation: buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: raw, whyItMatters: null, allowEventSummaryFallback: false }), originalUrl: raw.originalUrl, publishedAt: raw.publishedAt, expansionType: item.expansionType }] as const];
     })).values()];
     const practicalEvidenceLinks=expansionPracticeLinks;
     const actionablePracticalEvidenceCount=practicalEvidenceLinks.length;
@@ -460,7 +442,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         return Boolean(raw.originalUrl) && (directPublicReport || hasResolvedOriginalPublisher);
       })
       .map((raw) => [
-        (originPublisher(raw) ?? sourceById.get(raw.sourceId)?.name ?? raw.sourceId).normalize("NFKC").toLocaleLowerCase(),
+        canonicalHotParticipantName(originPublisher(raw) ?? sourceById.get(raw.sourceId)?.name ?? raw.sourceId).normalize("NFKC").toLocaleLowerCase(),
         raw
       ])).values()];
     const storyReportRaws = eventRaws.filter((raw) => {
@@ -479,31 +461,28 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         (record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true) &&
         !origin && !author;
       if (isAggregatorWrapper) return [];
-      const name = canonicalHotParticipantName(origin || author || rawSource?.name || raw.sourceId);
+      const name = hotParticipantName({sourceId:raw.sourceId,sourceType:rawSource?.sourceType??'UNKNOWN',sourceName:rawSource?.name??raw.sourceId,platform:raw.platform,author:raw.author,metadata:raw.metadata,collectedAt:raw.collectedAt})!;
       const key = name.normalize("NFKC").toLocaleLowerCase();
       return [[key, { name, platform: raw.platform, role: rawSource?.sourceType ?? "UNKNOWN" }] as const];
     })).values()];
-    const aiPracticeParticipants = [...new Map(eventRaws.flatMap((raw) => {
-      const rawSource = sourceById.get(raw.sourceId);
-      const name = aiHotspotPracticePublisher({
-        title: raw.title,
-        originalUrl: raw.originalUrl,
-        signalOnly: record(rawSource?.signalConfig).signalOnly === true,
-        referenceOnly: record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true,
-        originPublisher: originPublisher(raw),
-        author: raw.author,
-        sourceName: rawSource?.name
-      });
-      if (!name) return [];
-      const canonical = canonicalHotParticipantName(name);
-      return [[canonical.normalize("NFKC").toLocaleLowerCase(), { name: canonical, role: rawSource?.sourceType ?? "UNKNOWN" }] as const];
-    })).values()];
+    const practiceReports=buildAiHotspotPracticeReports(
+      {title:event.title,summary:event.summary,keywords:event.keywords,entityTerms:event.entities},
+      eventRaws,
+      relevantExpansionEvidence.flatMap(item=>{const raw=rawById.get(item.rawItemId);return raw?[raw]:[];}),
+      sourceById
+    );
+    const aiPracticeParticipants=practiceReports.participants;
+    const discussionPublisherByUrl=new Map(practiceReports.links.map(link=>[link.originalUrl,link.sourceName]));
     const topicMomentum = calculateTopicMomentum({
       firstSeenAt: event.firstSeenAt,
-      raws: eventRaws.map((raw) => {
+      policy:algorithm.policy,
+      now:asOf,
+      raws: [...new Map([...eventRaws,...relevantExpansionEvidence.flatMap(e=>{const r=rawById.get(e.rawItemId);return r?[r]:[];})].map(r=>[r.id,r])).values()].map((raw) => {
         const rawSource = sourceById.get(raw.sourceId);
         return {
           title: raw.title,
+          excerpt:raw.excerpt,
+          discussionPublisher:raw.originalUrl?discussionPublisherByUrl.get(raw.originalUrl)??null:null,
           sourceId: raw.sourceId,
           sourceType: rawSource?.sourceType ?? "UNKNOWN",
           sourceName: originPublisher(raw) ?? rawSource?.name ?? raw.sourceId,
@@ -517,7 +496,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
           platformMetrics: raw.platformMetrics
         };
       }),
-      evidence
+      evidence: actionablePracticalEvidence
     });
     const heatRaws = eventRaws.map((raw) => {
       const rawSource = sourceById.get(raw.sourceId);
@@ -538,7 +517,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       };
     });
     const heatShadow = calculateAihotHeatShadow({ raws: heatRaws });
-    const storyNow = new Date(Math.floor(Date.now() / (6 * 3_600_000)) * 6 * 3_600_000);
+    const storyNow = new Date(Math.floor(asOf.getTime() / (6 * 3_600_000)) * 6 * 3_600_000);
     const storyHeatSeries = Array.from({ length: 9 }, (_, index) => {
       const hoursAgo = 48 - index * 6;
       const at = new Date(storyNow.getTime() - hoursAgo * 3_600_000);
@@ -548,32 +527,30 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
     // Hotness measures discussion activity only. Verification remains visible as a separate fact-quality dimension.
     const contentBoundary = { roundup: isMultiNewsRoundup(event.title) };
     const currentHotPresentationEligible = topicMomentum.eligible && !contentBoundary.roundup;
-    const presentation = buildContentPresentationEnrichment({
+    const presentation = applyEventExpressionPresentation(buildContentPresentationEnrichment({
       eventTitle: event.title,
       eventSummary: event.summary,
-      representativeRaw: {
-        title: representative.title,
-        excerpt: representative.excerpt,
-        originalUrl: representative.originalUrl,
-        metadata: representative.metadata
-      },
+      representativeRaw: representative,
       whyItMatters: analysis?.whyItMatters ?? null
-    });
+    }),record(memberEvents.find(e=>e.id===event.id)?.metadata).eventExpression,
+      prepareExpressionContext(event.id,eventRaws,observations,[...sourceById.values()],asOf));
     const representativeFreshnessAt =
       representative.publishedAt &&
       representative.publishedAt.getTime() <= representative.collectedAt.getTime() + 15 * 60 * 1000
         ? representative.publishedAt
         : representative.collectedAt;
     const boleCuration = evaluateBoleDailyCuration({
-      ageHours: Math.max(0, (Date.now() - representativeFreshnessAt.getTime()) / 3_600_000),
+      ageHours: Math.max(0, (asOf.getTime() - representativeFreshnessAt.getTime()) / 3_600_000),
       aiRelevant: policy.aiRelevant === true,
-      verificationStatus: event.verificationStatus,
+      verificationStatus: verificationStatus,
       practicalEvidenceCount: formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType)).length,
       independentOriginCount,
       factSourceCount,
       sourceQuality: Number(officialNewsScores.sourceQuality) || 0,
       changeMagnitude: typeof policy.changeMagnitude === "string" ? policy.changeMagnitude : null
-    });
+    },algorithm.policy);
+    const featuredTextRule=columnTextDecision(`${event.title} ${event.summary??''}`,algorithm.policy.featured);
+    if(!featuredTextRule.eligible){boleCuration.selected=false;boleCuration.topPickEligible=false;boleCuration.tier='REJECTED';boleCuration.recommendationReason=null;boleCuration.reasons.push('COLUMN_TEXT_RULE_REJECTED');}
     const curated = boleCuration.selected;
     const curationReasons = boleCuration.reasons;
     const story = buildEventStoryReadModel({
@@ -585,13 +562,15 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       reports: storyReportRaws.map((raw) => {
         const rawSource = sourceById.get(raw.sourceId);
         const resolvedOrigin = (record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true) && Boolean(originPublisher(raw));
-        const reportPresentation = buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: { title: raw.title, excerpt: raw.excerpt, originalUrl: raw.originalUrl, metadata: raw.metadata }, whyItMatters: null, allowEventSummaryFallback: false });
+        const reportPresentation = buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: raw, whyItMatters: null, allowEventSummaryFallback: false });
         return { reportId: raw.id, sourceId: raw.sourceId, sourceType: rawSource?.sourceType ?? "UNKNOWN", sourceName: originPublisher(raw) ?? rawSource?.name ?? raw.sourceId, platform: raw.platform, canonicalUrl: rawSource?.canonicalUrl, author: raw.author, metadata: raw.metadata, sourceMetadata: rawSource?.metadata, referenceOnly: record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true, signalOnly: record(rawSource?.signalConfig).signalOnly === true, resolvedOriginPublisher: resolvedOrigin, title: raw.title, titleZh: reportPresentation.displayTitleZh, excerpt: raw.excerpt, excerptZh: reportPresentation.displaySummaryZh, originalUrl: raw.originalUrl, publishedAt: raw.publishedAt };
       }),
       heatSeries: storyHeatSeries
     });
 
     return [{
+      ...(options.includeEvidenceLineage?{evidenceLineage:{directRawIds:projectedPolicy.relevantRawIds,expansionRawIds:relevantExpansionEvidence.map(e=>e.rawItemId)}}:{}),
+      algorithmRevision:algorithm.revision,
       rawItemId: representative.id,
       eventId: event.id,
       eventLastSeenAt: event.lastSeenAt,
@@ -625,8 +604,8 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         contentCategory: presentation.tags?.[0] ?? null,
         writingAuthority: "PRESENTATION_ONLY" as const
       },
-      verificationStatus: event.verificationStatus,
-      generationReadiness: event.generationReadiness,
+      verificationStatus: verificationStatus,
+      generationReadiness: projectedPolicy.generationReadiness,
       factSourceCount,
       signalSourceCount: Number(policy.signalSourceCount) || 0,
       changeMagnitude: policy.changeMagnitude ?? null,
@@ -637,6 +616,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       publicReadableSourceCount: publicReportRaws.length,
       hotParticipants,
       aiPracticeParticipants,
+      aiPracticeEvidenceLinks:practiceReports.links,
       practicalEvidenceLinks,
       contentBoundary,
       curation: {
@@ -663,8 +643,8 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       evidenceScore: {
         value: null,
         status:
-          event.verificationStatus === "CONFIRMED_OFFICIAL" ||
-          event.verificationStatus === "CONFIRMED_MEDIA"
+          verificationStatus === "CONFIRMED_OFFICIAL" ||
+          verificationStatus === "CONFIRMED_MEDIA"
             ? "TRUSTED" as const
             : "UNVERIFIED" as const,
         factSourceCount,
@@ -685,6 +665,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         authority: "NOT_EVALUATED" as const
       },
       sourceManagedExpansionRuntime: sourceManagedExpansionRuntime(event.metadata),
+      practiceDiscovery: readPracticeDiscoveryCheckpoint(event.metadata),
       coverage: {
         evidenceCount: evidence.length,
         practicalEvidenceCount: formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType)).length,
@@ -714,12 +695,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         presentation: buildContentPresentationEnrichment({
           eventTitle: event.title,
           eventSummary: event.summary,
-          representativeRaw: {
-            title: raw.title,
-            excerpt: raw.excerpt,
-            originalUrl: raw.originalUrl,
-            metadata: raw.metadata
-          },
+          representativeRaw: raw,
           whyItMatters: null
           ,allowEventSummaryFallback: false
         }),
@@ -778,19 +754,19 @@ export async function listLatestTodayIntelligence(limit = 100) {
 function buildDiscoveryExpansionCandidatesFromPools(
   latest: Awaited<ReturnType<typeof listPolicyEventCandidates>>,
   unverified: Awaited<ReturnType<typeof listPolicyEventCandidates>>,
-  limit: number
+  limit: number,
+  searchReady = true,
+  executableOnly = false
 ) {
   const bounded = Math.max(1, Math.min(500, limit));
   const byEvent = new Map([...latest, ...unverified].map((item) => [item.eventId, item]));
 
   const now = Date.now();
-  return [...byEvent.values()]
+  const candidates = [...byEvent.values()]
     .filter((item) => {
-      if (!item.coverage.needsExpansion) return false;
-      const runtime = item.sourceManagedExpansionRuntime;
-      if (!runtime.lastAttemptAt) return true;
-      const cooldownHours = runtime.status === "FAILED" ? 1 : 6;
-      return now - toTime(runtime.lastAttemptAt) >= cooldownHours * 3_600_000;
+      const refreshDue = item.coverage.needsExpansion && isSourceManagedRefreshDue(item.sourceManagedExpansionRuntime, now);
+      const searchDue = searchReady && practiceDiscoveryDecision(item, item.practiceDiscovery, now).eligible;
+      return refreshDue || searchDue;
     })
     .map((item) => {
       const confirmed =
@@ -832,27 +808,26 @@ function buildDiscoveryExpansionCandidatesFromPools(
         }
       };
     })
-    .sort((a, b) =>
-      b.discoveryExpansion.priority - a.discoveryExpansion.priority ||
-      toTime(b.publishedAt ?? b.collectedAt) - toTime(a.publishedAt ?? a.collectedAt)
-    )
-    .slice(0, bounded);
+    ;
+  const ranked=rankPracticeDiscoveryCandidates(candidates,now);
+  return executableOnly ? selectDiscoveryExpansionCycleCandidates(ranked,{searchReady,maxEvents:bounded,now}) : ranked.slice(0,bounded);
 }
 
 // Calendar timeline never paginates by a mutable/non-unique lastSeenAt.
-export async function listRadarCalendarRange(from: Date, to: Date, asOf = new Date()) {
+export async function listRadarCalendarRange(from: Date, to: Date, asOf = new Date(),options:{executor?:ReturnType<typeof getDatabase>;includeEvidenceLineage?:boolean;algorithm?:RadarAlgorithmEnvelope}={}) {
+  if(options.executor){const pool=await listPolicyEventCandidatePool(1000,{range:{from,to,asOf},...options});return selectCalendarItems(pool,{from,to});}
   return getDatabase().transaction(async tx => {
-    const pool = await listPolicyEventCandidatePool(1000, { range: { from, to, asOf }, executor: tx as unknown as ReturnType<typeof getDatabase> });
+    const pool = await listPolicyEventCandidatePool(1000, { range: { from, to, asOf }, executor: tx as unknown as ReturnType<typeof getDatabase>,includeEvidenceLineage:options.includeEvidenceLineage,algorithm:options.algorithm });
     return selectCalendarItems(pool, { from, to });
   }, { isolationLevel: "repeatable read", accessMode: "read only" });
 }
 
-export async function listRadarTimelinePage(input: { windowDays?: number; day?: string; asOf?: Date } = {}) {
+export async function listRadarTimelinePage(input: { windowDays?: number; day?: string; asOf?: Date; algorithm?:RadarAlgorithmEnvelope } = {}) {
   const asOf = input.asOf ?? new Date();
   const window = calendarWindow(asOf, input.windowDays ?? 7);
   const from = input.day ? dayStart(input.day) : window.from;
   const to = input.day ? new Date(Math.min(from.getTime() + 86_400_000, asOf.getTime())) : asOf;
-  const items = await listRadarCalendarRange(from, to, asOf);
+  const items = await listRadarCalendarRange(from, to, asOf,{algorithm:input.algorithm});
   const [oldest] = await getDatabase().select({ at: sql<Date | null>`min(coalesce(${contentEvents.eventAt}, ${contentEvents.firstSeenAt}))` }).from(contentEvents);
   // Reuse the complete visibility rule: excluded rows must never keep pagination alive.
   // SQL policy predicates above avoid hydrating unrelated historical events.
@@ -868,13 +843,12 @@ export async function listRadarTimelineWindow(windowDays = 7, asOf = new Date())
   return listRadarCalendarRange(window.from, window.to, asOf);
 }
 
-export async function listDiscoveryExpansionCandidates(limit = 100) {
+export async function listDiscoveryExpansionCandidates(limit = 100,options:{searchReady?:boolean}={}) {
   const bounded = Math.max(1, Math.min(500, limit));
-  const [latest, unverified] = await Promise.all([
-    listPolicyEventCandidates("LATEST", Math.max(bounded, 100)),
-    listPolicyEventCandidates("UNVERIFIED", Math.max(bounded, 100))
-  ]);
-  return buildDiscoveryExpansionCandidatesFromPools(latest, unverified, bounded);
+  // Rank the complete active window before limiting; new high-volume Sources
+  // must not prevent older due Events from ever reaching the aging selector.
+  const pool = await listRadarTimelineWindow(7);
+  return buildDiscoveryExpansionCandidatesFromPools(pool, [], bounded,options.searchReady??true,options.searchReady!==undefined);
 }
 
 export async function getTodayIntelligenceOverview() {

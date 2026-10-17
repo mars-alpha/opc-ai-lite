@@ -14,7 +14,7 @@ const qualificationRuntime = fs.readFileSync("lib/server/content/source-qualific
 assert(management.includes("recentProductionStatuses") && management.includes('latestProductionStatus === "FAILED"'), "FAST_INDEX_DISTINGUISHES_FAILED_FROM_NEVER_RUN");
 assert(management.includes("productionRuns = sourceRuns.filter") && management.includes("qualificationOnly !== true"), "OVERVIEW_HEALTH_USES_PRODUCTION_RUNS_ONLY");
 assert(management.includes("isRuntimeRelevantProductionRun") && management.includes("excludeFromRuntimeQualification"), "OVERVIEW_IGNORES_STALE_RECOVERY_FAILURES");
-assert(management.includes('item.health === "RUNNING"') && management.includes("latestProductionRun"), "OVERVIEW_TREATS_RUNNING_AS_NON_ATTENTION_AND_DETAIL_USES_RELEVANT_PRODUCTION_RUN");
+assert(management.includes('const healthyCount = items.filter((item) => item.health === "HEALTHY").length') && management.includes("latestProductionRun"), "OVERVIEW_COUNTS_CONFIRMED_HEALTH_AND_DETAIL_USES_RELEVANT_PRODUCTION_RUN");
 assert(management.includes('["FAILED","MISSING","DISABLED"].includes(item.health)'), "FAST_INDEX_ATTENTION_INCLUDES_FAILED");
 assert(runner.includes("STALE_COLLECTION_RUN_MINUTES = 15") && runner.includes("COLLECTION_STALE_RUN_RECOVERED"), "STALE_COLLECTION_RUN_RECOVERY_BOUNDED");
 assert(automaticCycle.includes('runSection("STALE_COLLECTION_RUN_RECOVERY"') && automaticCycle.includes("recoverStaleCollectionRuns"), "AUTOMATIC_CYCLE_RECOVERS_STALE_RUNS_FIRST");

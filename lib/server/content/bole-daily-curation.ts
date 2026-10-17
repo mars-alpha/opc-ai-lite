@@ -1,3 +1,4 @@
+import {DEFAULT_RADAR_ALGORITHM_POLICY,type RadarAlgorithmPolicy} from '../../content/radar-algorithm-policy';
 import "server-only";
 
 export const BOLE_DAILY_CURATION_VERSION = "bole-daily-curation-v6-recall-balanced";
@@ -140,7 +141,8 @@ export function buildBoleRecommendationReason(input: {
   return parts.slice(0, 3).join("，") + "。";
 }
 
-export function evaluateBoleDailyCuration(input: BoleCurationInput) {
+export function evaluateBoleDailyCuration(input: BoleCurationInput, policy:RadarAlgorithmPolicy=DEFAULT_RADAR_ALGORITHM_POLICY) {
+  const config=policy.featured;
   const timeliness =
     input.ageHours <= 24 ? "HIGH" as const :
     input.ageHours <= 72 ? "MEDIUM" as const :
@@ -157,7 +159,7 @@ export function evaluateBoleDailyCuration(input: BoleCurationInput) {
   // It does not answer whether the Event deserves scarce Featured placement.
   const gate = {
     aiRelevant: input.aiRelevant,
-    freshEnough: timeliness !== "LOW",
+    freshEnough: input.ageHours <= config.maxAgeHours,
     trustedEvidence,
     materialChange: materialChangeKnown
   };
@@ -181,17 +183,17 @@ export function evaluateBoleDailyCuration(input: BoleCurationInput) {
     corroboration: corroborationScore(input.factSourceCount)
   };
   const score = clampScore(
-    components.freshness * 0.23 +
-    components.evidenceQuality * 0.28 +
-    components.importance * 0.32 +
-    components.practicalValue * 0.07 +
-    components.independence * 0.07 +
-    components.corroboration * 0.03
+    components.freshness * config.weights.freshness / 100 +
+    components.evidenceQuality * config.weights.evidenceQuality / 100 +
+    components.importance * config.weights.importance / 100 +
+    components.practicalValue * config.weights.practicalValue / 100 +
+    components.independence * config.weights.independence / 100 +
+    components.corroboration * config.weights.corroboration / 100
   );
   const selected =
     gatePassed &&
     editorialValueGatePassed &&
-    score >= BOLE_DAILY_CURATION_THRESHOLD;
+    score >= config.threshold;
 
   const official = input.verificationStatus === "CONFIRMED_OFFICIAL";
   const topPickStrongValue =
@@ -203,7 +205,7 @@ export function evaluateBoleDailyCuration(input: BoleCurationInput) {
     input.factSourceCount >= 2;
   const topPickEligible =
     selected &&
-    score >= BOLE_DAILY_TOP_PICK_THRESHOLD &&
+    score >= config.topPickThreshold &&
     topPickStrongValue &&
     topPickEvidenceSignal;
 
@@ -224,7 +226,7 @@ export function evaluateBoleDailyCuration(input: BoleCurationInput) {
     ...(topPickEligible ? ["TOP_PICK_STRONG_VALUE_AND_EVIDENCE_GATE"] : []),
     ...(selected && !topPickEligible ? ["FEATURED_NOT_TOP_PICK"] : []),
     ...(!input.aiRelevant ? ["AI_RELEVANCE_GATE_FAILED"] : []),
-    ...(timeliness === "LOW" ? ["DAILY_FRESHNESS_GATE_FAILED"] : []),
+    ...(!gate.freshEnough ? ["DAILY_FRESHNESS_GATE_FAILED"] : []),
     ...(!trustedEvidence ? ["TRUST_GATE_FAILED"] : []),
     ...(!materialChangeKnown ? ["MATERIAL_CHANGE_NOT_ESTABLISHED"] : []),
     ...(gatePassed && !selected ? ["BELOW_FEATURED_SCORE"] : [])
@@ -242,8 +244,8 @@ export function evaluateBoleDailyCuration(input: BoleCurationInput) {
     gatePassed,
     editorialValueGatePassed,
     score,
-    threshold: BOLE_DAILY_CURATION_THRESHOLD,
-    topPickThreshold: BOLE_DAILY_TOP_PICK_THRESHOLD,
+    threshold: config.threshold,
+    topPickThreshold: config.topPickThreshold,
     topPickEligible,
     tier,
     components,

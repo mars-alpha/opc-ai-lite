@@ -9,4 +9,13 @@ const plan=resolveSourceAcquisitionPlan({collectionMethod:"RSS",platform:"WEB",c
 assert(!plan.routes.some(r=>r.enabled&&r.serverRuntimeSupported),"LOGIN_FLAG_MUST_DISABLE_ROUTE");
 const legacy=resolveSourceAcquisitionPlan({collectionMethod:"RSS",platform:"WEB",collectionConfig:{acquisition:{kind:"RSS_ATOM",requiresFollow:true}}});
 assert(!legacy.serverRuntimeSupported,"LEGACY_KIND_CANNOT_BYPASS_ACCESS_GATE");
+assert(!evaluatePublicPracticeAccess({excerpt:'A service API key. The service is in early access; request access and await approval.'}).eligible,'MANDATORY_API_ACCESS_REQUIRES_HUMAN');
+assert(evaluatePublicPracticeAccess({excerpt:'Create an API key from the self-service dashboard.\nOptional webinar: request access from the host.'}).eligible,'OPTIONAL_EVENT_DOES_NOT_GATE_MATERIAL');
+assert(evaluatePublicPracticeAccess({excerpt:'Optional API key: request access for an extra integration.'}).eligible,'OPTIONAL_DEPENDENCY_IS_NOT_REQUIRED');
+
+for (const excerpt of [
+  "Required API key: request access and wait for manual approval. Optional telemetry can be disabled.",
+  "Required API key:\nrequest access and wait for manual approval.",
+  "Request access and wait for manual approval to obtain the required API key."
+]) assert(!evaluatePublicPracticeAccess({excerpt}).eligible, excerpt);
 console.log("PUBLIC_PRACTICE_ACCESS=PASS");

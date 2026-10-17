@@ -14,6 +14,12 @@ import { runTopicMomentumRuntime } from "../lib/server/content/topic-momentum-ru
 import { recoverStaleCollectionRuns } from "../lib/server/content/collection-runner";
 import { runDiscoveryExpansionCycle } from "../lib/server/content/collection-expansion";
 import {backfillPracticeMaterials} from "../lib/server/content/practice-material-backfill";
+import {runSourceAutoAdmissionCycle} from "../lib/server/content/source-auto-admission";
+import {readSourceWatchlist} from "../lib/server/content/source-coverage-report";
+import {runEventRelationCycle} from '../lib/server/content/event-relation-runtime';
+import {reconcileEventClusters} from '../lib/server/content/event-clustering';
+import {runEventExpressionCycle} from '../lib/server/content/event-expression-runtime';
+import {runContentUnderstandingCycle} from "../lib/server/content/content-understanding-runtime";
 
 loadEnvConfig(process.cwd());
 
@@ -69,6 +75,7 @@ async function runCycle() {
   if (systemSourceIds?.length === 0) {
     failures.push({ section: "SYSTEM_SOURCE_DISCOVERY", error: "CURRENT_SYSTEM_SOURCE_DIRECTORY_EMPTY" });
   }
+  const watchlist=await runSection("SOURCE_WATCHLIST",()=>readSourceWatchlist());
   const governanceExecution = systemSourceIds
     ? await runSection("SOURCE_GOVERNANCE_EXECUTION", () =>
         listDueSourceIdsForAutomaticCycle({ sourceIds: systemSourceIds })
@@ -102,31 +109,45 @@ async function runCycle() {
   const practiceMaterials = await runSection("PRACTICE_MATERIALS", () =>
     backfillPracticeMaterials(user,{limit:2,apply:true})
   );
+  const sourceAdmission = await runSection("SOURCE_AUTO_ADMISSION", () => runSourceAutoAdmissionCycle(user));
+  if(sourceAdmission && sourceAdmission.failed>0)failures.push({section:"SOURCE_AUTO_ADMISSION",error:"SOURCE_AUTO_ADMISSION_PARTIAL_FAILURE"});
   const discoveryExpansion = await runSection("DISCOVERY_EXPANSION", () =>
     runDiscoveryExpansionCycle(user, { maxEvents: 3 })
   );
   if (discoveryExpansion && discoveryExpansion.failed > 0) {
     failures.push({ section: "DISCOVERY_EXPANSION", error: "DISCOVERY_EXPANSION_PARTIAL_FAILURE" });
   }
+  const clusterReconciliation=await runSection("EVENT_CLUSTER_RECONCILIATION",()=>reconcileEventClusters());
+  if(clusterReconciliation?.failed)failures.push({section:"EVENT_CLUSTER_RECONCILIATION",error:"EVENT_CLUSTER_RECONCILIATION_PARTIAL_FAILURE"});
+  const eventRelation=await runSection("EVENT_RELATION",()=>runEventRelationCycle());
+  if(eventRelation?.failed)failures.push({section:"EVENT_RELATION",error:"EVENT_RELATION_PARTIAL_FAILURE"});
   const topicMomentum = await runSection("TOPIC_MOMENTUM_FOLLOW_UP", () =>
     runTopicMomentumRuntime(user)
   );
   if (topicMomentum?.results.some((item) => item.error)) {
     failures.push({ section: "TOPIC_MOMENTUM_FOLLOW_UP", error: "TOPIC_MOMENTUM_PARTIAL_FAILURE" });
   }
+  const contentUnderstanding=await runSection("CONTENT_UNDERSTANDING",()=>runContentUnderstandingCycle());
+  if(contentUnderstanding?.failed)failures.push({section:"CONTENT_UNDERSTANDING",error:"CONTENT_UNDERSTANDING_PARTIAL_FAILURE"});
+  const eventExpression=await runSection("EVENT_EXPRESSION",()=>runEventExpressionCycle());
+  if(eventExpression?.failed)failures.push({section:"EVENT_EXPRESSION",error:"EVENT_EXPRESSION_PARTIAL_FAILURE"});
   const radarSnapshot = await runSection("RADAR_SNAPSHOT", () =>
     refreshRadarSnapshot()
   );
   const finishedAt = new Date().toISOString();
 
   console.log(JSON.stringify({
-    version: "server-native-automatic-cycle-v10-human-ai-boundary",
+    version: "server-native-automatic-cycle-v15-event-expression",
     status: failures.length ? "PARTIAL" : "SUCCEEDED",
     startedAt,
     finishedAt,
     staleRunRecovery,
     sourcePortfolio,
-    aiExecution: "HUMAN_TRIGGER_ONLY",
+    watchlist,
+    aiExecution: "BOUNDED_MATERIAL_UNDERSTANDING",
+    contentUnderstanding,
+    eventRelation,
+    clusterReconciliation,
     governanceExecution: governanceExecution ? {
       dueSourceCount: governanceExecution.sourceIds.length,
       dueSourceIds: governanceExecution.sourceIds,
@@ -155,6 +176,7 @@ async function runCycle() {
       results: qualification
     },
     practiceMaterials,
+    sourceAdmission,
     discoveryExpansion,
     topicMomentum,
     radarSnapshot: radarSnapshot ? {

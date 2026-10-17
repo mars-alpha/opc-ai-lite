@@ -2,12 +2,15 @@ import { loadEnvConfig } from "@next/env";
 import { eq, inArray } from "drizzle-orm";
 import { closeDatabase, getDatabase } from "../lib/server/db";
 import {
+  contentCollectionRuns,
   contentEventRawItems,
   contentEvents,
+  contentRawItemObservations,
   contentRawItems,
   contentSources
 } from "../lib/server/db/schema";
-import { runFreshScan } from "../lib/server/content/discovery";
+import { ingestRawItem, runFreshScan } from "../lib/server/content/discovery";
+import { assertCurrentDatabaseTarget } from "../lib/server/database-target";
 import {
   EVENT_SEED_CLUSTER_RULE_VERSION,
   EVENT_SEED_CLUSTER_THRESHOLD,
@@ -21,6 +24,8 @@ function assert(condition: unknown, code: string): asserts condition {
 }
 
 async function main() {
+  const target = assertCurrentDatabaseTarget();
+  assert(target.environment === "development" && target.databaseName === "opc_ai_dev", "DEVELOPMENT_DATABASE_ONLY");
   const db = getDatabase();
   const marker = String(process.pid);
   const sourceA = `source_cluster_accept_a_${marker}`;
@@ -218,6 +223,42 @@ async function main() {
       }]
     });
     assert(repeated.created === 0 && repeated.duplicates === 1, "RERUN_NOT_STABLE");
+    assert(repeated.recoveredRawItemIds.length === 0, "LINKED_RAW_SHOULD_NOT_RESEED");
+
+    const orphanInput = {
+      sourceId: sourceA,
+      externalId: `cluster-orphan-${marker}`,
+      originalUrl: `https://example.com/cluster-orphan-${marker}`,
+      title: `OPCOrphan${marker} isolated source event`,
+      excerpt: "A fresh Raw whose Event seed did not run.",
+      publishedAt: now.toISOString()
+    };
+    const [partialRun] = await db.insert(contentCollectionRuns).values({ sourceId: sourceA, sourceName: "Cluster Acceptance Source A", collectionMethod: "RSS", status: "RUNNING" }).returning();
+    const orphanRaw = await ingestRawItem({ ...orphanInput, collectionRunId: partialRun.id });
+    assert(orphanRaw.created, "ORPHAN_FIXTURE_RAW_NOT_CREATED");
+    const [recordedRun] = await db.select().from(contentCollectionRuns).where(eq(contentCollectionRuns.id, partialRun.id));
+    const runMetadata = recordedRun.metadata as Record<string, unknown>;
+    assert(Array.isArray(runMetadata.rawItemIds) && runMetadata.rawItemIds.includes(orphanRaw.item.id), "RUN_RAW_LINEAGE_MISSING");
+    await db.update(contentCollectionRuns).set({ status: "FAILED", finishedAt: new Date() }).where(eq(contentCollectionRuns.id, partialRun.id));
+    const rollbackUrl = `https://example.com/cluster-rollback-${marker}`;
+    let rejectedClosedRun = false;
+    try {
+      await ingestRawItem({ ...orphanInput, externalId: `rollback-${marker}`, originalUrl: rollbackUrl, title: `Unique rollback fixture ${marker}`, collectionRunId: partialRun.id });
+    } catch (error) {
+      rejectedClosedRun = error instanceof Error && error.message === "COLLECTION_RUN_RAW_LINK_INVALID";
+    }
+    const rolledBack = await db.select({ id: contentRawItems.id }).from(contentRawItems).where(eq(contentRawItems.originalUrl, rollbackUrl));
+    assert(rejectedClosedRun && rolledBack.length === 0, "RUN_RAW_TRANSACTION_DID_NOT_ROLL_BACK");
+    await db.delete(contentRawItemObservations).where(eq(contentRawItemObservations.rawItemId, orphanRaw.item.id));
+    const recovered = await runFreshScan({ sourceId: sourceA, items: [orphanInput] });
+    assert(recovered.created === 0 && recovered.recoveredRawItemIds.includes(orphanRaw.item.id), "ORPHAN_EVENT_NOT_RECOVERED");
+    const [restoredObservation] = await db.select().from(contentRawItemObservations)
+      .where(eq(contentRawItemObservations.rawItemId, orphanRaw.item.id)).limit(1);
+    const [restoredLink] = await db.select().from(contentEventRawItems)
+      .where(eq(contentEventRawItems.rawItemId, orphanRaw.item.id)).limit(1);
+    assert(restoredObservation && restoredLink, "ORPHAN_OBSERVATION_OR_EVENT_LINK_MISSING");
+    const recoveredAgain = await runFreshScan({ sourceId: sourceA, items: [orphanInput] });
+    assert(recoveredAgain.recoveredRawItemIds.length === 0, "RECOVERY_NOT_IDEMPOTENT");
 
     console.log("EVENT_SEED_CLUSTERING_SIMILAR_TITLE=PASS");
     console.log("EVENT_SEED_CLUSTERING_FALSE_POSITIVE_GUARD=PASS");
@@ -226,6 +267,8 @@ async function main() {
     console.log("EVENT_SEED_CLUSTERING_DB_MERGE=PASS");
     console.log("EVENT_SEED_CLUSTERING_AUDIT_FIELDS=PASS");
     console.log("EVENT_SEED_CLUSTERING_RERUN=PASS");
+    console.log("EVENT_SEED_CLUSTERING_ORPHAN_RECOVERY=PASS");
+    console.log("RUN_RAW_LINEAGE_ATOMICITY=PASS");
   } finally {
     await cleanup();
     await closeDatabase();

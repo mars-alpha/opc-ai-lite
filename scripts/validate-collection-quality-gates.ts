@@ -38,10 +38,10 @@ assert(runner.indexOf("filterCheapDiscoveryCandidates") < runner.indexOf("resolv
 assert(runner.indexOf("evaluateDeterministicQualityGate(item)") < runner.indexOf("resolveEntitiesForContent({"), "PRE_AI_DETERMINISTIC_GATE_ORDER");
 assert(runner.indexOf("evaluatePollutionGate(item)") < runner.indexOf("resolveEntitiesForContent({"), "PRE_AI_POLLUTION_GATE_ORDER");
 assert(runner.includes("validateQualificationPreviewTarget"), "LIVE_QUALIFICATION_PREVIEW_BOUNDARY");
-assert(runner.includes("lastCollectedAt: completed.finishedAt ?? new Date()"), "SOURCE_LAST_COLLECTED_AT_ON_SUCCESS");
+assert(runner.includes("lastCollectedAt: finished.finishedAt ?? new Date()"), "SOURCE_LAST_COLLECTED_AT_ON_SUCCESS");
 assert(runner.includes("TRANSIENT_FETCH_RETRY_DELAYS_MS = [250, 750]"), "TRANSIENT_FETCH_RETRY_BOUNDED");
 assert(runner.includes('code === "ECONNRESET"') && runner.includes('code === "UND_ERR_SOCKET"') && runner.includes('code === "EAI_AGAIN"'), "TRANSIENT_FETCH_RETRY_CODES");
-assert(/fetchWithTransientRetry\(current, accept(?:, signal)?\)/.test(runner), "TRANSIENT_FETCH_RETRY_WIRED");
+assert(/fetchWithTransientRetry\(current, accept(?:, signal(?:, [^)]+)?)?\)/.test(runner), "TRANSIENT_FETCH_RETRY_WIRED");
 assert(eventPolicy.includes("evaluateEventEvidenceRelevance"), "EVENT_POLICY_RELEVANCE_BEFORE_INDEPENDENCE");
 assert(eventPolicy.includes("independentOriginKey"), "EVENT_POLICY_INDEPENDENT_COUNT");
 assert(eventPolicy.includes("item.relevance.pass"), "INDEPENDENT_COUNT_RELEVANCE_ONLY");

@@ -1,4 +1,6 @@
+import {readRadarAlgorithmPolicy} from './radar-algorithm-store';
 import { calendarWindow, beijingDay } from "../../content/radar-calendar";
+import { compactRadarSnapshot, expandRadarSnapshot } from "../../content/radar-snapshot-storage";
 import {recordAiHotspotPracticeTriggers,listAiHotspotPractices} from "./ai-hotspot-practice-store";
 import "server-only";
 
@@ -7,11 +9,14 @@ import { listRadarTimelinePage } from "./intelligence-read-model";
 import { getTodayIntelligenceSignalReadiness } from "./today-intelligence-readiness";
 import { listSourceRuntimeSummary } from "./source-runtime-operations";
 import { getDatabase } from "../db";
-import { contentEvents, contentRadarSnapshots } from "../db/schema";
+import { contentEvents, contentRadarSnapshots,contentEventClusterMembers,contentEventClusters } from "../db/schema";
+import {canonicalOperationStates} from './canonical-event';
+import {isToolPracticeRecord} from './ai-hotspot-practice';
 
 const RADAR_SNAPSHOT_TTL_MS = 30_000;
 const RADAR_SNAPSHOT_KEY = "CURRENT";
-export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v16-ai-hotspot-practice";
+export const RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v17-compact-storage";
+const PREVIOUS_RADAR_SNAPSHOT_SCHEMA_VERSION = "radar-snapshot-v16-audit-fixes";
 
 type RadarSnapshot = Awaited<ReturnType<typeof buildRadarSnapshot>>;
 const globalForRadarSnapshot = globalThis as typeof globalThis & {
@@ -24,9 +29,10 @@ const globalForRadarSnapshot = globalThis as typeof globalThis & {
 async function buildRadarSnapshot() {
   const startedAt = Date.now();
   const asOf = new Date();
+  const algorithm=await readRadarAlgorithmPolicy();
   const window = calendarWindow(asOf, 7);
   const [initialPage, readiness, collectionHealth] = await Promise.all([
-    listRadarTimelinePage({ windowDays: 7, asOf }),
+    listRadarTimelinePage({ windowDays: 7, asOf,algorithm }),
     getTodayIntelligenceSignalReadiness(),
     listSourceRuntimeSummary(100, asOf)
   ]);
@@ -42,8 +48,8 @@ async function buildRadarSnapshot() {
       ...item,
       curation: { ...item.curation, featuredRank: index + 1, rerankAuthority: "PRESENTATION_ONLY" as const }
     }));
-  await recordAiHotspotPracticeTriggers(fullWindow.map((item) => ({ ...item, hotParticipants: item.aiPracticeParticipants })),asOf);
-  const aiHotspotPractices = await listAiHotspotPractices();
+  await recordAiHotspotPracticeTriggers(fullWindow.map((item) => ({ ...item, hotParticipants: item.aiPracticeParticipants })),asOf,algorithm.policy);
+  const aiHotspotPractices = await listAiHotspotPractices(algorithm.policy);
   const currentHot = fullWindow
     .filter((item) => item.currentHot.eligible)
     .sort((a, b) =>
@@ -62,6 +68,7 @@ async function buildRadarSnapshot() {
   );
 
   return {
+    algorithmRevision:algorithm.revision,
     schemaVersion: RADAR_SNAPSHOT_SCHEMA_VERSION,
     generatedAt: asOf.toISOString(),
     timelineWindow: { from: window.from.toISOString(), to: asOf.toISOString(), today: window.today, firstDay: window.firstDay, timeZone: window.timeZone },
@@ -91,7 +98,7 @@ async function readPersistedRadarSnapshot() {
   const payload = row.payload && typeof row.payload === "object" && !Array.isArray(row.payload)
     ? row.payload as Record<string, unknown>
     : {};
-  if (payload.schemaVersion !== RADAR_SNAPSHOT_SCHEMA_VERSION) return null;
+  if (payload.schemaVersion !== RADAR_SNAPSHOT_SCHEMA_VERSION && payload.schemaVersion !== PREVIOUS_RADAR_SNAPSHOT_SCHEMA_VERSION) return null;
   if ((payload.timelineWindow as { today?: string } | undefined)?.today !== beijingDay(new Date())) return null;
   const hasStoryContract = Array.isArray(payload.items) && payload.items.every((item) => Boolean(item && typeof item === "object" && !Array.isArray(item) && (item as Record<string, unknown>).story));
   if (!hasStoryContract) return null;
@@ -104,7 +111,12 @@ async function readPersistedRadarSnapshot() {
     typeof payload.totalEventCount7d !== "number" ||
     payload.windowDays !== 7
   ) return null;
-  return row.payload as RadarSnapshot;
+  if (payload.schemaVersion === PREVIOUS_RADAR_SNAPSHOT_SCHEMA_VERSION) return row.payload as RadarSnapshot;
+  try {
+    return expandRadarSnapshot(row.payload as ReturnType<typeof compactRadarSnapshot<RadarSnapshot["items"][number], RadarSnapshot>>);
+  } catch {
+    return null;
+  }
 }
 
 function cacheSnapshot(snapshot: RadarSnapshot) {
@@ -118,19 +130,20 @@ function cacheSnapshot(snapshot: RadarSnapshot) {
 
 export async function refreshRadarSnapshot() {
   const snapshot = await buildRadarSnapshot();
+  const storedPayload = compactRadarSnapshot(snapshot);
   const generatedAt = new Date(snapshot.generatedAt);
   await getDatabase()
     .insert(contentRadarSnapshots)
     .values({
       key: RADAR_SNAPSHOT_KEY,
-      payload: snapshot,
+      payload: storedPayload,
       generatedAt,
       updatedAt: new Date()
     })
     .onConflictDoUpdate({
       target: contentRadarSnapshots.key,
       set: {
-        payload: snapshot,
+        payload: storedPayload,
         generatedAt,
         updatedAt: new Date()
       }
@@ -195,13 +208,24 @@ export function applyRadarOperations<T extends { items: OperationalItem[]; featu
 export async function readRadarOperations<T extends Parameters<typeof applyRadarOperations>[0]>(snapshot: T): Promise<T> {
   const index = snapshot.windowEventIndex ?? [...snapshot.items, ...snapshot.featured, ...snapshot.currentHot];
   const ids = [...new Set([...index,...snapshot.aiHotspotPractices].map((item) => item.eventId))];
-  const states = ids.length ? await getDatabase().select({ id: contentEvents.id, discoveryStatus: contentEvents.discoveryStatus, archivedAt: contentEvents.archivedAt }).from(contentEvents).where(inArray(contentEvents.id, ids)) : [];
-  return applyRadarOperations(snapshot, states);
+  if(!ids.length)return applyRadarOperations(snapshot,[]);
+  return getDatabase().transaction(async tx=>{
+   const memberships=await tx.select().from(contentEventClusterMembers).where(inArray(contentEventClusterMembers.eventId,ids));
+   const clusterIds=[...new Set(memberships.map(m=>m.clusterId))];
+   const clusters=clusterIds.length?await tx.select().from(contentEventClusters).where(inArray(contentEventClusters.id,clusterIds)):[];
+   const allMemberships=clusterIds.length?await tx.select().from(contentEventClusterMembers).where(inArray(contentEventClusterMembers.clusterId,clusterIds)):[];
+   const eventIds=[...new Set([...ids,...allMemberships.map(m=>m.eventId)])];
+   const rows=await tx.select({id:contentEvents.id,discoveryStatus:contentEvents.discoveryStatus,archivedAt:contentEvents.archivedAt,createdAt:contentEvents.createdAt,firstSeenAt:contentEvents.firstSeenAt,lastSeenAt:contentEvents.lastSeenAt,eventAt:contentEvents.eventAt}).from(contentEvents).where(inArray(contentEvents.id,eventIds));
+   return applyRadarOperations(snapshot,canonicalOperationStates(rows,allMemberships,clusters));
+  },{accessMode:'read only',isolationLevel:'repeatable read'});
 }
 
 export async function getRadarSnapshot() {
   // Only the expensive base payload is cached. Operations are read on EVERY request,
   // including from other processes and after a concurrent snapshot refresh.
   const snapshot = await getBaseRadarSnapshot();
-  return { ...await readRadarOperations(snapshot), freshness: radarSnapshotFreshness(snapshot.generatedAt) };
+  const current=await readRadarOperations(snapshot);
+  // Old persisted snapshots may still contain model-news triggers. Classification
+  // is deterministic and uses original records, before any AI display wording.
+  return { ...current, aiHotspotPractices:current.aiHotspotPractices.filter(r=>isToolPracticeRecord(r)), freshness: radarSnapshotFreshness(snapshot.generatedAt) };
 }
