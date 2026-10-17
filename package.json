@@ -283,7 +283,11 @@
     "content:radar-funnel:check": "node --conditions=react-server --import tsx scripts/validate-radar-funnel.ts",
     "content:canonical-snapshot:check": "node --conditions=react-server --import tsx scripts/validate-canonical-snapshot.ts",
     "content:radar-funnel:audit": "node --conditions=react-server --import tsx scripts/inspect-source-radar-gaps.ts --full-funnel",
-    "content:radar-funnel:accept": "node --conditions=react-server --import tsx scripts/accept-radar-funnel.ts"
+    "content:radar-funnel:accept": "node --conditions=react-server --import tsx scripts/accept-radar-funnel.ts",
+    "content:event-value:check": "node --conditions=react-server --import tsx scripts/validate-event-value-analysis.ts",
+    "content:momentum-history:check": "node --conditions=react-server --import tsx scripts/validate-topic-momentum-history.ts",
+    "content:event-gap:check": "node --conditions=react-server --import tsx scripts/validate-event-gap-plan.ts",
+    "content:event-value:accept": "node --conditions=react-server --import tsx scripts/accept-event-value.ts"
   },
   "dependencies": {
     "@mozilla/readability": "0.6.0",

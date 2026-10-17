@@ -12,7 +12,7 @@ const obj=(v:unknown):Record<string,unknown>=>v && typeof v==='object' && !Array
 /** Run inside SYSTEM snapshot refresh. Atomic per-key writes preserve other Event metadata. */
 export async function recordAiHotspotPracticeTriggers(items:AiHotspotPracticeCandidate[],now=new Date(),policy?:RadarAlgorithmPolicy) {
  policy=policy??(await readRadarAlgorithmPolicy()).policy;
- for(const item of items){const result=evaluateAiHotspotPractice(item,now,policy);const next=result.record;if(!next)continue;
+ for(const item of items){const result=evaluateAiHotspotPractice(item,now,policy);const next=result.record;if(!next&&!result.candidate)continue;
   await getDatabase().transaction(async tx=>{
    await tx.execute(sql`select pg_advisory_xact_lock(hashtext('opc-event-clustering-v6'))`);
    const [membership]=await tx.select().from(contentEventClusterMembers).where(eq(contentEventClusterMembers.eventId,item.eventId));
@@ -21,6 +21,8 @@ export async function recordAiHotspotPracticeTriggers(items:AiHotspotPracticeCan
    const active=rows.filter(e=>!e.archivedAt&&e.createdAt<=now&&e.firstSeenAt<=now&&(!e.eventAt||e.eventAt<=now)).sort((a,b)=>a.firstSeenAt.getTime()-b.firstSeenAt.getTime()||a.id.localeCompare(b.id));
    const event=active.find(e=>e.id===item.eventId)??active[0];
    if(!event)return;
+   if(result.candidate)await tx.update(contentEvents).set({metadata:sql`jsonb_set(${contentEvents.metadata},'{aiPracticeCandidate}',${JSON.stringify({...result.candidate,eventId:event.id})}::jsonb,true)`}).where(eq(contentEvents.id,event.id));
+   if(!next)return;
    const previous=obj(event.metadata).aiHotspotPractice as AiHotspotPracticeRecord|undefined;
    const record=mergeAiHotspotPractice(previous?.version===AI_HOTSPOT_PRACTICE_VERSION?previous:null,{...next,eventId:event.id});
    await tx.update(contentEvents).set({metadata:sql`jsonb_set(${contentEvents.metadata}, '{aiHotspotPractice}', ${JSON.stringify(record)}::jsonb, true)`}).where(eq(contentEvents.id,event.id));

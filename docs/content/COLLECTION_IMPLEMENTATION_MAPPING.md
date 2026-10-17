@@ -7,6 +7,17 @@ Contract: docs/content/COLLECTION_ARCHITECTURE_CONTRACT.md
 
 ## 1. Current Owners
 
+### 事件证据、动量历史、暂存报告与缺口计划
+
+- 时间/主资料：`lib/server/content/event-story-read-model.ts`；SYSTEM首见继续复用`system-discovery-receipt.ts`。
+- 同源排名/回放：`topic-momentum.ts` / `intelligence-read-model.ts`；实际历史：`topic-momentum-history.ts`，仅`radar-snapshot.ts`的SYSTEM刷新写入Event.metadata.topicMomentumHistory。
+- 练习候选：`ai-hotspot-practice.ts` / `ai-hotspot-practice-store.ts`，复用Event.metadata.aiPracticeCandidate；正式历史仍aiHotspotPractice。
+- 报告Skill/Schema：`skills/event-value-analysis/v1.ts`；证据/Validator/运行：`event-value-context.ts`、`event-value-policy.ts`、`event-value-runtime.ts`。管理员GET `/api/admin/content/intelligence?view=event-value&eventId=<uuid>`只读暂存结果，现有UI不变。
+- 缺口Skill/Schema：`skills/event-discovery-plan/v1.ts`；`event-gap-context.ts` / `event-gap-policy.ts` / `event-gap-runtime.ts`；`practice-discovery-policy.ts`识别缺口并由`collection-expansion.ts`复用受管搜索执行。
+- 编排：`scripts/run-server-native-automatic-cycle.ts`的EVENT_GAP_PLAN / EVENT_VALUE；现有ai_runs任务EVENT_GAP / EVENT_VALUE。开关及运行边界唯一见架构合同，生产启用事实见CURRENT_SYSTEM_FACTS。
+- 验证入口：`npm run content:event-value:check`、`content:event-gap:check`、`content:momentum-history:check`；开发PG：`content:event-value:accept -- --confirm=EVENT-VALUE-DEVELOPMENT`（mock Provider、夹具finally清理）；已纳入`content:discovery-collection:regression -- --quick`。
+- 质量回放：`scripts/replay-radar-quality.ts`分别输出工程命中目标和未验收质量状态；真实发现/栏目/报告语义验收不由该脚本授予。
+
 ### Source Management
 - services/overseas-collector-relay/github-releases.js / github-releases.d.ts — 4个固定仓库的精确Release页请求与数字ID Link别名核验；是传输限制，不是Source注册名单。GITHUB_RELEASES按开关启用；部署状态见CURRENT_SYSTEM_FACTS。
 - lib/server/content/github-release-pagination.ts — page/per_page、首页与前页重叠、最多3页/30秒、下一页进度/末页与页限回执、稳定ID去重与非完整历史声明；source-acquisition-runtime-adapters.ts导出，collection-runner.ts仅对显式PUBLIC_JSON_API/GITHUB_RELEASES Route接入。
@@ -129,7 +140,7 @@ Topic Momentum queue reconcile 与 due selection 使用同一 follow-up eligibil
 - scripts/run-server-native-automatic-cycle.ts（唯一生产 scheduler owner）
 - scripts/accept-topic-momentum-runtime-live.ts（Development live acceptance only）
 
-Topic Momentum：过去 7 天 / 168h，独立账号与机构去重，72h half-life，authority=PRESENTATION_ONLY；只有当前与前一 72h 窗口持续覆盖完全相同的至少 2 个参与者 cohort 时才输出趋势。
+Topic Momentum v9：身份/时间/衰减、复燃与稳定交集趋势规则唯一见采集架构合同§10/§16；`participant-name.ts`承接原名称别名，`participant-identity.ts`统一解析身份并提供独立实测判定。
 
 ### Presentation
 - lib/server/content/review-localization.ts
@@ -295,12 +306,12 @@ Web与SYSTEM必须同版并使用当前snapshot schema；生成完整快照后�
 - SYSTEM 唯一周期在 PRACTICE_MATERIALS 阶段全局串行补最多2篇，复用原 advisory lock；不再逐 Source 另开详情预算。成功正文复用，失败指数退避，同站首次网络失败后停止本批后续请求。七日候选仅取真实发布时间，不造日期，不新增 Raw/Event/Source。
 - `lib/server/content/practice-material-backfill.ts` 为 Core；`scripts/backfill-public-practice-materials.ts` 默认为只读计划，生产 apply 需显式确认。写入仅限 Raw 材料元数据和审计，原始身份、关注配置及事实不改。
 
-## AI热点练习（现有UI已批准；新工具边界待部署）
+## AI热点练习
 
 规则唯一owner见采集合同§23。
 - `ai-hotspot-practice.ts`：工具主题、独立原发布者去重、实质讨论、独立URL已验证材料合并及存量过滤；广义热点研究入口 `shouldExpandHotDiscussion` 保留模型研究覆盖。
 - `ai-hotspot-practice-store.ts` / `radar-snapshot.ts`：持久触发审计、canonical归一、原始分类/标题复查与旧快照工具过滤；无新表/定时器。
-- `topic-momentum.ts` / `intelligence-read-model.ts`：v8合格原文讨论身份投影与热点门槛；Fact Authority不变。
+- `topic-momentum.ts` / `intelligence-read-model.ts`：现行合格原文讨论身份投影与热点门槛；规则见采集架构合同，部署状态见CURRENT_SYSTEM_FACTS。
 - `event-clustering.ts` / `run-server-native-automatic-cycle.ts`：历史规则版本补聚类，沿唯一SYSTEM锁运行。
 - `lib/content/radar-snapshot-wire.ts` / `validate-radar-read-path.ts`：界面消费字段保留、内部/重复大字段裁剪与wire roundtrip验证。
 - `validate-ai-hotspot-practice.ts` / `validate-topic-momentum.ts` / `validate-practice-discovery-policy.ts`：纯模型、同站别名、独立教程URL、无材料、时间窗口与广义研究反例。

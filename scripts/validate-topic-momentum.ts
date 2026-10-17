@@ -179,8 +179,8 @@ const expired = calculateTopicMomentum({
   evidence: practical,
   now
 });
-assert(expired.phase === "EXPIRED_WINDOW", "EXPIRED_AFTER_168H");
-assert(expired.eligible === false, "EXPIRED_NOT_CURRENT_HOT");
+assert(expired.phase === "MOMENTUM_WINDOW" && expired.eligible, "OLD_EVENT_RECENT_SUBSTANTIVE_SIGNALS_REVIVE");
+assert(calculateTopicMomentum({firstSeenAt:'2026-10-01',raws:[],evidence:practical,now}).status==='EXPIRED','OLD_EVENT_WITHOUT_SIGNALS_EXPIRES');
 
 assert(resolveTopicMomentumFollowUpHours({ day: 1, eligible: false }) === 6, "FOLLOW_UP_DAY1_6H");
 assert(resolveTopicMomentumFollowUpHours({ day: 4, eligible: false }) === 12, "FOLLOW_UP_DAY4_12H");
@@ -217,3 +217,13 @@ const discussion=calculateTopicMomentum({firstSeenAt:new Date(now.getTime()-48*3
 assert(discussion.eligible,'INDEPENDENT_SUBSTANTIVE_DISCUSSION_CAN_SUSTAIN_ON_ONE_WEB_PLATFORM');
 assert(!calculateTopicMomentum({firstSeenAt:new Date(now.getTime()-48*3600000),now,raws:discussionReports.map(r=>({...r,sourceId:'same',sourceName:'Same',metadata:{originPublisher:'Same'},discussionPublisher:'Same'})),evidence:[]}).eligible,'REPOSTS_CANNOT_SATISFY_DISCUSSION_PATH');
 assert(!calculateTopicMomentum({firstSeenAt:new Date(now.getTime()-48*3600000),now,raws:discussionReports.map(r=>({...r,discussionPublisher:undefined})),evidence:[]}).eligible,'UNQUALIFIED_DISCOVERY_SIGNALS_CANNOT_USE_DISCUSSION_PATH');
+assert(calculateTopicMomentum({firstSeenAt:now,now,raws:[{...report,publishedAt:null}],evidence:[]}).score===0,'UNKNOWN_PUBLICATION_NOT_CURRENT_SIGNAL');
+const crossPlatform=[{...report,sourceType:'SOCIAL',author:'alice',platform:'X',sourceMetadata:{creatorIdentityId:'alice-verified'}},{...report,sourceType:'SOCIAL',author:'alice-video',platform:'YOUTUBE',sourceMetadata:{creatorIdentityId:'alice-verified'}}];
+assert(calculateTopicMomentum({firstSeenAt:now,now,raws:crossPlatform,evidence:[]}).independentParticipantCount===1,'VERIFIED_CROSS_PLATFORM_IDENTITY_DEDUP');
+assert(calculateTopicMomentum({firstSeenAt:now,now,raws:crossPlatform.map(r=>({...r,author:'same-name',sourceMetadata:{},metadata:{}})),evidence:[]}).independentParticipantCount===2,'UNVERIFIED_SAME_NAME_ACCOUNTS_REMAIN_DISTINCT');
+const withNew=calculateTopicMomentum({firstSeenAt:'2026-10-06',now,evidence:practical,raws:[...[
+ ['a','X','2026-10-07T12:00:00Z'],['b','YOUTUBE','2026-10-07T13:00:00Z'],['a','X','2026-10-10T12:00:00Z'],['b','YOUTUBE','2026-10-10T13:00:00Z'],['c','X','2026-10-11T12:00:00Z']
+].map(([id,p,at])=>raw(id,p,at,id))]});
+assert(withNew.trendComparable&&withNew.trend?.comparableParticipantCount===2,'NEW_ACCOUNT_DOES_NOT_HIDE_STABLE_COHORT_TREND');
+const syndicated=calculateTopicMomentum({firstSeenAt:now,now,evidence:[],raws:[{...report,metadata:{syndicationOriginUrl:'https://original.example/release'}},{...report,sourceId:'mirror',sourceName:'Mirror',metadata:{syndicationOriginUrl:'https://original.example/release'}}]});
+assert(syndicated.independentParticipantCount===1,'EXPLICIT_SYNDICATION_CHAIN_ONE_PARTICIPANT');

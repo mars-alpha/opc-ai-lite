@@ -39,6 +39,10 @@ const directBody='1. Install the package and configure input_file=notes.txt.\n2.
 const directWithBody={...primary,metadata:{...primary.metadata,bodyText:directBody,publicContentReceipt:{url:primary.originalUrl,status:200,anonymous:true,serverFetched:true,complete:true,kind:'BODY',observedAt:now.toISOString()}}};
 assert.equal(buildAiHotspotPracticeReports({title:'MCP Skill tutorial'},[directWithBody],[],sourceMap).links[0]?.materialQuality?.eligible,true,'DIRECT_REPORT_MUST_KEEP_VERIFIED_OPERATION_MATERIAL_QUALITY');
 assert.equal(evaluateAiHotspotPractice({...base,evidenceLinks:base.evidenceLinks.map(l=>({...l,materialQuality:undefined}))},now).eligible,false,'TOOL_WITHOUT_VERIFIED_MATERIAL_STAYS_OUT');
+const pending=evaluateAiHotspotPractice({...base,evidenceLinks:base.evidenceLinks.map(l=>({...l,materialQuality:undefined}))},now);
+assert.equal(pending.candidate?.status,'BODY_PENDING','AUTHOR_TEST_RETAINED_AS_CANDIDATE');
+assert.equal(pending.candidate?.platformExecution,'NOT_EXECUTED','AUTHOR_TEST_NOT_PLATFORM_EXECUTION');
+assert.equal(evaluateAiHotspotPractice({...base,title:'MCP releases new version',excerpt:'release',evidenceLinks:[{sourceName:'Author A',originalUrl:'https://example.com/a',title:'MCP released'}]},now).candidate,null,'PLAIN_RELEASE_NOT_TEST_CANDIDATE');
 const result=evaluateAiHotspotPractice(base,now);
 assert.equal(evaluateAiHotspotPractice({...base,aiPracticeEvidenceLinks:base.evidenceLinks.map(l=>({...l,materialQuality:undefined})),practicalEvidenceLinks:[{sourceName:'Author C',originalUrl:'https://tutorial.example/mcp',title:'MCP 配置教程',materialQuality:{eligible:true}}]},now).eligible,true,'SEPARATE_VERIFIED_TUTORIAL_URL_MUST_COUNT_AS_MATERIAL_NOT_PUBLISHER');
 assert.equal(isToolPracticeRecord({...result.record!,title:'NVIDIA Releases Nemotron 3.5 Super VL, a 120B Open Multimodal Agent Model'}),false,'HISTORICAL_AGENT_MODEL_RELEASE_IS_NOT_TOOL_PRACTICE');
@@ -80,4 +84,8 @@ assert.equal(aiHotspotPracticePublisher({title:'MCP 实测',originalUrl:'https:/
 assert.equal(aiHotspotPracticePublisher({title:'MCP 实测',originalUrl:'https://example.com/a',referenceOnly:true,originPublisher:'Author A'}),'Author A','RESOLVED_ORIGINAL_PUBLISHER_CAN_COUNT');
 assert.equal(aiHotspotPracticePublisher({title:'MCP 实测',sourceName:'Author A'}),null,'NO_ORIGINAL_LINK_CANNOT_COUNT');
 
+const officialSelfTest=evaluateAiHotspotPractice({eventId:'self-test',title:'Codex MCP workflow review',hotParticipants:[{name:'OpenAI',role:'OFFICIAL'}],evidenceLinks:[{sourceName:'OpenAI',title:'Codex MCP workflow hands-on',originalUrl:'https://openai.com/test'}]},now);
+assert.equal(officialSelfTest.candidate,null,'OFFICIAL_SELF_TEST_IS_NOT_INDEPENDENT_PRACTICE_CANDIDATE');
+const officialRepost=buildAiHotspotPracticeReports({title:'Codex MCP workflow benchmark'},[{...discovered,title:'Codex MCP workflow benchmark',originalUrl:'https://openai.com/index/codex-mcp-benchmark',metadata:{...discovered.metadata,originPublisher:'OpenAI'}}],[],sourceMap);
+assert.equal(evaluateAiHotspotPractice({eventId:'official-repost',title:'Codex MCP workflow benchmark',aiPracticeParticipants:officialRepost.participants,aiPracticeEvidenceLinks:officialRepost.links,evidenceLinks:[]},now).candidate,null,'OFFICIAL_TEST_TRANSPORTED_BY_AGGREGATOR_IS_NOT_INDEPENDENT');
 console.log('AI_HOTSPOT_PRACTICE=PASS');

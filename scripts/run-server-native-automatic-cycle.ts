@@ -1,3 +1,5 @@
+import {runEventGapCycle} from '../lib/server/content/event-gap-runtime';
+import {runEventValueCycle} from '../lib/server/content/event-value-runtime';
 import { loadEnvConfig } from "@next/env";
 import { eq } from "drizzle-orm";
 import { closeDatabase, getDatabase } from "../lib/server/db";
@@ -111,6 +113,8 @@ async function runCycle() {
   );
   const sourceAdmission = await runSection("SOURCE_AUTO_ADMISSION", () => runSourceAutoAdmissionCycle(user));
   if(sourceAdmission && sourceAdmission.failed>0)failures.push({section:"SOURCE_AUTO_ADMISSION",error:"SOURCE_AUTO_ADMISSION_PARTIAL_FAILURE"});
+  const eventGap=await runSection("EVENT_GAP_PLAN",()=>runEventGapCycle({maxItems:1}));
+  if(eventGap?.failed)failures.push({section:"EVENT_GAP_PLAN",error:"EVENT_GAP_PARTIAL_FAILURE"});
   const discoveryExpansion = await runSection("DISCOVERY_EXPANSION", () =>
     runDiscoveryExpansionCycle(user, { maxEvents: 3 })
   );
@@ -131,13 +135,15 @@ async function runCycle() {
   if(contentUnderstanding?.failed)failures.push({section:"CONTENT_UNDERSTANDING",error:"CONTENT_UNDERSTANDING_PARTIAL_FAILURE"});
   const eventExpression=await runSection("EVENT_EXPRESSION",()=>runEventExpressionCycle());
   if(eventExpression?.failed)failures.push({section:"EVENT_EXPRESSION",error:"EVENT_EXPRESSION_PARTIAL_FAILURE"});
+  const eventValue=await runSection("EVENT_VALUE",()=>runEventValueCycle());
+  if(eventValue?.failed)failures.push({section:"EVENT_VALUE",error:"EVENT_VALUE_PARTIAL_FAILURE"});
   const radarSnapshot = await runSection("RADAR_SNAPSHOT", () =>
     refreshRadarSnapshot()
   );
   const finishedAt = new Date().toISOString();
 
   console.log(JSON.stringify({
-    version: "server-native-automatic-cycle-v15-event-expression",
+    version: "server-native-automatic-cycle-v16-event-value-gap",
     status: failures.length ? "PARTIAL" : "SUCCEEDED",
     startedAt,
     finishedAt,
@@ -147,6 +153,8 @@ async function runCycle() {
     aiExecution: "BOUNDED_MATERIAL_UNDERSTANDING",
     contentUnderstanding,
     eventRelation,
+    eventValue,
+    eventGap,
     clusterReconciliation,
     governanceExecution: governanceExecution ? {
       dueSourceCount: governanceExecution.sourceIds.length,

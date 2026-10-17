@@ -1,6 +1,9 @@
+import {resolveParticipantIdentity} from './participant-identity';
+import {canonicalHotParticipantName} from './participant-name';
+export {canonicalHotParticipantName} from './participant-name';
 import {DEFAULT_RADAR_ALGORITHM_POLICY,columnTextDecision,type RadarAlgorithmPolicy} from '../../content/radar-algorithm-policy';
 import { isMultiNewsRoundup } from "./content-evidence-signals";
-export const TOPIC_MOMENTUM_VERSION = "topic-momentum-v8-linked-discussion";
+export const TOPIC_MOMENTUM_VERSION = "topic-momentum-v9-signal-time-identity";
 export const TOPIC_MOMENTUM_MIN_AGE_HOURS = 24;
 export const TOPIC_MOMENTUM_MAX_AGE_HOURS = 168;
 export const TOPIC_MOMENTUM_HALF_LIFE_HOURS = 72;
@@ -13,6 +16,9 @@ export function resolveTopicMomentumFollowUpHours(input: { day: number; eligible
 }
 
 export type TopicMomentumRaw = {
+  canonicalUrl?:string|null;
+  originalUrl?:string|null;
+  sourceMetadata?:unknown;
   title?: string | null;
   excerpt?:string|null;
   /** Assigned only by the qualified, original-URL reporting projection. */
@@ -47,52 +53,17 @@ function timeOf(value: Date | string | null | undefined) {
   return Number.isFinite(time) ? time : 0;
 }
 
-const PARTICIPANT_ALIASES: Array<[RegExp, string]> = [
-  [/\b(openai|chatgpt)\b/i, "OpenAI"],
-  [/\b(anthropic|claude)\b/i, "Anthropic"],
-  [/\bgoogle\s*deepmind\b|\bdeepmind\b/i, "Google DeepMind"],
-  [/\bgoogle\s+ai\b/i, "Google AI"],
-  [/\bmicrosoft\b/i, "Microsoft"],
-  [/\bgithub\b/i, "GitHub"],
-  [/\bnvidia\b/i, "NVIDIA"],
-  [/\bmistral(?:\s+ai)?\b/i, "Mistral AI"],
-  [/\bhugging\s*face\b/i, "Hugging Face"],
-  [/\b(qwen|通义千问|阿里云.*通义)\b/i, "Qwen"],
-  [/\b(meta\s+ai|meta)\b/i, "Meta"],
-  [/\b(xai|x\.ai|grok)\b/i, "xAI"],
-  [/\bamazon\s+web\s+services\b|\baws\b/i, "AWS"]
-];
-
-export function canonicalHotParticipantName(value: string) {
-  const normalized = value.normalize("NFKC").replace(/\s+/g, " ").trim();
-  for (const [pattern, canonical] of PARTICIPANT_ALIASES) {
-    if (pattern.test(normalized)) return canonical;
-  }
-  return normalized;
+function identity(raw:TopicMomentumRaw){return resolveParticipantIdentity({...raw,canonicalUrl:raw.canonicalUrl,resolvedOriginPublisher:raw.referenceOnly===true&&Boolean(record(raw.metadata).originPublisher)});}
+function participantName(raw:TopicMomentumRaw){const value=identity(raw);return value.role==='EDITORIAL'?value.participantName:null;}
+export function hotParticipantName(raw:TopicMomentumRaw){return participantName(raw);}
+function normalizedParticipantKey(raw:TopicMomentumRaw){const value=identity(raw);return value.role==='EDITORIAL'?value.participantKey:null;}
+function normalizedCreatorKey(raw:TopicMomentumRaw){return normalizedParticipantKey(raw);}
+/** Publication only. Discovery, collection and update timestamps cannot renew a signal. */
+export function momentumSignalTime(raw:TopicMomentumRaw){
+ const meta=record(raw.metadata);
+ if(meta.publicationTimeBasis==='UPDATED_ONLY'||meta.publicationTimePrecision==='UNKNOWN')return 0;
+ return timeOf(raw.publishedAt);
 }
-
-function participantName(raw: TopicMomentumRaw) {
-  const metadata = record(raw.metadata);
-  const origin = typeof metadata.originPublisher === "string" ? metadata.originPublisher.trim() : "";
-  const author = raw.author?.trim() ?? "";
-  if (raw.referenceOnly === true && !origin && !author) return null;
-  // A media byline is not another independent institution. Creator accounts
-  // remain independent; declared original publishers deduplicate aggregators.
-  const institutional = ['OFFICIAL','MEDIA','RESEARCH'].includes(raw.sourceType.toUpperCase());
-  return canonicalHotParticipantName(origin || (institutional ? raw.sourceName : author) || raw.sourceName || raw.sourceId);
-}
-
-export function hotParticipantName(raw: TopicMomentumRaw) { return participantName(raw); }
-
-function normalizedParticipantKey(raw: TopicMomentumRaw) {
-  const name = participantName(raw);
-  return name ? name.normalize("NFKC").toLocaleLowerCase() : null;
-}
-
-function normalizedCreatorKey(raw: TopicMomentumRaw) {
-  return normalizedParticipantKey(raw);
-}
-
 function isCreatorLike(raw: TopicMomentumRaw) {
   const type = raw.sourceType.toUpperCase();
   const metadata = record(raw.metadata);
@@ -133,10 +104,12 @@ export function calculateTopicMomentum(input: {
   const ageHours = Math.max(0, (nowMs - firstSeenMs) / 3_600_000);
   const windowStart = nowMs - TOPIC_MOMENTUM_MAX_AGE_HOURS * 3_600_000;
 
-  const recentRaws = input.raws.filter((raw) => {
+  const uniqueSignals=new Map<string,TopicMomentumRaw>();
+  for(const raw of input.raws){const meta=record(raw.metadata);const key=JSON.stringify(meta.syndicationOriginUrl||meta.originalContentHash?['SYNDICATION',meta.syndicationOriginUrl||meta.originalContentHash]:[normalizedParticipantKey(raw),raw.originalUrl||raw.title||momentumSignalTime(raw)]);const old=uniqueSignals.get(key);if(!old||momentumSignalTime(raw)<momentumSignalTime(old))uniqueSignals.set(key,raw);}
+  const recentRaws = [...uniqueSignals.values()].filter((raw) => {
     if (isMultiNewsRoundup(raw.title)) return false;
-    const time = timeOf(raw.publishedAt) || timeOf(raw.collectedAt);
-    return time >= windowStart && time <= nowMs;
+    const time = momentumSignalTime(raw);
+    return time > 0 && time >= windowStart && time <= nowMs;
   });
   const textRule=columnTextDecision(recentRaws.map(r=>`${r.title??''} ${r.excerpt??''}`).join('\n'),config);
   const participantRaws = recentRaws.filter((raw) => normalizedParticipantKey(raw) !== null);
@@ -153,7 +126,7 @@ export function calculateTopicMomentum(input: {
   for (const raw of participantRaws) {
     const key = normalizedParticipantKey(raw);
     if (!key) continue;
-    const time = timeOf(raw.publishedAt) || timeOf(raw.collectedAt);
+    const time = momentumSignalTime(raw);
     if (time > (latestParticipantActivity.get(key) ?? 0)) latestParticipantActivity.set(key, time);
   }
   const participantActivity = [...latestParticipantActivity.values()].reduce((sum, time) => {
@@ -163,11 +136,11 @@ export function calculateTopicMomentum(input: {
   const currentTrendStart = nowMs - 72 * 3_600_000;
   const previousTrendStart = nowMs - 144 * 3_600_000;
   const currentTrendRaws = participantRaws.filter((raw) => {
-    const time = timeOf(raw.publishedAt) || timeOf(raw.collectedAt);
+    const time = momentumSignalTime(raw);
     return time >= currentTrendStart && time <= nowMs;
   });
   const previousTrendRaws = participantRaws.filter((raw) => {
-    const time = timeOf(raw.publishedAt) || timeOf(raw.collectedAt);
+    const time = momentumSignalTime(raw);
     return time >= previousTrendStart && time < currentTrendStart;
   });
   const currentTrendKeys = new Set(currentTrendRaws.flatMap((raw) => {
@@ -178,19 +151,19 @@ export function calculateTopicMomentum(input: {
     const key = normalizedParticipantKey(raw);
     return key ? [key] : [];
   }));
-  const trendComparable =
-    currentTrendKeys.size >= 2 &&
-    currentTrendKeys.size === previousTrendKeys.size &&
-    [...currentTrendKeys].every((key) => previousTrendKeys.has(key));
+  const stableKeys=new Set([...currentTrendKeys].filter(key=>previousTrendKeys.has(key)));
+  const currentStable=currentTrendRaws.filter(raw=>stableKeys.has(normalizedParticipantKey(raw)!));
+  const previousStable=previousTrendRaws.filter(raw=>stableKeys.has(normalizedParticipantKey(raw)!));
+  const trendComparable=stableKeys.size>=2;
   const trend = trendComparable && previousTrendRaws.length > 0
     ? (() => {
-        const changePercent = Math.round(((currentTrendRaws.length - previousTrendRaws.length) / previousTrendRaws.length) * 100);
+        const changePercent = Math.round(((currentStable.length - previousStable.length) / previousStable.length) * 100);
         return {
           direction: changePercent > 10 ? "UP" as const : changePercent < -10 ? "DOWN" as const : "FLAT" as const,
           changePercent,
-          currentItemCount: currentTrendRaws.length,
-          previousItemCount: previousTrendRaws.length,
-          comparableParticipantCount: currentTrendKeys.size,
+          currentItemCount: currentStable.length,
+          previousItemCount: previousStable.length,
+          comparableParticipantCount: stableKeys.size,
           basis: "SAME_CONTINUOUS_PARTICIPANT_COHORT" as const
         };
       })()
@@ -198,7 +171,7 @@ export function calculateTopicMomentum(input: {
   const platforms = new Set(participantRaws.map((raw) => raw.platform).filter(Boolean));
   const activeDays = new Set(
     participantRaws.map((raw) => {
-      const time = timeOf(raw.publishedAt) || timeOf(raw.collectedAt);
+      const time = momentumSignalTime(raw);
       return new Date(time).toISOString().slice(0, 10);
     })
   );
@@ -210,9 +183,12 @@ export function calculateTopicMomentum(input: {
   );
   const engagedCreatorItems = creatorRaws.filter((raw) => positiveMetricCount(raw.platformMetrics) > 0).length;
 
+  const latestSignalMs=Math.max(0,...participantRaws.map(momentumSignalTime));
+  const recentSignalAge=latestSignalMs?(nowMs-latestSignalMs)/3600000:Infinity;
+  const revived=ageHours>TOPIC_MOMENTUM_MAX_AGE_HOURS&&participantKeys.size>=2;
   const phase =
     ageHours < TOPIC_MOMENTUM_MIN_AGE_HOURS ? "EARLY_OBSERVATION" as const :
-    ageHours <= TOPIC_MOMENTUM_MAX_AGE_HOURS ? "MOMENTUM_WINDOW" as const :
+    (ageHours <= TOPIC_MOMENTUM_MAX_AGE_HOURS || revived) ? "MOMENTUM_WINDOW" as const :
     "EXPIRED_WINDOW" as const;
 
   const diversitySupport =
@@ -220,13 +196,13 @@ export function calculateTopicMomentum(input: {
     Math.min(config.creatorCap, creatorKeys.size * config.creatorWeight) +
     Math.min(config.diversityCap, Math.max(platforms.size, practicalTypes.size) * config.diversityWeight) +
     (engagedCreatorItems > 0 ? config.engagementBonus : 0);
-  const decayFactor = momentumDecayFactor(ageHours,config.halfLifeHours);
+  const decayFactor = momentumDecayFactor(recentSignalAge,config.halfLifeHours);
   const baseScore = clampMomentumScore(Math.min(config.participantCap, participantActivity * config.participantWeight) + diversitySupport);
   // Participant activity decays independently at 72h. Diversity support uses the same
   // event-level half-life so old breadth cannot keep an inactive Event artificially hot.
   const score = clampMomentumScore(Math.min(config.participantCap, participantActivity * config.participantWeight) + diversitySupport * decayFactor);
-  const discussionParticipants=new Set(recentRaws.flatMap(raw=>raw.discussionPublisher?[canonicalHotParticipantName(raw.discussionPublisher).toLowerCase()]:[]));
-  const hasSubstantiveDiscussion=recentRaws.some(raw=>raw.discussionPublisher&&/分析|解读|实测|评测|对比|实践|教程|工作流|analysis|review|benchmark|compar(?:e|ison)|evaluat|hands[- ]?on|tutorial|how to|use case|workflows?|deploy|configur/i.test(`${raw.title??''} ${raw.excerpt??''}`));
+  const discussionParticipants=new Set(participantRaws.flatMap(raw=>raw.discussionPublisher?[normalizedParticipantKey(raw)!]:[]));
+  const hasSubstantiveDiscussion=participantRaws.some(raw=>raw.discussionPublisher&&/分析|解读|实测|评测|对比|实践|教程|工作流|analysis|review|benchmark|compar(?:e|ison)|evaluat|hands[- ]?on|tutorial|how to|use case|workflows?|deploy|configur/i.test(`${raw.title??''} ${raw.excerpt??''}`));
   const discussionSignal=discussionParticipants.size>=config.minSustainedPublishers&&hasSubstantiveDiscussion&&score>=config.discussionThreshold;
   const earlySignal =
     phase === "EARLY_OBSERVATION" &&
@@ -270,6 +246,11 @@ export function calculateTopicMomentum(input: {
     textRule,
     trend,
     trendComparable,
+    newParticipantCount:[...currentTrendKeys].filter(key=>!previousTrendKeys.has(key)).length,
+    revived,
+    asOf:now.toISOString(),
+    latestSignalAt:latestSignalMs?new Date(latestSignalMs).toISOString():null,
+    excludedUnknownTimeCount:input.raws.filter(raw=>!momentumSignalTime(raw)).length,
     creatorCount: creatorKeys.size,
     creatorItemCount: creatorRaws.length,
     activeDayCount: activeDays.size,

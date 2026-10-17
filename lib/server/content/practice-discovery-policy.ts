@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import { aiHotspotPracticePublishers, shouldExpandHotDiscussion, type AiHotspotPracticeCandidate } from "./ai-hotspot-practice";
 
 export const PRACTICE_DISCOVERY_PURPOSE = "PRACTICAL_MATERIAL_DISCOVERY";
@@ -5,6 +6,7 @@ export const PRACTICE_DISCOVERY_VERSION = "practice-discovery-v1";
 export type PracticeDiscoveryCheckpoint = {
   status: "RUNNING" | "SUCCEEDED" | "FAILED";
   lastAttemptAt: string;
+  gapFingerprint?:string;
 };
 export type PracticeDiscoveryCandidate = AiHotspotPracticeCandidate & {
   verificationStatus?: string;
@@ -19,10 +21,20 @@ export function readPracticeDiscoveryCheckpoint(metadata: unknown): PracticeDisc
   if (!value || typeof value !== "object") return null;
   const state = value as Record<string, unknown>;
   if (!["RUNNING", "SUCCEEDED", "FAILED"].includes(String(state.status))) return null;
-  return { status: state.status as PracticeDiscoveryCheckpoint["status"], lastAttemptAt: typeof state.lastAttemptAt === "string" ? state.lastAttemptAt : "" };
+  return { status: state.status as PracticeDiscoveryCheckpoint["status"], lastAttemptAt: typeof state.lastAttemptAt === "string" ? state.lastAttemptAt : "",...(typeof state.gapFingerprint==='string'?{gapFingerprint:state.gapFingerprint}:{}) };
 }
 
+export function practiceEvidenceGap(input:PracticeDiscoveryCandidate){
+ const links=input.aiPracticeEvidenceLinks??input.evidenceLinks;
+ const failures=links.flatMap(l=>l.acquisitionFailure?[l.acquisitionFailure]:[]);
+ const action=failures.some(r=>/LOGIN|FOLLOW|HUMAN|UNKNOWN_ROUTE|ROUTE_UNRESOLVED|NOT_ALLOWED/.test(r))?'ACCESS_BLOCKED':failures.some(r=>/TIMEOUT|NETWORK|HTTP_(?:429|50[0-9])/.test(r))?'RETRY_EXISTING_ROUTE':links.length===0?'SEARCH_ORIGIN':'SEARCH_MATERIAL';
+ const reasons=[...new Set(links.flatMap(l=>l.materialQuality?.reasons??[]))].sort();
+ const fingerprint=createHash('sha256').update(JSON.stringify([action,aiHotspotPracticePublishers(input).map(p=>p.toLowerCase()).sort(),reasons,(input.practicalEvidenceLinks??[]).some(l=>l.materialQuality?.eligible===true)])).digest('hex');
+ return {action,fingerprint,reasons};
+}
 export function practiceDiscoveryDecision(input: PracticeDiscoveryCandidate, checkpoint: PracticeDiscoveryCheckpoint | null, now = Date.now()) {
+  const gap=practiceEvidenceGap(input);
+  if(gap.action==='ACCESS_BLOCKED'||gap.action==='RETRY_EXISTING_ROUTE')return {eligible:false,reason:gap.action,gap};
   if ((input.coverage?.actionablePracticalEvidenceCount ?? 0) > 0) return { eligible: false, reason: "MATERIALS_ALREADY_AVAILABLE" };
   const seed = shouldExpandHotDiscussion({
     title: input.title, excerpt: input.excerpt, category: input.category,
@@ -31,13 +43,14 @@ export function practiceDiscoveryDecision(input: PracticeDiscoveryCandidate, che
     lastAttemptAt: null
   }, now);
   if (!seed.eligible) return seed;
+  if(checkpoint?.status==='SUCCEEDED'&&checkpoint.gapFingerprint===gap.fingerprint)return {eligible:false,reason:'GAP_UNCHANGED',gap};
   if (checkpoint) {
     const at = Date.parse(checkpoint.lastAttemptAt);
     if (!Number.isFinite(at) || at > now) return { eligible: false, reason: "INVALID_SEARCH_CHECKPOINT" };
     const hours = checkpoint.status === "FAILED" ? 1 : checkpoint.status === "RUNNING" ? 0.25 : 6;
     if (now - at < hours * 3_600_000) return { eligible: false, reason: "SEARCH_COOLDOWN" };
   }
-  return seed;
+  return {...seed,gap};
 }
 
 export function isSourceManagedRefreshDue(state: { status: string; lastAttemptAt: string | null }, now = Date.now()) {

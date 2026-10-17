@@ -3,6 +3,11 @@ import { spawnSync } from "node:child_process";
 const npm = "npm";
 const quick = process.argv.includes("--quick");
 const scripts = [
+  "content:event-value:check",
+  "content:event-gap:check",
+  "content:momentum-history:check",
+  "content:participant-identity:check",
+  "content:event-story:check",
   "content:source-schedule:check",
   "content:system-discovery-receipt:check",
   "content:radar-funnel:check",

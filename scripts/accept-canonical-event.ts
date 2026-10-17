@@ -54,14 +54,14 @@ async function main(){
    assert.equal((await db.select().from(events).where(inArray(events.id,ids.slice(0,2)))).length,2,'original records retained');
    // A legacy versionless bridge in a pre-existing cluster cannot pull in another version.
    const bridgeIds=[randomUUID(),randomUUID(),randomUUID()];ids.push(...bridgeIds);
-   const bridgeEvents=bridgeIds.map((id,i)=>({id,fingerprint:token+'bridge'+i,title:'OpenAI Agent SDK '+(i===1?'':i===0?'1.0 ':'2.0 ')+'release '+token,eventType:'OPEN_SOURCE',entities:[token],keywords:['Agent SDK'],firstSeenAt:later,lastSeenAt:later,eventAt:later,summary:null}));
+   const bridgeEvents=bridgeIds.map((id,i)=>({id,fingerprint:token+'bridge'+i,title:'OpenAI Agent SDK '+(i===1?'':i===0?'1.0 ':'2.0 ')+'release '+token,eventType:'OPEN_SOURCE',entities:[token],keywords:['Agent SDK'],firstSeenAt:later,lastSeenAt:later,eventAt:later,createdAt:later,summary:null}));
    assert.ok(scoreEventClusterCandidate(bridgeEvents[1],bridgeEvents[2]),'fixture contains a tempting bridge pair');
    assert.equal(scoreEventClusterCandidate(bridgeEvents[0],bridgeEvents[2]),null,'fixture versions conflict');
    await db.insert(events).values(bridgeEvents);
    const clusterIds=[randomUUID(),randomUUID()];
    await db.insert(clusters).values(clusterIds.map((id,i)=>({id,canonicalTitle:bridgeEvents[i===0?0:2].title,primaryEventId:bridgeIds[i===0?0:2],clusterRuleVersion:'fixture-legacy',firstSeenAt:later,lastSeenAt:later})));
    await db.insert(members).values(bridgeIds.map((eventId,i)=>({eventId,clusterId:clusterIds[i===2?1:0],role:i===1?'MEMBER':'PRIMARY',clusterRuleVersion:'fixture-legacy',mergeReason:'FIXTURE',mergeScore:90})));
-   const reconciled=await reconcileEventClusters({eventIds:[bridgeIds[2]],limit:1});assert.equal(reconciled.reconciled,1);assert.equal((await reconcileEventClusters({eventIds:[bridgeIds[2]],limit:1})).selected,0,'current version is not retried');
+   const reconciled=await reconcileEventClusters({eventIds:[bridgeIds[2]],limit:1});assert.equal(reconciled.reconciled,1,JSON.stringify(reconciled));assert.equal((await reconcileEventClusters({eventIds:[bridgeIds[2]],limit:1})).selected,0,'current version is not retried');
    const guarded=await db.select().from(members).where(inArray(members.eventId,bridgeIds));
    assert.equal(new Set(guarded.map(m=>m.clusterId)).size,2,'complete-link protects pre-existing cluster through PG path');
    console.log('CANONICAL_EVENT_DEVELOPMENT=PASS;EXTERNAL_COLLECTION_REQUESTS=0;MODEL_CALLS=0');

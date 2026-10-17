@@ -4,6 +4,8 @@
 
 ## 1. 当前产品阶段
 
+- 当前工作区新增事件时间/统一身份、Topic Momentum v9与实际评分历史、aiPracticeCandidate、event-value-analysis v1暂存报告、event-discovery-plan v1缺口计划，未部署。本地构建及开发PG/mock事务验收已通过；自动审批两次拒绝向现役腾讯云1.14.180.16上传源码，生产无切换。新任务开关默认关闭，无本轮真实付费模型调用。实现定位见COLLECTION_IMPLEMENTATION_MAPPING，验收/待办见当前计划与TASKS；完整质量仍NOT_ACCEPTED / RELEASE_NOT_READY。
+
 - 2026-10-17用户明确授权生产上线与Git同步，P4确定性事件/材料链、栏目算法配置与图表、来源采集频率、同版本发布去重和Radar精简列表/按需详情已同版部署。Node/SYSTEM为p4-radar；Deno生产为`relay-radar-materials-v17`（revision `6wexxr6b40np`，预览验证`ktmnn7y62fa0`），协议仍为public-source-routes-v3 / public-practice-routes-v5。watchlist/author v1、public sources v2、机器准入on；理解/关系/表达三项AI开关off，Brave/GitHub Release新路径未启用，本轮真实付费模型调用为0。完整栏目质量仍NOT_ACCEPTED / RELEASE_NOT_READY。
 
 - Pixaroma作者站固定材料Provider已发布至Deno生产Relay（当前Relay版本见本节首段）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面与实践分类现已同版发布。验收结果见TASKS。
@@ -16,7 +18,7 @@
 - 正式生产闭环固定为：`Source Management → SYSTEM Collection → Raw/Observation → Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → AI Hotspot Practice / Topic Momentum / Curation → Radar Snapshot → 热点追踪`。
 - Discovery Expansion证据刷新owner为 `refreshSourceManagedEventExpansion`，消费current Source已采Raw；168h bounded，成功6h cooldown、失败1h retry，不自动调用AI。生产代码支持已管理搜索Source的有界实践参考发现，详细边界见采集架构合同“实践主题与汇总内容边界”；生产来源是否可执行仍由现有资格与opt-in决定。
 - 精选 owner 为 `bole-daily-curation-v6-recall-balanced`：Hard Gate 保持 AI relevance + ≤72h + CONFIRMED_OFFICIAL/CONFIRMED_MEDIA + MAJOR/NORMAL；在不降低事实门槛的前提下，提高 Freshness / Evidence Quality / Importance 权重，降低 Practical / Independence / Corroboration 对新近单源官方更新的早期惩罚；FEATURED≥66；TOP_PICK≥78 且要求更强 value/evidence gate。
-- 当前热点 owner 为 `topic-momentum-v7-independent-institutions-decay`：榜单统计过去 7 天，同一 Event 的独立账号/机构按 `originPublisher / author / Source identity` 归一；聚合器仅转发、且没有可识别原始账号/机构时不作为独立参与者；重复采集只算一次；每个参与者按 72 小时半衰期衰减。热度衡量讨论活跃度，不是报道质量，不改变 Fact Authority。趋势只允许比较持续覆盖的同一组参与者；缺少可比历史时 `trend=null`，不展示趋势线。
+- 生产热点为`topic-momentum-v8-linked-discussion`；工作区v9尚未发布。算法规则唯一见采集架构合同§10，代码定位见实现映射；生产与工作区版本不得混记。
 - AI HOT 当前是 Source Directory 中一个 Aggregated Discovery Source（`source_radar_ai_hot`），通过 PUBLIC_JSON_API 进入 SYSTEM Collection；`factualSource=false / signalSource=true / referenceOnly=true`。AI HOT 与直连原站共享 originPublisher 去重，不取得 Fact Authority，也不拥有独立采集入口。
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。

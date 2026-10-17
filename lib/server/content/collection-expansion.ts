@@ -1,3 +1,4 @@
+import {validateEventGapOutput,EVENT_GAP_VERSION} from './event-gap-policy';
 import "server-only";
 
 import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
@@ -52,7 +53,7 @@ import { listDiscoveryExpansionCandidates } from "./intelligence-read-model";
 import { isFormalPracticalEvidenceSource } from "./content-evidence-signals";
 import { resolveSourceAcquisitionPlan } from "./source-acquisition-plan";
 import {aiHotspotPracticeSubject} from "./ai-hotspot-practice";
-import { PRACTICE_DISCOVERY_PURPOSE, PRACTICE_DISCOVERY_VERSION, isSourceManagedRefreshDue, practiceDiscoveryDecision, selectDiscoveryExpansionCycleCandidates, type PracticeDiscoveryCheckpoint } from "./practice-discovery-policy";
+import { PRACTICE_DISCOVERY_PURPOSE, PRACTICE_DISCOVERY_VERSION, practiceEvidenceGap, isSourceManagedRefreshDue, practiceDiscoveryDecision, selectDiscoveryExpansionCycleCandidates, type PracticeDiscoveryCheckpoint } from "./practice-discovery-policy";
 import {managedPracticePlanKey,managedPracticeSearchGeneration,managedPracticeQueryDecision,MANAGED_PRACTICE_QUERY_VERSION,runManagedSearchWithFallback} from "./managed-practice-query-policy";
 import {evaluatePublicPracticeAccess} from "./public-practice-access";
 import {collectThroughOverseasRelay,isBraveSearchRelayEnabled} from "./overseas-collector-relay-client";
@@ -661,6 +662,17 @@ export async function runEventExpansion(
     ...buildCreatorFirstEventExpansionQueryPlan(context, 10, requestedExpansionTypes)
   };
 
+  if(managedSource&&process.env.OPC_COLLECTION_EVENT_GAP==='v1'){
+    const {loadEventGapContext}=await import('./event-gap-context');
+    const current=await loadEventGapContext(db,eventId,new Date(),{forExecution:true}),stored=record(record(event.metadata).eventGap);
+    if(current&&stored.version===EVENT_GAP_VERSION&&stored.fingerprint===current.fingerprint){
+      try{
+        const proposed=validateEventGapOutput(current.payload,stored.output).queries.filter(q=>!requestedExpansionTypes||requestedExpansionTypes.includes(q.expansionType)).map((q,index)=>({...q,priority:110-index}));
+        plan.queries=proposed;plan.chineseQueries=proposed.filter(q=>q.language==='ZH');plan.overseasQueries=proposed.filter(q=>q.language==='EN');
+        plan.creatorQueries=proposed;plan.chineseCreatorQueries=plan.chineseQueries;plan.overseasCreatorQueries=plan.overseasQueries;
+      }catch{/* Invalid or stale AI suggestions fall back to the deterministic plan. */}
+    }
+  }
   const fetchJson = dependencies.fetchJson ?? fetchPublicJson;
   const completed = [];
   const managedPlanKey=managedPracticePlanKey({context,requestedExpansionTypes,generation:managedPracticeSearchGeneration(),windowHours});
@@ -1026,7 +1038,7 @@ export async function runDiscoveryExpansionCycle(
         searchAttempted = true;
         const attemptAt = new Date().toISOString();
         const persistSearch = async (status: PracticeDiscoveryCheckpoint["status"], reason: string) => {
-          await getDatabase().update(contentEvents).set({ metadata: sql`jsonb_set(${contentEvents.metadata}, '{practiceDiscovery}', ${JSON.stringify({ version: PRACTICE_DISCOVERY_VERSION, purpose: PRACTICE_DISCOVERY_PURPOSE, sourceId: searchSource.id, status, lastAttemptAt: attemptAt, reason })}::jsonb, true)` }).where(eq(contentEvents.id, candidate.eventId));
+          await getDatabase().update(contentEvents).set({ metadata: sql`jsonb_set(${contentEvents.metadata}, '{practiceDiscovery}', ${JSON.stringify({ version: PRACTICE_DISCOVERY_VERSION, purpose: PRACTICE_DISCOVERY_PURPOSE, sourceId: searchSource.id,gapFingerprint:practiceEvidenceGap(candidate).fingerprint,gapAction:practiceEvidenceGap(candidate).action, status, lastAttemptAt: attemptAt, reason })}::jsonb, true)` }).where(eq(contentEvents.id, candidate.eventId));
         };
         await persistSearch("RUNNING", "SEARCH_STARTED");
         try {

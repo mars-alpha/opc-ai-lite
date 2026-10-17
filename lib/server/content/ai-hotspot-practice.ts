@@ -3,8 +3,9 @@ import {isMultiNewsRoundup} from './content-evidence-signals';
 import {canonicalHotParticipantName} from './topic-momentum';
 import {classifyEventExpansionCandidate,type EventExpansionContext} from './event-expansion';
 import {evaluatePracticeMaterials} from './practice-materials';
+import {isIndependentTestPublisher} from './participant-identity';
 export const AI_HOTSPOT_PRACTICE_VERSION='ai-hotspot-practice-v1';
-export type AiHotspotPracticeLink={sourceName:string;originalUrl:string|null;title?:string|null;excerpt?:string|null;expansionType?:string;materialQuality?:{eligible:boolean}};
+export type AiHotspotPracticeLink={independentTest?:boolean;acquisitionFailure?:string|null;sourceName:string;originalUrl:string|null;title?:string|null;excerpt?:string|null;expansionType?:string;materialQuality?:{eligible:boolean;reasons?:string[];kind?:string}};
 export type AiHotspotPracticeCandidate={eventId:string;title:string;excerpt?:string|null;originalUrl?:string|null;category?:string;hotParticipants?:Array<{name:string;role?:string}>;aiPracticeParticipants?:Array<{name:string;role?:string}>;aiPracticeEvidenceLinks?:AiHotspotPracticeLink[];topicMomentum?:{independentParticipantCount?:number};evidenceLinks:AiHotspotPracticeLink[];practicalEvidenceLinks?:AiHotspotPracticeLink[]};
 export type AiHotspotPracticeRecord={version:typeof AI_HOTSPOT_PRACTICE_VERSION;eventId:string;title:string;category?:string;summary:string|null;originalUrl:string|null;firstTriggeredAt:string;lastMatchedAt:string;participants:string[];links:AiHotspotPracticeLink[];materialStatus:'VERIFIED_MATERIAL_AVAILABLE'|'MATERIALS_PENDING';triggerReasons:string[]};
 export function aiHotspotPracticePublisher(raw:{title?:string|null;originalUrl?:string|null;signalOnly?:boolean;referenceOnly?:boolean;originPublisher?:string|null;author?:string|null;sourceName?:string|null}) {
@@ -45,7 +46,8 @@ export function buildAiHotspotPracticeReports(context:EventExpansionContext,dire
   const platform=/^(?:x\.com|twitter\.com|youtube\.com|youtu\.be|bilibili\.com|github\.com)$/.test(host);
   const key=institutional||platform?canonical.toLowerCase():host;
   participants.set(key,participants.get(key)??{name:canonical,role:source.sourceType});
-  links.set(url.href,{sourceName:participants.get(key)!.name,originalUrl:url.href,title:raw.title,excerpt:raw.excerpt?.slice(0,1000)??null,materialQuality:evaluatePracticeMaterials(raw)});
+  const independentTest=isIndependentTestPublisher({sourceId:raw.sourceId,sourceType:source.sourceType,sourceName:name,platform:raw.platform,originalUrl:raw.originalUrl,author:raw.author,metadata:meta,sourceMetadata:sourceMeta,referenceOnly:meta.referenceOnly===true||sourceMeta.referenceOnly===true,resolvedOriginPublisher:resolvedDiscoveryReport||resolvedCreatorReport});
+  links.set(url.href,{independentTest,sourceName:participants.get(key)!.name,originalUrl:url.href,title:raw.title,excerpt:raw.excerpt?.slice(0,1000)??null,acquisitionFailure:typeof object(meta.publicContentAttempt).reason==='string'?String(object(meta.publicContentAttempt).reason):null,materialQuality:evaluatePracticeMaterials(raw)});
  }
  return {participants:[...participants.values()],links:[...links.values()]};
 }
@@ -87,9 +89,14 @@ export function evaluateAiHotspotPractice(input:AiHotspotPracticeCandidate,now=n
  const discussion=/分析|解读|实测|评测|测试|对比|实践|运用|应用|教程|配置|部署|工作流|analysis|benchmark|compar(?:e|ison)|evaluat|hands[- ]?on|tutorial|how to|use case|workflow|deploy|configur|build\b|using\b/i.test(text);
  const textRule=columnTextDecision(`${input.title} ${input.excerpt??''}`,policy.practice);
  const reasons=[...(!textRule.eligible?['COLUMN_TEXT_RULE_REJECTED']:[]),...(!subject?['PRACTICAL_TOOL_TOPIC_REQUIRED']:[]),...(participants.length<policy.practice.minPublishers?['MULTIPLE_INDEPENDENT_PUBLISHERS_MISSING']:[]),...(!discussion?['ANALYSIS_OR_APPLICATION_MISSING']:[]),...(!material?['VERIFIED_TOOL_MATERIAL_REQUIRED']:[])];
- const links=[...new Map(practiceLinks(input).filter(l=>{try{return /^https?:$/.test(new URL(l.originalUrl??'').protocol);}catch{return false;}}).map(l=>[l.originalUrl,{sourceName:l.sourceName,originalUrl:l.originalUrl,title:l.title??null,expansionType:l.expansionType,...(l.materialQuality?{materialQuality:{eligible:l.materialQuality.eligible}}:{})}])).values()];
+ const links=[...new Map(practiceLinks(input).filter(l=>{try{return /^https?:$/.test(new URL(l.originalUrl??'').protocol);}catch{return false;}}).map(l=>[l.originalUrl,{sourceName:l.sourceName,originalUrl:l.originalUrl,title:l.title??null,expansionType:l.expansionType,...(l.materialQuality?{materialQuality:{...l.materialQuality}}:{})}])).values()];
  const record:AiHotspotPracticeRecord={version:AI_HOTSPOT_PRACTICE_VERSION,eventId:input.eventId,title:input.title,category:input.category,summary:input.excerpt??null,originalUrl:input.originalUrl??links[0]?.originalUrl??null,firstTriggeredAt:now.toISOString(),lastMatchedAt:now.toISOString(),participants,links,materialStatus:links.some(l=>l.materialQuality?.eligible)?'VERIFIED_MATERIAL_AVAILABLE':'MATERIALS_PENDING',triggerReasons:['AI_TOPIC','MULTIPLE_INDEPENDENT_PUBLISHERS','ANALYSIS_OR_APPLICATION']};
- return {eligible:reasons.length===0,reasons,record:reasons.length?null:record};
+ const independentTestPublishers=(input.aiPracticeParticipants??input.hotParticipants??[]).filter(p=>p.role!=='OFFICIAL').map(p=>canonicalExercisePublisher(p.name));
+ const testLinks=practiceLinks(input).filter(link=>link.independentTest!==false&&Boolean(link.originalUrl)&&/实测|评测|hands[- ]?on|benchmark|review|tested/i.test(link.title??'')&&independentTestPublishers.includes(canonicalExercisePublisher(link.sourceName))&&participants.some(name=>name===canonicalExercisePublisher(link.sourceName)));
+ const gaps=practiceLinks(input).flatMap(link=>link.materialQuality?.reasons??[]);
+ const status=reasons.length===0?'READY':material&&participants.length<policy.practice.minPublishers?'DISCUSSION_PENDING':gaps.includes('REQUIRED_ARTIFACTS_UNVERIFIED')?'ARTIFACTS_PENDING':gaps.some(r=>['REPRODUCIBLE_STEPS_OR_CONFIGURATION_MISSING','REQUIRED_INPUTS_MISSING','EXPECTED_OUTPUT_MISSING'].includes(r))?'REPRODUCTION_PENDING':'BODY_PENDING';
+ const candidate=subject&&textRule.eligible&&testLinks.length?{version:'ai-practice-candidate-v1' as const,eventId:input.eventId,status,observedAt:now.toISOString(),participants,testUrls:[...new Set(testLinks.map(l=>l.originalUrl))],reasons,authorTest:'REPORTED' as const,materialValidation:material?'VERIFIED' as const:'PENDING' as const,platformExecution:'NOT_EXECUTED' as const}:null;
+ return {eligible:reasons.length===0,reasons,candidate,record:reasons.length?null:record};
 }
 export function mergeAiHotspotPractice(previous:AiHotspotPracticeRecord|null,next:AiHotspotPracticeRecord|null,_now=new Date()):AiHotspotPracticeRecord {
  if(!previous && !next)throw new Error('AI_HOTSPOT_PRACTICE_NOT_TRIGGERED');

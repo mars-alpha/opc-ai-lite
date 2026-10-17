@@ -207,11 +207,13 @@ Expansion 同样复用 Pollution Gate + Deterministic Quality Gate、relevance�
 
 ## 10. Topic Momentum current rule
 
-Current Hot 不使用旧 Rising Score；Topic Momentum 仅拥有展示排序权，不能改变 Fact Authority。榜单统计过去 168h，同一 Event 的独立账号/机构按 origin/source 去重，同机构多渠道合并，重复采集只算一次；每个参与者按 72h half-life 衰减。它衡量讨论活跃度，不是报道质量。
+Current Hot 不使用旧 Rising Score；Topic Momentum 仅拥有展示排序权，不能改变 Fact Authority。v9复用participant-identity的机构/账号/显式跨平台Creator身份，统计最近168h有效信号，每个参与者最近实质活动按72h half-life衰减，广度分项按最新有效信号同尺度衰减。它衡量讨论活跃度，不是报道质量。
 
 Event Momentum current rule：
 - 0–24h：RISING，允许多独立 Source / 多 Creator / Practical Evidence 形成早期升温信号
-- 24–168h：SUSTAINED，要求至少 2 个独立 Source、2 个活跃日，并出现 Creator / 跨平台 / Practical Evidence 之一
+- 24–168h：SUSTAINED，沿用独立参与者、活跃日及Creator/跨平台/实践规则；合格多发布者实质讨论分支见§23。
+- 信号只使用已知原发布时间，未知、未来、仅更新时间不以采集时间补齐。相同身份+原文/标题重复不新增信号；明确syndicationOriginUrl/originalContentHash的转载跨发布者去重并保留最早时间，未明确转载链不宣称全语义去重。
+- 首发超过168h的Event有至少两个近期有效独立参与者时可复燃；不改写原始发布时间或firstSeenAt，当前列表使用真实最新信号定位。
 - 同一独立来源重复文章只贡献一次 Source coverage
 - Practical Evidence：体验 / 教程 / 用例 / 工作影响
 - Engagement 只作旁证，不直接授予事实权力
@@ -316,14 +318,15 @@ Current views：
 - Event合并只收拢展示，不丢掉报道：同Event/Cluster的全部SYSTEM原文共同作为热度输入，多独立来源报道增加参与广度；同原发布者的重复轮询/聚合转载不反复增加参与者。内容测试清理只针对可证明的夹具，不以“通过验收采集”判定真实原文是假数据，不删除真实历史来制造干净统计。
 
 “精选”采用三层规则：
-1. Hard Gate：AI relevance、≤72h freshness、CONFIRMED_OFFICIAL / CONFIRMED_MEDIA、change magnitude 明确为 MAJOR / NORMAL。未知变化等级、MINOR、未验证内容不得通过。
+1. Hard Gate：AI relevance、≤72h freshness、CONFIRMED_OFFICIAL / CONFIRMED_MEDIA、change magnitude 明确为 MAJOR / NORMAL。freshness取事件有效直接材料中的最早已知发布时间；未知保持不满足，切换代表资料/重复采集不能续期。未知变化等级、MINOR、未验证内容不得通过。
 2. Editorial Score：freshness 23% / evidence quality 28% / importance 32% / practical evidence 7% / independent origins 7% / fact corroboration 3%。Practical Evidence 是加分项，不再是所有 NORMAL Event 的强制入场条件，避免刚发布的官方模型/API/产品更新因尚无教程而被漏掉。
 3. Tier：FEATURED score≥66；TOP_PICK score≥78，且需 MAJOR 或 Practical Evidence≥2，同时满足多独立 Origin / 多 Fact Source，或官方 + Practical Evidence。单一官方重大更新可以 FEATURED，但不会只因官方身份自动 TOP_PICK。
 4. Featured Re-ranking 仍仅改变已精选集合的展示顺序；soft diversity cap 不改变 Fact Verification、Source Qualification、score 或 eligibility。
 
 热点采用 Event Momentum，不使用文章数量直接累加：
-- 热点窗口固定 0–168h；参与者贡献使用 72h half-life。早期 RISING 与持续 SUSTAINED 仍作为状态，但 score 由独立参与者的衰减活动量为主。
-- 趋势线只允许比较持续覆盖的同一组信源 cohort；没有可比历史时不得绘制趋势线。
+- 热点有效信号窗口固定最近168h，原事件年龄与复燃按§10；早期RISING与持续SUSTAINED仍作为状态。
+- 趋势比较前后72h窗口的稳定参与者交集，至少两个；新增独立参与者另列，不因新增作者丢失已有稳定覆盖比较。没有可比历史时trend=null。
+- 排名与回放曲线共用Topic Momentum；SYSTEM在刷新快照时记录实际评分时点、算法/配置版本、输入指纹及分项，每6h一槽，最多29点/168h。不回填缺失历史；DERIVED_REPLAY与OBSERVED_HISTORY明确区分，heatShadow只保留诊断用途。
 - Momentum score 只由独立来源、Creator、活跃日、跨平台/实践多样性和真实互动组成；authority=PRESENTATION_ONLY，不能提升 Fact Verification。
 - 平台 rank、点赞、评论、播放、粉丝、velocity 只能作为注意力旁证，不能绕过 Trust Gate。
 
@@ -469,7 +472,8 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 - 初次触发须有明确工具主题、至少两个带原文链接的独立发布者、实质分析/评测/应用/操作讨论，以及至少一个已由共享材料能力验证 eligible 的可操作资料链接。教程可以与报道使用不同URL；材料不额外制造讨论发布者。精选、Fact Authority、AI分析AVAILABLE与是否进入热点Top10不是入场条件，触发不授予Fact或自动生成练习。
 - 报道输入包含Event直接Raw与相关SYSTEM扩展Raw。AIHOT仅限固定来源、ai-hot采集器、NEWS_ARTICLE且有明确非聚合原发布者；CREATOR仅限真实WEB Feed报道。纯趋势/互动Signal、无原作者聚合器不计人数，同机构/作者跨平台、同站别名与转载不重复；多新闻汇总排除。Source的signalOnly/referenceOnly和Fact Authority保持不变。
 - 扩展报道复核相关性分类，再要求标题覆盖至少75%的事件specific anchors，并满足至少两个匹配、带字母数字的版本锚点或非通用长名称。仅同品牌、通用词或摘要提及不够；历史扩展保留审计。
-- 多独立原发布者的实质讨论同时用于 Event Momentum v8：保留0–24h RISING / 24–168h SUSTAINED、42分门槛和时间衰减；合格原文讨论达到两个独立发布者时无需再强制跨平台或跨日。热度与事实核实分离；不以聚合榜单数量、同站作者别名或纯转载充人数，不以数量目标降低阈值。
+- 多独立原发布者的实质讨论同时用于Event Momentum：时间与身份唯一规则见§10，沿用42分讨论门槛；合格原文讨论达到两个独立发布者时无需再强制跨平台或跨日。热度与事实核实分离；不以聚合榜单数量、同站作者别名或纯转载充人数，不以数量目标降低阈值。
+- 非官方作者的实测/评测报道可进入aiPracticeCandidate，不授予正式练习资格。状态区分BODY_PENDING、ARTIFACTS_PENDING、REPRODUCTION_PENDING、DISCUSSION_PENDING、READY；作者声称实测、材料验证与平台执行分别记录。平台未执行一律NOT_EXECUTED；正式首次触发条件不放宽。
 - 首次命中保存Event.metadata.aiHotspotPractice，保留时间、原始标题、分类、依据、参与者及链接。超过七日或热度衰减不撤销合法工具历史触发；读取时按当前工具主题/已验证材料边界过滤旧记录，模型新闻和无合格材料记录保留审计但不展示。全部有效成员归档/删除退出，质量标签不授予或撤销资格。
 - SYSTEM复用唯一周期记录触发/刷新快照；EVENT_CLUSTER_RECONCILIATION在扩展后、AI关系与Momentum之前按现行规则版本有界补历史聚类（默认20候选、45秒调度预算，同锁、失败保留重试）；不删原始Event、不新增调度器。API读取不触发聚类、网络采集或模型调用，旧快照同样复查工具资格。
 - 前端现有布局与交互保持，不受全部/精选/分类筛选控制，无4/8项截断。compact传输仅裁剪界面未使用的内部/重复字段，不修改持久快照、可见正文、来源链接与审计；任何后续可视化改动仍需重新体验批准。
@@ -543,7 +547,7 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 
 - 复用既有Event/Cluster/Member，不以AI展示标题判定身份。canonical ID沿用存储的primaryEventId；主成员归档、过期或不满足投影条件时，选择有效成员承载展示，原Event与原练习记录保留。全部成员无效不展示，不因聚合复活人工归档记录。
 - event-cluster-v7-versioned-release在原Muse规则上补充明确模型家族、数值版本及命名变体的发布/渠道开放匹配；价格变动、安全事故、独立功能更新、教程评测与不同变体/版本保持分离，不把有限确定性识别声称为所有模型语义归一。其他模糊关系留给版本化Skill。归并要求所有跨簇成员对均通过当前规则、整体首次观察跨度≤72小时、总成员≤100；无版本桥接不能绕过冲突。聚类、policy持久刷新、练习触发使用同一事务advisory lock协调并发。
-- Radar先解析候选簇全部成员，排除归档、未来创建/首次观察/事件日期及不满足现有资格者；有168小时内有效成员时，不让过期主成员决定当前时间线或证据。历史窗口保留全部过期组的查询能力。代表成员可变，canonical身份不随标题或时间线变动。
+- Radar先解析候选簇全部成员，排除归档、未来创建/首次观察/事件日期及不满足现有资格者；按事件日期或最近观察定位候选，并由真实有效信号确定是否复燃，不以重抓或旧首发本身续热。历史窗口保留过期组查询能力。代表成员可变，canonical身份不随标题或时间线变动。
 - 直接Raw、Observation及全部成员Expansion按Raw/扩展类型去重并按asOf排除未来证据。使用共享确定性policy重新计算事实确认、独立来源、准备状态与栏目输入，不沿用旧主成员的计数。referenceOnly/signalOnly不获得事实权；SYSTEM观察必须对应实际事实Raw。同组织弱报道不能遮蔽官方事实，但独立来源仍按origin去重；实践热度仅消费合格实践证据，不降低精选/热点Gate。
 - 历史练习只读归一为一个canonical条目，取最早首次触发、最晚命中并合并所有发布者与原文链接，保留原始记录和材料状态。主成员归档后新触发写入有效成员，再按同一身份聚合；无有效成员不写。历史练习不受七日窗口清除，未来成员不回流历史投影。
 - 无新Schema、Source、调度、AI调用或UI改动；开发验收不等于生产部署。回退本批代码恢复旧读模型与规则，保留原始Event/Raw/练习审计；AI关系建议、事件中文表达与完整发现质量仍由后续任务验收。
@@ -612,10 +616,26 @@ Production acceptance 必须 fail-closed：current Source 的真实 SYSTEM Run �
 
 频率是最短基础间隔，治理降频/配额/未完成周期仍可延后。页面展示基础间隔、有效间隔、正式最近Run及预计到期，停用来源不自动恢复。频率水位仅SYSTEM正式Run：排除资格探测（含历史SOURCE_QUALIFICATION及冒号后缀runKind）、回填、非SYSTEM、已排除的过期恢复与未来开始时间；探测/回填意图在RUNNING创建时即持久化，失败也不得污染正式水位。
 
-唯一opc-collection.timer候选模板使用每分钟calendar tick与1秒精度，现有SYSTEM锁和两路有限并发不变；周期未结束时不启动并行副本，到期在后续tick追赶，不补跑每个错过的间隔。实际运行配置以CURRENT_SYSTEM_FACTS为准；本轮未发布生产，不把候选模板宣称为生产生效。配置页刷新不是调度器，不新增浏览器定时采集或第二任务主链。
+唯一opc-collection.timer使用每分钟calendar tick与1秒精度，现有SYSTEM锁和两路有限并发不变；周期未结束时不启动并行副本，到期在后续tick追赶，不补跑每个错过的间隔。实际运行配置与已部署版本以CURRENT_SYSTEM_FACTS为准。配置页刷新不是调度器，不新增浏览器定时采集或第二任务主链。
 
 ### Radar列表与完整详情读取边界
 
 - 页面快照及历史列表使用listing投影：复用compact事件引用去重，去除未在列表消费的story/内部诊断，保留搜索摘要、来源链接、证据与列表展示字段。完整持久快照及原API不被改写。
 - 展开事件后按eventId读取完整story与报道时间线；管理员鉴权、非法ID400、不存在404，历史day/asOf沿用七日校验。详情按快照generatedAt隔离缓存，同事件请求合并；刷新时已展开事件重新读取，失败可重试。
 - 同一机构Source的不同署名不增加独立参与者；Creator保留原作者身份，聚合转发继续按原发布者归一。负载和响应耗时仅记录实际观测，不承诺未经测量的P95。
+
+### 原文、正文与时间角色
+
+- 事件读模型分别投影最早已核验相关报道、官方原文、权威主资料、最新进展及首次SYSTEM回执；不承诺互联网首发。firstSeenAt旧语义不改写，也不用于冒充SYSTEM首见。
+- 原发布时间未知、无效、未来或仅更新时间保持UNKNOWN；Raw采集时间、正文获取回执与原发布时间分开。链接保留、正文取得、正文完整、附件验证和平台执行分别记录；结构/材料验证不等于本平台成功运行。
+
+### 事件价值报告与缺口定向计划
+
+- 保留轻量event-expression；event-value-analysis v1是独立版本化Skill。Core按热点/精选资格与至少一份完整材料触发，热点且至少两个有效独立参与者可FULL，其余为BRIEF；没有达到资格时不阻止原始动态入池。
+- 输入复用当前canonical投影、Source资格和SYSTEM血缘，按PRIMARY/COUNTER/TEST/ANALYSIS选至多10份、每份6000字符。PRIMARY另须现役Source FACT确认范围；TEST须独立原发布者，官方自测经聚合器运输也不能变独立。全文只认匹配原URL的公开匿名200回执，不以摘要冒充正文。截断/超限记录缺口，完整候选证据版本参与失效指纹。
+- 输出包含答案先行总结、提升、比较、应用、推荐、学习、风险及证据缺口。Core逐结论验证引用ID、原文位置、数字/专名与越权断言；可比结论须两位独立TEST发布者，任务/版本/硬件/指标/条件在双方引用中一致。无法比较保持NOT_COMPARABLE，不编造量化提升。
+- 引用存在、引用支持结论、关键结论充分覆盖分层验收。确定性Validator只能证明引用定位/字段覆盖和有界保护，semanticSupport / semanticCoverage固定UNREVIEWED；Schema或链接通过不能代替真实语义验收。报告只写Event.metadata.eventValue暂存和ai_runs账本，管理员只读API重算当前指纹；不发布、不改Fact、栏目、练习或课程。
+- EVENT_VALUE与EVENT_GAP_PLAN复用唯一SYSTEM周期，分别仅OPC_COLLECTION_EVENT_VALUE=v1 / OPC_COLLECTION_EVENT_GAP=v1启用，缺模型/关闭思考协议则defer，默认关闭。每阶段扫描最多20锚点、15分钟轮转，最多2条/65秒，单次20秒；SYSTEM的GAP阶段最多1条。共享聚类锁内领取，完整canonical成员标记水位和revision CAS，网络事务外执行；15分钟租约、指数退避、失败未知usage保留，复用成功缓存。无第二调度或金额硬停。
+- 补发现由确定性缺口驱动：RETRY_EXISTING_ROUTE交现役路由重试/退避；ACCESS_BLOCKED保留原因；SEARCH_ORIGIN / SEARCH_MATERIAL才允许版本化event-discovery-plan v1生成2–3条中英文查询。AI不执行访问、不注册Source、不绕过登录/安全或补造附件；Core校验对象/查询并复用受管搜索Source、已有账本/配额/冷却与资格。
+- 成功且独立参与者/材料缺口指纹未变不重复搜索；普通重抓、转载数量或点赞变化不触发整份报告。执行搜索重新检查计划指纹及当前缺口，自己的RUNNING领取状态不阻断消费，其他规划仍遵冷却。
+- 精选类型化（发布、研究分析、实测教程）与独立作者召回须分别用真实样本校准，当前不把72h门槛直接改为7日。工程关系回放仅报告engineeringReplayTargetMet，不能授予qualityTargetMet；独立关系金标、至少60个独立发现分母、报告语义支持/覆盖、72h稳定与7–14日效果未通过前保持NOT_ACCEPTED / RELEASE_NOT_READY。

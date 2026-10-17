@@ -17,6 +17,7 @@ import { compactRadarSnapshotWire, radarListingItem } from "../../../../../lib/c
 import {listAiHotspotPractices} from "../../../../../lib/server/content/ai-hotspot-practice-store";
 import {readRadarAlgorithmPolicy} from "../../../../../lib/server/content/radar-algorithm-store";
 import {evaluateAiHotspotPractice} from "../../../../../lib/server/content/ai-hotspot-practice";
+import {readStagedEventValue} from '../../../../../lib/server/content/event-value-runtime';
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,11 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const view = (url.searchParams.get("view") ?? "overview").toLowerCase();
     const limit = boundedLimit(url.searchParams.get("limit"));
+    if(view==='event-value'){
+      const eventId=url.searchParams.get('eventId');
+      if(!eventId||!/^[a-zA-Z0-9_-]{1,100}$/.test(eventId))return NextResponse.json({error:'INVALID_EVENT_ID'},{status:400});
+      return NextResponse.json({view,...await readStagedEventValue(eventId)});
+    }
 
     if (view === "snapshot") {
       const snapshot = await getRadarSnapshot();

@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {appendMomentumHistory,readMomentumHistory} from '../lib/server/content/topic-momentum-history';
+const point={at:'2026-10-17T00:00:00.000Z',version:'v9',inputVersion:'abc',algorithmRevision:2,score:35,participantCount:2,components:{participantActivity:1.5}};
+let rows=appendMomentumHistory([],point);
+assert.equal(rows.length,1);assert.equal(appendMomentumHistory(rows,point).length,1);
+assert.equal(readMomentumHistory(rows,'v8').length,0);
+assert.equal(appendMomentumHistory(rows,{...point,at:'2026-10-17T00:30:00.000Z'}).length,1);
+rows=appendMomentumHistory(rows,{...point,at:'2026-10-17T06:00:00.000Z'});assert.equal(rows.length,2);
+assert.equal(appendMomentumHistory(rows,{...point,at:'2026-10-25T06:00:00.000Z'}).length,1);
+console.log('TOPIC_MOMENTUM_OBSERVED_HISTORY=PASS');

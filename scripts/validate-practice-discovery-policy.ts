@@ -15,6 +15,9 @@ const base: AiHotspotPracticeCandidate = {
 };
 assert.equal(evaluateAiHotspotPractice(base).eligible, false, "RELEASE_ALONE_IS_STILL_NOT_PRACTICE");
 assert.equal(practiceDiscoveryDecision(base, null, now).eligible, true, "TWO_REPORTS_CAN_FIND_MISSING_TUTORIAL_WITHOUT_PRACTICE_RECORD");
+const temporary={...base,evidenceLinks:[{sourceName:'Author A',originalUrl:'https://example.org/a',acquisitionFailure:'HTTP_429'}]};
+assert.equal(practiceDiscoveryDecision(temporary,null,now).reason,'RETRY_EXISTING_ROUTE','FETCH_FAILURE_NOT_A_SEARCH_GAP');
+assert.equal(practiceDiscoveryDecision({...temporary,evidenceLinks:temporary.evidenceLinks.map(l=>({...l,acquisitionFailure:'LOGIN_REQUIRED'}))},null,now).reason,'ACCESS_BLOCKED','AI_CANNOT_BYPASS_ACCESS');
 assert.deepEqual(aiHotspotPracticePublishers({ ...base, aiPracticeParticipants: [] }), [], "EXPLICIT_EMPTY_PUBLISHERS_NEVER_FALL_BACK_TO_SIGNALS");
 assert.equal(practiceDiscoveryDecision({ ...base, aiPracticeParticipants: [] }, null, now).eligible, false, "SIGNALS_CANNOT_UNLOCK_SEARCH");
 assert.equal(aiHotspotPracticePublishers({ ...base, aiPracticeParticipants: [{ name: "Google AI" }, { name: "Gemini API" }] }).length, 1, "ONE_INSTITUTION_ACROSS_BRANDS");

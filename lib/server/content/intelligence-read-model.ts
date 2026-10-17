@@ -1,3 +1,4 @@
+import {readMomentumHistory,momentumInputHash} from './topic-momentum-history';
 import {readRadarAlgorithmPolicy,type RadarAlgorithmEnvelope} from './radar-algorithm-store';
 import {columnTextDecision} from '../../content/radar-algorithm-policy';
 import {selectCanonicalEventGroups} from './canonical-event';
@@ -24,7 +25,7 @@ import {
 } from "../db/schema";
 import { INTELLIGENCE_POLICY_VERSION } from "../../content/intelligence-policy";
 import { getTodayIntelligenceSignalReadiness } from "./today-intelligence-readiness";
-import { calculateTopicMomentum, canonicalHotParticipantName, hotParticipantName } from "./topic-momentum";
+import { calculateTopicMomentum, canonicalHotParticipantName, hotParticipantName, momentumSignalTime } from "./topic-momentum";
 import { calculateAihotHeatShadow } from "./aihot-heat-shadow";
 import { attachRelatedEventStories, buildEventStoryReadModel } from "./event-story-read-model";
 import { evaluatePracticalEvidenceActionability, isFormalPracticalEvidenceSource } from "./content-evidence-signals";
@@ -257,21 +258,21 @@ function eventPolicyMetadata(metadata: unknown) {
   return record(record(metadata).eventPolicy);
 }
 
-async function listPolicyEventCandidatePool(limit = 100, options: { before?: Date | null; range?: { from: Date; to: Date; asOf: Date }; executor?: ReturnType<typeof getDatabase>;includeEvidenceLineage?:boolean;algorithm?:RadarAlgorithmEnvelope } = {}) {
+async function listPolicyEventCandidatePool(limit = 100, options: { before?: Date | null; asOf?:Date; range?: { from: Date; to: Date; asOf: Date }; executor?: ReturnType<typeof getDatabase>;includeEvidenceLineage?:boolean;algorithm?:RadarAlgorithmEnvelope;eventIds?:string[] } = {}) {
   const db = options.executor ?? getDatabase();
   const algorithm=options.algorithm??await readRadarAlgorithmPolicy(db);
   const boundedLimit = Math.max(1, Math.min(1000, limit));
   const baseQuery = db.select().from(contentEvents);
   const eventTime = sql`coalesce(${contentEvents.eventAt}, ${contentEvents.firstSeenAt})`;
   const query = baseQuery.where(options.range
-    ? and(sql`${eventTime} >= ${options.range.from.toISOString()}`, sql`${eventTime} < ${options.range.to.toISOString()}`, sql`${contentEvents.createdAt} < ${options.range.asOf.toISOString()}`,
+    ? and(sql`((${eventTime} >= ${options.range.from.toISOString()} and ${eventTime} < ${options.range.to.toISOString()}) or (${contentEvents.lastSeenAt} >= ${options.range.from.toISOString()} and ${contentEvents.lastSeenAt} < ${options.range.to.toISOString()}))`, sql`${contentEvents.createdAt} < ${options.range.asOf.toISOString()}`,
       sql`${contentEvents.archivedAt} is null`,
       eq(contentEvents.policyVersion, INTELLIGENCE_POLICY_VERSION),
       sql`${contentEvents.metadata}->'eventPolicy'->>'version' = ${INTELLIGENCE_POLICY_VERSION}`,
       sql`${contentEvents.metadata}->'eventPolicy'->>'systemObserved' = 'true'`,
       sql`${contentEvents.metadata}->'eventPolicy'->>'aiRelevant' = 'true'`,
       sql`${contentEvents.metadata}->'eventPolicy'->'operationalUsefulness'->>'eligible' is distinct from 'false'`)
-    : options.before ? lt(contentEvents.lastSeenAt, options.before) : undefined)
+    : options.eventIds?inArray(contentEvents.id,options.eventIds):options.before ? lt(contentEvents.lastSeenAt, options.before) : undefined)
     .orderBy(desc(contentEvents.lastSeenAt), desc(contentEvents.id));
   const policyEvents = (await (options.range ? query : query.limit(Math.min(5000, Math.max(boundedLimit * 10, boundedLimit)))))
     .filter((event) => {
@@ -296,11 +297,11 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
   const selectedMemberships=policyClusterIds.length ? await db.select().from(contentEventClusterMembers).where(inArray(contentEventClusterMembers.clusterId,policyClusterIds)):[];
   const allMemberIds=[...new Set([...policyEventIds,...selectedMemberships.map(m=>m.eventId)])];
   const memberEvents=allMemberIds.length ? await db.select().from(contentEvents).where(inArray(contentEvents.id,allMemberIds)):policyEvents;
-  const asOf=options.range?.asOf??new Date();
+  const asOf=options.range?.asOf??options.asOf??new Date();
   const groups=selectCanonicalEventGroups(memberEvents,selectedMemberships,policyClusters,event=>{
     const policy=eventPolicyMetadata(event.metadata);
     return event.policyVersion===INTELLIGENCE_POLICY_VERSION && policy.version===INTELLIGENCE_POLICY_VERSION && policy.systemObserved===true && policy.aiRelevant===true && record(policy.operationalUsefulness).eligible!==false;
-  },asOf,168).filter(group=>!options.range||(group.timelineAt>=options.range.from&&group.timelineAt<options.range.to))
+  },asOf).filter(group=>!options.range||((group.timelineAt>=options.range.from&&group.timelineAt<options.range.to)||(group.lastSeenAt>=options.range.from&&group.lastSeenAt<options.range.to)))
     .sort((a,b)=>b.lastSeenAt.getTime()-a.lastSeenAt.getTime()||a.canonicalEventId.localeCompare(b.canonicalEventId))
     .slice(0,options.range?undefined:boundedLimit);
   const events=groups.map(group=>({...group.representative,id:group.canonicalEventId,firstSeenAt:group.firstSeenAt,lastSeenAt:group.lastSeenAt,eventAt:group.timelineAt}));
@@ -462,6 +463,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         !origin && !author;
       if (isAggregatorWrapper) return [];
       const name = hotParticipantName({sourceId:raw.sourceId,sourceType:rawSource?.sourceType??'UNKNOWN',sourceName:rawSource?.name??raw.sourceId,platform:raw.platform,author:raw.author,metadata:raw.metadata,collectedAt:raw.collectedAt})!;
+      if(!name)return [];
       const key = name.normalize("NFKC").toLocaleLowerCase();
       return [[key, { name, platform: raw.platform, role: rawSource?.sourceType ?? "UNKNOWN" }] as const];
     })).values()];
@@ -473,11 +475,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
     );
     const aiPracticeParticipants=practiceReports.participants;
     const discussionPublisherByUrl=new Map(practiceReports.links.map(link=>[link.originalUrl,link.sourceName]));
-    const topicMomentum = calculateTopicMomentum({
-      firstSeenAt: event.firstSeenAt,
-      policy:algorithm.policy,
-      now:asOf,
-      raws: [...new Map([...eventRaws,...relevantExpansionEvidence.flatMap(e=>{const r=rawById.get(e.rawItemId);return r?[r]:[];})].map(r=>[r.id,r])).values()].map((raw) => {
+    const momentumRaws = [...new Map([...eventRaws,...relevantExpansionEvidence.flatMap(e=>{const r=rawById.get(e.rawItemId);return r?[r]:[];})].map(r=>[r.id,r])).values()].map((raw) => {
         const rawSource = sourceById.get(raw.sourceId);
         return {
           title: raw.title,
@@ -486,6 +484,9 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
           sourceId: raw.sourceId,
           sourceType: rawSource?.sourceType ?? "UNKNOWN",
           sourceName: originPublisher(raw) ?? rawSource?.name ?? raw.sourceId,
+          canonicalUrl:rawSource?.canonicalUrl,
+          originalUrl:raw.originalUrl,
+          sourceMetadata:rawSource?.metadata,
           platform: raw.platform,
           author: raw.author,
           publishedAt: raw.publishedAt,
@@ -495,9 +496,9 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
           signalOnly: record(rawSource?.signalConfig).signalOnly === true,
           platformMetrics: raw.platformMetrics
         };
-      }),
-      evidence: actionablePracticalEvidence
-    });
+      });
+    const momentumInput={firstSeenAt:event.firstSeenAt,policy:algorithm.policy,raws:momentumRaws,evidence:actionablePracticalEvidence};
+    const topicMomentum=calculateTopicMomentum({...momentumInput,now:asOf});
     const heatRaws = eventRaws.map((raw) => {
       const rawSource = sourceById.get(raw.sourceId);
       const resolvedOrigin = (record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true) && Boolean(originPublisher(raw));
@@ -518,11 +519,11 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
     });
     const heatShadow = calculateAihotHeatShadow({ raws: heatRaws });
     const storyNow = new Date(Math.floor(asOf.getTime() / (6 * 3_600_000)) * 6 * 3_600_000);
-    const storyHeatSeries = Array.from({ length: 9 }, (_, index) => {
-      const hoursAgo = 48 - index * 6;
+    const storyHeatSeries = Array.from({ length: 29 }, (_, index) => {
+      const hoursAgo = 168 - index * 6;
       const at = new Date(storyNow.getTime() - hoursAgo * 3_600_000);
-      const point = calculateAihotHeatShadow({ raws: heatRaws, now: at });
-      return { at: at.toISOString(), score: point.score, participantCount: point.participantCount, editorialParticipantCount: point.editorialParticipantCount, signalParticipantCount: point.signalParticipantCount };
+      const point = calculateTopicMomentum({...momentumInput,raws:momentumRaws.filter(r=>r.collectedAt<=at),now:at});
+      return {at:at.toISOString(),score:point.score,participantCount:point.independentParticipantCount,editorialParticipantCount:point.independentParticipantCount,signalParticipantCount:0};
     });
     // Hotness measures discussion activity only. Verification remains visible as a separate fact-quality dimension.
     const contentBoundary = { roundup: isMultiNewsRoundup(event.title) };
@@ -534,13 +535,11 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
       whyItMatters: analysis?.whyItMatters ?? null
     }),record(memberEvents.find(e=>e.id===event.id)?.metadata).eventExpression,
       prepareExpressionContext(event.id,eventRaws,observations,[...sourceById.values()],asOf));
-    const representativeFreshnessAt =
-      representative.publishedAt &&
-      representative.publishedAt.getTime() <= representative.collectedAt.getTime() + 15 * 60 * 1000
-        ? representative.publishedAt
-        : representative.collectedAt;
+    // Changing the representative or collecting an old article cannot renew a release.
+    const knownPublicationTimes = momentumRaws.map(momentumSignalTime).filter(at=>at>0&&at<=asOf.getTime());
+    const eventFreshnessAt = knownPublicationTimes.length ? Math.min(...knownPublicationTimes) : null;
     const boleCuration = evaluateBoleDailyCuration({
-      ageHours: Math.max(0, (asOf.getTime() - representativeFreshnessAt.getTime()) / 3_600_000),
+      ageHours: eventFreshnessAt===null?Number.POSITIVE_INFINITY:Math.max(0, (asOf.getTime() - eventFreshnessAt) / 3_600_000),
       aiRelevant: policy.aiRelevant === true,
       verificationStatus: verificationStatus,
       practicalEvidenceCount: formalPracticalExpansionEvidence.filter((item) => practicalCoverageTypes.includes(item.expansionType)).length,
@@ -563,18 +562,21 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         const rawSource = sourceById.get(raw.sourceId);
         const resolvedOrigin = (record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true) && Boolean(originPublisher(raw));
         const reportPresentation = buildContentPresentationEnrichment({ eventTitle: event.title, eventSummary: event.summary, representativeRaw: raw, whyItMatters: null, allowEventSummaryFallback: false });
-        return { reportId: raw.id, sourceId: raw.sourceId, sourceType: rawSource?.sourceType ?? "UNKNOWN", sourceName: originPublisher(raw) ?? rawSource?.name ?? raw.sourceId, platform: raw.platform, canonicalUrl: rawSource?.canonicalUrl, author: raw.author, metadata: raw.metadata, sourceMetadata: rawSource?.metadata, referenceOnly: record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true, signalOnly: record(rawSource?.signalConfig).signalOnly === true, resolvedOriginPublisher: resolvedOrigin, title: raw.title, titleZh: reportPresentation.displayTitleZh, excerpt: raw.excerpt, excerptZh: reportPresentation.displaySummaryZh, originalUrl: raw.originalUrl, publishedAt: raw.publishedAt };
+        return { reportId: raw.id, sourceId: raw.sourceId, sourceType: rawSource?.sourceType ?? "UNKNOWN", sourceName: originPublisher(raw) ?? rawSource?.name ?? raw.sourceId, platform: raw.platform, canonicalUrl: rawSource?.canonicalUrl, author: raw.author, metadata: raw.metadata, sourceMetadata: rawSource?.metadata, referenceOnly: record(raw.metadata).referenceOnly === true || record(rawSource?.metadata).referenceOnly === true, signalOnly: record(rawSource?.signalConfig).signalOnly === true, resolvedOriginPublisher: resolvedOrigin, title: raw.title, titleZh: reportPresentation.displayTitleZh, excerpt: raw.excerpt, excerptZh: reportPresentation.displaySummaryZh, originalUrl: raw.originalUrl, publishedAt: raw.publishedAt,collectedAt:raw.collectedAt,systemDiscoveryReceipts:observations.filter(o=>o.rawItemId===raw.id).map(o=>record(o.metadata).systemDiscoveryReceipt) };
       }),
+      asOf,
+      heatAlgorithmVersion:topicMomentum.version,
+      persistedHeatSeries:readMomentumHistory(record(event.metadata).topicMomentumHistory,topicMomentum.version).map(p=>({at:p.at,score:p.score,participantCount:p.participantCount,editorialParticipantCount:p.participantCount,signalParticipantCount:0})),
       heatSeries: storyHeatSeries
     });
 
     return [{
-      ...(options.includeEvidenceLineage?{evidenceLineage:{directRawIds:projectedPolicy.relevantRawIds,expansionRawIds:relevantExpansionEvidence.map(e=>e.rawItemId)}}:{}),
+      ...(options.includeEvidenceLineage?{evidenceLineage:{memberEventIds:evidenceEventIdsForEvent,directRawIds:projectedPolicy.relevantRawIds,expansionRawIds:relevantExpansionEvidence.map(e=>e.rawItemId)}}:{}),
       algorithmRevision:algorithm.revision,
       rawItemId: representative.id,
       eventId: event.id,
       eventLastSeenAt: event.lastSeenAt,
-      timelineAt: event.eventAt ?? event.firstSeenAt,
+      timelineAt: topicMomentum.revived&&topicMomentum.latestSignalAt?new Date(topicMomentum.latestSignalAt):event.eventAt??event.firstSeenAt,
       clusterId,
       title: event.title,
       excerpt: event.summary ?? representative.excerpt,
@@ -638,6 +640,7 @@ async function listPolicyEventCandidatePool(limit = 100, options: { before?: Dat
         criteria: topicMomentum.criteria
       },
       topicMomentum,
+      momentumInputVersion:momentumInputHash(momentumInput),
       heatShadow,
       story,
       evidenceScore: {
@@ -872,4 +875,9 @@ export async function getTodayIntelligenceOverview() {
     hotspotSelectionStatus: "EVENT_MOMENTUM_RISING_AND_SUSTAINED" as const,
     productScope: "HOT_TRACKING_V1" as const
   };
+}
+
+/** Current projection for a single canonical event, also used by staged value jobs. */
+export async function loadEventValueCandidate(executor:ReturnType<typeof getDatabase>,eventId:string,asOf=new Date()){
+ return (await listPolicyEventCandidatePool(1,{executor,eventIds:[eventId],asOf,includeEvidenceLineage:true}))[0]??null;
 }

@@ -1,10 +1,11 @@
+import {appendMomentumHistory} from './topic-momentum-history';
 import {readRadarAlgorithmPolicy} from './radar-algorithm-store';
 import { calendarWindow, beijingDay } from "../../content/radar-calendar";
 import { compactRadarSnapshot, expandRadarSnapshot } from "../../content/radar-snapshot-storage";
 import {recordAiHotspotPracticeTriggers,listAiHotspotPractices} from "./ai-hotspot-practice-store";
 import "server-only";
 
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { listRadarTimelinePage } from "./intelligence-read-model";
 import { getTodayIntelligenceSignalReadiness } from "./today-intelligence-readiness";
 import { listSourceRuntimeSummary } from "./source-runtime-operations";
@@ -130,6 +131,16 @@ function cacheSnapshot(snapshot: RadarSnapshot) {
 
 export async function refreshRadarSnapshot() {
   const snapshot = await buildRadarSnapshot();
+  // Only the SYSTEM refresh path writes observations; ordinary page reads remain read-only.
+  if(snapshot.items.length)await getDatabase().transaction(async tx=>{
+   const rows=await tx.select({id:contentEvents.id,metadata:contentEvents.metadata}).from(contentEvents).where(inArray(contentEvents.id,snapshot.items.map(i=>i.eventId))).for('update');
+   const changes=rows.flatMap(event=>{
+    const item=snapshot.items.find(i=>i.eventId===event.id)!,meta=(event.metadata??{}) as Record<string,unknown>,m=item.topicMomentum;
+    const history=appendMomentumHistory(meta.topicMomentumHistory,{at:snapshot.generatedAt,version:m.version,inputVersion:item.momentumInputVersion,algorithmRevision:snapshot.algorithmRevision,score:m.score,participantCount:m.independentParticipantCount,components:{participantActivity:m.participantActivity,decayFactor:m.decayFactor,activeDayCount:m.activeDayCount,creatorCount:m.creatorCount,practicalTypes:m.practicalTypes}});
+    return JSON.stringify(history)===JSON.stringify(meta.topicMomentumHistory)?[]:[{id:event.id,history}];
+   });
+   if(changes.length)await tx.execute(sql`update content_events e set metadata=jsonb_set(e.metadata,'{topicMomentumHistory}',p.history,true) from jsonb_to_recordset(${JSON.stringify(changes)}::jsonb) as p(id text,history jsonb) where e.id=p.id`);
+  });
   const storedPayload = compactRadarSnapshot(snapshot);
   const generatedAt = new Date(snapshot.generatedAt);
   await getDatabase()

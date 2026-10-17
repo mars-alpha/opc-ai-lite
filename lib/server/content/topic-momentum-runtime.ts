@@ -116,6 +116,9 @@ async function calculateEventRuntimeEvidence(event: typeof contentEvents.$inferS
     .select({
       title: contentRawItems.title,
       sourceId: contentRawItems.sourceId,
+      canonicalUrl:contentSources.canonicalUrl,
+      originalUrl:contentRawItems.originalUrl,
+      sourceMetadata:contentSources.metadata,
       sourceType: contentSources.sourceType,
       sourceName: contentSources.name,
       platform: contentRawItems.platform,
@@ -156,13 +159,13 @@ async function calculateEventRuntimeEvidence(event: typeof contentEvents.$inferS
 
 export function topicMomentumDueCondition(now: Date) {
   const cutoff = new Date(now.getTime() - TOPIC_MOMENTUM_MAX_AGE_HOURS * 3_600_000);
-  return and(isNull(contentEvents.archivedAt), gte(contentEvents.firstSeenAt, cutoff),
+  return and(isNull(contentEvents.archivedAt), gte(contentEvents.lastSeenAt, cutoff),
       sql`(${contentEvents.metadata} #> '{eventPolicy,aiRelevant}') is distinct from 'false'::jsonb`,
       sql`(${contentEvents.metadata} #> '{eventPolicy,operationalUsefulness,eligible}') is distinct from 'false'::jsonb`,
       sql`(
         (${contentEvents.metadata} #>> '{topicMomentumRuntime,version}') is distinct from ${TOPIC_MOMENTUM_RUNTIME_VERSION}
         or (
-          (${contentEvents.metadata} #>> '{topicMomentumRuntime,status}') is distinct from 'EXPIRED'
+          ((${contentEvents.metadata} #>> '{topicMomentumRuntime,status}') is distinct from 'EXPIRED' or ${contentEvents.lastSeenAt} > coalesce((${contentEvents.metadata} #>> '{topicMomentumRuntime,lastFollowUpAt}')::timestamptz, '-infinity'::timestamptz))
           and (
             coalesce(${contentEvents.metadata} #>> '{topicMomentumRuntime,nextFollowUpAt}', '') !~ '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$'
             or (${contentEvents.metadata} #>> '{topicMomentumRuntime,nextFollowUpAt}') <= ${now.toISOString()}

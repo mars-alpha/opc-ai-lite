@@ -1,5 +1,5 @@
 import { CORE_ENTITY_SEEDS } from "../../content/intelligence-policy";
-import { canonicalHotParticipantName } from "./topic-momentum";
+import { canonicalHotParticipantName } from "./participant-name";
 
 export const PARTICIPANT_IDENTITY_VERSION = "participant-identity-v1-owner-account-publisher";
 
@@ -39,6 +39,15 @@ export type ResolvedParticipantIdentity = {
   resolutionBasis: string;
   confidence: number;
 };
+
+/** Transport sources cannot turn an official self-test into an independent test. */
+export function isIndependentTestPublisher(input:ParticipantIdentityInput&{originalUrl?:string|null}){
+ const resolved=resolveParticipantIdentity(input);
+ if(resolved.role!=='EDITORIAL'||['OFFICIAL','RESEARCH'].includes(input.sourceType.toUpperCase())||resolved.ownerEntityId)return false;
+ if(sourceOwnerByDomain({...input,canonicalUrl:input.originalUrl}))return false;
+ const name=canonicalHotParticipantName(resolved.participantName??input.sourceName);
+ return !CORE_ENTITY_SEEDS.some(entity=>canonicalHotParticipantName(entity.canonicalName)===name);
+}
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -92,6 +101,8 @@ export function resolveParticipantIdentity(input: ParticipantIdentityInput): Res
   const role = roleFor(input);
   if (role === "ISOLATED") return { version:PARTICIPANT_IDENTITY_VERSION, participantKey:null, participantName:null, participantType:null, ownerEntityId:null, accountId:null, platform:input.platform, role, resolutionBasis:"EXPLICIT_ISOLATED", confidence:100 };
 
+  const creatorId=text(record(input.sourceMetadata).creatorIdentityId||record(input.sourceMetadata).crossPlatformCreatorId);
+  if(creatorId&&role==='EDITORIAL')return {version:PARTICIPANT_IDENTITY_VERSION,participantKey:'creator:'+normalize(creatorId),participantName:input.author||input.sourceName,participantType:'CREATOR_ACCOUNT',ownerEntityId:null,accountId:accountIdentity(input),platform:input.platform,role,resolutionBasis:'EXPLICIT_CROSS_PLATFORM_CREATOR',confidence:100};
   const origin = originPublisher(input);
   if ((input.referenceOnly || input.signalOnly) && !origin && !input.author) {
     const name = canonicalHotParticipantName(input.sourceName || input.sourceId);

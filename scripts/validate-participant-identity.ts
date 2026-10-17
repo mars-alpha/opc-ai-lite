@@ -1,4 +1,4 @@
-import { resolveParticipantIdentity } from "../lib/server/content/participant-identity";
+import { resolveParticipantIdentity,isIndependentTestPublisher } from "../lib/server/content/participant-identity";
 function assert(condition: unknown, code: string): asserts condition { if (!condition) throw new Error(code); }
 const officialBlog=resolveParticipantIdentity({sourceId:"openai-blog",sourceType:"OFFICIAL",sourceName:"OpenAI",platform:"WEB",canonicalUrl:"https://openai.com/news/",metadata:{},sourceMetadata:{}});
 const officialOther=resolveParticipantIdentity({sourceId:"openai-x",sourceType:"SOCIAL",sourceName:"OpenAI X",platform:"X",canonicalUrl:"https://openai.com/",author:"OpenAI",metadata:{},sourceMetadata:{}});
@@ -10,3 +10,5 @@ const syndicatedA=resolveParticipantIdentity({sourceId:"brand-a",sourceType:"MED
 const aggregator=resolveParticipantIdentity({sourceId:"aihot",sourceType:"MEDIA",sourceName:"AI HOT",platform:"AI_HOT",author:"The Verge RSS",metadata:{originPublisher:"The Verge"},sourceMetadata:{},referenceOnly:true,signalOnly:true,resolvedOriginPublisher:true});assert(aggregator.participantKey==="publisher:the verge","AGGREGATOR_RESOLVED_ORIGIN");assert(aggregator.role==="EDITORIAL","AGGREGATOR_ORIGIN_EDITORIAL");
 const unresolved=resolveParticipantIdentity({sourceId:"trend",sourceType:"SOCIAL",sourceName:"Trend Signal",platform:"TREND",metadata:{},sourceMetadata:{},referenceOnly:true,signalOnly:true});assert(unresolved.role==="SIGNAL","UNRESOLVED_SIGNAL_ROLE");assert(unresolved.participantType==="SIGNAL_SOURCE","UNRESOLVED_SIGNAL_TYPE");
 console.log(JSON.stringify({task:"AIHOT-HOT-HEAT-SHADOW-002-B",officialCrossChannel:true,mediaPublisher:true,creatorAccount:true,communityAccount:true,parentPublisher:true,resolvedAggregator:true,status:"PASS"},null,2));
+assert(!isIndependentTestPublisher({sourceId:'agg',sourceName:'AI HOT',sourceType:'MEDIA',platform:'WEB',referenceOnly:true,metadata:{originPublisher:'OpenAI'},originalUrl:'https://openai.com/test'}),'OFFICIAL_REPOST_NOT_INDEPENDENT_TEST');
+assert(isIndependentTestPublisher({sourceId:'author',sourceName:'Independent Author',sourceType:'DEVELOPER',platform:'WEB',author:'Independent Author',originalUrl:'https://independent.example/test'}),'ACTUAL_INDEPENDENT_AUTHOR_CAN_TEST');
