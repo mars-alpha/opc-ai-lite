@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OPC · 开发任务管理器</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<header><div class="brand"><span class="mark">O</span><div><strong>开发任务管理器</strong><small>OPC AI / 独立项目控制台</small></div></div><div class="actions"><label><input type="checkbox" id="auto" checked> 自动刷新</label><button id="refresh">刷新数据</button><button id="export">导出快照 ↗</button></div></header>
+<main>
+<section class="intro"><div><span class="eyebrow">DEVELOPMENT OVERVIEW</span><h1>把当前工作，看清楚。</h1><p>任务进展、实际阻塞与发布边界，来自同一套项目事实。</p></div><div class="readout"><span class="live-dot"></span><span id="updated">正在读取仓库…</span><small>本机独立运行 · 不接入业务前后台</small></div></section>
+<div id="error" role="alert" hidden></div>
+<section aria-label="任务概况" id="metrics" class="metrics"></section>
+<section class="panel version-panel"><div class="section-head"><div><span class="eyebrow">RELEASE MAP</span><h2>开发与上线版本</h2></div><span class="muted">部署记录 ≠ 实时生产探测</span></div><div id="versions" class="versions"></div></section>
+<div class="work-head"><nav aria-label="工作视图"><button class="tab active" data-view="tasks">任务列表 <span id="task-count"></span></button><button class="tab" data-view="ai">AI 推进分析</button><button class="tab" data-view="governance">项目治理 <span id="hint-count"></span></button><button class="tab" data-view="sources">事实来源</button></nav><span id="scan" class="muted"></span></div>
+<section id="ai-view" hidden><div class="panel ai-intro"><div><span class="eyebrow">AI DEVELOPMENT ASSISTANT</span><h2>先做什么，为什么，如何交给 Codex。</h2><p>按任务依赖与处理优先级给出顺序，解释未部署和治理原因，生成可直接使用的推进 Prompt。</p><p class="explain">点击一次调用现有 DeepSeek 一次；只发送最小任务、版本与治理证据，不发送密钥、环境文件、代码全文或本地备注。</p><small id="ai-config" class="muted">正在检查现有模型配置…</small></div><button id="analyze">开始 AI 分析</button></div><p id="ai-status" role="status" class="explain"></p><div id="ai-result"></div></section>
+<section id="tasks-view"><div class="filters"><label class="search-label">搜索任务<input id="search" type="search" placeholder="搜索目标、阻塞、下一步…"></label><label>计划范围<select id="section"><option value="">全部范围</option><option>NOW</option><option>NEXT</option><option>BACKLOG</option></select></label><label>任务状态<select id="status"><option value="">全部状态</option><option value="active">进行中</option><option value="blocked">已阻塞</option><option value="review">待体验审核</option><option value="observing">持续观察</option><option value="planned">计划中</option><option value="done">已完成记录</option></select></label><label>部署情况<select id="deployment"><option value="">全部部署情况</option><option value="not_deployed">明确未部署</option><option value="deployed">已有部署记录</option><option value="mixed">部分部署 / 混合记录</option><option value="unknown">未明确登记</option></select></label><button id="reset">重置</button></div><p class="explain">按原文推导阶段，不编造完成百分比。展开任务可核对进度证据、来源及本地补充。</p><div id="tasks" class="task-grid"></div></section>
+<section id="governance-view" hidden><div class="panel governance-intro"><div><h2>让旧资产退出，让当前事实清晰。</h2><p>这里只提供复核建议。隐藏或清除提示不会删除文件，也不会改写正式任务。</p></div><div class="actions"><label><input type="checkbox" id="show-hidden"> 显示已隐藏</label><button id="restore">恢复全部提示</button></div></div><p id="scan-scope" class="explain"></p><div id="governance" class="hint-list"></div></section>
+<section id="sources-view" hidden><div class="panel"><h2>唯一事实源</h2><p class="explain">更新任务请修改 TASKS.md；部署记录请修改 CURRENT_SYSTEM_FACTS.md。本工具只做投影，不维护第二套任务状态。</p><div id="sources"></div></div></section>
+<footer><span>OPC / LOCAL DEVELOPMENT TOOLS</span><span>任务原文为准 · 未知明确标注 · 治理可追溯</span></footer>
+</main><div id="toast" role="status" hidden></div>
+</body></html>
