@@ -45,3 +45,5 @@ IMPLEMENTED / ENGINEERING_PASS；DEPLOYMENT_BLOCKED；QUALITY_NOT_ACCEPTED / REL
 治理：原文/动量/候选/报告/缺口/分层验收规则归入既有COLLECTION_ARCHITECTURE_CONTRACT，实现定位归COLLECTION_IMPLEMENTATION_MAPPING；修正生产热点版本旧描述和旧质量回放“达标”字段；已完成去重发布、采集频率、算法配置三份一次性计划移出current tree，由Git追溯；PROJECT_STATUS只留当前关键代码指纹。并行任务的tools/task-manager与其owner说明保留，不混入本提交。
 
 部署阻断：自动审批两次拒绝scp上传（先全源码候选、再仅本任务业务/测试增量，均未发送成功）；拒绝理由是现有总体上线授权未被识别为对具体源码载荷和外部IP 1.14.180.16的明确授权。第二次增量已扫描无配置secret/私钥，不包含env、数据库或tools；仍被拒。不得通过SSH stdin/Git拉取或其他通道绕过。当前生产Web/SYSTEM/Relay未变；隔离Linux build、生产备份/切换、认证接口/真实周期验收及观察必须在具体上传授权后继续。Git同步单独执行，不等同部署。
+
+Git：业务提交a41c265已保存在本地codex/collection-quality-feedback，未推送。首次push被审批要求核验目的地；只读核验gh账号mars-alpha、origin mars-alpha/opc-ai-lite且viewerPermission=ADMIN后，原push重试获准，但github.com:443实际连接失败（只读ls-remote同样失败）。未通过API/其他通道替代推送，后续网络恢复后继续既有origin同步。本轮最终部署准备包包含35个业务/测试文件，不含环境/数据库/并行工具；Secret扫描0，未再次尝试上传。
