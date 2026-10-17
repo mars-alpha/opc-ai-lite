@@ -4,11 +4,11 @@
 
 ## 1. 当前产品阶段
 
-- 当前工作区新增事件时间/统一身份、Topic Momentum v9与实际评分历史、aiPracticeCandidate、event-value-analysis v1暂存报告、event-discovery-plan v1缺口计划，未部署。本地构建及开发PG/mock事务验收已通过；自动审批两次拒绝向现役腾讯云1.14.180.16上传源码，生产无切换。新任务开关默认关闭，无本轮真实付费模型调用。实现定位见COLLECTION_IMPLEMENTATION_MAPPING，验收/待办见当前计划与TASKS；完整质量仍NOT_ACCEPTED / RELEASE_NOT_READY。
+- 事件时间/统一身份、Topic Momentum v9与实际评分历史、aiPracticeCandidate、event-value-analysis v1暂存报告、event-discovery-plan v1缺口计划已同版部署Web/SYSTEM，代码基线a41c265，生产前UUID历史写入修复db1f7d0。用户已明确授权35份业务/测试载荷与现役1.14.180.16目的地；原上传审批阻断已解除。五项AI开关off，无本轮真实付费模型调用。实现定位见COLLECTION_IMPLEMENTATION_MAPPING；完整质量仍NOT_ACCEPTED / RELEASE_NOT_READY。
 
-- 2026-10-17用户明确授权生产上线与Git同步，P4确定性事件/材料链、栏目算法配置与图表、来源采集频率、同版本发布去重和Radar精简列表/按需详情已同版部署。Node/SYSTEM为p4-radar；Deno生产为`relay-radar-materials-v17`（revision `6wexxr6b40np`，预览验证`ktmnn7y62fa0`），协议仍为public-source-routes-v3 / public-practice-routes-v5。watchlist/author v1、public sources v2、机器准入on；理解/关系/表达三项AI开关off，Brave/GitHub Release新路径未启用，本轮真实付费模型调用为0。完整栏目质量仍NOT_ACCEPTED / RELEASE_NOT_READY。
+- 现役保留P4确定性事件/材料链、栏目算法配置与图表、来源采集频率、同版本发布去重及Radar精简列表/按需详情。Deno生产仍为`relay-radar-materials-v17`（revision `6wexxr6b40np`），协议仍为public-source-routes-v3 / public-practice-routes-v5；本轮未修改Relay。watchlist/author v1、public sources v2、机器准入on；Brave/GitHub Release新路径未启用。
 
-- Pixaroma作者站固定材料Provider已发布至Deno生产Relay（当前Relay版本见本节首段）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面与实践分类现已同版发布。验收结果见TASKS。
+- Pixaroma作者站固定材料Provider已发布至Deno生产Relay（当前Relay版本见本节）；腾讯云生产SYSTEM已独立发布材料增量并登记单一作者Source，生产实采及即时幂等通过。现有唯一timer继续负责调度，资格仍CONDITIONAL，长期观察未完成。无发布日期材料只保存Raw/Observation，不生成当前Event；开发既有聚合作者参考关联creatorSourceId。Web/P0界面与实践分类现已同版发布。验收结果见TASKS。
 - 其他公开作者候选的核验元数据保存在Raw.creatorReview并审计；生产代码阻断需登录/关注/人工会话的路由和材料。固定Comfy正文/B站匿名字幕及ZIP逐篇说明适配器，已部署腾讯云SYSTEM与Deno生产并验证重复Raw回执持久化；通用正文/字幕覆盖缺口仍存在，不把搜索描述或共享安装步骤当全文。验收明细见TASKS。
 
 
@@ -18,7 +18,7 @@
 - 正式生产闭环固定为：`Source Management → SYSTEM Collection → Raw/Observation → Dedup → Event/Evidence → Source-managed Discovery Expansion → Practical Evidence → AI Hotspot Practice / Topic Momentum / Curation → Radar Snapshot → 热点追踪`。
 - Discovery Expansion证据刷新owner为 `refreshSourceManagedEventExpansion`，消费current Source已采Raw；168h bounded，成功6h cooldown、失败1h retry，不自动调用AI。生产代码支持已管理搜索Source的有界实践参考发现，详细边界见采集架构合同“实践主题与汇总内容边界”；生产来源是否可执行仍由现有资格与opt-in决定。
 - 精选 owner 为 `bole-daily-curation-v6-recall-balanced`：Hard Gate 保持 AI relevance + ≤72h + CONFIRMED_OFFICIAL/CONFIRMED_MEDIA + MAJOR/NORMAL；在不降低事实门槛的前提下，提高 Freshness / Evidence Quality / Importance 权重，降低 Practical / Independence / Corroboration 对新近单源官方更新的早期惩罚；FEATURED≥66；TOP_PICK≥78 且要求更强 value/evidence gate。
-- 生产热点为`topic-momentum-v8-linked-discussion`；工作区v9尚未发布。算法规则唯一见采集架构合同§10，代码定位见实现映射；生产与工作区版本不得混记。
+- 生产热点为`topic-momentum-v9-signal-time-identity`，原文投影为`event-story-read-model-v2-evidence-time`，SYSTEM为`server-native-automatic-cycle-v16-event-value-gap`。实际评分历史只记录真实观测，不伪造七日回填；算法规则唯一见采集架构合同§10，代码定位见实现映射。
 - AI HOT 当前是 Source Directory 中一个 Aggregated Discovery Source（`source_radar_ai_hot`），通过 PUBLIC_JSON_API 进入 SYSTEM Collection；`factualSource=false / signalSource=true / referenceOnly=true`。AI HOT 与直连原站共享 originPublisher 去重，不取得 Fact Authority，也不拥有独立采集入口。
 - 国内综合热点仍由单一 `source_radar_dailyhot_domestic` 承载，不把 DailyHot 子 Route 拆成多个 Source Identity。
 - Current SYSTEM Source 数量和健康状态以 Source Directory / recent SYSTEM Run 实时读取为准，不保留固定数量或过期全绿结论；Qualification 仍以 recent N runs first 保守治理。
@@ -44,11 +44,13 @@ Production OS         Ubuntu 22.04
 Production server     Tencent Cloud 2C2G / 40G
 ```
 
-采集部署：腾讯云唯一opc-collection.timer使用每分钟calendar tick，SYSTEM按Source已保存间隔及现役治理有效间隔判定到期，未到期不采；不改变资格/Route。current指向`/opt/opc-services/opc-collection-runtime/releases/20261017-p4-radar`；CPU50%、MemoryMax512M。Web为`/opt/opc-services/opc-admin-web-p4-radar-20261017`，root PM2 opc-ai运行并保存，Node堆512MB；Web/SYSTEM的821个候选源码文件SHA256一致。root600配置为`/var/www/opc-ai/.env.local`；公网健康200、匿名管理API401，timer enabled/active。Deno只做无状态海外获取。
+采集部署：腾讯云唯一opc-collection.timer仍为每分钟calendar tick，SYSTEM按Source保存间隔及治理有效间隔判定到期；current指向`/opt/opc-services/opc-collection-runtime/releases/20261017-event-value-a41c265`，CPU50%、MemoryMax512M。Web为`/opt/opc-services/opc-admin-web-event-value-20261017-a41c265`，root PM2 opc-ai已保存、Node堆512MB。a41c265的35个业务/测试文件上传SHA256核对通过；隔离验证另补5份同提交治理文档，db1f7d0更新其中2个业务/测试文件；最终841个源码文件Web/SYSTEM SHA256一致。root600配置仍为`/var/www/opc-ai/.env.local`，理解/关系/表达/价值报告/缺口计划五开关均off。正式入口https://opcai.fun/为200，匿名管理API401，timer enabled/active；直接IP无Host匹配的404不是正式域名健康结果。
 
-数据库迁移history仍40条，本轮无新增迁移，只读预检pending=[]、运行角色非superuser。发布前备份`/var/backups/opc-ai-db/opc_ai_prod_pre_p4_radar_20261017.dump`已通过pg_restore --list校验。同版回退为旧Web `opc-admin-web-p3-gap-fix-20261016` 与SYSTEM `releases/20261016-p3-gap-fix`，受保护配置位于`/etc/opc-ai/p4-radar-rollback.config.cjs`、`p4-radar-pre-release.env.backup`与`p4-radar-pre-release.timer`；Relay前版revision为`0rmfttv53pc6`。备份和配置均不进入Git。
+数据库迁移history仍40条，本轮无Schema/迁移变更。发布前57,384,180字节备份`/var/backups/opc-ai-db/opc_ai_prod_pre_event_value_20261017_a41c265.dump`已通过pg_restore --list校验；同版回退为旧Web `opc-admin-web-p4-radar-20261017`与SYSTEM `releases/20261017-p4-radar`。受保护配置位于`/etc/opc-ai/event-value-rollback.config.cjs`、`event-value-pre-release.env.backup`与`event-value-pre-release.timer`；备份/凭据不进入Git。
 
-生产实测（2026-10-17 15:14–15:16北京时间）：同版本发布定向补聚类selected30/reconciled11/alreadyCurrent19，failed/deferred=0，截图Gemini发布/渠道报道合为7篇报道主事件；教程/评测和普通评论仍独立。快照480 Event、热点6、练习0，数量仅为该次观察，不代表质量通过。认证接口compact约8.88MB/661ms，listing约2.48MB/145ms，负载减少72%；完整详情约15KB/52ms，与原story深比较通过。匿名401、非法详情400、缺失404，频率45源/统计/算法接口200。最终Linux build与86项quick/typecheck通过；首次真实SYSTEM周期15:15:46成功，后续15:16:45周期failures=[]并正常退出，无内存终止。该短期观察不替代7–14日持续质量验收。
+生产实测（2026-10-17 16:24–16:27北京时间）：Linux生产构建、91项quick回归/typecheck、隔离PG报告/缺口/表达/归并及UUID历史写库验收通过。UUID新断言先失败后通过，同时验证六小时幂等与其他metadata保留；完整隔离快照刷新networkCalls=0。实际SYSTEM前两轮分别于16:25:00、16:25:49成功结束，均failures=[]、报告/缺口DISABLED，无内存终止；生产记录487个事件真实评分历史。该次快照487 Event、热点10、精选50、练习0，只是运行计数，不代表质量达标。认证接口compact约14.16MB/401ms，listing约2.63MB/179ms，减少81%；完整详情约7.6KB/81ms，与快照story深比较通过，模式OBSERVED_HISTORY。匿名401、非法400、缺失404；来源频率/统计/算法及暂存报告只读API200。正式域名公网TLS首页200、匿名管理401。正常配置72h稳定观察自16:24切换起算，7–14日效果与独立质量样本仍未完成。
+
+业务提交a41c265、db1f7d0已同步origin的`codex/collection-quality-feedback`；HTTPS Git连接超时后，使用已核验本人ADMIN仓库的GitHub Git API，逐项核对blob/tree/commit SHA后非强制快进，保留原提交ID。本轮隔离候选与8份临时上传已删除；最终构建/91项回归日志、原始增量及发布哈希/周期回执保留在`/opt/opc-services/opc-event-value-stage-20261017-a41c265/artifacts`。已完成实施计划退出current tree，由Git追溯；并行开发工具改动未混入本轮业务提交。
 
 新增UI提供过实际暂存操作体验；本轮用户授权上线，不另记为USER_APPROVED。完整质量、连续发现延迟和真实AI效果仍待独立验收。
 
