@@ -14,6 +14,7 @@ import {validateEventGapOutput} from '../lib/server/content/event-gap-policy';
 import {SOURCE_ONBOARDING_VERSION} from '../lib/server/content/source-onboarding';
 import {INTELLIGENCE_POLICY_VERSION} from '../lib/content/intelligence-policy';
 import {VALUE_SECTIONS} from '../skills/event-value-analysis/v1';
+import {recordRadarMomentumHistory} from '../lib/server/content/radar-snapshot';
 loadEnvConfig(process.cwd());
 async function main(){
  assert(process.argv.includes('--confirm=EVENT-VALUE-DEVELOPMENT'));assert.equal(assertCurrentDatabaseTarget().environment,'development');
@@ -43,6 +44,12 @@ async function main(){
    await db.insert(raws).values({id:rawId,sourceId,platform:'WEB',title,excerpt,originalUrl:'https://openai.com/'+token,contentHash:token,publishedAt:date,collectedAt:date,metadata:{collectionOrigin:'SYSTEM',contentType:'OFFICIAL_ANNOUNCEMENT',bodyText:body,publicContentReceipt:{url:'https://openai.com/'+token,status:200,anonymous:true,serverFetched:true,complete:true,kind:'BODY',observedAt:date.toISOString()}}});
    await db.insert(observations).values({rawItemId:rawId,sourceId,platform:'WEB',observedAt:date,metadata:{collectionOrigin:'SYSTEM'}});
    await db.insert(links).values({eventId,rawItemId:rawId});
+   const historySnapshot={generatedAt:date.toISOString(),algorithmRevision:'fixture-history',items:[{eventId,momentumInputVersion:'fixture-input',topicMomentum:{version:'fixture-momentum',score:13,independentParticipantCount:1,participantActivity:0.5,decayFactor:0.5,activeDayCount:1,creatorCount:0,practicalTypes:[]}}]};
+   await recordRadarMomentumHistory(historySnapshot);await recordRadarMomentumHistory(historySnapshot);
+   const [withHistory]=await db.select({metadata:events.metadata}).from(events).where(eq(events.id,eventId));
+   const history=(withHistory.metadata as any).topicMomentumHistory;
+   assert.equal(history.length,1,'same six-hour slot is idempotent');assert.equal(history[0].score,13);assert.equal(history[0].inputVersion,'fixture-input');assert.deepEqual((withHistory.metadata as any).eventPolicy,policy,'history must preserve other metadata');
+   console.log('RADAR_MOMENTUM_UUID_HISTORY_PG=PASS');
    const context=await loadEventValueContext(db,eventId,new Date());assert(context,'official complete material triggers featured brief');
    assert.equal(context.memberIds.length,2);assert.equal(await loadEventValueContext(db,eventId,new Date(date.getTime()-1000)),null,'asOf excludes future-created evidence and members');
    process.env.OPC_COLLECTION_EVENT_VALUE='off';assert.equal((await invoke()).status,'DISABLED');assert.equal(calls,0);

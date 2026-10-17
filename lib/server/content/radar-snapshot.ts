@@ -129,9 +129,10 @@ function cacheSnapshot(snapshot: RadarSnapshot) {
   return promise;
 }
 
-export async function refreshRadarSnapshot() {
-  const snapshot = await buildRadarSnapshot();
-  // Only the SYSTEM refresh path writes observations; ordinary page reads remain read-only.
+export async function recordRadarMomentumHistory(snapshot: {
+ generatedAt:string;algorithmRevision:string|number;
+ items:Array<{eventId:string;momentumInputVersion:string;topicMomentum:{version:string;score:number;independentParticipantCount:number;participantActivity:number;decayFactor:number;activeDayCount:number;creatorCount:number;practicalTypes:unknown}}>;
+}) {
   if(snapshot.items.length)await getDatabase().transaction(async tx=>{
    const rows=await tx.select({id:contentEvents.id,metadata:contentEvents.metadata}).from(contentEvents).where(inArray(contentEvents.id,snapshot.items.map(i=>i.eventId))).for('update');
    const changes=rows.flatMap(event=>{
@@ -139,8 +140,14 @@ export async function refreshRadarSnapshot() {
     const history=appendMomentumHistory(meta.topicMomentumHistory,{at:snapshot.generatedAt,version:m.version,inputVersion:item.momentumInputVersion,algorithmRevision:snapshot.algorithmRevision,score:m.score,participantCount:m.independentParticipantCount,components:{participantActivity:m.participantActivity,decayFactor:m.decayFactor,activeDayCount:m.activeDayCount,creatorCount:m.creatorCount,practicalTypes:m.practicalTypes}});
     return JSON.stringify(history)===JSON.stringify(meta.topicMomentumHistory)?[]:[{id:event.id,history}];
    });
-   if(changes.length)await tx.execute(sql`update content_events e set metadata=jsonb_set(e.metadata,'{topicMomentumHistory}',p.history,true) from jsonb_to_recordset(${JSON.stringify(changes)}::jsonb) as p(id text,history jsonb) where e.id=p.id`);
+   if(changes.length)await tx.execute(sql`update content_events e set metadata=jsonb_set(e.metadata,'{topicMomentumHistory}',p.history,true) from jsonb_to_recordset(${JSON.stringify(changes)}::jsonb) as p(id uuid,history jsonb) where e.id=p.id`);
   });
+}
+
+export async function refreshRadarSnapshot() {
+  const snapshot = await buildRadarSnapshot();
+  // Only the SYSTEM refresh path writes observations; ordinary page reads remain read-only.
+  await recordRadarMomentumHistory(snapshot);
   const storedPayload = compactRadarSnapshot(snapshot);
   const generatedAt = new Date(snapshot.generatedAt);
   await getDatabase()
